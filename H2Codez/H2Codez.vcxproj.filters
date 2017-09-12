@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Game\H2Tool\BlamLibImports">
       <UniqueIdentifier>{daf8e8e0-7da1-49f3-9bbb-91adb88b3c71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GuerillaPatches">
+      <UniqueIdentifier>{a70f740b-2fff-4682-b725-1a1d6f10fe65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\common">
+      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -59,9 +65,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Patches.h">
-      <Filter>Source Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="H2Tool\H2Tool_Commands.h">
       <Filter>Source Files\Game\H2Tool</Filter>
     </ClInclude>
@@ -70,6 +73,12 @@
     </ClInclude>
     <ClInclude Include="SigScanning.h">
       <Filter>Source Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Guerilla.h">
+      <Filter>Source Files\GuerillaPatches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches.h">
+      <Filter>Source Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +96,12 @@
     </ClCompile>
     <ClCompile Include="h2codez.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Guerilla.cpp">
+      <Filter>Source Files\GuerillaPatches</Filter>
+    </ClCompile>
+    <ClCompile Include="patches.cpp">
+      <Filter>Source Files\common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

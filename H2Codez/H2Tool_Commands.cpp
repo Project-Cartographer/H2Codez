@@ -242,6 +242,8 @@ void H2Tool_Extras::enable_campaign_tags_sharing()
 void H2Tool_Extras::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
+	cout << "H2Toolz version 1.0 " << std::endl
+		 << "Build on " __DATE__ " at " __TIME__ << std::endl;
 
 	this->Increase_structure_size_Check();
 	this->AddExtraCommands();

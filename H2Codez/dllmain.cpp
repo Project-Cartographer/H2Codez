@@ -13,8 +13,6 @@ H2EK_Globals game;
 Logs pLog= Logs("H2Codez.log");
 Logs H2PCTool = Logs("Logs\\H2PCTool.log");
 
-H2Tool_Extras *tool = new H2Tool_Extras();
-
 
 BOOL EnableDbgConsole;
 
@@ -26,7 +24,7 @@ BOOL EnableDbgConsole;
 #pragma endregion
 
 
-
+/* dead code
 //Enable Hooking System
 void APPLYHOOKS()
 { 
@@ -70,6 +68,7 @@ DWORD WINAPI H2EK_Initz(LPVOID)
 		}
 	return 0;
 }
+*/
 
 DWORD WINAPI SigScanning(LPVOID)
 {
@@ -92,9 +91,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	{
 
 	case DLL_PROCESS_ATTACH:
-		CreateThread(NULL, NULL, &H2EK_Initz, NULL, NULL, &g_threadID);
-		//CreateThread(NULL, NULL, &SigScanning, NULL, NULL, &g_threadID);
-        
+		if (!H2Toolz::Init())
+			std::exit(0);     
 	    break;
 	
 	case DLL_PROCESS_DETACH:

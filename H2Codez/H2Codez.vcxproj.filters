@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Game">
+      <UniqueIdentifier>{000a5dc3-1dac-4abf-8c4e-fcd249be9a3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Debug">
+      <UniqueIdentifier>{57fe40d4-1b38-46bb-903c-5da08491c677}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\H2Tool">
+      <UniqueIdentifier>{e9bdf11d-b1b6-4c4c-8156-79df85f6dfca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\H2Tool\BlamLibImports">
+      <UniqueIdentifier>{daf8e8e0-7da1-49f3-9bbb-91adb88b3c71}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="H2Tool\H2Tool_extra_commands.inl">
+      <Filter>Source Files\Game\H2Tool</Filter>
+    </None>
+    <None Include="H2Tool\ToolCommandDefinitions.inl">
+      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+    </None>
+    <None Include="H2Tool\Sounds.inl">
+      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+    </None>
+    <None Include="H2Tool\LostToolCommands.inl">
+      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+    </None>
+    <None Include="H2Tool\Animations.inl">
+      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+    </None>
+    <None Include="Hs_Scripts.inl">
+      <Filter>Source Files\Game</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logs.h">
+      <Filter>Source Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches.h">
+      <Filter>Source Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Tool\H2Tool_Commands.h">
+      <Filter>Source Files\Game\H2Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="h2codez.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SigScanning.h">
+      <Filter>Source Files\Game</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Logs.cpp">
+      <Filter>Source Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool_Commands.cpp">
+      <Filter>Source Files\Game\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="h2codez.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

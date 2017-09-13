@@ -68,6 +68,6 @@ void H2GuerrilaPatches::Init()
 	DetourTransactionCommit();
 #pragma endregion
 
-	update_field_display();
 	memset(reinterpret_cast<void*>(0x9AF809), 1, 1); // set is_expert_mode to one
+	update_field_display();
 }

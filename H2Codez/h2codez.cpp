@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "H2Guerilla.h"
+#include "H2Sapien.h"
 
 char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length)
 {
@@ -51,19 +52,20 @@ bool H2Toolz::Init()
 	{
 		H2Tool_Extras *tool = new H2Tool_Extras();
 		tool->Initialize();
-		break;
+		return true;
 	}
 	case H2EK::H2Guerilla:
 	{
 		H2GuerrilaPatches::Init();
-		break;
+		return true;
+	}
+	case H2EK::H2Sapien:
+	{
+		H2SapienPatches::Init();
+		return true;
 	}
 	case H2EK::Invalid:
 		MessageBoxA(0, "H2toolz loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
 		return false;
-	default:
-		// todo sapian
-		break;
 	}
-	return true;
 }

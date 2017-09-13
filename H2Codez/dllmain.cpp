@@ -6,6 +6,7 @@
 #pragma region declarations
 
 DWORD g_threadID;
+HMODULE g_hModule;
 
 Debug Dbg;
 H2EK_Globals game;
@@ -91,6 +92,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	{
 
 	case DLL_PROCESS_ATTACH:
+		g_hModule = hModule;
 		if (!H2Toolz::Init())
 			std::exit(0);     
 	    break;

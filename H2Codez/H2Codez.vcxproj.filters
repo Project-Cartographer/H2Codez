@@ -31,6 +31,9 @@
     <Filter Include="Source Files\common">
       <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\SapianPatches">
+      <UniqueIdentifier>{10ebca88-c11d-4e9b-97e2-3431b0c70444}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -80,6 +83,9 @@
     <ClInclude Include="Patches.h">
       <Filter>Source Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="H2Sapien.h">
+      <Filter>Source Files\SapianPatches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -103,5 +109,13 @@
     <ClCompile Include="patches.cpp">
       <Filter>Source Files\common</Filter>
     </ClCompile>
+    <ClCompile Include="H2Sapien.cpp">
+      <Filter>Source Files\SapianPatches</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="H2Sapien.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

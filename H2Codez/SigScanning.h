@@ -9,7 +9,7 @@
 MODULEINFO GetModeuleInfo(char* szModule)
 {
 	MODULEINFO p = { 0 };
-	HMODULE q = GetModuleHandle(szModule);
+	HMODULE q = GetModuleHandleA(szModule);
 	if (q == 0)
 	{
 		pLog.WriteLog("Process Not Found ");

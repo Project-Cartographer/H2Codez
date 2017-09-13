@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "H2Guerilla.h"
 
 char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length)
 {
@@ -19,4 +20,50 @@ BYTE* reverse_addr(void* address)
 	DWORD c = (DWORD)address;
 	BYTE *f = (BYTE*)(&c);
 	return f;
+}
+
+H2EK H2Toolz::detect_type()
+{
+	if (GetModuleHandleW(L"h2Guerilla.exe"))
+	{
+		game.base = GetModuleHandleW(L"h2Guerilla.exe");
+		return H2EK::H2Guerilla;
+	}
+	else if (GetModuleHandleW(L"h2Sapien.exe"))
+	{
+		game.base = GetModuleHandleW(L"h2Sapien.exe");
+		return H2EK::H2Sapien;
+	}
+	else if (GetModuleHandleW(L"h2Tool.exe"))
+	{
+		game.base = GetModuleHandleW(L"h2Tool.exe");
+		return H2EK::H2Tool;
+	}
+	return H2EK::Invalid;
+}
+
+bool H2Toolz::Init()
+{
+	game.process_type = detect_type();
+
+	switch (game.process_type) {
+	case H2EK::H2Tool:
+	{
+		H2Tool_Extras *tool = new H2Tool_Extras();
+		tool->Initialize();
+		break;
+	}
+	case H2EK::H2Guerilla:
+	{
+		H2GuerrilaPatches::Init();
+		break;
+	}
+	case H2EK::Invalid:
+		MessageBoxA(0, "H2toolz loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
+		return false;
+	default:
+		// todo sapian
+		break;
+	}
+	return true;
 }

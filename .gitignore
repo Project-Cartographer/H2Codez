@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+
+.vs/*
+*.tlog
+H2Codez/Release/*
+*.VC.db
+*.VC.VC.opendb
+*.ipch
+*.pdb
+*.exp
+*.ipdb
+*.iobj

@@ -25,6 +25,8 @@ enum H2EK
 {
 	H2Tool,
 	H2Sapien,
+	H2Guerilla,
+	Invalid
 };
 class H2EK_Globals
 {
@@ -37,6 +39,14 @@ public:
 
 };
 extern H2EK_Globals game;
+
+class H2Toolz
+{
+public:
+	static bool Init();
+private:
+	static H2EK detect_type();
+};
 
 //as the functions says
 char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length);

@@ -20,6 +20,7 @@ typedef char long_string[255 + 1];
 #define WIN32_FUNC(func) func
 #define FLAG(bit)( 1<<(bit) )
 #define BOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
+#define TOOL_INCREASE_FACTOR 0x20
 
 enum H2EK
 {

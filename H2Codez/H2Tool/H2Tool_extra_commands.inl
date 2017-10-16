@@ -32,6 +32,13 @@ static const char* get_h2tool_version()
 	return get_h2tool_build_date();
 
 }
+static int __cdecl TAG_LOAD(int tag_type, cstring tags_directory, int a3)
+{
+	typedef int(_cdecl* _TAG_LOAD)(int,cstring,int);
+	static _TAG_LOAD TAG_LOAD_ = CAST_PTR(_TAG_LOAD, 0x533930);
+
+	return TAG_LOAD_(tag_type,tags_directory,a3);
+}
 
 #pragma region Notes on H2ToolDev_commands
 
@@ -41,7 +48,8 @@ static const char* get_h2tool_version()
 //There u will find these functions probably around 20 with some of them nulled out to do nothing
 //I myself couldn't understand how to use those functions after writing the codes to call them cuz i couldn't make out what do those take as a parameter
 //I can just assmume they were development functions used by Bungie or Hired Gun to perform Tag conversions(HCE->H2) or make their work easier
-//If u ever figure out how they work,Plz tell me too 
+//If u ever figure out how they work,Plz tell me too ///RIP THIS LINE
+//Finally Sorted out :)
 #pragma endregion 
 
 static DWORD GetH2Tool_Dev__by_name(wcstring function_name)
@@ -139,11 +147,14 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 		{
 
 			cstring f_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-			cstring f_default_filetype = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 8));
+			DWORD f_tag_type =  *(DWORD*)(TABLE_START + 8);
 
+			char f_parameter[MAX_PATH];		
+			wstring_to_string(f_parameter, sizeof(f_parameter), command_parameter_0, -1);
+			H2PCTool.WriteLog("Tag Type %X \n %s",f_tag_type,f_parameter);			
+			DWORD tag_index = TAG_LOAD(f_tag_type, f_parameter, 7);
 
-			//((void(__cdecl *)( wchar_t* , const wchar_t *))*(DWORD*)(TABLE_START+0x18))(L"Maps\mainmenu.map",command_parameter_0);// call Function via address
-
+			if(((char(__cdecl *)( wchar_t* ,int))*(DWORD*)(TABLE_START+0x18))(0, tag_index))// call Function via address			
 			return;
 			cstring f_description = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 4));
 			printf("\n  usage : %s\n  Description : %s\n", f_name, f_description);

@@ -11,7 +11,7 @@ Debug Dbg;
 H2EK_Globals game;
 
 Logs pLog= Logs("H2Codez.log");
-Logs H2PCTool = Logs("Logs\\H2PCTool.log");
+Logs H2PCTool = Logs("H2PCTool.log");
 
 
 BOOL EnableDbgConsole;

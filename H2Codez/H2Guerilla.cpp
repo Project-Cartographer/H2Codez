@@ -14,7 +14,7 @@ int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 
 void H2GuerrilaPatches::update_field_display()
 {
-	char *expert_mode = reinterpret_cast<char*>(0x9AF809);
+	char *expert_mode = CAST_PTR(char*,0x9AF809);
 	if (*expert_mode) {
 		// Display All Fields
 		NopFill(0x44CDAA, 0x8);
@@ -62,12 +62,12 @@ void H2GuerrilaPatches::Init()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	toggle_expert_mode_orginal = reinterpret_cast<toggle_expert_mode>(0x4024A0);
+	toggle_expert_mode_orginal = CAST_PTR(toggle_expert_mode,0x4024A0);
 	DetourAttach(&(PVOID&)toggle_expert_mode_orginal, toggle_expert_mode_hook);
 
 	DetourTransactionCommit();
 #pragma endregion
 
-	memset(reinterpret_cast<void*>(0x9AF809), 1, 1); // set is_expert_mode to one
+	memset(CAST_PTR(void*,0x9AF809), 1, 1); // set is_expert_mode to one
 	update_field_display();
 }

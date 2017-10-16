@@ -41,3 +41,5 @@ H2Codez/Release/*
 *.exp
 *.ipdb
 *.iobj
+*.opensdf
+*.sdf

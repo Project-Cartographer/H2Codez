@@ -59,15 +59,108 @@ void _H2ToolDetachHooks()
 	// DetourDetach(&(PVOID&)psquadsettings,h_SquadSettings);	
 	return;
 }
-
-void H2Tool_Extras::Increase_structure_size_Check()
+#pragma region structure_import Tweeks
+void H2Tool_Extras::Increase_structure_import_size_Check()
 {
+	//if ( FileSize.LowPart > 0x1400000 && !FileSize.HighPart )
+	 ///1400000h =  20971520 BYTES ~ 20 MB
 
-	BYTE Size_Patch[4] = { 0xF2,0xF2,0xF2,0x0F };
-	WriteBytesASM(0x41F83A, Size_Patch, 4);
+/*
+.text:0041F836 C90 cmp     dword ptr [esp+0C90h+FileSize], 1400000h ; Compare Two Operands <-Change This Size
+.text:0041F83E C90 jbe     loc_41F8D9                      ; Jump if Below or Equal (CF=1 | ZF=1)
+.text:0041F83E
+.text:0041F844 C90 cmp     dword ptr [esp+0C90h+FileSize+4], ebx ; Compare Two Operands
+.text:0041F848 C90 jnz     loc_41F8D9 
+*/
+
+
+	//increasing the 20 MB File Import Check
+	DWORD new_size = 0x1400000 * TOOL_INCREASE_FACTOR; ///671.08864 MB
+	BYTE* f = reverse_addr(CAST_PTR(void*, new_size));
+	BYTE Size_Patch[4] = { f[0],f[1],f[2],f[3]};
+	WriteBytesASM(0x41F836+4, Size_Patch, 4);
 
 }
+void H2Tool_Extras::structure_bsp_geometry_collision_check_increase()
+{
+//return collision_surfaces_count <= 0x7FFF && edges_count <= 0xFFFF && collision_vertices_count <= 0xFFFF;
+	///0x7FFF = 32767
+	///0xFFFF = 65535
+/*
+.text:005A2D50 000 cmp     [esp+collision_surfaces_count], 7FFFh ; Compare Two Operands
+.text:005A2D58 000 jg      short loc_5A2D6E                ; Jump if Greater (ZF=0 & SF=OF)
+.text:005A2D58
+.text:005A2D5A 000 mov     eax, 0FFFFh
+.text:005A2D5F 000 cmp     [esp+a2], eax 
+*/
+   //increasing the collision_surfaces_count
+	DWORD collision_surfaces_count = 0x7FFF * TOOL_INCREASE_FACTOR; ///1048576
+	BYTE* f = reverse_addr(CAST_PTR(void*, collision_surfaces_count));
+	BYTE collision_surfaces_count_Patch[4] = { f[0],f[1],f[2],f[3] };
 
+
+	//increasing the edges_vertices_count
+	DWORD edges_vertices_count = 0xFFFF * TOOL_INCREASE_FACTOR; ///2097120
+	f = reverse_addr(CAST_PTR(void*, edges_vertices_count));
+	BYTE edges_vertices_count_Patch[4] = { f[0],f[1],f[2],f[3] };
+
+	//Patching in Memory
+	WriteBytesASM(0x5A2D50 + 4, collision_surfaces_count_Patch, 4);
+	WriteBytesASM(0x5A2D5A + 1, edges_vertices_count_Patch, 4);
+
+	///Also Patching in the error_proc method incase we ever hit this Limit :)
+/*
+.text:00464C50 118 push    0FFFFh
+.text:00464C55 11C push    eax
+.text:00464C56 120 push    0FFFFh
+.text:00464C5B 124 push    ecx
+.text:00464C5C 128 push    7FFFh
+*/
+	WriteBytesASM(0x464C50 + 1, edges_vertices_count_Patch, 4);
+	WriteBytesASM(0x464C56 + 1, edges_vertices_count_Patch, 4);
+	WriteBytesASM(0x464C5C + 1, collision_surfaces_count_Patch, 4);
+
+
+}
+void H2Tool_Extras::structure_bsp_geometry_3D_check_increase()
+{
+	// return nodes_count < &unk_800000 && planes_count < 0x8000 && leaves_count < &unk_800000;
+	/// planes_count =0x8000 = 32768 
+/*
+.text:005A2CFB 000 cmp     [esp+planes_count], 32768       ; Compare Two Operands
+.text:005A2D03 000 jge     short loc_5A2D0E                ; Jump if Greater or Equal (SF=OF)
+.text:005A2D03
+*/
+	////increasing the planes_count Check
+	DWORD new_planes_count = 0x8000 *TOOL_INCREASE_FACTOR; ///1048576
+	BYTE* f = reverse_addr(CAST_PTR(void*, new_planes_count));
+	BYTE count_Patch[4] = { f[0],f[1],f[2],f[3] };
+	WriteBytesASM(0x5A2CFB+4, count_Patch, 4);
+
+
+}
+void H2Tool_Extras::structure_bsp_geometry_2D_check_increase()
+{
+/*
+.text:00464BA5 118 push    0        <- b_DONT_CHECK variable is set to false by default .Need to make it true
+.text:00464BA7 11C push    ecx
+.text:00464BA8 120 push    edx
+.text:00464BA9 124 call    collision_bsp_2d_vertex_check   ; Call Procedure
+*/
+	WriteBytesASM(0x464BA5 + 1, new BYTE{0}, 1);
+
+	//No Need to modify the Proc error here cuz it will never hit :)
+}
+
+void H2Tool_Extras::Increase_structure_bsp_geometry_check()
+{
+	H2PCTool.WriteLog("Increasing structure_bsp_geometry checks");
+	this->structure_bsp_geometry_2D_check_increase();
+	this->structure_bsp_geometry_3D_check_increase();
+	this->structure_bsp_geometry_collision_check_increase();
+}
+
+#pragma endregion
 
 #pragma region Shared_tag_removal_scheme
 //A reference to H2EK_OS tools SansSharing.inl
@@ -223,12 +316,15 @@ void H2Tool_Extras::enable_campaign_tags_sharing()
     void* BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE = CAST_PTR(void*, 0x58830A);
 	void* BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED = CAST_PTR(void*, 0x5883DE);
 
+	/*
 	//get_scenario_ Intercept codes
 	BYTE patch[1] = { 0xE8};
 
 	//Writing a call in memory to jmp to our function
 	WriteBytesASM((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, patch, 1);
 	PatchCall((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, (DWORD)_build_cache_file_for_scenario__intercept_get_scenario_type);//Writing the address to be jumped
+	*/
+	WriteJmpTo(BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, _build_cache_file_for_scenario__intercept_get_scenario_type);
 
 
 	//single_player_shared sharing
@@ -245,11 +341,13 @@ void H2Tool_Extras::Initialize()
 	cout << "H2Toolz version 1.0 " << std::endl
 		 << "Build on " __DATE__ " at " __TIME__ << std::endl;
 
-	this->Increase_structure_size_Check();
+	this->Increase_structure_import_size_Check();
+	this->Increase_structure_bsp_geometry_check();
 	this->AddExtraCommands();
 	this->unlock_other_scenario_types_compiling();
 	//this->enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
 	this->apply_shared_tag_removal_scheme();
+	
 
 }
 

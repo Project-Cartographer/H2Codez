@@ -61,5 +61,4 @@ using std::ofstream;
 
 
 // TODO: reference additional headers your program requires here
-
-
+extern HMODULE g_hModule;

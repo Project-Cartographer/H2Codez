@@ -117,5 +117,8 @@
     <ResourceCompile Include="H2Sapien.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="H2Guerilla.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

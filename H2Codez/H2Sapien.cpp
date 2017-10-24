@@ -14,13 +14,13 @@ bool __fastcall load_main_window_hook(int thisptr, int unused, int a2, int a3, i
 {
 	int menu_ptr = thisptr + 12;
 	HMENU menu = CAST_PTR(HMENU,menu_ptr);
-	menu = LoadMenu(g_hModule, MAKEINTRESOURCE(241));
+	menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	return load_main_window_orginal(thisptr, 0, a2, a3, a4, a5);
 }
 
 HWND __fastcall create_main_window_hook(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam)
 {
-	HMENU new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(241));
+	HMENU new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	return create_main_window_orginal(thisptr, 0, hWndParent, hMenu, lpWindowName, dwStyle, dwExStyle, new_menu, lpParam);
 }
 

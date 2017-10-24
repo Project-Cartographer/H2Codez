@@ -128,5 +128,5 @@ void H2GuerrilaPatches::Init()
 	memset(CAST_PTR(void*,0x9AF809), 1, 1); // set is_expert_mode to one
 	update_field_display();
 	toggle_display_templates();
-	main_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(GUERILLA_MENU));
+	main_menu = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));
 }

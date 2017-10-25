@@ -34,6 +34,9 @@
     <Filter Include="Source Files\Game\H2Sapien">
       <UniqueIdentifier>{be558aee-4175-471c-afac-82801a07f4b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Game\Common Patches">
+      <UniqueIdentifier>{fa4a8928-3838-40b7-8b15-0f517eb11655}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -86,6 +89,9 @@
     <ClInclude Include="H2Sapien.h">
       <Filter>Source Files\Game\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="H2ToolsCommon.h">
+      <Filter>Source Files\Game\Common Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -111,6 +117,9 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files\common</Filter>
+    </ClCompile>
+    <ClCompile Include="H2ToolsCommon.cpp">
+      <Filter>Source Files\Game\Common Patches</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

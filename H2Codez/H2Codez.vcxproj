@@ -92,6 +92,7 @@
     <ClInclude Include="h2codez.h" />
     <ClInclude Include="H2Guerilla.h" />
     <ClInclude Include="H2Sapien.h" />
+    <ClInclude Include="H2ToolsCommon.h" />
     <ClInclude Include="H2Tool\H2Tool_Commands.h" />
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
@@ -112,6 +113,7 @@
     <ClCompile Include="h2codez.cpp" />
     <ClCompile Include="H2Guerilla.cpp" />
     <ClCompile Include="H2Sapien.cpp" />
+    <ClCompile Include="H2ToolsCommon.cpp" />
     <ClCompile Include="H2Tool_Commands.cpp" />
     <ClCompile Include="Logs.cpp" />
     <ClCompile Include="patches.cpp" />

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "H2Guerilla.h"
 #include "H2Sapien.h"
+#include "H2ToolsCommon.h"
 
 char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length)
 {
@@ -45,6 +46,7 @@ H2EK H2Toolz::detect_type()
 
 bool H2Toolz::Init()
 {
+	H2CommonPatches::Init();
 	game.process_type = detect_type();
 
 	switch (game.process_type) {

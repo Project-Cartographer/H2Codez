@@ -38,7 +38,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
 	int menu_id = reinterpret_cast<int>(lpMenuName);
-	if (menu_id == 1000 || menu_id == 6014) {
+	if (menu_id == 1000 || menu_id == 6014 || menu_id == 11 || menu_id == 14) {
 		return main_menu;
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);

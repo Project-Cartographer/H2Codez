@@ -2,6 +2,7 @@
 #include "H2Guerilla.h"
 #include "Patches.h"
 #include "resource.h"
+#include "H2ToolsCommon.h"
 
 typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;
@@ -21,9 +22,14 @@ bool enable_advanced_shaders = true;
 int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
 {
 	CheckMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, enable_advanced_shaders ? MF_CHECKED : MF_UNCHECKED);
-	if (msg == ID_EDIT_ADVANCEDSHADERVIEW && !AFX_CMDHANDLERINFO && !a3 && !a4) {
-		H2GuerrilaPatches::toggle_display_templates();
-		return true;
+	if (!AFX_CMDHANDLERINFO && !a3 && !a4) {
+		if (msg == ID_EDIT_ADVANCEDSHADERVIEW) {
+			H2GuerrilaPatches::toggle_display_templates();
+			return true;
+		} else if (msg == ID_FILE_NEWINSTANCE) {
+			H2CommonPatches::newInstance();
+			return true;
+		}
 	}
 	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, msg, a3, a4, AFX_CMDHANDLERINFO);
 }
@@ -32,6 +38,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 {
 	CCmdUI__Enable_Orginal(thisptr, 0, a2);
 	EnableMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, MF_ENABLED);
+	EnableMenuItem(main_menu, ID_FILE_NEWINSTANCE, MF_ENABLED);
 }
 
 

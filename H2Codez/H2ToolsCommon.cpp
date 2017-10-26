@@ -25,6 +25,21 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }
 
+bool H2CommonPatches::newInstance()
+{
+	TCHAR exePath[MAX_PATH];
+	if (!GetModuleFileName(game.base, exePath, MAX_PATH))
+		return false;
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+	CreateProcess(exePath, nullptr, nullptr, nullptr, false, INHERIT_PARENT_AFFINITY, nullptr, nullptr, &si, &pi);
+	return true;
+}
+
 void H2CommonPatches::Init()
 {
 	DetourTransactionBegin();

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "H2Sapien.h"
+#include "H2ToolsCommon.h"
 #include "Patches.h"
 #include "resource.h"
 
@@ -9,6 +10,16 @@ create_main_window create_main_window_orginal;
 //bool __fastcall load_main_window(int thisptr,int unused, int a2, int a3, int a4, int *a5)
 typedef bool(__fastcall *load_main_window)(int thisptr, int unused, int a2, int a3, int a4, int *a5);
 load_main_window load_main_window_orginal;
+
+typedef int (__thiscall *main_window_input)(void *thisptr, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7);
+main_window_input main_window_input_orginal;
+
+int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
+{
+	if (uMsg == WM_COMMAND && hMenu == SAPIEN_FILE_NEWINSTANCE)
+		return H2CommonPatches::newInstance();
+	return main_window_input_orginal(thisptr, a2, uMsg, hMenu, lParam, a6, a7);
+}
 
 bool __fastcall load_main_window_hook(int thisptr, int unused, int a2, int a3, int a4, int *a5)
 {
@@ -29,6 +40,8 @@ void H2SapienPatches::Init()
 #pragma region Patches
 	// stop the default menu overwriting our custom one
 	NopFill(0x47AD09, 0x15);
+	// Stop sapien from getting a mutex on the main directory
+	NopFill(0x409D3D, 0xD);
 #pragma endregion
 
 #pragma region Hooks
@@ -41,6 +54,9 @@ void H2SapienPatches::Init()
 
 	load_main_window_orginal = CAST_PTR(load_main_window,0x47ACE0);
 	DetourAttach(&(PVOID&)load_main_window_orginal, load_main_window_hook);
+
+	main_window_input_orginal = CAST_PTR(main_window_input, 0x475B60);
+	DetourAttach(&(PVOID&)main_window_input_orginal, main_window_input_hook);
 
 	DetourTransactionCommit();
 #pragma endregion

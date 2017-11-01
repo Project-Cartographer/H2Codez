@@ -8,3 +8,4 @@ before_package:
 artifacts:
 - path: '\Release\*'
 - path: '\version'
+- path: '\Patches\*'

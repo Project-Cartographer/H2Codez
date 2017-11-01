@@ -5,7 +5,9 @@ build:
   verbosity: minimal
 before_package:
 - ps: Add-Content version $env:APPVEYOR_BUILD_VERSION -NoNewLine
+- ps: Add-Content hash ((Get-FileHash .\Release\H2Codez.dll -Algorithm MD5).Hash) -NoNewLine
 artifacts:
 - path: '\Release\*'
 - path: '\version'
 - path: '\Patches\*'
+- path: '\hash'

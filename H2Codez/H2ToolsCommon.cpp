@@ -2,10 +2,14 @@
 #include "stdafx.h"
 #include "Patches.h"
 #include "H2ToolsCommon.h"
+#include <regex>
 
 
 typedef int (WINAPI *LoadStringW_Typedef)(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax);
 LoadStringW_Typedef LoadStringW_Orginal;
+
+typedef wchar_t* (WINAPI *GetCommandLineW_Typedef)();
+GetCommandLineW_Typedef GetCommandLineW_Orginal;
 
 static const wchar_t *map_types[] = 
 {
@@ -23,6 +27,14 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 		return std::wcslen(lpBuffer);
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
+}
+
+wchar_t* __stdcall GetCommandLineW_Hook()
+{
+	wchar_t *real_cmd = GetCommandLineW_Orginal();
+	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L" pause_after_run"), L"");
+	wcscpy(real_cmd, fake_cmd.c_str());
+	return real_cmd;
 }
 
 bool H2CommonPatches::newInstance()
@@ -47,6 +59,9 @@ void H2CommonPatches::Init()
 
 	LoadStringW_Orginal = LoadStringW;
 	DetourAttach(&(PVOID&)LoadStringW_Orginal, LoadStringW_Hook);
+
+	GetCommandLineW_Orginal = GetCommandLineW;
+	DetourAttach(&(PVOID&)GetCommandLineW_Orginal, GetCommandLineW_Hook);
 
 	DetourTransactionCommit();
 }

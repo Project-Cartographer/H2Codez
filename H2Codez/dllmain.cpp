@@ -98,8 +98,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	    break;
 	
 	case DLL_PROCESS_DETACH:
-        
-	   // DisEngageHOOKS();
+		std::string cmd = GetCommandLineA();
+		if (cmd.find("pause_after_run") != string::npos)
+			std::cin.get();
 		break;
 	}
 	return TRUE;

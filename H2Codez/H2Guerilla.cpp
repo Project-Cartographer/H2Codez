@@ -58,6 +58,14 @@ int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 	return return_value;
 }
 
+bool __cdecl create_temp_filo(void *a1, LPCSTR location)
+{
+	typedef void* (__cdecl *save_filo_def)(void *a1, char *path, bool a3);
+	save_filo_def save_filo = reinterpret_cast<save_filo_def>(0x48BEA0);
+	save_filo(a1, std::tmpnam(nullptr), false);
+	return true;
+}
+
 void H2GuerrilaPatches::update_field_display()
 {
 	char *expert_mode = CAST_PTR(char*,0x9AF809);
@@ -129,6 +137,9 @@ void H2GuerrilaPatches::Init()
 
 	CCmdTarget__OnCmdMsg_Orginal = CAST_PTR(CCmdTarget__OnCmdMsg, 0x67EE0F);
 	DetourAttach(&(PVOID&)CCmdTarget__OnCmdMsg_Orginal, CCmdTarget__OnCmdMsg_hook);
+
+	void *hook_temp_filo = reinterpret_cast<void*>(0x48C6F0);
+	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();
 #pragma endregion
 

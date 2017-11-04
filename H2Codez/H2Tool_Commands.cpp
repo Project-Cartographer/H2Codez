@@ -2,6 +2,7 @@
 #include "H2Tool\ToolCommandDefinitions.inl"
 #include "H2Tool\H2Tool_extra_commands.inl"
 #include "Patches.h"
+#include "Version.h"
 
 
 
@@ -338,8 +339,8 @@ void H2Tool_Extras::enable_campaign_tags_sharing()
 void H2Tool_Extras::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
-	cout << "H2Toolz version 1.0 " << std::endl
-		 << "Build on " __DATE__ " at " __TIME__ << std::endl;
+	cout << "H2Toolz version " << version << std::endl
+		 << "Built on " __DATE__ " at " __TIME__ << std::endl;
 
 	this->Increase_structure_import_size_Check();
 	this->Increase_structure_bsp_geometry_check();

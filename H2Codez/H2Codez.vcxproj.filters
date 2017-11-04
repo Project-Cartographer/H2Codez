@@ -92,6 +92,9 @@
     <ClInclude Include="H2ToolsCommon.h">
       <Filter>Source Files\Game\Common Patches</Filter>
     </ClInclude>
+    <ClInclude Include="Version.h">
+      <Filter>Source Files\Game\Common Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

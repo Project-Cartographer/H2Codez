@@ -17,10 +17,17 @@ Features::
 * __Added a new command structure-import-from-jms (This allows Creators and Map Makers to build maps from JMS file source, H2V Specific JMS).__
 * __Removed some hard-coded checks.__
 * __Added a new command extra-commands (See Refernce Notes Inside).__
-* __You need the patched exe files to run the H2Codez DLL. (goo.gl/1NKfvE)__
 * __Custom physics_model and collision_model can be sucessfully created.__
 * __Compiling custom render_model doesn't work, neither custom animations (WIP).__
 
+## Installation
+* __Install microsoft visual c++ redistributable 2015 x86.__
+* __Install Microsoft .net framework 4.__
+* __Install the mapping toolkit from the DVD.__
+* __[Download the launcher.](https://ci.appveyor.com/api/projects/num0005/h2-toolkit-launcher/artifacts/Launcher/bin/Release/H2CodezLauncher.exe
+)__
+* __Copy the launcher to the mapping toolkit install directory (optional).__
+* __Run the launcher, elevate to admin privledges if prompted.__
 
 ## COMPILATION / CONTRIBUTE ##
 * __Contributors are Welcome :)__
@@ -28,6 +35,7 @@ Features::
 * __You need BoostSDK Libraries (boost_1_55_0)__
 * __Copy the boost_1_55_0 folder to C:\Program Files (x86)\boost__
 * __Then Clone and Start Building__
+* __Follow the steps listed under [installation](#installation) to get patched exes or manually inject H2Codez.dll into the process at startup.__
 * __Or maybe you know 3ds Max Scripting, we need a JMS exporter. (Examples: goo.gl/rKC7cF)__
 * __You can use Halo CE JMS exporter as a reference, they aren't very different.__
 

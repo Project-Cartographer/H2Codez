@@ -32,7 +32,7 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 wchar_t* __stdcall GetCommandLineW_Hook()
 {
 	wchar_t *real_cmd = GetCommandLineW_Orginal();
-	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L" pause_after_run"), L"");
+	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L"( pause_after_run| shared_tag_removal)"), L"");
 	wcscpy(real_cmd, fake_cmd.c_str());
 	return real_cmd;
 }

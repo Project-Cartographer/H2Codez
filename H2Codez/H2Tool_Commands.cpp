@@ -342,12 +342,14 @@ void H2Tool_Extras::Initialize()
 	cout << "H2Toolz version " << version << std::endl
 		 << "Built on " __DATE__ " at " __TIME__ << std::endl;
 
-	this->Increase_structure_import_size_Check();
-	this->Increase_structure_bsp_geometry_check();
-	this->AddExtraCommands();
-	this->unlock_other_scenario_types_compiling();
-	//this->enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
-	this->apply_shared_tag_removal_scheme();
+	Increase_structure_import_size_Check();
+	Increase_structure_bsp_geometry_check();
+	AddExtraCommands();
+	unlock_other_scenario_types_compiling();
+	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
+	std::string cmd = GetCommandLineA();
+	if (cmd.find("shared_tag_removal") != string::npos)
+		apply_shared_tag_removal_scheme();
 	
 
 }

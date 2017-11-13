@@ -2,6 +2,7 @@
 #include "H2Guerilla.h"
 #include "H2Sapien.h"
 #include "H2ToolsCommon.h"
+#include "DiscordInterface.h"
 
 char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length)
 {
@@ -46,8 +47,9 @@ H2EK H2Toolz::detect_type()
 
 bool H2Toolz::Init()
 {
-	H2CommonPatches::Init();
 	game.process_type = detect_type();
+	DiscordInterface::setAppType(game.process_type);
+	H2CommonPatches::Init();
 
 	switch (game.process_type) {
 	case H2EK::H2Tool:

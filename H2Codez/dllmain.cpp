@@ -98,9 +98,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	    break;
 	
 	case DLL_PROCESS_DETACH:
+		Discord_Shutdown();
 		std::string cmd = GetCommandLineA();
 		if (cmd.find("pause_after_run") != string::npos)
 			std::cin.get();
+		Discord_Shutdown();
 		break;
 	}
 	return TRUE;

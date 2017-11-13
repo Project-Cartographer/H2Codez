@@ -31,6 +31,7 @@
 #include "Detours/detours.h"
 #include "Logs.h"
 #include "H2Tool\H2Tool_Commands.h"
+#include "discord-rpc.h"
 
 
 

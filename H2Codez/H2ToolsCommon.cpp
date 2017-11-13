@@ -3,6 +3,8 @@
 #include "Patches.h"
 #include "H2ToolsCommon.h"
 #include <regex>
+#include "Psapi.h"
+#include "DiscordInterface.h"
 
 
 typedef int (WINAPI *LoadStringW_Typedef)(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax);
@@ -29,8 +31,14 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }
 
+
+bool discord_init_finished = false;
 wchar_t* __stdcall GetCommandLineW_Hook()
 {
+	if (!discord_init_finished) {
+		DiscordInterface::Init();
+		discord_init_finished = true;
+	}
 	wchar_t *real_cmd = GetCommandLineW_Orginal();
 	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L"( pause_after_run| shared_tag_removal)"), L"");
 	wcscpy(real_cmd, fake_cmd.c_str());

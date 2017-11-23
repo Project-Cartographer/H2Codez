@@ -21,7 +21,6 @@ Features::
 * __Compiling custom render_model doesn't work, neither custom animations (WIP).__
 
 ## Installation
-* __Install microsoft visual c++ redistributable 2015 x86.__
 * __Install Microsoft .net framework 4.__
 * __Install the mapping toolkit from the DVD.__
 * __[Download the launcher.](https://ci.appveyor.com/api/projects/num0005/h2-toolkit-launcher/artifacts/Launcher/bin/Release/H2CodezLauncher.exe

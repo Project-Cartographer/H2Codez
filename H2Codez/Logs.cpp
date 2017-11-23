@@ -45,8 +45,8 @@ VOID Debug::Start_Console()//AllocConsole
 {
 	AllocConsole();
 	SetConsoleTitleA("Debug Window");
-	freopen("CONOUT$", "w", stdout);
-
+	FILE* pCout;
+	freopen_s(&pCout, "CONOUT$", "w", stdout);
 }
 
 

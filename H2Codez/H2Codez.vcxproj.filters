@@ -95,6 +95,9 @@
     <ClInclude Include="Version.h">
       <Filter>Source Files\Game\Common Patches</Filter>
     </ClInclude>
+    <ClInclude Include="DiscordInterface.h">
+      <Filter>Source Files\Game\Common Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -122,6 +125,9 @@
       <Filter>Source Files\common</Filter>
     </ClCompile>
     <ClCompile Include="H2ToolsCommon.cpp">
+      <Filter>Source Files\Game\Common Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordInterface.cpp">
       <Filter>Source Files\Game\Common Patches</Filter>
     </ClCompile>
   </ItemGroup>

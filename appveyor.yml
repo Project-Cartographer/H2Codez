@@ -7,7 +7,9 @@ build:
   verbosity: minimal
 before_package:
 - ps: Add-Content version $env:APPVEYOR_BUILD_VERSION -NoNewLine
-- ps: Add-Content hash ((Get-FileHash .\Release\H2Codez.dll -Algorithm MD5).Hash) -NoNewLine
+- ps: Add-Content hash ((Get-FileHash "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\H2Codez.dll" -Algorithm MD5).Hash) -NoNewLine
+- cmd: xcopy /i "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\H2Codez.dll" ".\Release\"
+- cmd: xcopy /i "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\H2Codez.pdb" ".\Release\"
 artifacts:
 - path: '\Release\*'
 - path: '\version'

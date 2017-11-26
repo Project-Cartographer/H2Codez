@@ -49,7 +49,5 @@ private:
 	static H2EK detect_type();
 };
 
-//as the functions says
-char* wstring_to_string(char* string, int string_length, wcstring wide, int wide_length);
 //eg. {0xFF,0xEE,0xDD,0xCC} ->  {0xCC,0xDD,0xEE,0xFF}
 BYTE* reverse_addr(void* address);

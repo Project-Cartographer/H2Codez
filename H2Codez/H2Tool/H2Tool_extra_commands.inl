@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <codecvt>
 
 
 //List of extra commands i found are contained here
@@ -52,16 +53,15 @@ static int __cdecl TAG_LOAD(int tag_type, cstring tags_directory, int a3)
 //Finally Sorted out :)
 #pragma endregion 
 
-static DWORD GetH2Tool_Dev__by_name(wcstring function_name)
+static DWORD GetH2Tool_Dev__by_name(wcstring W_function_name)
 {
-	char buffer[_MAX_PATH];
-	wstring_to_string(buffer, sizeof(buffer), function_name, -1);
+	std::string function_name = wstring_to_string.to_bytes(W_function_name);
 	int TABLE_START = 0x97A910;
 	int TABLE_END = 0x97B064;
 	for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
 	{
 		cstring command_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-		if (strcmp(buffer, command_name) == 0)
+		if (strcmp(function_name.c_str(), command_name) == 0)
 			return TABLE_START;
 
 
@@ -149,10 +149,9 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 			cstring f_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
 			DWORD f_tag_type =  *(DWORD*)(TABLE_START + 8);
 
-			char f_parameter[MAX_PATH];		
-			wstring_to_string(f_parameter, sizeof(f_parameter), command_parameter_0, -1);
+			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
 			H2PCTool.WriteLog("Tag Type %X \n %s",f_tag_type,f_parameter);			
-			DWORD tag_index = TAG_LOAD(f_tag_type, f_parameter, 7);
+			DWORD tag_index = TAG_LOAD(f_tag_type, f_parameter.c_str(), 7);
 
 			if(((char(__cdecl *)( wchar_t* ,int))*(DWORD*)(TABLE_START+0x18))(0, tag_index))// call Function via address			
 			return;

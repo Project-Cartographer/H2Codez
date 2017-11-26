@@ -62,22 +62,22 @@ struct s_file_reference
 }; 
 BOOST_STATIC_ASSERT(sizeof(s_file_reference) == 0x110);
 
-class H2Tool_Extras
+class H2ToolPatches
 {
 public:
-	void Initialize();
-	void AddExtraCommands();
-	void Increase_structure_import_size_Check();
-	void Increase_structure_bsp_geometry_check();
-	void unlock_other_scenario_types_compiling();
-	void enable_campaign_tags_sharing();
-	void apply_shared_tag_removal_scheme();
+	static void Initialize();
+	static void AddExtraCommands();
+	static void Increase_structure_import_size_Check();
+	static void Increase_structure_bsp_geometry_check();
+	static void unlock_other_scenario_types_compiling();
+	static void enable_campaign_tags_sharing();
+	static void apply_shared_tag_removal_scheme();
 
 
 private:
-	void structure_bsp_geometry_2D_check_increase();
-	void structure_bsp_geometry_3D_check_increase();
-	void structure_bsp_geometry_collision_check_increase();
+	static void structure_bsp_geometry_2D_check_increase();
+	static void structure_bsp_geometry_3D_check_increase();
+	static void structure_bsp_geometry_collision_check_increase();
 };
 
 

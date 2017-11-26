@@ -22,10 +22,19 @@ static const wchar_t *map_types[] =
 	L"Single Player Shared"
 };
 
+static wchar_t const open_as_text[] = L"Export as text";
+
 int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax)
 { 
-	if ((310 <= uID && uID <= 318) && (GetModuleHandleW(L"H2alang") == hInstance)) {
+	if (GetModuleHandleW(L"H2alang") != hInstance)
+		return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
+	if (310 <= uID && uID <= 318) {
 		wcsncpy_s(lpBuffer, cchBufferMax, map_types[uID / 2 - 155], cchBufferMax);
+		return std::wcslen(lpBuffer);
+	}
+	if (uID == 26)
+	{
+		wcsncpy_s(lpBuffer, cchBufferMax, open_as_text, sizeof(open_as_text));
 		return std::wcslen(lpBuffer);
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);

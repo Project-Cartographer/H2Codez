@@ -25,14 +25,11 @@ static const s_tool_command* import_class_monitor_structures = CAST_PTR(s_tool_c
 static const s_tool_command* import_class_monitor_bitmaps = CAST_PTR(s_tool_command*, 0x97B594);
 
 
-
+std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
 static void _cdecl import_model_proc(wcstring* arguments)
 {
-	wcstring object_name = arguments[0];
+	std::string object_name = wstring_to_string.to_bytes(arguments[0]);
 	wcstring object_type = arguments[1];
-
-	char buffer[_MAX_PATH];
-	wstring_to_string(buffer, sizeof(buffer), object_name, -1);
 
 	static wcstring object_type_names[] = {
 		L"biped",
@@ -67,5 +64,5 @@ static void _cdecl import_model_proc(wcstring* arguments)
 	typedef void (_cdecl* _import_object_model)(cstring object_name, long object_type_mask);
 	static _import_object_model import_object_model = CAST_PTR(_import_object_model, 0x4E7700);
 
-	import_object_model(buffer, object_type_mask);
+	import_object_model(object_name.c_str(), object_type_mask);
 }

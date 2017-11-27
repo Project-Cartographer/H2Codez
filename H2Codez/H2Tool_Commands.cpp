@@ -61,7 +61,7 @@ void _H2ToolDetachHooks()
 	return;
 }
 #pragma region structure_import Tweeks
-void H2Tool_Extras::Increase_structure_import_size_Check()
+void H2ToolPatches::Increase_structure_import_size_Check()
 {
 	//if ( FileSize.LowPart > 0x1400000 && !FileSize.HighPart )
 	 ///1400000h =  20971520 BYTES ~ 20 MB
@@ -82,7 +82,7 @@ void H2Tool_Extras::Increase_structure_import_size_Check()
 	WriteBytesASM(0x41F836+4, Size_Patch, 4);
 
 }
-void H2Tool_Extras::structure_bsp_geometry_collision_check_increase()
+void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 {
 //return collision_surfaces_count <= 0x7FFF && edges_count <= 0xFFFF && collision_vertices_count <= 0xFFFF;
 	///0x7FFF = 32767
@@ -123,7 +123,7 @@ void H2Tool_Extras::structure_bsp_geometry_collision_check_increase()
 
 
 }
-void H2Tool_Extras::structure_bsp_geometry_3D_check_increase()
+void H2ToolPatches::structure_bsp_geometry_3D_check_increase()
 {
 	// return nodes_count < &unk_800000 && planes_count < 0x8000 && leaves_count < &unk_800000;
 	/// planes_count =0x8000 = 32768 
@@ -140,7 +140,7 @@ void H2Tool_Extras::structure_bsp_geometry_3D_check_increase()
 
 
 }
-void H2Tool_Extras::structure_bsp_geometry_2D_check_increase()
+void H2ToolPatches::structure_bsp_geometry_2D_check_increase()
 {
 /*
 .text:00464BA5 118 push    0        <- b_DONT_CHECK variable is set to false by default .Need to make it true
@@ -153,12 +153,12 @@ void H2Tool_Extras::structure_bsp_geometry_2D_check_increase()
 	//No Need to modify the Proc error here cuz it will never hit :)
 }
 
-void H2Tool_Extras::Increase_structure_bsp_geometry_check()
+void H2ToolPatches::Increase_structure_bsp_geometry_check()
 {
 	H2PCTool.WriteLog("Increasing structure_bsp_geometry checks");
-	this->structure_bsp_geometry_2D_check_increase();
-	this->structure_bsp_geometry_3D_check_increase();
-	this->structure_bsp_geometry_collision_check_increase();
+	structure_bsp_geometry_2D_check_increase();
+	structure_bsp_geometry_3D_check_increase();
+	structure_bsp_geometry_collision_check_increase();
 }
 
 #pragma endregion
@@ -239,7 +239,7 @@ void H2Tool_Extras::Increase_structure_bsp_geometry_check()
 static wcstring k_campaign_shared_name = L"maps\\single_player_shared.map";
 static signed long _scenario_type;
 
-void H2Tool_Extras::apply_shared_tag_removal_scheme()
+void H2ToolPatches::apply_shared_tag_removal_scheme()
 {
 	BYTE* patching_offsets_list[] = {
 		CAST_PTR(BYTE*, 0x5887DF),//_postprocess_animation_data
@@ -258,7 +258,7 @@ void H2Tool_Extras::apply_shared_tag_removal_scheme()
 	for (int x = 0; x < NUMBEROF(patching_offsets_list); x++)			WriteBytesASM((DWORD)(patching_offsets_list[x] + 1), patch, 1);//patching push 1 -> push 0
 }
 
-void H2Tool_Extras::unlock_other_scenario_types_compiling()
+void H2ToolPatches::unlock_other_scenario_types_compiling()
 {
 	//Refer to H2EK_OpenSauce Campaign_sharing
 	static void* BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE = CAST_PTR(void*,0x588320);
@@ -310,7 +310,7 @@ static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(voi
 
 }
 
-void H2Tool_Extras::enable_campaign_tags_sharing()
+void H2ToolPatches::enable_campaign_tags_sharing()
 {
 	//Refer to H2EK_OpenSauce Campaign_sharing
 
@@ -336,7 +336,7 @@ void H2Tool_Extras::enable_campaign_tags_sharing()
 	H2PCTool.WriteLog("Single Player tag_sharing enabled");
 }
 
-void H2Tool_Extras::Initialize()
+void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
 	cout << "H2Toolz version " << version << std::endl
@@ -355,7 +355,7 @@ void H2Tool_Extras::Initialize()
 }
 
 
-void H2Tool_Extras::AddExtraCommands()
+void H2ToolPatches::AddExtraCommands()
 {
 	H2PCTool.WriteLog("Adding Extra Commands to H2Tool");
 #pragma region New Function Defination Creation 

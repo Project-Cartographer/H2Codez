@@ -53,78 +53,61 @@ static int __cdecl TAG_LOAD(int tag_type, cstring tags_directory, int a3)
 //Finally Sorted out :)
 #pragma endregion 
 
-static DWORD GetH2Tool_Dev__by_name(wcstring W_function_name)
+struct dev_command {
+	cstring command_name;
+	cstring command_description;
+	DWORD tag_type; // or char[4] in Little-endian
+	DWORD unk_1;
+	DWORD unk_2;
+	DWORD unk_3;
+	char(__cdecl *command_impl)(wchar_t*, int);
+
+};
+static_assert(sizeof(dev_command) == 0x1C, "Invalid struct size for dev_command");
+
+static dev_command *GetDevCommandByName(wcstring W_function_name)
 {
 	std::string function_name = wstring_to_string.to_bytes(W_function_name);
-	int TABLE_START = 0x97A910;
-	int TABLE_END = 0x97B064;
-	for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
-	{
-		cstring command_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-		if (strcmp(function_name.c_str(), command_name) == 0)
-			return TABLE_START;
-
-
+	dev_command *command_table = reinterpret_cast<dev_command*>(0x97A910);
+	for (int i = 0; i <= 0x43; i++) {
+		dev_command *current_cmd = (command_table + i);
+		if (function_name == current_cmd->command_name)
+			return current_cmd;
 	}
-	return 0;
+	return nullptr;
 }
 
+void _cdecl list_all_extra_commands_proc(wcstring* arguments)
+{
+	printf("\n");
+	dev_command *command_table = reinterpret_cast<dev_command*>(0x97A910);
+	for (int i = 0; i <= 0x43; i++) {
+		dev_command *current_cmd = (command_table + i);
+		printf("  %s : %s\n", current_cmd->command_name, current_cmd->command_description);
+		H2PCTool.WriteLog(current_cmd->command_name);//Store It in log
+	}
+	return;
+}
 
 static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 {
-
 	wcstring command_name = arguments[0];
 	wcstring command_parameter_0 = arguments[1];
-	if (wcscmp(command_name, L"list") == 0)
-	{
-
-		if (wcscmp(command_parameter_0, L"all") == 0)
-		{
-			printf("\n");
-			int TABLE_START = 0x97A910;
-			int TABLE_END = 0x97B064;
-			for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
-			{
-				cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-				printf("  %s\n", name);
-				H2PCTool.WriteLog(name);//Store It in log
-			}
-			return;
-		}
-		else if (stoll(command_parameter_0) > 0)
-		{
-			printf("\n");
-			int TABLE_START = 0x97A910;
-			int TABLE_END = 0x97B064;
-			for (int a = 1;TABLE_START <= TABLE_END;TABLE_START += 0x1C, a++)
-			{
-				cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-				printf("  %s\n", name);
-				H2PCTool.WriteLog(name);//Store It log
-				if (a == stoll(command_parameter_0))
-					return;
-			}
-			return;
-		}
-		else
-			printf("\n  usage : extra-commands list <count,all>\n  Description : all -> Prints all the extra-commands <command_name>.\n  Description: count->Prints a Range of the extra-commands <command_name> ");
+	if (wcscmp(command_name, L"list") == 0) {
+		list_all_extra_commands_proc(nullptr);
 	}
-
-	else if (wcscmp(command_name, L"help") == 0)
-	{
+	else if (wcscmp(command_name, L"help") == 0) {
 
 		if (command_parameter_0)
 		{
-			int TABLE_START = GetH2Tool_Dev__by_name(command_parameter_0);
-			if (!TABLE_START)
+			dev_command *cmd = GetDevCommandByName(command_parameter_0);
+			if (!cmd)
 			{
 				printf("\n  Wrong <command_name>");
 				printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
 				return;
 			}
-			cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-			cstring description = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 4));
-			printf("\n  usage : %s\n  Description : %s\n", name, description);
+			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 			return;
 		}
 		else
@@ -136,8 +119,8 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 	//Dev command usage block
 	else
 	{
-		int TABLE_START = GetH2Tool_Dev__by_name(command_name);
-		if (!TABLE_START)
+		dev_command *cmd = GetDevCommandByName(command_name);
+		if (!cmd)
 		{
 			printf("\n  Wrong <command_name>");
 			printf("\n  use : extra-commands help <command_name>");
@@ -145,25 +128,18 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 		}
 		else
 		{
-
-			cstring f_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-			DWORD f_tag_type =  *(DWORD*)(TABLE_START + 8);
-
 			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
-			H2PCTool.WriteLog("Tag Type %X \n %s",f_tag_type,f_parameter);			
-			DWORD tag_index = TAG_LOAD(f_tag_type, f_parameter.c_str(), 7);
+			H2PCTool.WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
+			DWORD tag_index = TAG_LOAD(cmd->tag_type, f_parameter.c_str(), 7);
 
-			if(((char(__cdecl *)( wchar_t* ,int))*(DWORD*)(TABLE_START+0x18))(0, tag_index))// call Function via address			
-			return;
-			cstring f_description = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 4));
-			printf("\n  usage : %s\n  Description : %s\n", f_name, f_description);
+			if (cmd->command_impl(nullptr, tag_index))// call Function via address			
+				return;
+			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 		}
 
 		printf("\n  No such command present.");
 		return;
 	}
-
-
 }
 
 static const s_tool_command_argument h2dev_extra_commands_arguments[] = {
@@ -184,5 +160,10 @@ static const s_tool_command h2dev_extra_commands_defination = {
 	false
 };
 
-
+static const s_tool_command list_extra_commands = {
+	L"extra commands list",
+	CAST_PTR(_tool_command_proc,list_all_extra_commands_proc),
+	nullptr, 0,
+	false
+};
 

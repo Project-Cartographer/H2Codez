@@ -22,6 +22,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&import_sound,
 	&tool_build_structure_from_jms,
 	&h2dev_extra_commands_defination,
+	&list_extra_commands,
 
 };
 
@@ -373,14 +374,14 @@ void H2ToolPatches::AddExtraCommands()
 	H2PCTool.WriteLog("Adding Extra Commands to H2Tool");
 #pragma region New Function Defination Creation 
 
-	BYTE k_number_of_tool_commands = 0xC;
-	BYTE k_number_of_tool_commands_new = 0xC + NUMBEROF(h2tool_extra_commands);
+	static const BYTE k_number_of_tool_commands = 0xC;
+	static const BYTE k_number_of_tool_commands_new = k_number_of_tool_commands + NUMBEROF(h2tool_extra_commands);
 
 	// Tool's original tool commands
 	static const s_tool_command* const* tool_import_classes = CAST_PTR(s_tool_command**, 0x97B6EC);
 	// The new tool commands list which is made up of tool's
 	// and [yelo_extra_tool_commands]
-	static s_tool_command* tool_commands[0xC + NUMBEROF(h2tool_extra_commands)];
+	static s_tool_command* tool_commands[k_number_of_tool_commands_new];
 
 	// copy official tool commands
 	memcpy_s(tool_commands, sizeof(tool_commands),

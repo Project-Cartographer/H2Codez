@@ -50,14 +50,15 @@ struct s_tool_import_definations_
 	DWORD                           unk_2;
 };
 struct s_tool_h2dev_command {
-	cstring       			    name;
-	cstring                     description;
-	DWORD                       tag_type;
+	cstring command_name;
+	cstring command_description;
+	DWORD tag_type; // or char[4] in Little-endian / 4 character constant
 	DWORD					    unk;
 	DWORD					    unk_2;
 	DWORD                       unk_3;
-	_tool_dev_command_proc		import_proc;
+	tool_dev_command_proc		command_impl;
 };
+static_assert(sizeof(s_tool_h2dev_command) == 0x1C, "Invalid struct size for dev_command");
 
 class H2ToolPatches
 {

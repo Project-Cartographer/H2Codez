@@ -4,6 +4,10 @@
 #include "../FiloInterface.h"
 #include <codecvt>
 
+#define extra_commands_count 0x43
+#define help_desc "Prints information about the command name passed to it"
+#define list_all_desc "lists all extra commands"
+
 //List of extra commands i found are contained here
 static const s_tool_command_argument tool_build_structure_from_jms_arguments[] = {
 	{
@@ -46,81 +50,63 @@ static const s_tool_command tool_build_structure_from_jms = {
 //Finally Sorted out :)
 #pragma endregion 
 
-static DWORD GetH2Tool_Dev__by_name(wcstring W_function_name)
+static s_tool_h2dev_command *GetDevCommandByName(wcstring W_function_name)
 {
 	std::string function_name = wstring_to_string.to_bytes(W_function_name);
-	int TABLE_START = 0x97A910;
-	int TABLE_END = 0x97B064;
-	for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
-	{
-		s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
-		if (strcmp(function_name.c_str(), cmd->name) == 0)
-			return TABLE_START;
-
-
+	s_tool_h2dev_command *command_table = reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
+	for (int i = 0; i <= extra_commands_count; i++) {
+		s_tool_h2dev_command *current_cmd = (command_table + i);
+		if (function_name == current_cmd->command_name)
+			return current_cmd;
 	}
-	return 0;
+	return nullptr;
 }
 
-
-static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
+void _cdecl list_all_extra_commands_proc(wcstring* arguments)
 {
-
-	wcstring command_name = arguments[0];
-	wcstring command_parameter_0 = arguments[1];
-	if (wcscmp(command_name, L"list") == 0)
-	{
-
-		if (wcscmp(command_parameter_0, L"all") == 0)
-		{
-			printf("\n");
-			int TABLE_START = 0x97A910;
-			int TABLE_END = 0x97B064;
-			for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
-			{
-				s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
-				printf("  %s\n", cmd->name);
-				H2PCTool.WriteLog(cmd->name);//Store It in log
-			}
-			return;
-		}
-		else if (stoll(command_parameter_0) > 0)
-		{
-			printf("\n");
-			int TABLE_START = 0x97A910;
-			int TABLE_END = 0x97B064;
-			for (int a = 1;TABLE_START <= TABLE_END;TABLE_START += 0x1C, a++)
-			{
-				s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
-				printf("  %s\n", cmd->name);
-				H2PCTool.WriteLog(cmd->name);//Store It log
-				if (a == stoll(command_parameter_0))
-					return;
-			}
-			return;
-		}
-		else
-			printf("\n  usage : extra-commands list <count,all>\n  Description : all -> Prints all the extra-commands <command_name>.\n  Description: count->Prints a Range of the extra-commands <command_name> ");
+	s_tool_h2dev_command *command_table = reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
+	printf("\n  help : " help_desc);
+	printf("\n  list all : " list_all_desc);
+	for (int i = 0; i <= extra_commands_count; i++) {
+		s_tool_h2dev_command *current_cmd = (command_table + i);
+		printf("\n  %s : %s", current_cmd->command_name, current_cmd->command_description);
+		H2PCTool.WriteLog(current_cmd->command_name);//Store It in log
 	}
+	return;
+}
 
-	else if (wcscmp(command_name, L"help") == 0)
-	{
+static void _cdecl h2dev_extra_commands_proc(wchar_t ** arguments)
+{
+	wchar_t *command_name = arguments[0];
+	wchar_t *command_parameter_0 = arguments[1];
+	_wcslwr(command_name);
+	_wcslwr(command_parameter_0);
 
-		if (command_parameter_0)
-		{
-			int TABLE_START = GetH2Tool_Dev__by_name(command_parameter_0);
-			if (!TABLE_START)
-			{
+	if (wcscmp(command_name, L"list") == 0) {
+		list_all_extra_commands_proc(nullptr);
+	}
+	else if (wcscmp(command_name, L"help") == 0) {
+		if (command_parameter_0) {
+			s_tool_h2dev_command *cmd = GetDevCommandByName(command_parameter_0);
+			if (!cmd) {
+				if (wcscmp(command_parameter_0, L"help") == 0) {
+					printf("\n  usage : help\n  Description : " help_desc);
+					return;
+				}
+				if (wcscmp(command_parameter_0, L"list") == 0) {
+					printf("\n  usage : list all\n  Description : " list_all_desc);
+					return;
+				}
 				printf("\n  Wrong <command_name>");
 				printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
 				return;
 			}
-			s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
-			printf("\n  usage : %s\n  Description : %s\n", cmd->name, cmd->description);
+			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 			return;
 		}
-		else
+		else {
 			printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
+		}
 
 
 
@@ -128,30 +114,27 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 	//Dev command usage block
 	else
 	{
-		int TABLE_START = GetH2Tool_Dev__by_name(command_name);
-		if (!TABLE_START)
+		s_tool_h2dev_command *cmd = GetDevCommandByName(command_name);
+		if (!cmd)
 		{
 			printf("\n  Wrong <command_name>");
 			printf("\n  use : extra-commands help <command_name>");
 			return;
 		}
 		else
-		{			
-			s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
+		{
 			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
+			H2PCTool.WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
 			DWORD tag_index = TAG_LOAD(cmd->tag_type, f_parameter.c_str(), 7);
-			if (tag_index != -1)				
-				if (cmd->import_proc(0, tag_index))
-					return;
-			printf("\n  Unable to Load tag\n");
-			printf("\n  usage : %s\n  Description : %s\n", cmd->name, cmd->description);
+
+			if (cmd->command_impl(nullptr, tag_index))// call Function via address			
+				return;
+			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 		}
 
 		printf("\n  No such command present.");
 		return;
 	}
-
-
 }
 
 static const s_tool_command_argument h2dev_extra_commands_arguments[] = {
@@ -197,37 +180,37 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 		}
 
 		printf("    == Import info  Added \n");
-		
+
 		std::string path = FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FULL_PATH);
 		WCHAR w_path[256];
 		MultiByteToWideChar(0xFDE9u, 0, path.c_str(), 0xFFFFFFFF, w_path, 0x104);
 
 		//generating sbsp from jms
 		wcstring p[2] = { w_path,L"sbsp_temp" };
-		if (!tool_build_structure_from_jms_proc(p))		
+		if (!tool_build_structure_from_jms_proc(p))
 			return;
 
 		std::string sbsp_file = target_folder + "\\" + FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME) + ".scenario_structure_bsp";
-		
+
 		ifstream fin;
 		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
 		DWORD sbsp_size = fin.tellg();
 		fin.seekg(0x0, ios::beg);
-		
+
 
 		char* sbsp_data = new char[sbsp_size];
 		fin.read(sbsp_data, sbsp_size);
 
 		fin.close();
-		
-//		DeleteFile(sbsp_file.c_str());
-//		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
+
+		//		DeleteFile(sbsp_file.c_str());
+		//		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
 
 		if (global_geometry_imported_count == 0)
 		{
 			//haven't intialised
 			global_sbsp_data_list = new tag_data_struct*[1];
-			
+
 			tag_data_struct* temp = new tag_data_struct();
 			temp->tag_data = sbsp_data;
 			temp->size = sbsp_size;
@@ -253,7 +236,7 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 			global_sbsp_data_list = temp;
 		}
 
-		global_geometry_imported_count++;	
+		global_geometry_imported_count++;
 
 		printf("    == leaving TAG_RENDER_MODEL_IMPORT_PROC\n");
 
@@ -276,7 +259,7 @@ static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
 static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 {
-	
+
 	DWORD mode_tag_file = TAG_GET('mode', TAG_INDEX);
 	DWORD import_info_block_offset = mode_tag_file + 0xC;
 
@@ -287,7 +270,7 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 	WritePointer((DWORD)(SBSP_FOLDER_LOAD_1), (void*)render_model_folder);
 	WritePointer((DWORD)(SBSP_FOLDER_LOAD_2), (void*)render_model_folder);
 
-	
+
 	WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
 	target_folder = app_directory;
 	target_folder.append("\\tags\\");
@@ -299,7 +282,7 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 		{
 			int defination_addr = (int)&TAG_RENDER_IMPORT_DEFINATIONS_;
 			use_import_definitions(CAST_PTR(void*, defination_addr), 1, FILE_REF, (void*)TAG_INDEX, 0);
-			if (k_render_model_imported && global_geometry_imported_count>0)
+			if (k_render_model_imported && global_geometry_imported_count > 0)
 			{
 				printf("    == saving temporary render_model  \n");
 				TAG_SAVE(TAG_INDEX);//creating the current render_model file in Disk
@@ -421,3 +404,10 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 }
 
 #pragma endregion
+
+static const s_tool_command list_extra_commands = {
+	L"extra commands list",
+	CAST_PTR(_tool_command_proc,list_all_extra_commands_proc),
+	nullptr, 0,
+	false
+};

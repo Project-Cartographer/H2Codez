@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Interfaces\H2Tool">
+      <UniqueIdentifier>{0ba390b2-f03c-404c-988f-facf6ae1964d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -61,7 +64,7 @@
       <Filter>Source Files\Patches\H2Tool\BlamLibImports</Filter>
     </None>
     <None Include="H2Tool\H2ToolLibrary.inl">
-      <Filter>Source Files\Patches\H2Tool</Filter>
+      <Filter>Source Files\Interfaces\H2Tool</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 #include "H2ToolsCommon.h"
 #include "Patches.h"
 #include "resource.h"
+#include <Shellapi.h>
 
 typedef HWND(__fastcall *create_main_window)(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam);
 create_main_window create_main_window_orginal;
@@ -81,6 +82,21 @@ bool run_script(char *script_text)
 	return return_data;
 }
 
+std::string baggage_name;
+
+errno_t __cdecl fopen_s_baggage_hook(FILE **File, const char *Filename, const char *Mode)
+{
+	baggage_name = std::tmpnam(nullptr);
+	baggage_name += ".baggage.txt";
+	return fopen_s(File, baggage_name.c_str(), "w");
+}
+
+int __cdecl fclose_baggage_hook(FILE *File)
+{
+	ShellExecuteA(NULL, NULL, baggage_name.c_str(), NULL, NULL, SW_SHOW);
+	return fclose(File);
+}
+
 void H2SapienPatches::Init()
 {
 #pragma region Patches
@@ -88,6 +104,19 @@ void H2SapienPatches::Init()
 	NopFill(0x47AD09, 0x15);
 	// Stop sapien from getting a mutex on the main directory
 	NopFill(0x409D3D, 0xD);
+
+	// replace bultin IO since it seems to crash
+	PatchCall(0x00477AE8, fopen_s_baggage_hook);
+	PatchCall(0x00477D4F, fclose_baggage_hook);
+
+	PatchCall(0x00477C05, fwprintf); // scenario name
+	PatchCall(0x00477C54, fwprintf);
+	PatchCall(0x00477D25, fwprintf); // ==block sizes==
+	PatchCall(0x00477D45, fwprintf);
+
+	// %ws should really be used for wchar_t strings instead of %s
+	WritePointer(0x477C4F, L"%ws\n\n");
+	WritePointer(0x477D40, L"%ws\n");
 #pragma endregion
 
 #pragma region Hooks

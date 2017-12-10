@@ -2,6 +2,11 @@
 
 VOID WriteBytesASM(DWORD destAddress, LPVOID patch, DWORD numBytes);
 VOID PatchCall(DWORD call_addr, DWORD new_function_ptr);
+VOID WritePointer(DWORD offset, void *ptr);
+inline void PatchCall(DWORD call_addr, void *new_function_ptr)
+{
+	PatchCall(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
+}
 
 #define J(symbol1, symbol2) _DO_JOIN(symbol1, symbol2)
 #define _DO_JOIN(symbol1, symbol2) symbol1##symbol2

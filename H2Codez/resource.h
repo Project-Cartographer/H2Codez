@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by H2Sapien.rc
+// Used by H2Guerilla.rc
 //
 #define SAPIEN_COMMAND                  0
 #define VS_VERSION_INFO                 1
@@ -13,13 +13,15 @@
 #define SAPIEN_FILE_NEWINSTANCE         40005
 #define SAPIEN_RUN_COMMAND              40007
 #define SAPIEN_OPEN_RUN_COMMAND_DIALOG  40008
+#define SAPIEN_SCRIPT_DOC               40010
+#define SCRIPT_DOC                      40011
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        102
-#define _APS_NEXT_COMMAND_VALUE         40010
+#define _APS_NEXT_COMMAND_VALUE         40012
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

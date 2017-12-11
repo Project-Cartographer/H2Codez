@@ -46,6 +46,11 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 				DialogBoxParam(g_hModule, MAKEINTRESOURCE(SAPIEN_COMMAND_DIALOG), 0, SapienRunCommandProc, 0);
 				return 1;
 			}
+			case SAPIEN_SCRIPT_DOC:
+			{
+				H2CommonPatches::print_help_to_doc();
+				return 1;
+			}
 		}
 	}
 	return main_window_input_orginal(thisptr, a2, uMsg, hMenu, lParam, a6, a7);
@@ -86,15 +91,15 @@ std::string baggage_name;
 
 errno_t __cdecl fopen_s_baggage_hook(FILE **File, const char *Filename, const char *Mode)
 {
-	baggage_name = std::tmpnam(nullptr);
-	baggage_name += ".baggage.txt";
+	baggage_name = H2CommonPatches::get_temp_name("baggage.txt");
 	return fopen_s(File, baggage_name.c_str(), "w");
 }
 
 int __cdecl fclose_baggage_hook(FILE *File)
 {
+	int ret_data = fclose(File);
 	ShellExecuteA(NULL, NULL, baggage_name.c_str(), NULL, NULL, SW_SHOW);
-	return fclose(File);
+	return ret_data;
 }
 
 void H2SapienPatches::Init()

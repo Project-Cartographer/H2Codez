@@ -109,13 +109,17 @@ void H2CommonPatches::print_help_to_doc()
 	FILE *FilePtr;
 
 	int command_table_ptr_offset;
+	int global_table_ptr_offset;
+
 	switch (game.process_type)
 	{
 	case H2Sapien:
 		command_table_ptr_offset = 0x9E9E90;
+		global_table_ptr_offset = 0x9ECE28;
 		break;
 	case H2Guerilla:
 		command_table_ptr_offset = 0x95BF70;
+		global_table_ptr_offset = 0x95EF08;
 		break;
 	default:
 		assert(false && "print_help_to_doc doesn't support this process type");
@@ -123,12 +127,21 @@ void H2CommonPatches::print_help_to_doc()
 
 	std::string temp_file_name = get_temp_name("hs_doc.txt");
 	hs_command **command_table = reinterpret_cast<hs_command **>(command_table_ptr_offset);
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(global_table_ptr_offset);
+
 	if (!fopen_s(&FilePtr, temp_file_name.c_str(), "w"))
 	{	
+		fprintf(FilePtr, "== Commands ==\r\n\r\n");
 		for (USHORT current_command_id = 0; current_command_id < 924; current_command_id++)
 		{
 			fprintf(FilePtr, "%s\r\n", get_command_usage_by_id(current_command_id).c_str());
 			fprintf(FilePtr, "%s\r\n\r\n", command_table[current_command_id]->desc);
+		}
+		fprintf(FilePtr, "== Script Globals ==\r\n\r\n");
+		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
+		{
+			hs_global_variable *current_var = global_table[current_global_id];
+			fprintf(FilePtr, "(%s <%s>)\r\n", current_var->name, hs_type_string[current_var->type].c_str());
 		}
 		fclose(FilePtr);
 	}

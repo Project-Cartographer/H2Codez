@@ -104,7 +104,7 @@ std::string H2CommonPatches::get_temp_name(std::string name_suffix)
 }
 
 
-void H2CommonPatches::print_help_to_doc()
+void H2CommonPatches::generate_script_doc(const char *filename)
 {
 	FILE *FilePtr;
 
@@ -122,14 +122,16 @@ void H2CommonPatches::print_help_to_doc()
 		global_table_ptr_offset = 0x95EF08;
 		break;
 	default:
-		assert(false && "print_help_to_doc doesn't support this process type");
+		assert(false && "generate_script_doc doesn't support this process type");
 	}
 
-	std::string temp_file_name = get_temp_name("hs_doc.txt");
+	std::string file_name = get_temp_name("hs_doc.txt");
+	if (filename)
+		file_name = filename;
 	hs_command **command_table = reinterpret_cast<hs_command **>(command_table_ptr_offset);
 	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(global_table_ptr_offset);
 
-	if (!fopen_s(&FilePtr, temp_file_name.c_str(), "w"))
+	if (!fopen_s(&FilePtr, file_name.c_str(), "w"))
 	{	
 		fprintf(FilePtr, "== Commands ==\r\n\r\n");
 		for (USHORT current_command_id = 0; current_command_id < 924; current_command_id++)
@@ -145,7 +147,7 @@ void H2CommonPatches::print_help_to_doc()
 		}
 		fclose(FilePtr);
 	}
-	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
+	ShellExecuteA(NULL, NULL, file_name.c_str(), NULL, NULL, SW_SHOW);
 }
 
 void H2CommonPatches::Init()

@@ -32,7 +32,7 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 		}
 		else if (msg == SCRIPT_DOC)
 		{
-			H2CommonPatches::print_help_to_doc();
+			H2CommonPatches::generate_script_doc();
 			return true;
 		}
 	}

@@ -56,7 +56,7 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			}
 			case SAPIEN_SCRIPT_DOC:
 			{
-				H2CommonPatches::print_help_to_doc();
+				H2CommonPatches::generate_script_doc();
 				return 1;
 			}
 		}
@@ -172,6 +172,12 @@ void **__cdecl status_func_impl(int a1, void *a2, char a3)
 
 hs_command status_cmd("status", hs_type::nothing, CAST_PTR(func_check,0x581EB0), status_func_impl);
 
+errno_t print_help_to_doc()
+{
+	H2CommonPatches::generate_script_doc("hs_doc.txt");
+	return 0;
+}
+
 void H2SapienPatches::Init()
 {
 #pragma region Patches
@@ -192,6 +198,8 @@ void H2SapienPatches::Init()
 	// %ws should really be used for wchar_t strings instead of %s
 	WritePointer(0x477C4F, L"%ws\n\n");
 	WritePointer(0x477D40, L"%ws\n");
+
+	PatchCall(0x5783B0, print_help_to_doc);
 #pragma endregion
 
 #pragma region Hooks

@@ -6,7 +6,7 @@ public:
 	static void Init();
 	static bool newInstance();
 	static std::string get_temp_name(std::string name_suffix = "");
-	static void print_help_to_doc();
+	static void generate_script_doc(const char *filename = nullptr);
 };
 
 typedef char(__cdecl *func_check)(__int16 a1, unsigned __int16 a2);

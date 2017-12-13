@@ -4,6 +4,8 @@
 #include "Patches.h"
 #include "resource.h"
 #include <Shellapi.h>
+#include <iostream>
+#include <fstream>
 
 typedef HWND(__fastcall *create_main_window)(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam);
 create_main_window create_main_window_orginal;
@@ -33,6 +35,12 @@ INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 	return false;
 }
 
+void **script_epilog(void *a1, int return_data)
+{
+	auto script_epilog_impl = reinterpret_cast<void**(__cdecl *)(void *a1, int return_data)>(0x52CC70);
+	return script_epilog_impl(a1, return_data);
+}
+
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
 {
 	if (uMsg == WM_COMMAND) {
@@ -44,6 +52,11 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			case SAPIEN_OPEN_RUN_COMMAND_DIALOG:
 			{
 				DialogBoxParam(g_hModule, MAKEINTRESOURCE(SAPIEN_COMMAND_DIALOG), 0, SapienRunCommandProc, 0);
+				return 1;
+			}
+			case SAPIEN_SCRIPT_DOC:
+			{
+				H2CommonPatches::generate_script_doc();
 				return 1;
 			}
 		}
@@ -86,15 +99,83 @@ std::string baggage_name;
 
 errno_t __cdecl fopen_s_baggage_hook(FILE **File, const char *Filename, const char *Mode)
 {
-	baggage_name = std::tmpnam(nullptr);
-	baggage_name += ".baggage.txt";
+	baggage_name = H2CommonPatches::get_temp_name("baggage.txt");
 	return fopen_s(File, baggage_name.c_str(), "w");
 }
 
 int __cdecl fclose_baggage_hook(FILE *File)
 {
+	int ret_data = fclose(File);
 	ShellExecuteA(NULL, NULL, baggage_name.c_str(), NULL, NULL, SW_SHOW);
-	return fclose(File);
+	return ret_data;
+}
+
+// this is a massive hack but whatever
+bool false_hack = false;
+std::string get_value_as_string(void *var_ptr, hs_type type)
+{
+	std::string value_as_string;
+	if (!var_ptr)
+		var_ptr = &false_hack;
+
+	switch (type) {
+	case hs_type::boolean:
+		value_as_string = *reinterpret_cast<bool*>(var_ptr) ? "True" : "False";
+		return value_as_string;
+	case hs_type::funtion_name:
+		value_as_string = "FIXME: read function name";
+		return value_as_string;
+	case hs_type::long_int:
+		value_as_string = std::to_string(*reinterpret_cast<long*>(var_ptr));
+		return value_as_string;
+	case hs_type::nothing:
+		value_as_string = "<void>";
+		return value_as_string;
+	case hs_type::passthrough:
+		value_as_string = "FIXME: read passthrough";
+		return value_as_string;
+	case hs_type::real:
+		value_as_string = std::to_string(*reinterpret_cast<float*>(var_ptr));
+		return value_as_string;
+	case hs_type::script:
+		value_as_string = "FIXME: read script";
+		return value_as_string;
+	case hs_type::short_int:
+		value_as_string = std::to_string(*reinterpret_cast<short*>(var_ptr));
+		return value_as_string;
+	case hs_type::special_form:
+		value_as_string = "FIXME: read special_form";
+		return value_as_string;
+	}
+}
+
+void **__cdecl status_func_impl(int a1, void *a2, char a3)
+{
+	ofstream output;
+	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
+
+	output.open(temp_file_name, ios::out);
+	if (output)
+	{
+		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
+		{
+			hs_global_variable *current_var = global_table[current_global_id];
+			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
+			output << current_var->name << "   :    " << value_as_string << std::endl;
+		}
+	}
+	output.close();
+	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
+	return script_epilog(a2, 0);
+}
+
+hs_command status_cmd("status", hs_type::nothing, CAST_PTR(func_check,0x581EB0), status_func_impl);
+
+errno_t print_help_to_doc()
+{
+	H2CommonPatches::generate_script_doc("hs_doc.txt");
+	return 0;
 }
 
 void H2SapienPatches::Init()
@@ -117,6 +198,8 @@ void H2SapienPatches::Init()
 	// %ws should really be used for wchar_t strings instead of %s
 	WritePointer(0x477C4F, L"%ws\n\n");
 	WritePointer(0x477D40, L"%ws\n");
+
+	PatchCall(0x5783B0, print_help_to_doc);
 #pragma endregion
 
 #pragma region Hooks
@@ -135,4 +218,7 @@ void H2SapienPatches::Init()
 
 	DetourTransactionCommit();
 #pragma endregion
+
+	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
+	command_table[0x200] = &status_cmd;
 }

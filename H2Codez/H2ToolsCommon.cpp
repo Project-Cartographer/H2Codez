@@ -5,6 +5,8 @@
 #include <regex>
 #include "Psapi.h"
 #include "DiscordInterface.h"
+#include <cassert>
+#include <Shellapi.h>
 
 
 typedef int (WINAPI *LoadStringW_Typedef)(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax);
@@ -67,6 +69,85 @@ bool H2CommonPatches::newInstance()
 	ZeroMemory(&pi, sizeof(pi));
 	CreateProcess(exePath, nullptr, nullptr, nullptr, false, INHERIT_PARENT_AFFINITY, nullptr, nullptr, &si, &pi);
 	return true;
+}
+
+std::string get_command_usage_by_id(unsigned short id)
+{
+	char usage_string[0x800];
+	int get_command_usage_by_id_impl;
+	switch (game.process_type)
+	{
+	case H2Sapien:
+		get_command_usage_by_id_impl = 0x4E2DF0;
+		break;
+	case H2Guerilla:
+		get_command_usage_by_id_impl = 0x4D4F90;
+		break;
+	default:
+		assert(false && "get_command_usage_by_id doesn't support this process type");
+	}
+	__asm {
+		mov ax, id
+		lea edi, usage_string
+		mov esi, 0x800
+		call get_command_usage_by_id_impl
+	}
+	return usage_string;
+}
+
+std::string H2CommonPatches::get_temp_name(std::string name_suffix)
+{
+	std::string name = std::tmpnam(nullptr);
+	if (name_suffix.size() > 0)
+		name += "." + name_suffix;
+	return name;
+}
+
+
+void H2CommonPatches::generate_script_doc(const char *filename)
+{
+	FILE *FilePtr;
+
+	int command_table_ptr_offset;
+	int global_table_ptr_offset;
+
+	switch (game.process_type)
+	{
+	case H2Sapien:
+		command_table_ptr_offset = 0x9E9E90;
+		global_table_ptr_offset = 0x9ECE28;
+		break;
+	case H2Guerilla:
+		command_table_ptr_offset = 0x95BF70;
+		global_table_ptr_offset = 0x95EF08;
+		break;
+	default:
+		assert(false && "generate_script_doc doesn't support this process type");
+	}
+
+	std::string file_name = get_temp_name("hs_doc.txt");
+	if (filename)
+		file_name = filename;
+	hs_command **command_table = reinterpret_cast<hs_command **>(command_table_ptr_offset);
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(global_table_ptr_offset);
+
+	if (!fopen_s(&FilePtr, file_name.c_str(), "w"))
+	{	
+		fprintf(FilePtr, "== Commands ==\r\n\r\n");
+		for (USHORT current_command_id = 0; current_command_id < 924; current_command_id++)
+		{
+			fprintf(FilePtr, "%s\r\n", get_command_usage_by_id(current_command_id).c_str());
+			fprintf(FilePtr, "%s\r\n\r\n", command_table[current_command_id]->desc);
+		}
+		fprintf(FilePtr, "== Script Globals ==\r\n\r\n");
+		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
+		{
+			hs_global_variable *current_var = global_table[current_global_id];
+			fprintf(FilePtr, "(%s <%s>)\r\n", current_var->name, hs_type_string[current_var->type].c_str());
+		}
+		fclose(FilePtr);
+	}
+	ShellExecuteA(NULL, NULL, file_name.c_str(), NULL, NULL, SW_SHOW);
 }
 
 void H2CommonPatches::Init()

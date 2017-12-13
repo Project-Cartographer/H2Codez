@@ -30,6 +30,11 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 			H2CommonPatches::newInstance();
 			return true;
 		}
+		else if (msg == SCRIPT_DOC)
+		{
+			H2CommonPatches::generate_script_doc();
+			return true;
+		}
 	}
 	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, msg, a3, a4, AFX_CMDHANDLERINFO);
 }
@@ -39,6 +44,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 	CCmdUI__Enable_Orginal(thisptr, 0, a2);
 	EnableMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, MF_ENABLED);
 	EnableMenuItem(main_menu, ID_FILE_NEWINSTANCE, MF_ENABLED);
+	EnableMenuItem(main_menu, SCRIPT_DOC, MF_ENABLED);
 }
 
 

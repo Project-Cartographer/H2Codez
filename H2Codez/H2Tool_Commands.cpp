@@ -148,7 +148,7 @@ void H2ToolPatches::structure_bsp_geometry_2D_check_increase()
 .text:00464BA8 120 push    edx
 .text:00464BA9 124 call    collision_bsp_2d_vertex_check   ; Call Procedure
 */
-	WriteBytes(0x464BA5 + 1, new BYTE{0}, 1);
+	WriteBytes(0x464BA5 + 1, new BYTE{1}, 1);
 
 	//No Need to modify the Proc error here cuz it will never hit :)
 }

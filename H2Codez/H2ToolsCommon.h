@@ -68,3 +68,4 @@ struct hs_global_variable {
 	hs_type type;
 	void *variable_ptr;
 };
+static_assert(sizeof(hs_global_variable) == 0xC, "Bad struct size");

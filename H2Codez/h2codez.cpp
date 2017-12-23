@@ -4,7 +4,7 @@
 #include "H2ToolsCommon.h"
 #include "DiscordInterface.h"
 
-string app_directory;
+char app_directory[256];
 DWORD H2EK_Globals::GetBase()
 {
 	return (DWORD)base;
@@ -12,8 +12,7 @@ DWORD H2EK_Globals::GetBase()
 
 BYTE* reverse_addr(void* address)
 {
-	DWORD c = (DWORD)address;
-	BYTE *f = (BYTE*)(&c);
+	BYTE *f = (BYTE*)(&address);
 	return f;
 }
 
@@ -39,12 +38,10 @@ H2EK H2Toolz::detect_type()
 
 bool H2Toolz::Init()
 {
+	GetCurrentDirectory(sizeof(app_directory), app_directory);
 	game.process_type = detect_type();
 	DiscordInterface::setAppType(game.process_type);
 	H2CommonPatches::Init();
-	char tmp[256];
-	GetCurrentDirectory(256, tmp);
-	app_directory = tmp;
 
 	switch (game.process_type) {
 	case H2EK::H2Tool:

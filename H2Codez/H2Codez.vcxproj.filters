@@ -13,52 +13,55 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Game">
-      <UniqueIdentifier>{000a5dc3-1dac-4abf-8c4e-fcd249be9a3c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Debug">
       <UniqueIdentifier>{57fe40d4-1b38-46bb-903c-5da08491c677}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Game\H2Tool">
+    <Filter Include="Source Files\Patches">
+      <UniqueIdentifier>{000a5dc3-1dac-4abf-8c4e-fcd249be9a3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Patches\H2Tool">
       <UniqueIdentifier>{e9bdf11d-b1b6-4c4c-8156-79df85f6dfca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Game\H2Tool\BlamLibImports">
+    <Filter Include="Source Files\Patches\H2Tool\BlamLibImports">
       <UniqueIdentifier>{daf8e8e0-7da1-49f3-9bbb-91adb88b3c71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\common">
-      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Game\H2Guerilla">
+    <Filter Include="Source Files\Patches\H2Guerilla">
       <UniqueIdentifier>{a70f740b-2fff-4682-b725-1a1d6f10fe65}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Game\H2Sapien">
+    <Filter Include="Source Files\Patches\H2Sapien">
       <UniqueIdentifier>{be558aee-4175-471c-afac-82801a07f4b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Game\Common Patches">
+    <Filter Include="Source Files\Common Interface">
       <UniqueIdentifier>{fa4a8928-3838-40b7-8b15-0f517eb11655}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Interfaces">
+      <UniqueIdentifier>{58180921-4d86-4ddd-9f94-6f967c0598d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Interfaces\H2Sapien">
+      <UniqueIdentifier>{62db5d7d-4bba-4fb5-b9be-d971de49d3f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </None>
     <None Include="H2Tool\ToolCommandDefinitions.inl">
-      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+      <Filter>Source Files\Patches\H2Tool\BlamLibImports</Filter>
     </None>
     <None Include="H2Tool\Sounds.inl">
-      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+      <Filter>Source Files\Patches\H2Tool\BlamLibImports</Filter>
     </None>
     <None Include="H2Tool\LostToolCommands.inl">
-      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
+      <Filter>Source Files\Patches\H2Tool\BlamLibImports</Filter>
     </None>
     <None Include="H2Tool\Animations.inl">
-      <Filter>Source Files\Game\H2Tool\BlamLibImports</Filter>
-    </None>
-    <None Include="Hs_Scripts.inl">
-      <Filter>Source Files\common</Filter>
+      <Filter>Source Files\Patches\H2Tool\BlamLibImports</Filter>
     </None>
     <None Include="H2Tool\H2ToolLibrary.inl">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -75,31 +78,34 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H2Tool\H2Tool_Commands.h">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
     <ClInclude Include="h2codez.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="H2Guerilla.h">
-      <Filter>Source Files\Game\H2Guerilla</Filter>
+      <Filter>Source Files\Patches\H2Guerilla</Filter>
     </ClInclude>
     <ClInclude Include="Patches.h">
-      <Filter>Source Files\common</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClInclude>
     <ClInclude Include="H2Sapien.h">
-      <Filter>Source Files\Game\H2Sapien</Filter>
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
     <ClInclude Include="H2ToolsCommon.h">
-      <Filter>Source Files\Game\Common Patches</Filter>
+      <Filter>Source Files\Common Interface</Filter>
     </ClInclude>
     <ClInclude Include="Version.h">
-      <Filter>Source Files\Game\Common Patches</Filter>
+      <Filter>Source Files\Common Interface</Filter>
     </ClInclude>
     <ClInclude Include="DiscordInterface.h">
-      <Filter>Source Files\Game\Common Patches</Filter>
+      <Filter>Source Files\Common Interface</Filter>
     </ClInclude>
     <ClInclude Include="H2Tool\H2Tool_Render_Model.h">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript.h">
+      <Filter>Source Files\Interfaces\H2Sapien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,31 +116,34 @@
       <Filter>Source Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="H2Tool_Commands.cpp">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
     <ClCompile Include="h2codez.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="H2Guerilla.cpp">
-      <Filter>Source Files\Game\H2Guerilla</Filter>
+      <Filter>Source Files\Patches\H2Guerilla</Filter>
     </ClCompile>
     <ClCompile Include="patches.cpp">
-      <Filter>Source Files\common</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="H2Sapien.cpp">
-      <Filter>Source Files\Game\H2Sapien</Filter>
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files\common</Filter>
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="H2ToolsCommon.cpp">
-      <Filter>Source Files\Game\Common Patches</Filter>
+      <Filter>Source Files\Common Interface</Filter>
     </ClCompile>
     <ClCompile Include="DiscordInterface.cpp">
-      <Filter>Source Files\Game\Common Patches</Filter>
+      <Filter>Source Files\Common Interface</Filter>
     </ClCompile>
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp">
-      <Filter>Source Files\Game\H2Tool</Filter>
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="HaloScript.cpp">
+      <Filter>Source Files\Interfaces\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

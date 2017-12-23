@@ -214,8 +214,7 @@ static bool _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, cha
 		char c_out_path[256];
 		WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
 
-		std::string t; // a String that holds the containing_folder of the current generated tags
-		t = app_directory.c_str();
+		std::string t = app_directory; // a String that holds the containing_folder of the current generated tags
 		t.append("\\tags\\");
 		t.append(c_out_path);
 

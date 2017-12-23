@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -96,7 +96,6 @@
     <None Include="H2Tool\LostToolCommands.inl" />
     <None Include="H2Tool\Sounds.inl" />
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
-    <None Include="Hs_Scripts.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DiscordInterface.h" />
@@ -106,6 +105,7 @@
     <ClInclude Include="H2ToolsCommon.h" />
     <ClInclude Include="H2Tool\H2Tool_Commands.h" />
     <ClInclude Include="H2Tool\H2Tool_Render_Model.h" />
+    <ClInclude Include="HaloScript.h" />
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
     <ClInclude Include="resource.h" />
@@ -129,6 +129,7 @@
     <ClCompile Include="H2ToolsCommon.cpp" />
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool_Commands.cpp" />
+    <ClCompile Include="HaloScript.cpp" />
     <ClCompile Include="Logs.cpp" />
     <ClCompile Include="patches.cpp" />
     <ClCompile Include="stdafx.cpp">

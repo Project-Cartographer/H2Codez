@@ -35,11 +35,8 @@
 #include "Patches.h"
 
 
-
-
 extern BOOL EnableDbgConsole;
-extern string app_directory;
-
+extern char app_directory[256];
 
 
 #pragma comment(lib, "Detours/detours")
@@ -60,8 +57,4 @@ using std::ofstream;
 
 #pragma endregion
 
-
-
-
-// TODO: reference additional headers your program requires here
 extern HMODULE g_hModule;

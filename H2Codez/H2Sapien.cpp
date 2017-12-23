@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "H2Sapien.h"
 #include "H2ToolsCommon.h"
+#include "HaloScript.h"
 #include "Patches.h"
 #include "resource.h"
 #include <Shellapi.h>
@@ -110,45 +111,6 @@ int __cdecl fclose_baggage_hook(FILE *File)
 	return ret_data;
 }
 
-// this is a massive hack but whatever
-bool false_hack = false;
-std::string get_value_as_string(void *var_ptr, hs_type type)
-{
-	std::string value_as_string;
-	if (!var_ptr)
-		var_ptr = &false_hack;
-
-	switch (type) {
-	case hs_type::boolean:
-		value_as_string = *reinterpret_cast<bool*>(var_ptr) ? "True" : "False";
-		return value_as_string;
-	case hs_type::funtion_name:
-		value_as_string = "FIXME: read function name";
-		return value_as_string;
-	case hs_type::long_int:
-		value_as_string = std::to_string(*reinterpret_cast<long*>(var_ptr));
-		return value_as_string;
-	case hs_type::nothing:
-		value_as_string = "<void>";
-		return value_as_string;
-	case hs_type::passthrough:
-		value_as_string = "FIXME: read passthrough";
-		return value_as_string;
-	case hs_type::real:
-		value_as_string = std::to_string(*reinterpret_cast<float*>(var_ptr));
-		return value_as_string;
-	case hs_type::script:
-		value_as_string = "FIXME: read script";
-		return value_as_string;
-	case hs_type::short_int:
-		value_as_string = std::to_string(*reinterpret_cast<short*>(var_ptr));
-		return value_as_string;
-	case hs_type::special_form:
-		value_as_string = "FIXME: read special_form";
-		return value_as_string;
-	}
-}
-
 void **__cdecl status_func_impl(int a1, void *a2, char a3)
 {
 	ofstream output;
@@ -161,13 +123,13 @@ void **__cdecl status_func_impl(int a1, void *a2, char a3)
 		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
 		{
 			hs_global_variable *current_var = global_table[current_global_id];
-			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
+			std::string value_as_string = HaloScript::get_value_as_string(current_var->variable_ptr, current_var->type);
 			output << current_var->name << "   :    " << value_as_string << std::endl;
 		}
 	}
 	output.close();
 	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
-	return script_epilog(a2, 0);
+	return HaloScript::epilog(a2, 0);
 }
 
 hs_command status_cmd("status", hs_type::nothing, CAST_PTR(func_check,0x581EB0), status_func_impl);

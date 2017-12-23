@@ -15,7 +15,7 @@ static void _cdecl import_model_render_proc(wcstring arguments)
 {
 	static _tool_command_proc _import_model_render_proc = CAST_PTR(_tool_command_proc, 0x41C7A0);
 
-	wprintf_s(L"Prepare for a whole lotta nothin'!\n");
+//	wprintf_s(L"Prepare for a whole lotta nothin'!\n");
 	_import_model_render_proc(arguments);
 }
 

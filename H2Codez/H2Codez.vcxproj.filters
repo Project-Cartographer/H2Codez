@@ -57,6 +57,9 @@
     <None Include="Hs_Scripts.inl">
       <Filter>Source Files\common</Filter>
     </None>
+    <None Include="H2Tool\H2ToolLibrary.inl">
+      <Filter>Source Files\Game\H2Tool</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -83,9 +86,6 @@
     <ClInclude Include="Patches.h">
       <Filter>Source Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="SigScanning.h">
-      <Filter>Source Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="H2Sapien.h">
       <Filter>Source Files\Game\H2Sapien</Filter>
     </ClInclude>
@@ -97,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="DiscordInterface.h">
       <Filter>Source Files\Game\Common Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Tool\H2Tool_Render_Model.h">
+      <Filter>Source Files\Game\H2Tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +132,9 @@
     </ClCompile>
     <ClCompile Include="DiscordInterface.cpp">
       <Filter>Source Files\Game\Common Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp">
+      <Filter>Source Files\Game\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -82,7 +82,7 @@ void H2GuerrilaPatches::update_field_display()
 	else {
 		BYTE orginal_code[8] = { 0x84, 0xC0, // test al, al
 			0x0F, 0x84, 0x72, 0x01, 0x00, 0x00 }; // jz loc_44CF24
-		WriteBytesASM(0x44CDAA, orginal_code, 8);
+		WriteBytes(0x44CDAA, orginal_code, 8);
 	}
 }
 
@@ -92,11 +92,11 @@ void H2GuerrilaPatches::toggle_display_templates()
 	if (enable_advanced_shaders) {
 		// Disable Tag Template Views
 		BYTE patch[0x3] = { 0x33, 0xC0, 0xC3 }; // xor eax, eax; retn
-		WriteBytesASM(0x48E730, patch, 0x3);
+		WriteBytes(0x48E730, patch, 0x3);
 	} else {
 		// orignal code
 		BYTE patch[0x3] = { 0x8B, 0x4C, 0x24 };
-		WriteBytesASM(0x48E730, patch, 0x3);
+		WriteBytes(0x48E730, patch, 0x3);
 	}
 }
 
@@ -113,16 +113,16 @@ void H2GuerrilaPatches::Init()
 	NopFill(0x4476E7, 0x23);
 
 	BYTE patch_can_display_tag[0x3] = { 0xB0, 0x01, 0xC3 }; // mov al, 1; retn
-	WriteBytesASM(0x47FB10, patch_can_display_tag, 0x3);
+	WriteBytes(0x47FB10, patch_can_display_tag, 0x3);
 
 	BYTE patch_file_extenstion_check[0x4] = { 0xE9, 0xCD, 0x00, 0x00 }; // mov al, 1; retn
-	WriteBytesASM(0x47FB8D, patch_file_extenstion_check, 0x4);
+	WriteBytes(0x47FB8D, patch_file_extenstion_check, 0x4);
 
 	// End patches copied from opensauce
 
 	// Doesn't fix the underlying issue, just removes the error message allowing one more scenerio to be opened
 	BYTE patch_out_of_resources[0x2] = { 0xEB, 0x03 };
-	WriteBytesASM(0x44CF1F, patch_out_of_resources, 0x2);
+	WriteBytes(0x44CF1F, patch_out_of_resources, 0x2);
 	NopFill(0x44CDD0, 0x5);
 
 #pragma endregion

@@ -32,11 +32,13 @@
 #include "Logs.h"
 #include "H2Tool\H2Tool_Commands.h"
 #include "discord-rpc.h"
+#include "Patches.h"
 
 
 
 
 extern BOOL EnableDbgConsole;
+extern string app_directory;
 
 
 

@@ -79,7 +79,7 @@ void H2ToolPatches::Increase_structure_import_size_Check()
 	DWORD new_size = 0x1400000 * TOOL_INCREASE_FACTOR; ///671.08864 MB
 	BYTE* f = reverse_addr(CAST_PTR(void*, new_size));
 	BYTE Size_Patch[4] = { f[0],f[1],f[2],f[3]};
-	WriteBytesASM(0x41F836+4, Size_Patch, 4);
+	WriteBytes(0x41F836+4, Size_Patch, 4);
 
 }
 void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
@@ -106,8 +106,8 @@ void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 	BYTE edges_vertices_count_Patch[4] = { f[0],f[1],f[2],f[3] };
 
 	//Patching in Memory
-	WriteBytesASM(0x5A2D50 + 4, collision_surfaces_count_Patch, 4);
-	WriteBytesASM(0x5A2D5A + 1, edges_vertices_count_Patch, 4);
+	WriteBytes(0x5A2D50 + 4, collision_surfaces_count_Patch, 4);
+	WriteBytes(0x5A2D5A + 1, edges_vertices_count_Patch, 4);
 
 	///Also Patching in the error_proc method incase we ever hit this Limit :)
 /*
@@ -117,9 +117,9 @@ void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 .text:00464C5B 124 push    ecx
 .text:00464C5C 128 push    7FFFh
 */
-	WriteBytesASM(0x464C50 + 1, edges_vertices_count_Patch, 4);
-	WriteBytesASM(0x464C56 + 1, edges_vertices_count_Patch, 4);
-	WriteBytesASM(0x464C5C + 1, collision_surfaces_count_Patch, 4);
+	WriteBytes(0x464C50 + 1, edges_vertices_count_Patch, 4);
+	WriteBytes(0x464C56 + 1, edges_vertices_count_Patch, 4);
+	WriteBytes(0x464C5C + 1, collision_surfaces_count_Patch, 4);
 
 
 }
@@ -136,7 +136,7 @@ void H2ToolPatches::structure_bsp_geometry_3D_check_increase()
 	DWORD new_planes_count = 0x8000 *TOOL_INCREASE_FACTOR; ///1048576
 	BYTE* f = reverse_addr(CAST_PTR(void*, new_planes_count));
 	BYTE count_Patch[4] = { f[0],f[1],f[2],f[3] };
-	WriteBytesASM(0x5A2CFB+4, count_Patch, 4);
+	WriteBytes(0x5A2CFB+4, count_Patch, 4);
 
 
 }
@@ -148,7 +148,7 @@ void H2ToolPatches::structure_bsp_geometry_2D_check_increase()
 .text:00464BA8 120 push    edx
 .text:00464BA9 124 call    collision_bsp_2d_vertex_check   ; Call Procedure
 */
-	WriteBytesASM(0x464BA5 + 1, new BYTE{0}, 1);
+	WriteBytes(0x464BA5 + 1, new BYTE{0}, 1);
 
 	//No Need to modify the Proc error here cuz it will never hit :)
 }
@@ -255,7 +255,7 @@ void H2ToolPatches::apply_shared_tag_removal_scheme()
 	};
 
 	BYTE patch[1] = { 0x0 };
-	for (int x = 0; x < NUMBEROF(patching_offsets_list); x++)			WriteBytesASM((DWORD)(patching_offsets_list[x] + 1), patch, 1);//patching push 1 -> push 0
+	for (int x = 0; x < NUMBEROF(patching_offsets_list); x++)			WriteBytes((DWORD)(patching_offsets_list[x] + 1), patch, 1);//patching push 1 -> push 0
 }
 
 void H2ToolPatches::unlock_other_scenario_types_compiling()
@@ -263,7 +263,7 @@ void H2ToolPatches::unlock_other_scenario_types_compiling()
 	//Refer to H2EK_OpenSauce Campaign_sharing
 	static void* BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE = CAST_PTR(void*,0x588320);
 	BYTE patch[1] = {0xEB};
-	WriteBytesASM((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE, patch, 1);//change jz to jmp
+	WriteBytes((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE, patch, 1);//change jz to jmp
 
 }
 static void _cdecl _build_cache_file_for_scenario__intercept_get_scenario_type()
@@ -299,8 +299,8 @@ static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(voi
 		BYTE k_name_ptr_patch[4] = { f[0],f[1],f[2],f[3] };
 		
 	    //replacing shared.map text with single_player_shared.map text
-		WriteBytesASM((DWORD)(TAG_SHARING_LOAD_SHARED_NAME1), k_name_ptr_patch, sizeof(k_name_ptr_patch));
-		WriteBytesASM((DWORD)(TAG_SHARING_LOAD_SHARED_NAME2), k_name_ptr_patch, sizeof(k_name_ptr_patch));
+		WriteBytes((DWORD)(TAG_SHARING_LOAD_SHARED_NAME1), k_name_ptr_patch, sizeof(k_name_ptr_patch));
+		WriteBytes((DWORD)(TAG_SHARING_LOAD_SHARED_NAME2), k_name_ptr_patch, sizeof(k_name_ptr_patch));
 	}
 	H2PCTool.WriteLog("loading....tag_sharing method");
 
@@ -308,6 +308,18 @@ static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(voi
 	DWORD TAG_SHARING_LOAD_MULTIPLAYER_SHARED = 0x5813C0;
 	return ((char(__cdecl *)(void*, void*))TAG_SHARING_LOAD_MULTIPLAYER_SHARED)(a1,a2);// call Function via address
 
+}
+void H2ToolPatches::render_model_import_unlock()
+{
+	//Patches the h2tool to use the custom render_model_generation methods
+
+	///Patch Details::#1 patching the orignal render_model_generate function to call mine
+	/*
+	.text:0041C7A0 000                 mov     eax, [esp+arguments]
+	.text:0041C7A4 000                 mov     ecx, [eax]
+	.text:0041C7A6 000                 jmp     loc_41C4A0      ; Jump
+	*/
+	PatchCall(0x41C7A6, (void*)h2pc_import_render_model_proc);
 }
 
 void H2ToolPatches::enable_campaign_tags_sharing()
@@ -346,6 +358,7 @@ void H2ToolPatches::Initialize()
 	Increase_structure_bsp_geometry_check();
 	AddExtraCommands();
 	unlock_other_scenario_types_compiling();
+	render_model_import_unlock();
 	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)
@@ -404,7 +417,7 @@ void H2ToolPatches::AddExtraCommands()
 
 	H2PCTool.WriteLog("Reversed : %0X %0X %0X %0X", f[0], f[1], f[2], f[3]);
 
-	for (int x = 0; x < NUMBEROF(tool_commands_references); x++)	WriteBytesASM((DWORD)tool_commands_references[x], Reference_Patch, 4); 
+	for (int x = 0; x < NUMBEROF(tool_commands_references); x++)	WriteBytes((DWORD)tool_commands_references[x], Reference_Patch, 4); 
 	
 
 
@@ -417,7 +430,7 @@ void H2ToolPatches::AddExtraCommands()
 	BYTE Count_Patch[1] = { k_number_of_tool_commands_new }; // cmp     si, 0Ch 
 
 
-	for (int x = 0; x < NUMBEROF(tool_commands_count); x++)			WriteBytesASM((DWORD)tool_commands_count[x], Count_Patch, 1);
+	for (int x = 0; x < NUMBEROF(tool_commands_count); x++)			WriteBytes((DWORD)tool_commands_count[x], Count_Patch, 1);
 
 
 

@@ -91,6 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="H2Tool\Animations.inl" />
+    <None Include="H2Tool\H2ToolLibrary.inl" />
     <None Include="H2Tool\H2Tool_extra_commands.inl" />
     <None Include="H2Tool\LostToolCommands.inl" />
     <None Include="H2Tool\Sounds.inl" />
@@ -104,10 +105,10 @@
     <ClInclude Include="H2Sapien.h" />
     <ClInclude Include="H2ToolsCommon.h" />
     <ClInclude Include="H2Tool\H2Tool_Commands.h" />
+    <ClInclude Include="H2Tool\H2Tool_Render_Model.h" />
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SigScanning.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Version.h" />
@@ -126,6 +127,7 @@
     <ClCompile Include="H2Guerilla.cpp" />
     <ClCompile Include="H2Sapien.cpp" />
     <ClCompile Include="H2ToolsCommon.cpp" />
+    <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool_Commands.cpp" />
     <ClCompile Include="Logs.cpp" />
     <ClCompile Include="patches.cpp" />

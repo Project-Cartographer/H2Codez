@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "H2ToolLibrary.inl"
+#include "H2Tool_Render_Model.h"
 #include <codecvt>
 
 
@@ -18,29 +20,21 @@ static const s_tool_command_argument tool_build_structure_from_jms_arguments[] =
 	"Name of Structure BSP",
 	}
 };
+void _cdecl tool_build_structure_from_jms_proc(wcstring* args)
+{
+	typedef void(_cdecl* _tool_build_structure_from_jms_proc)(wcstring*);
+	static _tool_build_structure_from_jms_proc tool_build_structure_from_jms_proc_ = CAST_PTR(_tool_build_structure_from_jms_proc, 0x420220);
+	tool_build_structure_from_jms_proc_(args);
+
+}
 static const s_tool_command tool_build_structure_from_jms = {
 	L"structure new from jms",
-	CAST_PTR(_tool_command_proc, 0x420220),
+	CAST_PTR(_tool_command_proc, tool_build_structure_from_jms_proc),
 	tool_build_structure_from_jms_arguments,	NUMBEROF(tool_build_structure_from_jms_arguments),
 	false
 };
 
-static const char* get_h2tool_version()
-{
-	typedef char*(_cdecl* _get_h2tool_build_date)();
-	static _get_h2tool_build_date get_h2tool_build_date = CAST_PTR(_get_h2tool_build_date, 0xEA760);
-
-	return get_h2tool_build_date();
-
-}
-static int __cdecl TAG_LOAD(int tag_type, cstring tags_directory, int a3)
-{
-	typedef int(_cdecl* _TAG_LOAD)(int,cstring,int);
-	static _TAG_LOAD TAG_LOAD_ = CAST_PTR(_TAG_LOAD, 0x533930);
-
-	return TAG_LOAD_(tag_type,tags_directory,a3);
-}
-
+#pragma region H2ToolDev_commands
 #pragma region Notes on H2ToolDev_commands
 
 //Let me Some up whats H2Tool Dev commands
@@ -60,8 +54,8 @@ static DWORD GetH2Tool_Dev__by_name(wcstring W_function_name)
 	int TABLE_END = 0x97B064;
 	for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
 	{
-		cstring command_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-		if (strcmp(function_name.c_str(), command_name) == 0)
+		s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
+		if (strcmp(function_name.c_str(), cmd->name) == 0)
 			return TABLE_START;
 
 
@@ -85,9 +79,9 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 			int TABLE_END = 0x97B064;
 			for (;TABLE_START <= TABLE_END;TABLE_START += 0x1C)
 			{
-				cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-				printf("  %s\n", name);
-				H2PCTool.WriteLog(name);//Store It in log
+				s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
+				printf("  %s\n", cmd->name);
+				H2PCTool.WriteLog(cmd->name);//Store It in log
 			}
 			return;
 		}
@@ -98,9 +92,9 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 			int TABLE_END = 0x97B064;
 			for (int a = 1;TABLE_START <= TABLE_END;TABLE_START += 0x1C, a++)
 			{
-				cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-				printf("  %s\n", name);
-				H2PCTool.WriteLog(name);//Store It log
+				s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
+				printf("  %s\n", cmd->name);
+				H2PCTool.WriteLog(cmd->name);//Store It log
 				if (a == stoll(command_parameter_0))
 					return;
 			}
@@ -122,9 +116,8 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 				printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
 				return;
 			}
-			cstring name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-			cstring description = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 4));
-			printf("\n  usage : %s\n  Description : %s\n", name, description);
+			s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
+			printf("\n  usage : %s\n  Description : %s\n", cmd->name, cmd->description);
 			return;
 		}
 		else
@@ -144,19 +137,15 @@ static void _cdecl h2dev_extra_commands_proc(wcstring* arguments)
 			return;
 		}
 		else
-		{
-
-			cstring f_name = CAST_PTR(cstring, *(DWORD*)TABLE_START);
-			DWORD f_tag_type =  *(DWORD*)(TABLE_START + 8);
-
+		{			
+			s_tool_h2dev_command *cmd = new (CAST_PTR(void*, TABLE_START))s_tool_h2dev_command;
 			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
-			H2PCTool.WriteLog("Tag Type %X \n %s",f_tag_type,f_parameter);			
-			DWORD tag_index = TAG_LOAD(f_tag_type, f_parameter.c_str(), 7);
-
-			if(((char(__cdecl *)( wchar_t* ,int))*(DWORD*)(TABLE_START+0x18))(0, tag_index))// call Function via address			
-			return;
-			cstring f_description = CAST_PTR(cstring, *(DWORD*)(TABLE_START + 4));
-			printf("\n  usage : %s\n  Description : %s\n", f_name, f_description);
+			DWORD tag_index = TAG_LOAD(cmd->tag_type, f_parameter.c_str(), 7);
+			if (tag_index != -1)				
+				if (cmd->import_proc(0, tag_index))
+					return;
+			printf("\n  Unable to Load tag\n");
+			printf("\n  usage : %s\n  Description : %s\n", cmd->name, cmd->description);
 		}
 
 		printf("\n  No such command present.");
@@ -184,5 +173,214 @@ static const s_tool_command h2dev_extra_commands_defination = {
 	false
 };
 
+#pragma endregion
+#pragma region Render_model_import
 
 
+static WCHAR out_path[256];
+static cstring render_model_folder = "render";
+static bool _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, char* _TAG_INDEX_)
+{
+	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
+	DWORD MODE_TAG = TAG_GET('mode', TAG_INDEX);
+	DWORD import_info_block_offset = MODE_TAG + 0xC;
+
+	if (MODE_TAG != -1) {
+		if (!TAG_ADD_IMPORT_INFO_ADD_DATA_(CAST_PTR(void*, import_info_block_offset), sFILE_REF))
+			return false;
+
+		printf("    == Import info  Added \n");
+		DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
+		DWORD SBSP_FOLDER_LOAD_2 = 0x41F52D;
+
+
+		BYTE *f = reverse_addr((void*)render_model_folder);
+		BYTE k_name_ptr_patch[4] = { f[0],f[1],f[2],f[3] };
+
+		//replacing 'structure' folder text with 'render' folder
+		WriteBytes((DWORD)(SBSP_FOLDER_LOAD_1), k_name_ptr_patch, sizeof(k_name_ptr_patch));
+		WriteBytes((DWORD)(SBSP_FOLDER_LOAD_2), k_name_ptr_patch, sizeof(k_name_ptr_patch));
+
+
+
+		char* jms_file_path = (char*)sFILE_REF.file_name;
+
+		WCHAR w_path[256];
+		MultiByteToWideChar(0xFDE9u, 0, jms_file_path, 0xFFFFFFFF, w_path, 0x104);
+
+		wcstring p[2] = { w_path,L"sbsp_temp" };
+		tool_build_structure_from_jms_proc(p);
+
+		char c_out_path[256];
+		WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
+
+		std::string t; // a String that holds the containing_folder of the current generated tags
+		t = app_directory.c_str();
+		t.append("\\tags\\");
+		t.append(c_out_path);
+
+
+		char sbsp_file_name[256];
+		GetFileAttributefromFILE(sFILE_REF, ATTRIBUTES_TYPE::FILE_NAME, sbsp_file_name);
+
+		std::string sbsp_file = t;
+		sbsp_file.append("\\");
+		sbsp_file.append(sbsp_file_name);
+		sbsp_file.append(".scenario_structure_bsp");
+
+		printf("    == saving temporary render_model  \n");
+		TAG_SAVE(TAG_INDEX);//creating the current render_model file in Disk
+		TAG_UNLOAD(TAG_INDEX);
+
+		std::string render_model_file_name_ = strrchr(c_out_path, '\\');
+		render_model_file_name_ = render_model_file_name_.substr(1).c_str();
+
+		std::string mode_file = t;
+		mode_file.append("\\");
+		mode_file.append(render_model_file_name_);
+		mode_file.append(".render_model");
+
+		
+		ifstream fin;
+		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
+		DWORD sbsp_size = fin.tellg();
+		fin.seekg(0x0, ios::beg);
+
+		char* sbsp_data = new char[sbsp_size];
+		fin.read(sbsp_data, sbsp_size);
+
+		fin.close();
+
+		fin.open(mode_file.c_str(), ios::binary | ios::in | ios::ate);
+		DWORD mode_size = fin.tellg();
+		fin.seekg(0x0, ios::beg);
+
+		char* mode_data = new char[mode_size];
+		fin.read(mode_data, mode_size);
+
+		fin.close();
+
+		printf("    == generating new %s.render_model  \n", render_model_file_name_.c_str());
+
+		tag_data_struct* sbsp_data_struct = new tag_data_struct();
+
+		sbsp_data_struct->tag_data = sbsp_data;
+		sbsp_data_struct->size = sbsp_size;
+
+		sbsp_mode* obj = new sbsp_mode(mode_data, mode_size);
+		obj->Add_sbps_DATA(1, sbsp_data_struct);
+
+		tag_data_struct* lol = obj->Get_Tag_DATA();
+
+		ofstream fout;
+		fout.open(mode_file.c_str(), ios::binary | ios::out);
+		fout.write(lol->tag_data, lol->size);
+		fout.close();
+
+		printf("    == Added Cluster Data  \n");
+		printf("      ### saved render model file '%s' ", render_model_file_name_.c_str());		
+		return true;
+
+
+	}
+	return true;
+
+}
+static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
+	"jms",
+	CAST_PTR(_tool_import__defination_proc,TAG_RENDER_MODEL_IMPORT_PROC),
+	0,
+	0,
+};
+
+static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
+static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, s_file_reference& FILE_REF)
+{
+	bool k_render_model_imported = FALSE;
+	DWORD mode_tag_file = TAG_GET('mode', TAG_INDEX);
+	DWORD import_info_block_offset = mode_tag_file + 0xC;
+
+
+	if (load_model_object_definations_(import_info_block_offset, jms_collision_geometry_import_defination_, 1, FILE_REF))
+	{
+		if (TAG_ADD_IMPORT_INFO_BLOCK(CAST_PTR(void*, import_info_block_offset)))
+		{
+			int defination_addr = (int)&TAG_RENDER_IMPORT_DEFINATIONS_;
+			use_import_definitions(CAST_PTR(void*, defination_addr), 1, FILE_REF, (void*)TAG_INDEX, 0);
+			k_render_model_imported = TRUE;
+
+		}
+	}
+	return k_render_model_imported;
+
+}
+static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
+{
+
+	s_file_reference reference;
+
+	WCHAR WideCharStr[256];
+	char MultiByteStr[256];
+	bool b_render_imported = true;
+
+
+	if (tool_build_paths(arguments[0], "render", reference, out_path, WideCharStr))
+	{
+		WideCharToMultiByte(0xFDE9u, 0, WideCharStr, 0xFFFFFFFF, MultiByteStr, 0x100, 0, 0);
+		DWORD TAG_INDEX = TAG_LOAD('mode', MultiByteStr, 7);
+		if (TAG_INDEX != -1)
+		{
+
+			DWORD RENDER_MODEL_TAG = TAG_GET('mode', TAG_INDEX);
+			DWORD import_info_field = RENDER_MODEL_TAG + 0xC;
+
+			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, reference))
+				b_render_imported = false;
+
+			TAG_UNLOAD(TAG_INDEX);
+			if (!b_render_imported)
+				return b_render_imported;
+		}
+		char render_import_file_name[256]; GetFileAttributefromFILE(reference, ATTRIBUTES_TYPE::CONTAINING_FOLDER, render_import_file_name);
+		printf("        ### creating new render model file with name '%s' \n ", render_import_file_name);
+		TAG_INDEX = TAG_NEW('mode', MultiByteStr);
+
+		if (TAG_INDEX != -1)
+		{
+			if (TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX, 0))
+			{
+				if (h2pc_generate_render_model_(TAG_INDEX, reference))
+				{
+					b_render_imported = true;
+					//TAG_SAVE(TAG_INDEX);				
+
+				}
+				else
+				{
+					printf("      ### FATAL ERROR unable to generate render model '%s' \n", render_import_file_name);
+					b_render_imported = false;
+				}
+			}
+			else
+			{
+				printf("      ### ERROR render model '%s' is not writable\n", render_import_file_name);
+				TAG_UNLOAD(TAG_INDEX);
+				b_render_imported = false;
+			}
+		}
+		else
+		{
+			printf("     ### ERROR unable to create render model '%s'\n", render_import_file_name);
+			b_render_imported = false;
+		}
+
+	}
+	else
+	{
+		wprintf(L"### ERROR unable to find 'render' data directory for '%s' ", arguments[0]);
+		b_render_imported = false;
+	}
+	return b_render_imported;
+}
+
+#pragma endregion

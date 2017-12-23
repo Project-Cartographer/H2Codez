@@ -17,11 +17,6 @@ Logs H2PCTool = Logs("H2PCTool.log");
 
 BOOL EnableDbgConsole;
 
-
-
-#define PI 3.14159265
-#define degreesToRadians(angleDegrees) (angleDegrees * PI / 180.0)
-#define radiansToDegrees(angleRadians) (angleRadians * 180.0 / PI)
 #pragma endregion
 
 
@@ -71,15 +66,7 @@ DWORD WINAPI H2EK_Initz(LPVOID)
 }
 */
 
-DWORD WINAPI SigScanning(LPVOID)
-{
-	EnableDbgConsole = TRUE;
-	Dbg.Start_Console();
-	pLog.WriteLog("\n*** H2 Codez***\nBETA v1.5\n :) \nInjected Successfully");
-	DWORD ADDY = FindPattern("\x83\x3D\x00\x00\x00\x00\x00\xC7\x05\x00\x00\x00\x00\x00\x00\x00\x00\x89\x3D\x00\x00\x00\x00\x75\x73\x6A\x00\x68\x00\x00\x00\x00\xE8\x00\x00\x00\x00", "xx?????xx????????xx????xxxxx????x????");
-	pLog.WriteLog("Address of Function : %X", ADDY);
-	return 0;
-}
+
 
 __declspec(dllexport) void IIDking_import(void) {};
 

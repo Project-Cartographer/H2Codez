@@ -1,6 +1,6 @@
 #pragma once
 
-VOID WriteBytesASM(DWORD destAddress, LPVOID patch, DWORD numBytes);
+VOID WriteBytes(DWORD destAddress, LPVOID patch, DWORD numBytes);
 VOID PatchCall(DWORD call_addr, DWORD new_function_ptr);
 VOID WritePointer(DWORD offset, void *ptr);
 inline void PatchCall(DWORD call_addr, void *new_function_ptr)
@@ -14,10 +14,10 @@ inline void PatchCall(DWORD call_addr, void *new_function_ptr)
 #define NopFill(Address, len)                         \
 BYTE J(NopFIll_, __LINE__ )[len];                     \
 	std::fill_n(J(NopFIll_, __LINE__ ), len, 0x90);   \
-	WriteBytesASM(Address, J(NopFIll_, __LINE__ ), len)
+	WriteBytes(Address, J(NopFIll_, __LINE__ ), len)
 
 //Write a jmp to addy at Line
 #define WriteJmpTo(PatchLine,JMPtoAddr)\
     BYTE patch[1] = { 0xE8 };\
-    WriteBytesASM((DWORD)PatchLine, patch, 1);\
+    WriteBytes((DWORD)PatchLine, patch, 1);\
     PatchCall((DWORD)PatchLine,(DWORD)JMPtoAddr);

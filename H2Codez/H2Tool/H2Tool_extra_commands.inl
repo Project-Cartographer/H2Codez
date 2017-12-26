@@ -229,8 +229,8 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, cha
 
 		fin.close();
 		
-		DeleteFile(sbsp_file.c_str());
-		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
+//		DeleteFile(sbsp_file.c_str());
+//		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
 
 		if (global_geometry_imported_count == 0)
 		{

@@ -3,9 +3,7 @@
 #include "H2Tool_Render_Model.h"
 #include <codecvt>
 
-
 //List of extra commands i found are contained here
-
 static const s_tool_command_argument tool_build_structure_from_jms_arguments[] = {
 	{
 		_tool_command_argument_type_data_directory,
@@ -20,11 +18,11 @@ static const s_tool_command_argument tool_build_structure_from_jms_arguments[] =
 	"Name of Structure BSP",
 	}
 };
-void _cdecl tool_build_structure_from_jms_proc(wcstring* args)
+bool _cdecl tool_build_structure_from_jms_proc(wcstring* args)
 {
-	typedef void(_cdecl* _tool_build_structure_from_jms_proc)(wcstring*);
+	typedef bool(_cdecl* _tool_build_structure_from_jms_proc)(wcstring*);
 	static _tool_build_structure_from_jms_proc tool_build_structure_from_jms_proc_ = CAST_PTR(_tool_build_structure_from_jms_proc, 0x420220);
-	tool_build_structure_from_jms_proc_(args);
+	return tool_build_structure_from_jms_proc_(args);
 
 }
 static const s_tool_command tool_build_structure_from_jms = {
@@ -176,10 +174,15 @@ static const s_tool_command h2dev_extra_commands_defination = {
 #pragma endregion
 #pragma region Render_model_import
 
-
+bool k_render_model_imported = FALSE;
 static WCHAR out_path[256];
+static char c_out_path[256];
 static cstring render_model_folder = "render";
-static bool _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, char* _TAG_INDEX_)
+std::string target_folder;// a String that holds the containing_folder of the current generated tags
+static int global_geometry_imported_count = 0;
+tag_data_struct** global_sbsp_data_list;
+
+static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, char* _TAG_INDEX_)
 {
 	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
 	DWORD MODE_TAG = TAG_GET('mode', TAG_INDEX);
@@ -187,102 +190,89 @@ static bool _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, cha
 
 	if (MODE_TAG != -1) {
 		if (!TAG_ADD_IMPORT_INFO_ADD_DATA_(CAST_PTR(void*, import_info_block_offset), sFILE_REF))
-			return false;
+		{
+			k_render_model_imported = FALSE;
+			return;
+		}
 
 		printf("    == Import info  Added \n");
-		DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
-		DWORD SBSP_FOLDER_LOAD_2 = 0x41F52D;
-
-
-		BYTE *f = reverse_addr((void*)render_model_folder);
-		BYTE k_name_ptr_patch[4] = { f[0],f[1],f[2],f[3] };
-
-		//replacing 'structure' folder text with 'render' folder
-		WriteBytes((DWORD)(SBSP_FOLDER_LOAD_1), k_name_ptr_patch, sizeof(k_name_ptr_patch));
-		WriteBytes((DWORD)(SBSP_FOLDER_LOAD_2), k_name_ptr_patch, sizeof(k_name_ptr_patch));
-
-
-
-		char* jms_file_path = (char*)sFILE_REF.file_name;
+		
+		char jms_file_path[256];
+		GetFileAttributefromFILE(sFILE_REF, ATTRIBUTES_TYPE::IMPORT_FILE_FULL_PATH, jms_file_path);
 
 		WCHAR w_path[256];
 		MultiByteToWideChar(0xFDE9u, 0, jms_file_path, 0xFFFFFFFF, w_path, 0x104);
 
+		//generating sbsp from jms
 		wcstring p[2] = { w_path,L"sbsp_temp" };
-		tool_build_structure_from_jms_proc(p);
-
-		char c_out_path[256];
-		WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
-
-		std::string t = app_directory; // a String that holds the containing_folder of the current generated tags
-		t.append("\\tags\\");
-		t.append(c_out_path);
-
+		if (!tool_build_structure_from_jms_proc(p))		
+			return;
+		
 
 		char sbsp_file_name[256];
 		GetFileAttributefromFILE(sFILE_REF, ATTRIBUTES_TYPE::FILE_NAME, sbsp_file_name);
 
-		std::string sbsp_file = t;
+		std::string sbsp_file = target_folder;
 		sbsp_file.append("\\");
-		sbsp_file.append(sbsp_file_name);
-		sbsp_file.append(".scenario_structure_bsp");
-
-		printf("    == saving temporary render_model  \n");
-		TAG_SAVE(TAG_INDEX);//creating the current render_model file in Disk
-		TAG_UNLOAD(TAG_INDEX);
-
-		std::string render_model_file_name_ = strrchr(c_out_path, '\\');
-		render_model_file_name_ = render_model_file_name_.substr(1).c_str();
-
-		std::string mode_file = t;
-		mode_file.append("\\");
-		mode_file.append(render_model_file_name_);
-		mode_file.append(".render_model");
+		sbsp_file.append(sbsp_file_name);	
+		sbsp_file.append(".scenario_structure_bsp");	
 
 		
 		ifstream fin;
 		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
 		DWORD sbsp_size = fin.tellg();
 		fin.seekg(0x0, ios::beg);
+		
 
 		char* sbsp_data = new char[sbsp_size];
 		fin.read(sbsp_data, sbsp_size);
 
 		fin.close();
+		
+		DeleteFile(sbsp_file.c_str());
+		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
 
-		fin.open(mode_file.c_str(), ios::binary | ios::in | ios::ate);
-		DWORD mode_size = fin.tellg();
-		fin.seekg(0x0, ios::beg);
+		if (global_geometry_imported_count == 0)
+		{
+			//haven't intialised
+			global_sbsp_data_list = new tag_data_struct*[1];
+			
+			tag_data_struct* temp = new tag_data_struct();
+			temp->tag_data = sbsp_data;
+			temp->size = sbsp_size;
 
-		char* mode_data = new char[mode_size];
-		fin.read(mode_data, mode_size);
+			global_sbsp_data_list[0] = temp;
+		}
+		else
+		{
+			//have intialised
+			tag_data_struct** temp = new tag_data_struct*[global_geometry_imported_count + 1];
 
-		fin.close();
+			//copy the stuff
+			for (int i = 0; i < global_geometry_imported_count; i++)
+				temp[i] = global_sbsp_data_list[i];
 
-		printf("    == generating new %s.render_model  \n", render_model_file_name_.c_str());
+			tag_data_struct* tempy = new tag_data_struct();
+			tempy->tag_data = sbsp_data;
+			tempy->size = sbsp_size;
 
-		tag_data_struct* sbsp_data_struct = new tag_data_struct();
+			temp[global_geometry_imported_count] = tempy;
 
-		sbsp_data_struct->tag_data = sbsp_data;
-		sbsp_data_struct->size = sbsp_size;
+			delete[] global_sbsp_data_list;
+			global_sbsp_data_list = temp;
+		}
 
-		sbsp_mode* obj = new sbsp_mode(mode_data, mode_size);
-		obj->Add_sbps_DATA(1, sbsp_data_struct);
+		global_geometry_imported_count++;	
 
-		tag_data_struct* lol = obj->Get_Tag_DATA();
+		printf("    == leaving TAG_RENDER_MODEL_IMPORT_PROC\n");
 
-		ofstream fout;
-		fout.open(mode_file.c_str(), ios::binary | ios::out);
-		fout.write(lol->tag_data, lol->size);
-		fout.close();
-
-		printf("    == Added Cluster Data  \n");
-		printf("      ### saved render model file '%s' ", render_model_file_name_.c_str());		
-		return true;
+		k_render_model_imported = TRUE;
+		return;
 
 
 	}
-	return true;
+	k_render_model_imported = FALSE;
+	return;
 
 }
 static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
@@ -295,10 +285,22 @@ static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
 static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, s_file_reference& FILE_REF)
 {
-	bool k_render_model_imported = FALSE;
+	
 	DWORD mode_tag_file = TAG_GET('mode', TAG_INDEX);
 	DWORD import_info_block_offset = mode_tag_file + 0xC;
 
+	DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
+	DWORD SBSP_FOLDER_LOAD_2 = 0x41F52D;
+
+	//replacing 'structure' folder text with 'render' folder
+	WritePointer((DWORD)(SBSP_FOLDER_LOAD_1), (void*)render_model_folder);
+	WritePointer((DWORD)(SBSP_FOLDER_LOAD_2), (void*)render_model_folder);
+
+	
+	WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
+	target_folder = app_directory;
+	target_folder.append("\\tags\\");
+	target_folder.append(c_out_path);
 
 	if (load_model_object_definations_(import_info_block_offset, jms_collision_geometry_import_defination_, 1, FILE_REF))
 	{
@@ -306,7 +308,52 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, s_file_reference
 		{
 			int defination_addr = (int)&TAG_RENDER_IMPORT_DEFINATIONS_;
 			use_import_definitions(CAST_PTR(void*, defination_addr), 1, FILE_REF, (void*)TAG_INDEX, 0);
-			k_render_model_imported = TRUE;
+			if (k_render_model_imported && global_geometry_imported_count>0)
+			{
+				printf("    == saving temporary render_model  \n");
+				TAG_SAVE(TAG_INDEX);//creating the current render_model file in Disk
+				TAG_UNLOAD(TAG_INDEX);
+
+
+				std::string render_model_file_name_ = strrchr(c_out_path, '\\');
+				render_model_file_name_ = render_model_file_name_.substr(1).c_str();
+
+				std::string mode_file = target_folder;
+				mode_file.append("\\");
+				mode_file.append(render_model_file_name_);
+
+				std::string scnr_file = mode_file.c_str();
+				scnr_file.append(".scenario");
+				mode_file.append(".render_model");
+
+				DeleteFile(scnr_file.c_str());
+				printf("    == deleted %s.scenario  \n", render_model_file_name_.c_str());
+
+				ifstream fin;
+				fin.open(mode_file.c_str(), ios::binary | ios::in | ios::ate);
+				DWORD mode_size = fin.tellg();
+				fin.seekg(0x0, ios::beg);
+
+				char* mode_data = new char[mode_size];
+				fin.read(mode_data, mode_size);
+
+				fin.close();
+				printf("    == generating new %s.render_model  \n", render_model_file_name_.c_str());
+
+				sbsp_mode* obj = new sbsp_mode(mode_data, mode_size);
+				obj->Add_sbps_DATA(global_sbsp_data_list, global_geometry_imported_count);
+
+				tag_data_struct* lol = obj->Get_Tag_DATA();
+
+				ofstream fout;
+				fout.open(mode_file.c_str(), ios::binary | ios::out);
+				fout.write(lol->tag_data, lol->size);
+				fout.close();
+
+				printf("    == Added Cluster Data  \n");
+				printf("      ### saved render model file '%s' ", render_model_file_name_.c_str());
+
+			}
 
 		}
 	}

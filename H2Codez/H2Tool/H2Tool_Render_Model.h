@@ -28,7 +28,7 @@ class sbsp_mode
 {
 public :
 	sbsp_mode(char*, DWORD);
-	void Add_sbps_DATA(DWORD, ...);
+	void Add_sbps_DATA(tag_data_struct* args[], DWORD count);
 	tag_data_struct* Get_Tag_DATA();
 private:
 	char* mode_data;

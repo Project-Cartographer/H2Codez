@@ -23,25 +23,6 @@ enum tool_command_argument_type : long {
 	_tool_command_argument_type,
 };
 
-enum ATTRIBUTES_TYPE :char {
-	unk0 = 0,
-	CONTAINING_DIRECTORY = 1,
-	CONTAINING_FOLDER = 2,
-	CONTAINING_DIRECTORY_AND_FOLDER = 3,
-	FILE_NAME = 4,
-	FILE_NAME_WITH_FULL_PATH = 5,
-	CONTAINING_FOLDER_AND_FILE_NAME = 6,
-	CONTAINING_DIRECTORY_AND_FOLDER_AND_FILE_NAME = 7,
-	FILE_EXTENSION = 8,
-	CONTAINING_DIRECTORY_WITH_EXTENSION = 9,
-	CONTAINING_FOLDER_WITH_EXTENSION = 10,
-	CONTAINING_DIRECTORY_AND_FOLDER_WITH_EXTENSION = 11,
-	FILE_NAME_WITH_EXTENSION = 12,
-	IMPORT_FILE_FULL_PATH = 13,
-	CONTAINING_FOLDER_AND_FILE_NAME_WITH_EXTENSION = 14,
-	CONTAINING_DIRECTORY_AND_FOLDER_AND_FILE_WITH_EXTENSION = 15,
-};
-
 struct s_tool_command_argument {
 	signed long 	type;
 	wcstring        name;
@@ -77,16 +58,6 @@ struct s_tool_h2dev_command {
 	DWORD                       unk_3;
 	_tool_dev_command_proc		import_proc;
 };
-struct s_file_reference
-{
-	unsigned long			signature;
-	unsigned short      	flags;
-	signed short     		location;
-	long_string	            file_name;
-	HANDLE		            handle;
-	HRESULT		            api_result;
-}; 
-BOOST_STATIC_ASSERT(sizeof(s_file_reference) == 0x110);
 
 class H2ToolPatches
 {

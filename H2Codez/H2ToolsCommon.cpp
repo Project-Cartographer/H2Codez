@@ -74,18 +74,10 @@ bool H2CommonPatches::newInstance()
 std::string get_command_usage_by_id(unsigned short id)
 {
 	char usage_string[0x800];
-	int get_command_usage_by_id_impl;
-	switch (game.process_type)
-	{
-	case H2Sapien:
-		get_command_usage_by_id_impl = 0x4E2DF0;
-		break;
-	case H2Guerilla:
-		get_command_usage_by_id_impl = 0x4D4F90;
-		break;
-	default:
-		assert(false && "get_command_usage_by_id doesn't support this process type");
-	}
+	int get_command_usage_by_id_impl = SwitchAddessByMode(0, 0x4E2DF0, 0x4D4F90);
+	if (!get_command_usage_by_id_impl)
+		INVALID_STATE("get_command_usage_by_id doesn't support this process type");
+
 	__asm {
 		mov ax, id
 		lea edi, usage_string
@@ -108,22 +100,11 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 {
 	FILE *FilePtr;
 
-	int command_table_ptr_offset;
-	int global_table_ptr_offset;
+	int command_table_ptr_offset = SwitchAddessByMode(0, 0x9E9E90, 0x95BF70);
+	int global_table_ptr_offset = SwitchAddessByMode(0, 0x9ECE28, 0x95EF08);
 
-	switch (game.process_type)
-	{
-	case H2Sapien:
-		command_table_ptr_offset = 0x9E9E90;
-		global_table_ptr_offset = 0x9ECE28;
-		break;
-	case H2Guerilla:
-		command_table_ptr_offset = 0x95BF70;
-		global_table_ptr_offset = 0x95EF08;
-		break;
-	default:
+	if (!global_table_ptr_offset)
 		assert(false && "generate_script_doc doesn't support this process type");
-	}
 
 	std::string file_name = get_temp_name("hs_doc.txt");
 	if (filename)

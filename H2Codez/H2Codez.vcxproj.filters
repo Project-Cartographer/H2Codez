@@ -34,14 +34,14 @@
     <Filter Include="Source Files\Common Interface">
       <UniqueIdentifier>{fa4a8928-3838-40b7-8b15-0f517eb11655}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\utils">
-      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Interfaces">
       <UniqueIdentifier>{58180921-4d86-4ddd-9f94-6f967c0598d4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Interfaces\H2Sapien">
       <UniqueIdentifier>{62db5d7d-4bba-4fb5-b9be-d971de49d3f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -87,7 +87,7 @@
       <Filter>Source Files\Patches\H2Guerilla</Filter>
     </ClInclude>
     <ClInclude Include="Patches.h">
-      <Filter>Source Files\utils</Filter>
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="H2Sapien.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
@@ -107,6 +107,9 @@
     <ClInclude Include="HaloScript.h">
       <Filter>Source Files\Interfaces\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="FiloInterface.h">
+      <Filter>Source Files\Common Interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -125,13 +128,13 @@
       <Filter>Source Files\Patches\H2Guerilla</Filter>
     </ClCompile>
     <ClCompile Include="patches.cpp">
-      <Filter>Source Files\utils</Filter>
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="H2Sapien.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files\utils</Filter>
+      <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="H2ToolsCommon.cpp">
       <Filter>Source Files\Common Interface</Filter>
@@ -144,6 +147,9 @@
     </ClCompile>
     <ClCompile Include="HaloScript.cpp">
       <Filter>Source Files\Interfaces\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="FiloInterface.cpp">
+      <Filter>Source Files\Common Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

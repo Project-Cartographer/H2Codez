@@ -28,7 +28,7 @@ void sbsp_mode::Add_sbps_DATA(tag_data_struct* args[], DWORD count)
 	DWORD sbsp_size;
 
 	//first we add all the Clusters
-	for (int i = 0; i < count; i++)
+	for (DWORD i = 0; i < count; i++)
 	{
 		sbsp_data_struct = args[i];
 		sbsp_data = sbsp_data_struct->tag_data;
@@ -38,7 +38,7 @@ void sbsp_mode::Add_sbps_DATA(tag_data_struct* args[], DWORD count)
 	}
 
 	//next we go for Cluster_DATA
-	for (int i = 0; i < count; i++)
+	for (DWORD i = 0; i < count; i++)
 	{
 		sbsp_data_struct = args[i];
 		sbsp_data = sbsp_data_struct->tag_data;
@@ -52,7 +52,7 @@ void sbsp_mode::Add_sbps_DATA(tag_data_struct* args[], DWORD count)
 
 		dfbt* cluster_header = Get_dfbt_from_size(sbsp_dfbt_list, 0xD8, 0x0);
 		//the number of cluster_count,the number of seperate declaration of Cluster_DATA header(cuz each Cluster can have a max of ONE Cluster DATA)
-		for (int j = 0; j < *pcluster_count; j++)
+		for (DWORD j = 0; j < *pcluster_count; j++)
 		{
 			DWORD cluster_data_count = *(DWORD*)((DWORD)cluster_header + 0x10 + 0x28 + 0x2C + j * 0xD8);
 
@@ -122,7 +122,7 @@ void sbsp_mode::Add_Clusters(char* sbsp_data, DWORD sbsp_size)
 				*(DWORD*)(new_mode_data + mode_size + 0xC) = 0x68;//fix the size
 
 																  //time to copy clusters
-				for (int i = 0; i < *pcluster_count; i++)
+				for (DWORD i = 0; i < *pcluster_count; i++)
 					Copy_Cluster_BLOCK(new_mode_data + mode_size + 0x10 + i * 0x68, (char*)((DWORD)cluster_header + 0x10 + i * 0xD8));
 			}
 			else
@@ -136,7 +136,7 @@ void sbsp_mode::Add_Clusters(char* sbsp_data, DWORD sbsp_size)
 				((dfbt*)(new_mode_data + section_header_off))->block_count += *pcluster_count;
 
 				//add stuff
-				for (int i = 0; i < *pcluster_count; i++)
+				for (DWORD i = 0; i < *pcluster_count; i++)
 					Copy_Cluster_BLOCK(new_mode_data + mode_size + i * 0x68, (char*)((DWORD)cluster_header + 0x10 + i * 0xD8));
 			}
 			//Update the count in the new_mode_data
@@ -160,7 +160,7 @@ dfbt_list* sbsp_mode::List_block_headers(char* tag_data, DWORD size)
 
 	dfbt_list* current_header_in_action = ret;
 
-	for (int i = 0x50; i < size; i++)
+	for (DWORD i = 0x50; i < size; i++)
 	{
 		if (*(tag_data + i) == DFBT[0])
 		{
@@ -223,7 +223,7 @@ void sbsp_mode::Add_Cluster_DATA(char* sbsp_data, DWORD sbsp_size, DWORD& mem_st
 	memcpy(new_mode_data, mode_data, mode_size);
 
 
-	for (int i = 0; i < cluster_DATA_count; i++)
+	for (DWORD i = 0; i < cluster_DATA_count; i++)
 	{
 		Copy_Cluster_DATA_BLOCK(new_mode_data + mode_size + i * 0xB4, (char*)cluster_DATA_header + 0x10 + i * 0x6C);
 	}
@@ -250,7 +250,7 @@ void sbsp_mode::Add_Cluster_DATA(char* sbsp_data, DWORD sbsp_size, DWORD& mem_st
 
 		memcpy(new_mode_data, mode_data, mode_size);
 
-		for (int i = 0; i < parts_count; i++)
+		for (DWORD i = 0; i < parts_count; i++)
 			Copy_Parts_BLOCK(new_mode_data + mode_size + i * 0x48, (char*)parts_header + 0x10 + i * 0x48);
 
 		delete[] mode_data;

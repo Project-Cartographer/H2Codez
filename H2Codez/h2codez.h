@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include <assert.h> 
 
 
 // Constant '\0' terminated ascii string
@@ -23,6 +23,7 @@ typedef char long_string[255 + 1];
 #define FLAG(bit)( 1<<(bit) )
 #define BOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #define TOOL_INCREASE_FACTOR 0x20
+#define INVALID_STATE(MESSAGE) _wassert(L##MESSAGE, _CRT_WIDE(__FILE__), (unsigned)(__LINE__))
 
 enum H2EK
 {
@@ -50,6 +51,21 @@ public:
 private:
 	static H2EK detect_type();
 };
+
+inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
+{
+	assert(game.process_type != H2EK::Invalid);
+	switch (game.process_type)
+	{
+	case H2Tool:
+		return tool;
+	case H2Sapien:
+		return sapien;
+	case H2Guerilla:
+		return guerilla;
+	}
+	abort(); // this should never happen
+}
 
 //eg. {0xFF,0xEE,0xDD,0xCC} ->  {0xCC,0xDD,0xEE,0xFF}
 BYTE* reverse_addr(void* address);

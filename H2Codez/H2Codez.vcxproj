@@ -75,7 +75,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4005</DisableSpecificWarnings>
       <AdditionalOptions>/std:c++14 %(AdditionalOptions)</AdditionalOptions>
@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DiscordInterface.h" />
+    <ClInclude Include="FiloInterface.h" />
     <ClInclude Include="h2codez.h" />
     <ClInclude Include="H2Guerilla.h" />
     <ClInclude Include="H2Sapien.h" />
@@ -122,6 +123,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="FiloInterface.cpp" />
     <ClCompile Include="h2codez.cpp" />
     <ClCompile Include="H2Guerilla.cpp" />
     <ClCompile Include="H2Sapien.cpp" />

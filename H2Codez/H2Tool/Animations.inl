@@ -20,7 +20,8 @@ jmz		- 3d animation
 jmw		- world animation
 */
 #include "stdafx.h"
-static void import_model_animations_proc_impl(s_file_reference& reference)
+#include "../FiloInterface.h"
+static void import_model_animations_proc_impl(filo& reference)
 {
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 	static cstring data_directory = "data";
@@ -112,17 +113,17 @@ unknown_bytes[0x110] // enough space for a s_file_reference...
 static void _cdecl import_model_animations_proc(wcstring* arguments)
 {
 	typedef bool (_cdecl*_tool_build_paths)(wcstring directory,
-		const char* Subfolder, s_file_reference& out_reference, wchar_t out_path[256], void* arg_10);
+		const char* Subfolder, filo& out_reference, wchar_t out_path[256], void* arg_10);
 	static const _tool_build_paths tool_build_paths = CAST_PTR(_tool_build_paths, 0x4119B0);
 
 	typedef void (_cdecl* _use_import_definitions)(const void* definitions, int count, 
-		s_file_reference& reference, void* context_data, void*);
+		filo& reference, void* context_data, void*);
 	static const _use_import_definitions use_import_definitions = CAST_PTR(_use_import_definitions, 0x412100);
 
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 
 
-	s_file_reference reference;
+	filo reference;
 	//import_model_animations_proc_impl(reference);
 	
 	static wchar_t out_path[256];

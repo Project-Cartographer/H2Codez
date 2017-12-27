@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "H2ToolLibrary.inl"
 #include "H2Tool_Render_Model.h"
+#include "../FiloInterface.h"
 #include <codecvt>
 
 //List of extra commands i found are contained here
@@ -182,7 +183,7 @@ std::string target_folder;// a String that holds the containing_folder of the cu
 static int global_geometry_imported_count = 0;
 tag_data_struct** global_sbsp_data_list;
 
-static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, char* _TAG_INDEX_)
+static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDEX_)
 {
 	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
 	DWORD MODE_TAG = TAG_GET('mode', TAG_INDEX);
@@ -197,26 +198,16 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(s_file_reference& sFILE_REF, cha
 
 		printf("    == Import info  Added \n");
 		
-		char jms_file_path[256];
-		GetFileAttributefromFILE(sFILE_REF, ATTRIBUTES_TYPE::IMPORT_FILE_FULL_PATH, jms_file_path);
-
+		std::string path = FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FULL_PATH);
 		WCHAR w_path[256];
-		MultiByteToWideChar(0xFDE9u, 0, jms_file_path, 0xFFFFFFFF, w_path, 0x104);
+		MultiByteToWideChar(0xFDE9u, 0, path.c_str(), 0xFFFFFFFF, w_path, 0x104);
 
 		//generating sbsp from jms
 		wcstring p[2] = { w_path,L"sbsp_temp" };
 		if (!tool_build_structure_from_jms_proc(p))		
 			return;
-		
 
-		char sbsp_file_name[256];
-		GetFileAttributefromFILE(sFILE_REF, ATTRIBUTES_TYPE::FILE_NAME, sbsp_file_name);
-
-		std::string sbsp_file = target_folder;
-		sbsp_file.append("\\");
-		sbsp_file.append(sbsp_file_name);	
-		sbsp_file.append(".scenario_structure_bsp");	
-
+		std::string sbsp_file = target_folder + "\\" + FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME) + ".scenario_structure_bsp";
 		
 		ifstream fin;
 		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
@@ -283,7 +274,7 @@ static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 };
 
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
-static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, s_file_reference& FILE_REF)
+static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 {
 	
 	DWORD mode_tag_file = TAG_GET('mode', TAG_INDEX);
@@ -363,7 +354,7 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, s_file_reference
 static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 {
 
-	s_file_reference reference;
+	filo reference;
 
 	WCHAR WideCharStr[256];
 	char MultiByteStr[256];
@@ -387,8 +378,8 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 			if (!b_render_imported)
 				return b_render_imported;
 		}
-		char render_import_file_name[256]; GetFileAttributefromFILE(reference, ATTRIBUTES_TYPE::CONTAINING_FOLDER, render_import_file_name);
-		printf("        ### creating new render model file with name '%s' \n ", render_import_file_name);
+		auto dir_name = FiloInterface::get_path_info(&reference, PATH_FLAGS::CONTAINING_DIRECTORY_NAME);
+		printf("        ### creating new render model file with name '%s' \n ", dir_name.c_str());
 		TAG_INDEX = TAG_NEW('mode', MultiByteStr);
 
 		if (TAG_INDEX != -1)
@@ -403,20 +394,20 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 				}
 				else
 				{
-					printf("      ### FATAL ERROR unable to generate render model '%s' \n", render_import_file_name);
+					printf("      ### FATAL ERROR unable to generate render model '%s' \n", dir_name.c_str());
 					b_render_imported = false;
 				}
 			}
 			else
 			{
-				printf("      ### ERROR render model '%s' is not writable\n", render_import_file_name);
+				printf("      ### ERROR render model '%s' is not writable\n", dir_name.c_str());
 				TAG_UNLOAD(TAG_INDEX);
 				b_render_imported = false;
 			}
 		}
 		else
 		{
-			printf("     ### ERROR unable to create render model '%s'\n", render_import_file_name);
+			printf("     ### ERROR unable to create render model '%s'\n", dir_name.c_str());
 			b_render_imported = false;
 		}
 

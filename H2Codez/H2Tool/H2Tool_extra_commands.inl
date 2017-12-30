@@ -213,6 +213,7 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 		if (sbsp_size == 0)
 		{
 			printf("    == failed to import geometry \n   ===SKIPPPING %n \n", FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME));
+			fin.close();
 			return;
 		}
 

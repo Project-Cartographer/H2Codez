@@ -5,6 +5,8 @@
 #include "DiscordInterface.h"
 
 char app_directory[256];
+std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
+
 DWORD H2EK_Globals::GetBase()
 {
 	return (DWORD)base;

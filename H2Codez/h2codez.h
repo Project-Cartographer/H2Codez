@@ -69,3 +69,5 @@ inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
 
 //eg. {0xFF,0xEE,0xDD,0xCC} ->  {0xCC,0xDD,0xEE,0xFF}
 BYTE* reverse_addr(void* address);
+
+extern std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;

@@ -320,7 +320,7 @@ void H2ToolPatches::render_model_import_unlock()
 	.text:0041C7A4 000                 mov     ecx, [eax]
 	.text:0041C7A6 000                 jmp     loc_41C4A0      ; Jump
 	*/
-	PatchCall(0x41C7A6, (void*)h2pc_import_render_model_proc);
+	PatchCall(0x41C7A6, h2pc_import_render_model_proc);
 }
 
 void H2ToolPatches::enable_campaign_tags_sharing()
@@ -395,30 +395,19 @@ void H2ToolPatches::AddExtraCommands()
 #pragma endregion
 #pragma region UpdateTool_function References
 
-    s_tool_command*** tool_commands_references[] = {
-		CAST_PTR(s_tool_command***, 0x410596),
-		CAST_PTR(s_tool_command***, 0x41060E),
-		CAST_PTR(s_tool_command***, 0x412D86),
+	DWORD tool_commands_references[] = {
+		 0x410596,
+		 0x41060E,
+		 0x412D86,
 	};
-    BYTE* tool_commands_count[] = {
-		CAST_PTR(BYTE*, 0x4105E5),
-		CAST_PTR(BYTE*, 0x412D99),
+    DWORD tool_commands_count[] = {
+		 0x4105E5,
+		 0x412D99,
 	};
 
 	// update references to the tool command definitions
-
-	DWORD new_tool_defination_Table_address = (DWORD)&tool_commands[0];
-
-	H2PCTool.WriteLog("New Tool_Definations Addy : %0X", new_tool_defination_Table_address);
-	
-
-	BYTE *f = reverse_addr((void*)new_tool_defination_Table_address);
-	BYTE Reference_Patch[4] = { f[0],f[1],f[2],f[3] };
-
-
-	H2PCTool.WriteLog("Reversed : %0X %0X %0X %0X", f[0], f[1], f[2], f[3]);
-
-	for (int x = 0; x < NUMBEROF(tool_commands_references); x++)	WriteBytes((DWORD)tool_commands_references[x], Reference_Patch, 4); 
+	for (int x = 0; x < NUMBEROF(tool_commands_references); x++)
+		WriteValue(tool_commands_references[x], tool_commands);
 	
 
 
@@ -426,16 +415,8 @@ void H2ToolPatches::AddExtraCommands()
 #pragma region UpdateTool_functionCount References
 	// update code which contain the tool command definitions count
 
-
-
-	BYTE Count_Patch[1] = { k_number_of_tool_commands_new }; // cmp     si, 0Ch 
-
-
-	for (int x = 0; x < NUMBEROF(tool_commands_count); x++)			WriteBytes((DWORD)tool_commands_count[x], Count_Patch, 1);
-
-
-
-
+	for (int x = 0; x < NUMBEROF(tool_commands_count); x++)
+		WriteValue(tool_commands_count[x], k_number_of_tool_commands_new);
 
 #pragma endregion
 }

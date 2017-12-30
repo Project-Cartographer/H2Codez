@@ -23,13 +23,24 @@ static int __cdecl TAG_GET(int TAG_TYPE, int TAG_INDEX)
 
 	return TAG_GET(TAG_TYPE, TAG_INDEX);
 }
-static DWORD __cdecl TAG_NEW(int TAG_TYPE, char* TAG_PATH)
+static DWORD TAG_NEW(int TAG_TYPE, char* TAG_PATH)
 {
 	typedef DWORD(_cdecl* _TAG_NEW)(int, char*);
 	static _TAG_NEW TAG_NEW = CAST_PTR(_TAG_NEW, 0x5313F0);
 
 	return TAG_NEW(TAG_TYPE, TAG_PATH);
 }
+
+inline static DWORD TAG_NEW(int TAG_TYPE, const char* TAG_PATH)
+{
+	return TAG_NEW(TAG_TYPE, const_cast<char*>(TAG_PATH));
+}
+
+inline static DWORD TAG_NEW(int TAG_TYPE, std::string TAG_PATH)
+{
+	return TAG_NEW(TAG_TYPE, TAG_PATH.c_str());
+}
+
 static DWORD __cdecl TAG_UNLOAD(int TAG_INDEX)
 {
 	typedef DWORD(_cdecl* _TAG_UNLOAD)(int);

@@ -12,6 +12,12 @@ inline void WritePointer(DWORD offset, const void *ptr) {
 	WritePointer(offset, const_cast<void*>(ptr));
 }
 
+template <typename value_type>
+inline void WriteValue(DWORD offset, value_type data)
+{
+	WriteBytes(offset, &data, sizeof(data));
+}
+
 #define J(symbol1, symbol2) _DO_JOIN(symbol1, symbol2)
 #define _DO_JOIN(symbol1, symbol2) symbol1##symbol2
 

@@ -14,8 +14,6 @@
 static void _cdecl import_model_render_proc(wcstring arguments)
 {
 	static _tool_command_proc _import_model_render_proc = CAST_PTR(_tool_command_proc, 0x41C7A0);
-
-//	wprintf_s(L"Prepare for a whole lotta nothin'!\n");
 	_import_model_render_proc(arguments);
 }
 
@@ -25,7 +23,6 @@ static const s_tool_command* import_class_monitor_structures = CAST_PTR(s_tool_c
 static const s_tool_command* import_class_monitor_bitmaps = CAST_PTR(s_tool_command*, 0x97B594);
 
 
-std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
 static void _cdecl import_model_proc(wcstring* arguments)
 {
 	std::string object_name = wstring_to_string.to_bytes(arguments[0]);

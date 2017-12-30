@@ -30,6 +30,13 @@ bool _cdecl tool_build_structure_from_jms_proc(wcstring* args)
 	return tool_build_structure_from_jms_proc_(args);
 
 }
+bool _cdecl tool_build_structure_from_ass_proc(wcstring* args)
+{
+	typedef bool(_cdecl* _tool_build_structure_from_ass_proc)(wcstring*);
+	static _tool_build_structure_from_ass_proc tool_build_structure_from_ass_proc_ = CAST_PTR(_tool_build_structure_from_ass_proc, 0x4201E0);
+	return tool_build_structure_from_ass_proc_(args);
+
+}
 static const s_tool_command tool_build_structure_from_jms = {
 	L"structure new from jms",
 	CAST_PTR(_tool_command_proc, tool_build_structure_from_jms_proc),
@@ -181,13 +188,20 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 		printf("    == Import info  Added \n");
 
 		std::string path = FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FULL_PATH);
+		std::string file_type= FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_EXTENSION);
 		WCHAR w_path[256];
 		MultiByteToWideChar(0xFDE9u, 0, path.c_str(), 0xFFFFFFFF, w_path, 0x104);
 
 		//generating sbsp from jms
 		wcstring p[2] = { w_path,L"sbsp_temp" };
-		if (!tool_build_structure_from_jms_proc(p))
-			return;
+		
+		if(strcmp(file_type.c_str(),"jms")==0)
+			tool_build_structure_from_jms_proc(p);
+		if (strcmp(file_type.c_str(), "ass") == 0)
+			tool_build_structure_from_ass_proc(p);
+
+				
+		
 
 		std::string sbsp_file = target_folder + "\\" + FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME) + ".scenario_structure_bsp";
 
@@ -196,6 +210,11 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 		DWORD sbsp_size = fin.tellg();
 		fin.seekg(0x0, ios::beg);
 
+		if (sbsp_size == 0)
+		{
+			printf("    == failed to import geometry \n   ===SKIPPPING %n \n", FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME));
+			return;
+		}
 
 		char* sbsp_data = new char[sbsp_size];
 		fin.read(sbsp_data, sbsp_size);

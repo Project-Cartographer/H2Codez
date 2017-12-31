@@ -189,6 +189,7 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 
 		std::string path = FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FULL_PATH);
 		std::string file_type= FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_EXTENSION);
+
 		WCHAR w_path[256];
 		MultiByteToWideChar(0xFDE9u, 0, path.c_str(), 0xFFFFFFFF, w_path, 0x104);
 
@@ -197,10 +198,8 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 		
 		if(strcmp(file_type.c_str(),"jms")==0)
 			tool_build_structure_from_jms_proc(p);
-		if (strcmp(file_type.c_str(), "ass") == 0)
-			tool_build_structure_from_ass_proc(p);
-
-				
+		else
+			tool_build_structure_from_ass_proc(p);	
 		
 
 		std::string sbsp_file = target_folder + "\\" + FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME) + ".scenario_structure_bsp";
@@ -269,10 +268,20 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 
 }
 static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
+	{
 	"jms",
 	CAST_PTR(_tool_import__defination_proc,TAG_RENDER_MODEL_IMPORT_PROC),
 	0,
 	0,
+	},
+
+	{
+	"ass",
+	CAST_PTR(_tool_import__defination_proc,TAG_RENDER_MODEL_IMPORT_PROC),
+	0,
+	0,
+	}
+	
 };
 
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
@@ -300,7 +309,7 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 		if (TAG_ADD_IMPORT_INFO_BLOCK(CAST_PTR(void*, import_info_block_offset)))
 		{
 			int defination_addr = (int)&TAG_RENDER_IMPORT_DEFINATIONS_;
-			use_import_definitions(CAST_PTR(void*, defination_addr), 1, FILE_REF, (void*)TAG_INDEX, 0);
+			use_import_definitions(CAST_PTR(void*, defination_addr), 2, FILE_REF, (void*)TAG_INDEX, 0);
 			if (k_render_model_imported && global_geometry_imported_count > 0)
 			{
 				printf("    == saving temporary render_model  \n");

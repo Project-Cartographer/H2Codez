@@ -4,6 +4,6 @@
     <LocalDebuggerCommand>"C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\h2tool.exe"</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>model-render "objects\multi\fuel_cell_a" pause_after_run</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>model-render objects\characters\Test</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

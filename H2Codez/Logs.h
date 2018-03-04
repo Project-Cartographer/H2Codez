@@ -18,7 +18,7 @@ class Debug
 	
 public:
 	
-	VOID Start_Console();///AllocConsole		
+	static VOID Start_Console();///AllocConsole		
 	
 private:
 	

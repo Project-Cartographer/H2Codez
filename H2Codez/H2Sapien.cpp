@@ -68,7 +68,7 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 bool __fastcall load_main_window_hook(int thisptr, int unused, int a2, int a3, int a4, int *a5)
 {
 	int menu_ptr = thisptr + 12;
-	HMENU menu = CAST_PTR(HMENU,menu_ptr);
+	HMENU menu = CAST_PTR(HMENU, menu_ptr);
 	menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	return load_main_window_orginal(thisptr, 0, a2, a3, a4, a5);
 }
@@ -77,6 +77,57 @@ HWND __fastcall create_main_window_hook(HMENU thisptr, int __unused, HWND hWndPa
 {
 	HMENU new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	return create_main_window_orginal(thisptr, 0, hWndParent, hMenu, lpWindowName, dwStyle, dwExStyle, new_menu, lpParam);
+}
+ 
+bool is_ctrl_down()
+{
+	return HIBYTE(GetKeyState(VK_CONTROL));
+}
+
+void __stdcall on_console_input(WORD keycode)
+{
+	printf("key  :  %d\n", keycode);
+	if (is_ctrl_down()) {
+		char *console_input = reinterpret_cast<char*>(0xA9F52C);
+		printf("console: %s \n", console_input);
+		switch (keycode) {
+		case 'C':
+			H2CommonPatches::copy_to_clipboard(console_input);
+			break;
+		case 'V':
+			std::string new_text;
+			if (H2CommonPatches::read_clipboard(new_text))
+				strncpy_s(console_input, 256, new_text.c_str(), new_text.size());
+			break;
+		}
+	}
+}
+
+__declspec(naked) void console_input_jump_hook()
+{
+	__asm {
+		// save register
+		push eax
+		push ecx
+		push edx
+
+		// undo add
+		sub eax, 0xFFFFFFF7
+		// pass eax (keycode) to our code
+		push eax
+		call on_console_input
+
+		// restore registers
+		pop edx
+		pop ecx
+		pop eax
+
+		// replaced code
+		cmp eax, 254
+
+		// jump back to sapien code
+		ret
+	}
 }
 
 bool run_script(char *script_text)
@@ -162,6 +213,8 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
+	WriteJmpTo(0x4ECC2E, console_input_jump_hook);
+
 #pragma endregion
 
 #pragma region Hooks

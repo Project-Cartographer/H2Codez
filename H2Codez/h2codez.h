@@ -23,7 +23,9 @@ typedef char long_string[255 + 1];
 #define FLAG(bit)( 1<<(bit) )
 #define BOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #define TOOL_INCREASE_FACTOR 0x20
-#define INVALID_STATE(MESSAGE) _wassert(L##MESSAGE, _CRT_WIDE(__FILE__), (unsigned)(__LINE__))
+#define CHECK_FUNCTION_SUPPORT(expersion)\
+	if (!expersion)                      \
+		_wassert(__FUNCTIONW__ L" doesn't support this process type.", _CRT_WIDE(__FILE__), (unsigned)(__LINE__))
 
 enum H2EK
 {

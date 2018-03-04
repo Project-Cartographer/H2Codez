@@ -79,6 +79,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	{
 
 	case DLL_PROCESS_ATTACH:
+#if _DEBUG
+		Debug::Start_Console();
+#endif
 		g_hModule = hModule;
 		if (!H2Toolz::Init())
 			std::exit(0);     

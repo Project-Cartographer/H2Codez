@@ -75,8 +75,7 @@ std::string get_command_usage_by_id(unsigned short id)
 {
 	char usage_string[0x800];
 	int get_command_usage_by_id_impl = SwitchAddessByMode(0, 0x4E2DF0, 0x4D4F90);
-	if (!get_command_usage_by_id_impl)
-		INVALID_STATE("get_command_usage_by_id doesn't support this process type");
+	CHECK_FUNCTION_SUPPORT(get_command_usage_by_id_impl);
 
 	__asm {
 		mov ax, id
@@ -95,6 +94,33 @@ std::string H2CommonPatches::get_temp_name(std::string name_suffix)
 	return name;
 }
 
+void H2CommonPatches::copy_to_clipboard(std::string text, HWND owner)
+{
+	size_t len = text.length() + 1;
+	HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
+	memcpy(GlobalLock(hMem), text.c_str(), len);
+	GlobalUnlock(hMem);
+	OpenClipboard(owner);
+	EmptyClipboard();
+	SetClipboardData(CF_TEXT, hMem);
+	CloseClipboard();
+}
+
+bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
+{
+	if (OpenClipboard(owner)) {
+		HANDLE data = GetClipboardData(CF_TEXT);
+		if (data != NULL) {
+			LPTSTR text = reinterpret_cast<LPTSTR>(GlobalLock(data));
+			if (text != NULL) {
+				contents = text;
+				GlobalUnlock(data);
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 void H2CommonPatches::generate_script_doc(const char *filename)
 {
@@ -102,9 +128,7 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 
 	int command_table_ptr_offset = SwitchAddessByMode(0, 0x9E9E90, 0x95BF70);
 	int global_table_ptr_offset = SwitchAddessByMode(0, 0x9ECE28, 0x95EF08);
-
-	if (!global_table_ptr_offset)
-		assert(false && "generate_script_doc doesn't support this process type");
+	CHECK_FUNCTION_SUPPORT(global_table_ptr_offset);
 
 	std::string file_name = get_temp_name("hs_doc.txt");
 	if (filename)

@@ -94,14 +94,12 @@ void __stdcall on_console_input(WORD keycode)
 		switch (keycode) {
 		case 'C':
 			H2CommonPatches::copy_to_clipboard(console_input);
-			run_script("print \"copied to clipboard!\"");
 			break;
 		case 'V':
 			std::string new_text;
 			if (H2CommonPatches::read_clipboard(new_text)) {
 				*cursor_pos = static_cast<WORD>(new_text.size());
 				strncpy(console_input, new_text.c_str(), 0x100);
-				run_script("print \"pasted from clipboard!\"");
 			}
 			break;
 		}

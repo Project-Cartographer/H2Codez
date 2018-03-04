@@ -89,6 +89,7 @@ void __stdcall on_console_input(WORD keycode)
 	printf("key  :  %d\n", keycode);
 	if (is_ctrl_down()) {
 		char *console_input = reinterpret_cast<char*>(0xA9F52C);
+		WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
 		printf("console: %s \n", console_input);
 		switch (keycode) {
 		case 'C':
@@ -96,8 +97,10 @@ void __stdcall on_console_input(WORD keycode)
 			break;
 		case 'V':
 			std::string new_text;
-			if (H2CommonPatches::read_clipboard(new_text))
-				strncpy_s(console_input, 256, new_text.c_str(), new_text.size());
+			if (H2CommonPatches::read_clipboard(new_text)) {
+				*cursor_pos = static_cast<WORD>(new_text.size());
+				strncpy(console_input, new_text.c_str(), 0x100);
+			}
 			break;
 		}
 	}

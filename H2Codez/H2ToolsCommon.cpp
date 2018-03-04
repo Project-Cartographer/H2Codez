@@ -96,14 +96,20 @@ std::string H2CommonPatches::get_temp_name(std::string name_suffix)
 
 void H2CommonPatches::copy_to_clipboard(std::string text, HWND owner)
 {
-	size_t len = text.length() + 1;
-	HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
-	memcpy(GlobalLock(hMem), text.c_str(), len);
-	GlobalUnlock(hMem);
-	OpenClipboard(owner);
-	EmptyClipboard();
-	SetClipboardData(CF_TEXT, hMem);
-	CloseClipboard();
+	if (OpenClipboard(owner)) {
+		EmptyClipboard();
+
+		size_t len = text.length() + 1;
+		HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
+		if (hMem != NULL) {
+			char *clipboard_text = static_cast<char*>(GlobalLock(hMem));
+			strncpy(clipboard_text, text.c_str(), len);
+			GlobalUnlock(hMem);
+
+			SetClipboardData(CF_TEXT, hMem);
+		}
+		CloseClipboard();
+	}
 }
 
 bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
@@ -111,13 +117,14 @@ bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
 	if (OpenClipboard(owner)) {
 		HANDLE data = GetClipboardData(CF_TEXT);
 		if (data != NULL) {
-			LPTSTR text = reinterpret_cast<LPTSTR>(GlobalLock(data));
+			LPTSTR text = static_cast<LPTSTR>(GlobalLock(data));
 			if (text != NULL) {
 				contents = text;
 				GlobalUnlock(data);
 				return true;
 			}
 		}
+		CloseClipboard();
 	}
 	return false;
 }

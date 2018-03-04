@@ -22,6 +22,9 @@ GetLocalTime(&tt);
 	va_start(myarg,line);
 	vsnprintf(buf,2048,line,myarg);
 	va_end(myarg);
+
+	// print to console
+	_vfprintf_l(stdout, line, NULL, myarg);
 	
 	if(EnableDbgConsole)
 	cout<<buf<<endl; //Write to Allocated Console
@@ -45,8 +48,14 @@ VOID Debug::Start_Console()//AllocConsole
 {
 	AllocConsole();
 	SetConsoleTitleA("Debug Window");
+
+	// out
 	FILE* pCout;
 	freopen_s(&pCout, "CONOUT$", "w", stdout);
+
+	// in
+	FILE* pCin;
+	freopen_s(&pCin, "CONIN$", "r", stdin);
 }
 
 

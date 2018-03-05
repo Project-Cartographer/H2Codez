@@ -3,6 +3,7 @@
 #include "Patches.h"
 #include "resource.h"
 #include "H2ToolsCommon.h"
+#include "FiloInterface.h"
 
 typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;
@@ -64,11 +65,9 @@ int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 	return return_value;
 }
 
-bool __cdecl create_temp_filo(void *a1, LPCSTR location)
+bool __cdecl create_temp_filo(filo *data, LPCSTR location)
 {
-	typedef void* (__cdecl *save_filo_def)(void *a1, char *path, bool a3);
-	save_filo_def save_filo = reinterpret_cast<save_filo_def>(0x48BEA0);
-	save_filo(a1, std::tmpnam(nullptr), false);
+	FiloInterface::init_filo(data, H2CommonPatches::get_temp_name(), false);
 	return true;
 }
 

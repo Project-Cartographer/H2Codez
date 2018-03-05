@@ -2,7 +2,8 @@ version: 1.2.{build}
 image: Visual Studio 2017
 configuration: Release
 before_build:
-- cmd: 'echo #define version "%APPVEYOR_BUILD_VERSION%">  H2Codez\Version.h'
+- cmd: 'echo #define version ^"%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_COMMIT:~0,7%^" 1>  H2Codez\Version.h'
+- cmd: 'cat H2Codez\Version.h'
 build:
   verbosity: minimal
 before_package:

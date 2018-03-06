@@ -89,30 +89,38 @@ typedef char(__cdecl *print_to_console)(char *Format);
 void __stdcall on_console_input(WORD keycode)
 {
 	printf("key  :  %d\n", keycode);
-	if (is_ctrl_down()) {
-		char *console_input = reinterpret_cast<char*>(0xA9F52C);
-		WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
-		auto print_console = reinterpret_cast<print_to_console>(0x00616720);
 
-		printf("console: %s \n", console_input);
+	char *console_input = reinterpret_cast<char*>(0xA9F52C);
+	WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
+	auto print_console = reinterpret_cast<print_to_console>(0x00616720);
 
-		switch (keycode) {
-		case 'C':
+	printf("console: %s \n", console_input);
+
+	switch (keycode) {
+	case 46: // delete key
+		ZeroMemory(console_input, 0x100);
+		*cursor_pos = 0;
+		print_console("cleared console.");
+		break;
+	case 'C':
+		if (is_ctrl_down()) {
 			H2CommonPatches::copy_to_clipboard(console_input);
 			print_console("copied to clipboard!");
-			break;
-		case 'V':
-			std::string new_text;
-			if (H2CommonPatches::read_clipboard(new_text)) {
-				*cursor_pos = static_cast<WORD>(new_text.size());
-				strncpy(console_input, new_text.c_str(), 0x100);
-				print_console("pasted to clipboard!");
-			}
-			break;
 		}
+		break;
+	case 'V':
+		std::string new_text;
+		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
+			*cursor_pos = static_cast<WORD>(new_text.size());
+			strncpy(console_input, new_text.c_str(), 0x100);
+			print_console("pasted to clipboard!");
+		}
+		break;
 	}
+
 }
 
+// hooks a switch statement that handles speical key presses (e.g. enter, tab)
 __declspec(naked) void console_input_jump_hook()
 {
 	__asm {
@@ -137,6 +145,37 @@ __declspec(naked) void console_input_jump_hook()
 
 		// jump back to sapien code
 		ret
+	}
+}
+
+int console_write_return_addr;
+// hooks the function that handles writing keypresses to console buffer if printable
+__declspec(naked) void console_write_hook()
+{
+	__asm {
+		// backup the return address
+		pop eax
+		mov console_write_return_addr, eax
+
+		// replaced code
+		call memcpy
+		
+		// get keycode and check
+		mov al, [ebx + 1]
+		cmp al, 0x60 // ascii '`'
+
+		// ignore input
+		jz ignore_input
+		// return to normal execution
+		jmp end_function
+
+		ignore_input:
+		add esp, 0x18
+		// push new return addr pointing to function epilog
+		mov console_write_return_addr, 0x58F85E
+
+	end_function:
+		jmp console_write_return_addr
 	}
 }
 
@@ -223,7 +262,12 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
-	WriteJmpTo(0x4ECC2E, console_input_jump_hook);
+	WriteJmpTo(0x4ECC2E, &console_input_jump_hook);
+	// replace a call to memcpy
+	PatchCall(0x58F6AA, &console_write_hook);
+
+	// don't clear the console contents when closed
+	NopFill(0x4ECD7C, 5);
 
 #pragma endregion
 

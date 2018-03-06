@@ -22,12 +22,12 @@ inline void WriteValue(DWORD offset, value_type data)
 #define _DO_JOIN(symbol1, symbol2) symbol1##symbol2
 
 #define NopFill(Address, len)                         \
-BYTE J(NopFIll_, __LINE__ )[len];                     \
+	BYTE J(NopFIll_, __LINE__ )[len];                 \
 	std::fill_n(J(NopFIll_, __LINE__ ), len, 0x90);   \
 	WriteBytes(Address, J(NopFIll_, __LINE__ ), len)
 
 //Write a jmp to addy at Line
 #define WriteJmpTo(PatchLine,JMPtoAddr)\
-    BYTE patch[1] = { 0xE8 };\
-    WriteBytes((DWORD)PatchLine, patch, 1);\
+    BYTE J(jumpto_, __LINE__ )[1] = { 0xE8 };\
+    WriteBytes((DWORD)PatchLine, J(jumpto_, __LINE__ ), 1);\
     PatchCall((DWORD)PatchLine,(DWORD)JMPtoAddr);

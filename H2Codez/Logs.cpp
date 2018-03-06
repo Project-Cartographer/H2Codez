@@ -23,8 +23,10 @@ GetLocalTime(&tt);
 	vsnprintf(buf,2048,line,myarg);
 	va_end(myarg);
 
+#if _DEBUG
 	// print to console
-	_vfprintf_l(stdout, line, NULL, myarg);
+	printf("Logs: %s\n", line);
+#endif
 	
 	if(EnableDbgConsole)
 	cout<<buf<<endl; //Write to Allocated Console

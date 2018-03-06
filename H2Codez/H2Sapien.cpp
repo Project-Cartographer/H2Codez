@@ -149,6 +149,7 @@ __declspec(naked) void console_input_jump_hook()
 }
 
 int console_write_return_addr;
+int memcpy_impl = 0x4ADDC0;
 // hooks the function that handles writing keypresses to console buffer if printable
 __declspec(naked) void console_write_hook()
 {
@@ -158,7 +159,7 @@ __declspec(naked) void console_write_hook()
 		mov console_write_return_addr, eax
 
 		// replaced code
-		call memcpy
+		call memcpy_impl
 		
 		// get keycode and check
 		mov al, [ebx + 1]

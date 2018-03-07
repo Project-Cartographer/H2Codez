@@ -124,6 +124,9 @@ void H2GuerrilaPatches::Init()
 	WriteBytes(0x44CF1F, patch_out_of_resources, 0x2);
 	NopFill(0x44CDD0, 0x5);
 
+	// A messy fix for script text getting cut off
+	WriteValue(0x402FCE + 1, 0x40000);
+	WriteValue(0x402F0D + 1, 0x40000);
 #pragma endregion
 
 #pragma region Hooks

@@ -46,7 +46,7 @@ void Logs::Exit()
 
 
 
-VOID Debug::Start_Console()//AllocConsole	
+void Debug::Start_Console()
 {
 	AllocConsole();
 	SetConsoleTitleA("Debug Window");

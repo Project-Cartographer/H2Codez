@@ -13,17 +13,9 @@ private:
 
 };
 
-class Debug
+namespace Debug
 {
-	
-public:
-	
-	static VOID Start_Console();///AllocConsole		
-	
-private:
-	
-	
+	void Start_Console();///AllocConsole		
 };
 extern Logs pLog;
-extern Debug Dbg;
 extern Logs H2PCTool;

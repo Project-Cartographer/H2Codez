@@ -5,6 +5,7 @@
 #include <regex>
 #include "Psapi.h"
 #include "DiscordInterface.h"
+#include "Debug.h"
 #include <cassert>
 #include <Shellapi.h>
 
@@ -164,6 +165,8 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 
 void H2CommonPatches::Init()
 {
+	Debug::init();
+
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 

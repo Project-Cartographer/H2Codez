@@ -26,8 +26,19 @@ inline void WriteValue(DWORD offset, value_type data)
 	std::fill_n(J(NopFIll_, __LINE__ ), len, 0x90);   \
 	WriteBytes(Address, J(NopFIll_, __LINE__ ), len)
 
-//Write a jmp to addy at Line
-#define WriteJmpTo(PatchLine,JMPtoAddr)\
-    BYTE J(jumpto_, __LINE__ )[1] = { 0xE8 };\
-    WriteBytes((DWORD)PatchLine, J(jumpto_, __LINE__ ), 1);\
-    PatchCall((DWORD)PatchLine,(DWORD)JMPtoAddr);
+inline void WriteJmpTo(DWORD call_addr, DWORD new_function_ptr)
+{
+	BYTE call_patch[1] = { 0xE8 };
+	WriteBytes(call_addr, call_patch, 1);
+	PatchCall(call_addr, new_function_ptr);
+}
+
+inline void WriteJmpTo(DWORD call_addr, void *new_function_ptr)
+{
+	WriteJmpTo(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
+}
+
+inline void WriteJmpTo(void *call_addr, void *new_function_ptr)
+{
+	WriteJmpTo(reinterpret_cast<DWORD>(call_addr), reinterpret_cast<DWORD>(new_function_ptr));
+}

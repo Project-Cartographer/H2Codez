@@ -2,16 +2,20 @@
 #include <Dbghelp.h>
 #include <Shlwapi.h>
 #include "Debug.h"
+#include "Version.h"
 
 #define crash_reports_path "reports//crash_reports//"
 
 using namespace Debug;
 
+const char version_data[] = "H2codez version: " version;
+
 LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = nullptr;
-LONG WINAPI On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
+LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
 {
+	pLog.WriteLog("On_UnhandledException");
 	// make sure the reports path exists
-	CreateDirectoryA(crash_reports_path, NULL);
+	MakeSureDirectoryPathExists(crash_reports_path);
 
 	std::string dump_file_name = crash_reports_path;
 	CHAR exe_path_buffer[MAX_PATH + 1];
@@ -44,6 +48,15 @@ LONG WINAPI On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
 	aMiniDumpInfo.ExceptionPointers = ExceptionInfo;
 	aMiniDumpInfo.ClientPointers = TRUE;
 
+	MINIDUMP_USER_STREAM version_data;
+	version_data.Type = CommentStreamA;
+	version_data.Buffer = &version_data;
+	version_data.BufferSize = sizeof(version_data);
+
+	MINIDUMP_USER_STREAM_INFORMATION extra_data;
+	extra_data.UserStreamCount = 1;
+	extra_data.UserStreamArray = &version_data;
+
 	MiniDumpWriteDump(GetCurrentProcess(),
 		GetCurrentProcessId(),
 		dump_file,
@@ -51,7 +64,7 @@ LONG WINAPI On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
 			MiniDumpWithProcessThreadData | MiniDumpWithIndirectlyReferencedMemory | MiniDumpWithCodeSegs
 			),
 		&aMiniDumpInfo,
-		NULL,
+		&extra_data,
 		NULL);
 
 	CloseHandle(dump_file);
@@ -69,10 +82,15 @@ LONG WINAPI On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
 
 void Debug::init()
 {
-	LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = SetUnhandledExceptionFilter(On_UnhandledException);
+	LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = SetUnhandledExceptionFilter(Debug::On_UnhandledException);
 }
 
 void Debug::set_expection_filter(LPTOP_LEVEL_EXCEPTION_FILTER filter)
 {
 	LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = filter;
+}
+
+LPTOP_LEVEL_EXCEPTION_FILTER Debug::get_expection_filter()
+{
+	return expection_filter;
 }

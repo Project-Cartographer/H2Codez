@@ -1,24 +1,26 @@
 # H2Codez
-A Dll by H2PC Project Cartographer Team for Unlocking Halo 2 Editing Kit Lost Functions and new Addons.
+A mod for the H2EK that aims to restore use of existing broken or otherwise disabled functionality,
+fix bugs/crashes, and add new features or re-add removed ones.
 
-## GOAL ##
-
-This Dll has been written to revive the Lost functions of H2Tool and other Editing Kit Packages (H2Sapien & H2Guerilla) and to expand functionality.
-Credits to Kornman for his research in this field years ago. (see H2EK Open Sauce)
-
-## KornnerStudios ##
-You can go to this link:
-https://bitbucket.org/KornnerStudios/opensauce-release/wiki/Home
-
-## ChangeLog ##
-### v1.0 ###
-Features::
-* __H2Tool Lost Functions are revived (some of them still missing).__
-* __Added a new command structure-import-from-jms (This allows Creators and Map Makers to build maps from JMS file source, H2V Specific JMS).__
-* __Removed some hard-coded checks.__
-* __Added a new command extra-commands (See Refernce Notes Inside).__
-* __Custom physics_model and collision_model can be sucessfully created.__
-* __Compiling custom render_model doesn't work, neither custom animations (WIP).__
+## Changelog ##
+* Some H2tool commands restored. (model-collision, model-physics)
+* Basic render model import method(BSP conversion)
+* Shared tag removal made optional.
+* Restored JMS import function. Can import both CE JMS and JMSv2
+* Tag restrictions removed in Guerilla
+* Some hardcoded limits have been increased/removed. (BSP 2D checks, BSP 3D checks)
+* Open as text has been restored and will open a temp txt file with the source text inside. Buttons labeled as "open as text" have been relabeled as "export as text".
+* Baggage.txt command now usable and no longer causes a crash.
+* Hs_doc added to Sapien and Guerilla drop down menu. Modified to include script globals.
+* New input box for commands in Sapien to replace console. Allows copy and paste.
+* New command that allows use of lost misc commands. See extra-commands in H2Codez manual.
+* Rich Presence has been added to the toolset. (Discord integration)
+* Allows compiling of scenario types other than multiplayer.
+* Support editing larger scripts.
+* Add "New Instance" menu item to Guerilla and Sapien.
+* Removed limitation on multiple Sapien instances (may be unstable).
+* Added copy (ctrl + c), paste (ctrl + v) and clear (delete) support to Sapien console, paste replaces the whole line.
+* Some misc changes and fixes.
 
 ## Installation
 * __Install Microsoft .net framework 4.__
@@ -28,19 +30,16 @@ Features::
 * __Copy the launcher to the mapping toolkit install directory (optional).__
 * __Run the launcher, elevate to admin privledges if prompted.__
 
-## COMPILATION / CONTRIBUTE ##
-* __Contributors are Welcome :)__
-* __I would like to see this project go further__
-* __You need BoostSDK Libraries (boost_1_55_0)__
-* __Copy the boost_1_55_0 folder to C:\Program Files (x86)\boost__
-* __Then Clone and Start Building__
-* __Follow the steps listed under [installation](#installation) to get patched exes or manually inject H2Codez.dll into the process at startup.__
-* __Or maybe you know 3ds Max Scripting, we need a JMS exporter. (Examples: goo.gl/rKC7cF)__
-* __You can use Halo CE JMS exporter as a reference, they aren't very different.__
-
-## REQUIREMENTS ##
-- __BoostSDK Libraries (boost_1_55_0)__
-- __It also includes MS_DETOURS(v3)__
+## Contributing ##
+Contributions are welcome, MSVC 2015 is currently used to build release DLLs, and is therefore the recommended IDE.
+If you are not sure what you want to work on take a look at the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues)
+### Compiling ###
+* Clone and build the MSVC solution, if the toolkit is installed in an usually location you might need to change the output directory.
+* Follow the steps listed under [installation](#installation) to get patched exes or manually inject H2Codez.dll into the process at startup.
+### Reporting Issues ###
+* Report issues on the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues/new) please include an explanation of how you caused the issue.
+* If the issue in question causes a crash a minidump should be generated, hang on to it as it might be needed to fix hard to reproduce/rare bugs.
+* If in doubt on if you should include some detail, do include as more information in general makes bugs easier to fix.
 
 ## H2PC Project Cartographer Team ##
 Visit: www.halo2.online 
@@ -50,6 +49,10 @@ Project Cartographer Repo: https://github.com/PermaNulled/cartographer
 Our Discord: https://www.discord.gg/fqgj44m
 
 Hope to see you in-game :)
+
+## Credits ##
+* [Kornman00](https://github.com/KornnerStudios) for his research in this field years ago as part of [OpenSauce](https://bitbucket.org/KornnerStudios/opensauce-release/wiki/Home), which has helped a lot with this project.
+* [General-101](https://github.com/General-101), Dual_Obliteration, Ling Ling, Twinreaper and others, for testing the patches and suggesting new ones.
 
 ## License ##
 This program is free software: you can redistribute it and/or modify

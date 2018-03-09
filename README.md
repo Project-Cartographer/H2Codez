@@ -4,7 +4,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 
 ## Changelog ##
 * Some H2tool commands restored. (model-collision, model-physics)
-* Basic render model import method(BSP conversion)
+* Basic render model import method (BSP conversion)
 * Shared tag removal made optional.
 * Restored JMS import function. Can import both CE JMS and JMSv2
 * Tag restrictions removed in Guerilla
@@ -32,14 +32,14 @@ fix bugs/crashes, and add new features or re-add removed ones.
 
 ## Contributing ##
 Contributions are welcome, MSVC 2015 is currently used to build release DLLs, and is therefore the recommended IDE.
-If you are not sure what you want to work on take a look at the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues)
+If you are not sure what you want to work on take a look at the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues).
 ### Compiling ###
 * Clone and build the MSVC solution, if the toolkit is installed in an usually location you might need to change the output directory.
 * Follow the steps listed under [installation](#installation) to get patched exes or manually inject H2Codez.dll into the process at startup.
 ### Reporting Issues ###
-* Report issues on the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues/new) please include an explanation of how you caused the issue.
-* If the issue in question causes a crash a minidump should be generated, hang on to it as it might be needed to fix hard to reproduce/rare bugs.
-* If in doubt on if you should include some detail, do include as more information in general makes bugs easier to fix.
+* Report issues on the [bug tracker](https://github.com/Himanshu-01/H2Codez/issues/new), please include an explanation of how you caused the issue.
+* If the issue in question causes a crash, a minidump should be generated, hang on to it as it might be needed to fix rare bugs.
+* If in doubt about including a detail, include it as more details about a bug make it easier to understand and fix.
 
 ## H2PC Project Cartographer Team ##
 Visit: www.halo2.online 

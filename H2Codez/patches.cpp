@@ -4,10 +4,13 @@
 VOID WriteBytes(DWORD destAddress, LPVOID patch, DWORD numBytes)
 {
 	DWORD OldProtection;
+	void *target_addr = reinterpret_cast<void*>(destAddress);
 
-	VirtualProtect((LPVOID)destAddress, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy((LPVOID)destAddress, patch, numBytes);
-	VirtualProtect((LPVOID)destAddress, numBytes, OldProtection, NULL);
+	VirtualProtect(target_addr, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection);
+	memcpy(target_addr, patch, numBytes);
+	VirtualProtect(target_addr, numBytes, OldProtection, NULL);
+
+	FlushInstructionCache(GetCurrentProcess(), target_addr, numBytes);
 }
 
 void PatchCall(DWORD call_addr, DWORD new_function_ptr) {

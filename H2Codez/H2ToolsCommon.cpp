@@ -53,7 +53,7 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 bool discord_init_finished = false;
 wchar_t* __stdcall GetCommandLineW_Hook()
 {
-	if (!discord_init_finished) {
+	if (conf.getBoolean("discord_enabled", true) && !discord_init_finished) {
 		DiscordInterface::init();
 		discord_init_finished = true;
 	}

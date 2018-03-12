@@ -149,6 +149,9 @@
     <ClInclude Include="HaloScriptInterface.h">
       <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -168,9 +171,6 @@
     </ClCompile>
     <ClCompile Include="H2Sapien.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="H2ToolsCommon.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
@@ -210,6 +210,12 @@
     </ClCompile>
     <ClCompile Include="HaloScriptInterface.cpp">
       <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

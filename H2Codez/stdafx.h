@@ -33,8 +33,9 @@
 #include "H2Tool\H2Tool_Commands.h"
 #include "discord-rpc.h"
 #include "Patches.h"
+#include "Settings.h"
 
-
+extern Settings conf;
 extern BOOL EnableDbgConsole;
 extern char app_directory[256];
 

@@ -42,13 +42,13 @@ Some say it's dangerous to go alone so take this and let's begin.
 
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-1. --- Instructions ---
+### Instructions ###
 Firstly you will want to install the game itself and the dedicated server files if you wish and update to the latest version of Halo 2. 
 After you have updated your game you will want to install the map editor and NOT update the map editor. 
 H2Codez requires that you have the unpatched version of the tools so that it may patch the exes to use H2Codez. You can use the launcher to do this easily and quickly. 
 Check the links below for the H2Codez launcher download
 
-2. --- Tool - Links ---
+### Tool - Links ###
 https://mega.nz/#!448zXJRS!SmXYx1GNFhRMZJauOUh05RqZVPBDIHtPc32tvrb7q9A
 A link to a pack of exporters you can use for your custom model goals. Halo 2 by default uses JMS files for importing all of our models. 
 While JMS(8200/HaloCE) differs from JMSv2(8205-8210/Halo2[2004]) our tool still has support for the older format. 
@@ -87,11 +87,13 @@ A very useful to to edit txt files. Please take the time to download and install
 https://pastebin.com/NmZEekp0
 A JMSv2 template for physics files. Use this to place in your models.
 
-3. --- Collision Tags --- 
+### Collision Tags ### 
 An important tag for your model. This is what you will need if you want to have something you can shoot at or use to block things. 
 In order to import our custom collision model you will want to setup something using the Halo CE standard JMS exporter for either 3DS Max/Blender. 
 Once you have a JMS file exported you will now need to do some crucial things in order to ensure it will be accepted by tool. 
 You will have a file with a layout like this.
+
+```
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 8200
 1
@@ -135,12 +137,16 @@ base
 metal
 ^^^^^^^^^^
 base metal = (permutation) (region)
+```
+
 The final step is to change the encoding. Open up the text file in Notepad++ and change the encoding from whatever it currently is to UCS-2 LE BOM. Tool should now accept your JMS files without issues assuming they are valid.
 
-4. --- Physics_Model Tags ---
+### Physics_Model Tags ###
 Physics model files are a bit more tricky. You will need to do a couple of things to set these up properly so begin by exporting two files. 
 Our regular JMS file using the regular exporter and a second JMS file using the "shitty" exporter. Take your template and get ready to fill it in for your physics model. 
 You will want to first fill out the node section. Go to your filled out JMS file and take the node from there. Should look something like this.
+
+```
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 1
 frame
@@ -231,12 +237,13 @@ When we want to reference this index for our physics objects in the list we want
 1
 0
 ^^^^^^^^^^^^^
+```
 The material index will depend on what effect you want for that object. The next part is a bit annoying. Basically what this part is is the centroid of the object that you are exporting. 
 So while frame is at 0 0 0 our physics object may bee 3 units above frame so you would type 0 0 3 for the physics object for it's placement in relation to frame. 
 I personally change the location of frame to reflect the center of the physics object I want to export and then copy the location of frame over to the physics object. You are pretty much done after this. 
 You can use the tag extractor with extract import info to look at some of the physics_model.JMS files to get a good idea of what a JMSv2 file would want.
 
-5. --- Render Import(BSP Conversion) ---
+### Render Import(BSP Conversion) ###
 Render models are the tags for the object itself. There are currently 2 methods for importing your own custom render models. There is the GBXmodel Upgrader. The purpose of this tool is to transfer data from a GBXmodel tag from CE
 to a render_model tag from Halo 2. While this generally works and can import rigged models it has many issues related to proper node location and can result in broken UVs. The second method is the one included in H2Codez which
 is a BSP conversion method. A model is first compiled as a BSP using ASS and then the data is transfered over to a render_model file. This should result in a model with intact UVs though it is in beta currently
@@ -277,10 +284,10 @@ https://i.imgur.com/FFQIQVw.png
 Simply place multiple ASS files in the same directory and they will be added as new sections. The order they are in alphabetically will determine the section order. From here simply reference the proper index in the permutation 
 section.
 
-6. --- Model Tags ---
+### Model Tags ###
 This is honestly better left for you to make it manually. All this command does is scan your model folder for render, collision, and physics model tag and creates a .model tag with references to those tags.
 
-7. --- Compiling The Above ---
+### Compiling The Above ###
 Now that you have all of your JMS/ASS files ready you will want to setup your folder structure in the data folder of the map editor. The root folder can be anywhere but but sure that it follows the following folder structure. 
 Words in quotations are the name of the folder.
 
@@ -295,8 +302,9 @@ You can now use the all option in the model compile tab. Just select the object 
 Keep in mind that the collision command is a bit strange. While all your other tags will be inside the directory where they were compiled the collision tag will be placed outside the root folder. 
 Just move it back inside afterwards and it will be fine.
 
-8. --- Extra Commands ---
+### Extra Commands ###
 By typing in "h2tool extra-commands" you will get the option to use some of the dev commands in tool. You can use "h2tool extra-commands-list" but here they will be listed and explained if possible.
+```
   fix-weapons
 	description: your momma
 		usage: Unknown
@@ -501,64 +509,65 @@ By typing in "h2tool extra-commands" you will get the option to use some of the 
   dx9-vertex-shader-refs
 	description: make sure all vertex shaders are referenced out of the dx9 directory
 		usage: Unknown
+```
 
-9. --- Unlocked Scenario Compiling ---
+### Unlocked Scenario Compiling ###
 By default tool does not allow any other scenario type than multiplayer to be built. H2Codez allows you to package cache files using different scenario types like singeplayer, shared, single player shared, and mainmenu. 
 I will go over how to switch your scenario type in the Sapien section at #20
 
-10. --- Shared Removal ---
+### Shared Removal ###
 When a map is built tool checks the assets of the map against a database for shared and then does not package the assets that exist while leaving a reference to shared in the scenario file. 
 H2Codez has an option to ignore this and instead package all dependencies on your map into your map file. This can be used to overwrite default files such as a custom globals.globals which allows for custom bipeds and weapons. 
 Do not use this at the moment unless you understand what you are doing. Using this option will leave you with an unknown crash at time of writing. 
 Work is being done to see if a cause can be identified in the tags or if it is related to the codebase.
 
-11. --- Guerilla - Links ---
+### Guerilla - Links ###
 https://mega.nz/#!kl8HFCYQ!8SJbn89GCCHZcVqMaT4GQRbUW7t2hnswHO7d1xf1E_E
 Download these files and place them in the bin folder of the map editor. Explanation at #15.
 
-12. ---Advanced Shader View ---
+### Advanced Shader View ###
 When clicking on the edit button in the toolbar you will see a new option labeled "Advanced Shader View". By default you will see the default shader template system that lets you input bitmaps into named boxes. 
 If you click on advanced shader view and open the shader again you will see the layout has changed allowing you to see compiled shader data if it was extracted. This can be useful for attempting to rebuild extracted shaders.
 
-13. --- New Instance ---
+### New Instance ###
 When clicking file in Guerilla a new option will appear labeled "New Instance". This just simply opens a second instance of Guerilla.
 
-14. --- Unlocked Tags ---
+### Unlocked Tags ###
 By default Guerilla can only view and create a few tags. Things like shaders and bitmaps. Even then fields in the tags you can view are hidden leaving you with a very limited tool. 
 H2Codez allows us to open and see all the tags Halo 2 accepts. The only one I've found with major issues is the sound tag. 
 While you can create, load, and play sound tags you can't actually edit the values in a sound tag. Doing so will crash Guerilla.
 
-15. --- Xbox Audio Codec --- 
+### Xbox Audio Codec ### 
 Placing this file in the bin folder allows Guerilla you to preview sounds from the sound tag. 
 It can also be used as your primary audio codec to compile sound tags in Halo CE which can then be edited in H1 Guerilla and transfered over just fine to Halo 2. 
 You can also use it to convert audio files extracted from the cache with tools like Gravemind into playable audio files.
 
-16. --- Baggage.txt ---
+### Baggage.txt ###
 Baggage.txt is a txt file that was output upon hitting CTRL+Shift+B in HCE Sapien. In Halo 2 Sapien this causes the program to crash. 
 With H2Codez the file will be properly written for you to view. This file can be used to view the amount of data a certain type of tag is taking up allowing you to easily see issues related to overflow.
 
-17. --- HS_doc ---
+### HS_doc ###
 While the command still exists, it has been added as an option you can click in the menus to generate it. 
 It will give you the needed scripting documentation for Halo 2. It has also been modified to output globals script functions.
 
-18. --- Sapien - New Instance ---
+### Sapien - New Instance ###
 If you click file then you will see a new option labeled "New Instance". This will simply let you start a second instance from the file menu.
 
-19. --- Window ---
+### Window ###
 You will see a new option in the toolbar labeled "Window". It will has three options that you can use to organize the window panels. 
 "Cascade" brings all the windows diagonally on the screen. "Tile Horizontally" puts each window into one quadrant of the screen. Very useful to organize your windows easily. "Arrange Icons" seems to do nothing.
 
-20. --- Scenario Type Strings ---
+### Scenario Type Strings ###
 You could choose the scenario type before however the strings for the scenario type were commented out. 
 Click on the mission folder in "Hierarchy Pane" then you can change the type in the "Properties Palette". You can select your scenario type here and tool will compile what you decide.
 
-21. --- Run Commands ---
+### Run Commands ###
 Allows you to run commands from a new input box. Unlike the vanilla console this one lets you copy and paste. 
 
-22. --- Script Execution ---
+### Script Execution ###
 Clicking this button in the scenario tab will make Sapien run your scripts so that you may see how they work.
 
-23. --- Credit ---
+### Credit ###
 Kornmann00 for his original research into the toolset
 Himanshu01 for the creation of H2Codez
 Num005(Ale) for contributing to H2Codez and the creation of the H2Codez launcher

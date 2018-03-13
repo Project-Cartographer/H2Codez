@@ -54,6 +54,10 @@ Hope to see you in-game :)
 * [Kornman00](https://github.com/KornnerStudios) for his research in this field years ago as part of [OpenSauce](https://bitbucket.org/KornnerStudios/opensauce-release/wiki/Home), which has helped a lot with this project.
 * [General-101](https://github.com/General-101), Dual_Obliteration, Ling Ling, Twinreaper and others, for testing the patches and suggesting new ones.
 
+## Acknowledgements ##
+* Cyboryxmen for his modified JMS export script known as Waltzstreet 
+* TheGhost/CtrlAltDestroy for the modified JMS exporter known as JMS_Exporter_v1-0-3
+
 ## License ##
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 3 as published by

@@ -146,10 +146,10 @@ namespace HaloScriptCommon
 		DWORD unk1 = 0;
 		func_check check_command_args;
 		func_impl command_impl;
-		char *desc = NULL;
-		char *usage = NULL;
-		DWORD arg_count = 0;
-		DWORD arg_mess_ = 0;
+		char *desc = nullptr;
+		char *usage = nullptr;
+		WORD arg_count = 0;
+		WORD arg_type_array[];
 
 		hs_command(char *cmd_name, hs_type ret_type, func_check arg_check, func_impl impl)
 		{
@@ -160,7 +160,7 @@ namespace HaloScriptCommon
 		}
 
 	};
-	static_assert(sizeof(hs_command) == 0x24, "Bad struct size");
+	static_assert(sizeof(hs_command) == 0x20, "Bad struct size");
 
 	struct hs_global_variable {
 		char *name;

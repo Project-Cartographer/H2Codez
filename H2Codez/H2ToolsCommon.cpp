@@ -74,19 +74,20 @@ bool H2CommonPatches::newInstance()
 	return true;
 }
 
-std::string get_command_usage_by_id(unsigned short id)
+std::string get_command_usage(hs_command *cmd)
 {
-	char usage_string[0x800];
-	int get_command_usage_by_id_impl = SwitchAddessByMode(0, 0x4E2DF0, 0x4D4F90);
-	CHECK_FUNCTION_SUPPORT(get_command_usage_by_id_impl);
-
-	__asm {
-		mov ax, id
-		lea edi, usage_string
-		mov esi, 0x800
-		call get_command_usage_by_id_impl
+	std::string usage = "(<" + hs_type_string[cmd->return_type] + "> " + cmd->name;
+	if (cmd->usage) {
+		usage += std::string(" ") + cmd->usage;
+	} else {
+		for (size_t arg = 0; arg < cmd->arg_count; arg++)
+		{
+			hs_type arg_type = static_cast<hs_type>(cmd->arg_type_array[arg]);
+			usage += " <" + hs_type_string[arg_type] + ">";
+		}
 	}
-	return usage_string;
+	usage += ")";
+	return usage;
 }
 
 std::string H2CommonPatches::get_temp_name(std::string name_suffix)
@@ -151,8 +152,9 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 		fprintf(FilePtr, "== Commands ==\r\n\r\n");
 		for (USHORT current_command_id = 0; current_command_id < 924; current_command_id++)
 		{
-			fprintf(FilePtr, "%s\r\n", get_command_usage_by_id(current_command_id).c_str());
-			fprintf(FilePtr, "%s\r\n\r\n", command_table[current_command_id]->desc);
+			hs_command *cmd = command_table[current_command_id];
+			fprintf(FilePtr, "%s\r\n", get_command_usage(cmd).c_str());
+			fprintf(FilePtr, "%s\r\n\r\n", cmd->desc);
 		}
 		fprintf(FilePtr, "== Script Globals ==\r\n\r\n");
 		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)

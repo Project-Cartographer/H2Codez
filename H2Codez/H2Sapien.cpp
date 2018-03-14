@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 
+using namespace HaloScriptCommon;
+
 typedef HWND(__fastcall *create_main_window)(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam);
 create_main_window create_main_window_orginal;
 
@@ -212,7 +214,7 @@ int __cdecl fclose_baggage_hook(FILE *File)
 	return ret_data;
 }
 
-void **__cdecl status_func_impl(int a1, void *a2, char a3)
+void **__cdecl status_func_impl(int command_id, void *a2, char a3)
 {
 	ofstream output;
 	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");

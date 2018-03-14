@@ -113,6 +113,9 @@
     <ClInclude Include="Debug.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="HaloScriptCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -8,7 +8,9 @@
 #include "Debug.h"
 #include <cassert>
 #include <Shellapi.h>
+#include "HaloScriptCommon.h"
 
+using namespace HaloScriptCommon;
 
 typedef int (WINAPI *LoadStringW_Typedef)(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax);
 LoadStringW_Typedef LoadStringW_Orginal;

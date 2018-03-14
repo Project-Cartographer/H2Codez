@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "HaloScript.h"
 
+using namespace HaloScriptCommon;
+
 void **HaloScript::epilog(void *a1, int return_data)
 {
 	typedef void **(__cdecl *hs_epilog)(void *a1, int return_data);
@@ -27,32 +29,20 @@ std::string HaloScript::get_value_as_string(void *var_ptr, hs_type type)
 
 	switch (type) {
 	case hs_type::boolean:
-		value_as_string = *reinterpret_cast<bool*>(var_ptr) ? "True" : "False";
+		value_as_string = (*static_cast<bool*>(var_ptr)) ? "True" : "False";
 		return value_as_string;
-	case hs_type::funtion_name:
-		value_as_string = "FIXME: read function name";
-		return value_as_string;
-	case hs_type::long_int:
-		value_as_string = std::to_string(*reinterpret_cast<long*>(var_ptr));
+	case hs_type::hs_long:
+		value_as_string = std::to_string(*static_cast<long*>(var_ptr));
 		return value_as_string;
 	case hs_type::nothing:
-		value_as_string = "<void>";
-		return value_as_string;
-	case hs_type::passthrough:
-		value_as_string = "FIXME: read passthrough";
-		return value_as_string;
+		return "void";;
 	case hs_type::real:
-		value_as_string = std::to_string(*reinterpret_cast<float*>(var_ptr));
+		value_as_string = std::to_string(*static_cast<float*>(var_ptr));
 		return value_as_string;
-	case hs_type::script:
-		value_as_string = "FIXME: read script";
+	case hs_type::hs_short:
+		value_as_string = std::to_string(*static_cast<short*>(var_ptr));
 		return value_as_string;
-	case hs_type::short_int:
-		value_as_string = std::to_string(*reinterpret_cast<short*>(var_ptr));
-		return value_as_string;
-	case hs_type::special_form:
-		value_as_string = "FIXME: read special_form";
-		return value_as_string;
+	default:
+		throw std::runtime_error("Converting HS data of type '" + hs_type_string[type] + "' to string is not implemented.\n");
 	}
-	return "Unknown Script Type!!";
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <Dbghelp.h>
 #include <Shlwapi.h>
+#include <Shlobj.h>
 #include "Debug.h"
 #include "Version.h"
 
@@ -17,7 +18,6 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 	// make sure the reports path exists
 	MakeSureDirectoryPathExists(crash_reports_path);
 
-	std::string dump_file_name = crash_reports_path;
 	CHAR exe_path_buffer[MAX_PATH + 1];
 	GetModuleFileNameA(NULL, exe_path_buffer, sizeof(exe_path_buffer));
 	std::string exe_name = exe_path_buffer;
@@ -33,7 +33,12 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 
 	strftime(timestamp, sizeof(timestamp), "_%Y%m%d-%H%M%S", tm_info);
 
-	dump_file_name = dump_file_name + exe_name + timestamp + ".dmp";
+	// create the crash reports path
+	char full_dir_path[400];
+	_fullpath(full_dir_path, crash_reports_path, 400);
+	SHCreateDirectoryExA(NULL, full_dir_path, NULL);
+
+	std::string dump_file_name = full_dir_path + exe_name + timestamp + ".dmp";
 
 	HANDLE dump_file = CreateFile(dump_file_name.c_str(),
 		GENERIC_WRITE,

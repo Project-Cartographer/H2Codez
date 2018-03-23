@@ -1,6 +1,7 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 
 #include "stdafx.h"
+#include "DiscordInterface.h"
 #include "SigScanning.h"
 
 #pragma region declarations
@@ -38,11 +39,10 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	    break;
 	
 	case DLL_PROCESS_DETACH:
-		Discord_Shutdown();
+		DiscordInterface::shutdown();
 		std::string cmd = GetCommandLineA();
-		if (cmd.find("pause_after_run") != string::npos)
+		if (game.process_type == H2EK::H2Tool  && cmd.find("pause_after_run") != string::npos)
 			std::cin.get();
-		Discord_Shutdown();
 		break;
 	}
 	return TRUE;

@@ -2,7 +2,8 @@
 class DiscordInterface
 {
 public:
-	static void Init();
+	static void init();
+	static void shutdown();
 	static void setAppType(H2EK type);
 };
 

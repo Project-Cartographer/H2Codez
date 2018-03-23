@@ -45,12 +45,11 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }
 
-
 bool discord_init_finished = false;
 wchar_t* __stdcall GetCommandLineW_Hook()
 {
 	if (!discord_init_finished) {
-		DiscordInterface::Init();
+		DiscordInterface::init();
 		discord_init_finished = true;
 	}
 	wchar_t *real_cmd = GetCommandLineW_Orginal();

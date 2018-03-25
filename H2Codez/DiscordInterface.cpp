@@ -39,16 +39,6 @@ static void handleDiscordJoinRequest(const DiscordJoinRequest* request)
 {
 }
 
-bool exit_discord = false;
-
-void WaitForDiscordShutdown(void *_)
-{
-	// wait
-	while (!exit_discord) {
-	}
-	Discord_Shutdown();
-}
-
 void DiscordInterface::init()
 {
 	DiscordEventHandlers handlers;
@@ -61,13 +51,11 @@ void DiscordInterface::init()
 	handlers.joinRequest = handleDiscordJoinRequest;
 	Discord_Initialize("379406777500041228", &handlers, 1, NULL);
 	updateDiscordPresence();
-
-	_beginthread(WaitForDiscordShutdown, 0, NULL);
 }
 
 void DiscordInterface::shutdown()
 {
-	exit_discord = true;
+	Discord_Shutdown();
 }
 
 void DiscordInterface::setAppType(H2EK type)

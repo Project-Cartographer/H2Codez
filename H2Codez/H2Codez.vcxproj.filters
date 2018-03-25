@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Common Interfaces">
       <UniqueIdentifier>{fa4a8928-3838-40b7-8b15-0f517eb11655}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utils\ms_detours">
+      <UniqueIdentifier>{5a7dab93-c43b-4f54-b6ef-7efaaeaadf19}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -116,6 +119,12 @@
     <ClInclude Include="HaloScriptCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Detours\detours.h">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClInclude>
+    <ClInclude Include="Detours\detver.h">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -159,6 +168,21 @@
     </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\detours.cpp">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\disasm.cpp">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\disolx86.cpp">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\image.cpp">
+      <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\modules.cpp">
+      <Filter>Source Files\Utils\ms_detours</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -28,7 +28,7 @@
 #pragma endregion
 
 #include "h2codez.h"
-#include "Detours/detours.h"
+#include "Detours\detours.h"
 #include "Logs.h"
 #include "H2Tool\H2Tool_Commands.h"
 #include "discord-rpc.h"
@@ -39,7 +39,6 @@ extern BOOL EnableDbgConsole;
 extern char app_directory[256];
 
 
-#pragma comment(lib, "Detours/detours")
 #pragma comment( lib, "psapi.lib" )
 
 

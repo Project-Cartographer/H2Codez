@@ -39,7 +39,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	    break;
 	
 	case DLL_PROCESS_DETACH:
-		DiscordInterface::shutdown();
 		std::string cmd = GetCommandLineA();
 		if (game.process_type == H2EK::H2Tool  && cmd.find("pause_after_run") != string::npos)
 			std::cin.get();

@@ -18,6 +18,9 @@ LoadStringW_Typedef LoadStringW_Orginal;
 typedef wchar_t* (WINAPI *GetCommandLineW_Typedef)();
 GetCommandLineW_Typedef GetCommandLineW_Orginal;
 
+typedef void (WINAPI *ExitProcess_Typedef)(UINT exitcode);
+ExitProcess_Typedef ExitProcess_Orginal;
+
 static const wchar_t *map_types[] = 
 {
 	L"Single Player",
@@ -56,6 +59,12 @@ wchar_t* __stdcall GetCommandLineW_Hook()
 	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L"( pause_after_run| shared_tag_removal)"), L"");
 	wcscpy(real_cmd, fake_cmd.c_str());
 	return real_cmd;
+}
+
+void __stdcall ExitProcess_Hook(UINT exitcode)
+{
+	DiscordInterface::shutdown();
+	return ExitProcess_Orginal(exitcode);
 }
 
 bool H2CommonPatches::newInstance()
@@ -178,6 +187,9 @@ void H2CommonPatches::Init()
 
 	GetCommandLineW_Orginal = GetCommandLineW;
 	DetourAttach(&(PVOID&)GetCommandLineW_Orginal, GetCommandLineW_Hook);
+
+	ExitProcess_Orginal = ExitProcess;
+	DetourAttach(&(PVOID&)ExitProcess_Orginal, ExitProcess_Hook);
 
 	DetourTransactionCommit();
 }

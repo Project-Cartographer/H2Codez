@@ -65,4 +65,5 @@ bool H2Toolz::Init()
 		MessageBoxA(0, "H2toolz loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
 		return false;
 	}
+	abort(); // should be unreachable
 }

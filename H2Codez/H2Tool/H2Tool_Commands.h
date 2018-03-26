@@ -1,3 +1,4 @@
+#pragma once
 #include "stdafx.h"
 
 void _H2ToolAttachHooks();

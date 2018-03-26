@@ -361,7 +361,7 @@ void H2ToolPatches::remove_bsp_version_check()
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
-	cout << "H2Toolz version " << version << std::endl
+	cout << "H2Toolz version: " << version << std::endl
 		 << "Built on " __DATE__ " at " __TIME__ << std::endl;
 
 	Increase_structure_import_size_Check();

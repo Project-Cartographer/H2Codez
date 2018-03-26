@@ -1,1 +1,5 @@
-#define version "1.2 Dev build"
+#ifdef _DEBUG
+#define version "development build (debugging)"
+#else
+#define version "development build (release)"
+#endif

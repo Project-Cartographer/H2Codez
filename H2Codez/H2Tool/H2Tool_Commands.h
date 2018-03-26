@@ -64,16 +64,20 @@ class H2ToolPatches
 {
 public:
 	static void Initialize();
-	static void AddExtraCommands();
-	static void Increase_structure_import_size_Check();
-	static void Increase_structure_bsp_geometry_check();
-	static void unlock_other_scenario_types_compiling();
-	static void enable_campaign_tags_sharing();
-	static void apply_shared_tag_removal_scheme();
-	static void render_model_import_unlock();
-
 
 private:
+	static void AddExtraCommands();
+
+	static void enable_campaign_tags_sharing();
+	static void apply_shared_tag_removal_scheme();
+
+	static void unlock_other_scenario_types_compiling();
+	static void render_model_import_unlock();
+	static void remove_bsp_version_check();
+
+	static void Increase_structure_import_size_Check();
+	static void Increase_structure_bsp_geometry_check();
+
 	static void structure_bsp_geometry_2D_check_increase();
 	static void structure_bsp_geometry_3D_check_increase();
 	static void structure_bsp_geometry_collision_check_increase();

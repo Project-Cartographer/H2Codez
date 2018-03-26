@@ -350,6 +350,14 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 	H2PCTool.WriteLog("Single Player tag_sharing enabled");
 }
 
+void H2ToolPatches::remove_bsp_version_check()
+{
+	// allow tool to work with BSPs compliled by newer versions of tool.
+	// downgrades the error you would get to a non-fatal one.
+	BYTE bsp_version_check_return[] = { 0xB0, 0x01 };
+	WriteBytes(0x00545D0F, bsp_version_check_return, sizeof(bsp_version_check_return));
+}
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
@@ -361,6 +369,7 @@ void H2ToolPatches::Initialize()
 	AddExtraCommands();
 	unlock_other_scenario_types_compiling();
 	render_model_import_unlock();
+	remove_bsp_version_check();
 	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)

@@ -116,14 +116,14 @@
     <ClInclude Include="Debug.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="HaloScriptCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Detours\detours.h">
       <Filter>Source Files\Utils\ms_detours</Filter>
     </ClInclude>
     <ClInclude Include="Detours\detver.h">
       <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScriptCommon.h">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +183,9 @@
     </ClCompile>
     <ClCompile Include="Detours\modules.cpp">
       <Filter>Source Files\Utils\ms_detours</Filter>
+    </ClCompile>
+    <ClCompile Include="HaloScriptCommon.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

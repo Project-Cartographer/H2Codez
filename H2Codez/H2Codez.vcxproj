@@ -152,6 +152,7 @@
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool_Commands.cpp" />
     <ClCompile Include="HaloScript.cpp" />
+    <ClCompile Include="HaloScriptCommon.cpp" />
     <ClCompile Include="Logs.cpp" />
     <ClCompile Include="patches.cpp" />
     <ClCompile Include="stdafx.cpp">

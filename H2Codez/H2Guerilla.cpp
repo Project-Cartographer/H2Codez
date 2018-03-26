@@ -17,6 +17,9 @@ CCmdUI__Enable CCmdUI__Enable_Orginal;
 typedef int (__fastcall *CCmdTarget__OnCmdMsg)(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO);
 CCmdTarget__OnCmdMsg CCmdTarget__OnCmdMsg_Orginal;
 
+typedef char *(__cdecl *hs_remote_generate_command)(char *command_name, void **args, signed int arg_count, char *output, rsize_t output_size);
+hs_remote_generate_command hs_remote_generate_command_orginal;
+
 HMENU main_menu;
 bool enable_advanced_shaders = true;
 
@@ -69,6 +72,15 @@ bool __cdecl create_temp_filo(filo *data, LPCSTR location)
 {
 	FiloInterface::init_filo(data, H2CommonPatches::get_temp_name(), false);
 	return true;
+}
+
+char *__cdecl hs_remote_generate_command_hook(char *command_name, void **args, signed int arg_count, char *output, rsize_t output_size)
+{
+	hs_remote_generate_command_orginal(command_name, args, arg_count, output, output_size);
+	// crashes because the 'scnr' tag isn't loaded.
+	//HaloScriptCommon::hs_execute(output);
+	MessageBoxA(NULL, output, "HS Remote Command", 0);
+	return output;
 }
 
 void H2GuerrilaPatches::update_field_display()
@@ -145,6 +157,10 @@ void H2GuerrilaPatches::Init()
 
 	CCmdTarget__OnCmdMsg_Orginal = CAST_PTR(CCmdTarget__OnCmdMsg, 0x67EE0F);
 	DetourAttach(&(PVOID&)CCmdTarget__OnCmdMsg_Orginal, CCmdTarget__OnCmdMsg_hook);
+
+	// generates scripts for use by the remote command system
+	hs_remote_generate_command_orginal = reinterpret_cast<hs_remote_generate_command>(0x0051DC30);
+	DetourAttach(&(PVOID&)hs_remote_generate_command_orginal, hs_remote_generate_command_hook);
 
 	void *hook_temp_filo = reinterpret_cast<void*>(0x48C6F0);
 	DetourAttach(&hook_temp_filo, create_temp_filo);

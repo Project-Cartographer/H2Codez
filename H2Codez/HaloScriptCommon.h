@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include <unordered_map>
 
 namespace HaloScriptCommon
@@ -149,7 +150,7 @@ namespace HaloScriptCommon
 		char *desc = nullptr;
 		char *usage = nullptr;
 		WORD arg_count = 0;
-		WORD arg_type_array[];
+		WORD arg_type_array[1];
 
 		hs_command(char *cmd_name, hs_type ret_type, func_check arg_check, func_impl impl)
 		{
@@ -168,5 +169,7 @@ namespace HaloScriptCommon
 		void *variable_ptr;
 	};
 	static_assert(sizeof(hs_global_variable) == 0xC, "Bad struct size");
+
+	bool hs_execute(char *script, bool ran_from_console = true);
 };
 

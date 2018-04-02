@@ -139,6 +139,9 @@ void H2GuerrilaPatches::Init()
 	// A messy fix for script text getting cut off
 	WriteValue(0x402FCE + 1, 0x40000);
 	WriteValue(0x402F0D + 1, 0x40000);
+
+	// allow other processes to read files open with fopen_s
+	WriteValue(0x006B1614 + 1, _SH_DENYWR);
 #pragma endregion
 
 #pragma region Hooks
@@ -166,8 +169,7 @@ void H2GuerrilaPatches::Init()
 	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();
 #pragma endregion
-
-	memset(CAST_PTR(void*,0x9AF809), 1, 1); // set is_expert_mode to one
+	WriteValue(0x9AF809, (BYTE)1); // set is_expert_mode to one
 	update_field_display();
 	toggle_display_templates();
 	main_menu = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));

@@ -272,6 +272,8 @@ void H2SapienPatches::Init()
 	// don't clear the console contents when closed
 	NopFill(0x4ECD7C, 5);
 
+	// allow other processes to read files open with fopen_s
+	WriteValue(0x00738FF3 + 1, _SH_DENYWR);
 #pragma endregion
 
 #pragma region Hooks

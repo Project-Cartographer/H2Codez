@@ -3,7 +3,6 @@
 #include "H2Tool_extra_commands.inl"
 #include "Patches.h"
 
-
 //I should better leave  the H2tool version i am using
 //tool  debug pc 11081.07.04.30.0934.main  Apr 30 2007 09:37:08
 

@@ -82,6 +82,8 @@ private:
 	static void structure_bsp_geometry_2D_check_increase();
 	static void structure_bsp_geometry_3D_check_increase();
 	static void structure_bsp_geometry_collision_check_increase();
+
+	static void disable_secure_file_locking();
 };
 
 

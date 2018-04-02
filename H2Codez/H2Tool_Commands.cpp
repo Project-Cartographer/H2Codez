@@ -358,6 +358,12 @@ void H2ToolPatches::remove_bsp_version_check()
 	WriteBytes(0x00545D0F, bsp_version_check_return, sizeof(bsp_version_check_return));
 }
 
+void H2ToolPatches::disable_secure_file_locking()
+{
+	// allow other processes to read files open with fopen_s
+	WriteValue(0x0074DDD6 + 1, _SH_DENYWR);
+}
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
@@ -370,6 +376,7 @@ void H2ToolPatches::Initialize()
 	unlock_other_scenario_types_compiling();
 	render_model_import_unlock();
 	remove_bsp_version_check();
+	disable_secure_file_locking();
 	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)

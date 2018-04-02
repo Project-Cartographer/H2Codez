@@ -30,7 +30,7 @@ inline void WriteValue(DWORD offset, value_type data)
 
 inline void WriteJmpTo(DWORD call_addr, DWORD new_function_ptr)
 {
-	BYTE call_patch[1] = { 0xE8 };
+	BYTE call_patch[1] = { 0xE9 };
 	WriteBytes(call_addr, call_patch, 1);
 	PatchCall(call_addr, new_function_ptr);
 }

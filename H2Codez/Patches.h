@@ -1,8 +1,10 @@
 #pragma once
 
-VOID WriteBytes(DWORD destAddress, LPVOID patch, DWORD numBytes);
-VOID PatchCall(DWORD call_addr, DWORD new_function_ptr);
-VOID WritePointer(DWORD offset, void *ptr);
+void WriteBytes(DWORD destAddress, LPVOID patch, DWORD numBytes);
+void PatchCall(DWORD call_addr, DWORD new_function_ptr);
+void WritePointer(DWORD offset, void *ptr);
+void PatchWinAPICall(DWORD call_addr, DWORD new_function_ptr);
+
 inline void PatchCall(DWORD call_addr, void *new_function_ptr)
 {
 	PatchCall(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
@@ -41,4 +43,9 @@ inline void WriteJmpTo(DWORD call_addr, void *new_function_ptr)
 inline void WriteJmpTo(void *call_addr, void *new_function_ptr)
 {
 	WriteJmpTo(reinterpret_cast<DWORD>(call_addr), reinterpret_cast<DWORD>(new_function_ptr));
+}
+
+inline void PatchWinAPICall(DWORD call_addr, void * new_function_ptr)
+{
+	PatchWinAPICall(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
 }

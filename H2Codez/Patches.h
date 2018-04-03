@@ -45,6 +45,18 @@ inline void WriteJmpTo(void *call_addr, void *new_function_ptr)
 	WriteJmpTo(reinterpret_cast<DWORD>(call_addr), reinterpret_cast<DWORD>(new_function_ptr));
 }
 
+inline void WriteCallTo(DWORD call_addr, DWORD new_function_ptr)
+{
+	BYTE call_patch[1] = { 0xE8 };
+	WriteBytes(call_addr, call_patch, 1);
+	PatchCall(call_addr, new_function_ptr);
+}
+
+inline void WriteCallTo(DWORD call_addr, void *new_function_ptr)
+{
+	WriteCallTo(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
+}
+
 inline void PatchWinAPICall(DWORD call_addr, void * new_function_ptr)
 {
 	PatchWinAPICall(call_addr, reinterpret_cast<DWORD>(new_function_ptr));

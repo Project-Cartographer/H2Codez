@@ -265,7 +265,7 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
-	WriteJmpTo(0x4ECC2E, &console_input_jump_hook);
+	WriteCallTo(0x4ECC2E, &console_input_jump_hook);
 	// replace a call to memcpy
 	PatchCall(0x58F6AA, &console_write_hook);
 

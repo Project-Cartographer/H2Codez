@@ -3,15 +3,21 @@
 #include <process.h>
 
 
-char tool_in_use[128] = "How did you do that??!";
+std::string tool_in_use = "How did you do that??!";
+std::string icon_key;
+std::string screenshot_key;
+std::string image_hover;
 
 static void updateDiscordPresence()
 {
 	DiscordRichPresence discordPresence;
 	memset(&discordPresence, 0, sizeof(discordPresence));
-	discordPresence.state = tool_in_use;
+	discordPresence.state = tool_in_use.c_str();
 	discordPresence.details = "";
-	discordPresence.largeImageKey = "canary-large";
+	discordPresence.largeImageKey = screenshot_key.c_str();
+	discordPresence.smallImageKey = icon_key.c_str();
+	discordPresence.largeImageText = image_hover.c_str();
+	discordPresence.smallImageText = image_hover.c_str();
 	Discord_UpdatePresence(&discordPresence);
 }
 
@@ -63,16 +69,25 @@ void DiscordInterface::setAppType(H2EK type)
 	switch (type)
 	{
 	case H2Tool:
-		strncpy(tool_in_use, "Running H2tool.", sizeof(tool_in_use));
+		tool_in_use = "Running H2tool.";
+		image_hover = "H2Tool";
+		screenshot_key = "h2toolscreenshot";
+		icon_key = "h2toolicon";
 		break;
 	case H2Sapien:
-		strncpy(tool_in_use, "Editing a map using H2Sapien", sizeof(tool_in_use));
+		tool_in_use = "Editing scenerio.";
+		image_hover = "H2Sapien";
+		screenshot_key = "h2sapienscreenshot";
+		icon_key = "h2sapienicon";
 		break;
 	case H2Guerilla:
-		strncpy(tool_in_use, "Editing tags using H2Guerilla", sizeof(tool_in_use));
+		tool_in_use = "Editing tags.";
+		image_hover = "H2Guerilla";
+		screenshot_key = "h2guerillascreenshot";
+		icon_key = "h2guerillaicon";
 		break;
 	case Invalid:
-		strncpy(tool_in_use, "Putting H2Codez in an invalid state for fun and profit", sizeof(tool_in_use));
+		tool_in_use = "Putting H2Codez in an invalid state for fun and profit";
 		break;
 	default:
 		break;

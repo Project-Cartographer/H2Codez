@@ -8,6 +8,8 @@
 #include "Debug.h"
 #include <cassert>
 #include <Shellapi.h>
+#include <Shlwapi.h>
+#include <Shlobj.h>
 #include "HaloScriptCommon.h"
 
 using namespace HaloScriptCommon;
@@ -175,6 +177,42 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 	ShellExecuteA(NULL, NULL, file_name.c_str(), NULL, NULL, SW_SHOW);
 }
 
+char narrow_path[0x200];
+// The toolkit seems to misuse this function so much that it's easier to replace it,
+// with a working one then fix the code that misuses it.
+char* __stdcall get_narrow_halo_2_documents_path()
+{
+	SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, narrow_path);
+	PathAppendA(narrow_path, "Halo 2");
+	SHCreateDirectoryEx(0, narrow_path, 0);
+
+	return narrow_path;
+}
+
+wchar_t wide_path[0x200];
+wchar_t* __stdcall get_wide_halo_2_documents_path()
+{
+	SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, wide_path);
+	PathAppendW(wide_path, L"Halo 2");
+	SHCreateDirectoryExW(0, wide_path, 0);
+	return wide_path;
+}
+
+// The toolkit was treating a wide string as a narrow one in a lot of FS related functions
+// This fixes that by making sure the code gets the string type it was expecting
+void fix_documents_path_string_type()
+{
+	WriteJmpTo(SwitchAddessByMode(0x00589D10, 0x004BA7C0, 0x0048A050), get_narrow_halo_2_documents_path);
+
+	// The only two functions that weren't broken before
+	PatchCall(SwitchAddessByMode(0x006708E6, 0x005061A5, 0x005AEFF6), get_wide_halo_2_documents_path); // wrl export
+	PatchCall(SwitchAddessByMode(0x00670B05, 0x005061C2, 0x005AF215), get_wide_halo_2_documents_path); // comments export
+	if (game.process_type == H2Guerilla) {
+		PatchCall(0x00430E76, get_wide_halo_2_documents_path); // working without patches
+		PatchCall(0x00445FDA, get_wide_halo_2_documents_path); // not sure if working or broken, leaving as is for now
+	}
+}
+
 void H2CommonPatches::Init()
 {
 	Debug::init();
@@ -190,6 +228,8 @@ void H2CommonPatches::Init()
 
 	ExitProcess_Orginal = ExitProcess;
 	DetourAttach(&(PVOID&)ExitProcess_Orginal, ExitProcess_Hook);
+
+	fix_documents_path_string_type();
 
 	DetourTransactionCommit();
 }

@@ -115,7 +115,7 @@ void __stdcall on_console_input(WORD keycode)
 		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
 			*cursor_pos = static_cast<WORD>(new_text.size());
 			strncpy(console_input, new_text.c_str(), 0x100);
-			print_console("pasted to clipboard!");
+			print_console("pasted from clipboard!");
 		}
 		break;
 	}

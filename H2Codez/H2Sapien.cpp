@@ -274,6 +274,12 @@ void H2SapienPatches::Init()
 
 	// allow other processes to read files open with fopen_s
 	WriteValue(0x00738FF3 + 1, _SH_DENYWR);
+
+	// fixes debug_tags command messing up string formating
+	// and getting a werid path directly in program files
+	const char *tag_debug_format = "%S//%s_tag_dump.txt";
+	WriteValue(0x004B5F33 + 1, tag_debug_format);
+
 #pragma endregion
 
 #pragma region Hooks

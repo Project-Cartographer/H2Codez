@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "H2Tool\ToolCommandDefinitions.inl"
 #include "H2Tool\H2Tool_extra_commands.inl"
+#include "H2ToolsCommon.h"
 #include "Patches.h"
 #include "Version.h"
 
-
+using namespace HaloScriptCommon;
 
 //I should better mention  the H2tool version i am using
 //tool  debug pc 11081.07.04.30.0934.main  Apr 30 2007 09:37:08
@@ -364,6 +365,49 @@ void H2ToolPatches::disable_secure_file_locking()
 	WriteValue(0x0074DDD6 + 1, _SH_DENYWR);
 }
 
+hs_convert_data_store *hs_get_converter_data_store(unsigned __int16 handle)
+{
+	typedef void* (__cdecl *get_args)(int a1, unsigned __int16 a2);
+	get_args get_args_impl = reinterpret_cast<get_args>(0x00557E60);
+	return static_cast<hs_convert_data_store*>(get_args_impl(*reinterpret_cast<DWORD*>(0xBCBF4C), handle));
+}
+
+const char *hs_get_string_data(hs_convert_data_store *data_store)
+{
+	const char *hs_string_data = *reinterpret_cast<const char **>(0x00CDB198);
+	return &hs_string_data[data_store->string_value_offset];
+}
+
+void hs_converter_error(hs_convert_data_store *data_store, const char *error)
+{
+	const char **hs_error_string_ptr = reinterpret_cast<const char**>(0x00CDB1AC);
+	DWORD *hs_error_offset_ptr = reinterpret_cast<DWORD*>(0x00CDB1B0);
+
+	*hs_error_string_ptr = error;
+	*hs_error_offset_ptr = data_store->string_value_offset;
+	data_store->output = -1;
+}
+
+char __cdecl hs_convert_ai_id(unsigned __int16 a1)
+{
+	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
+	const char *input_string = hs_get_string_data(data_store);
+	try {
+		data_store->output = std::stoi(input_string, nullptr, 0);
+		return 1;
+	}
+	catch (invalid_argument) {
+		hs_converter_error(data_store, "invalid AI ID");
+		return 0;
+	}
+	catch (out_of_range)
+	{
+		hs_converter_error(data_store, "AI ID out of range");
+		return 0;
+	}
+}
+
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
@@ -378,6 +422,11 @@ void H2ToolPatches::Initialize()
 	remove_bsp_version_check();
 	disable_secure_file_locking();
 	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
+
+	// dirty and horrible AI hack
+	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
+	hs_convert_lookup_table[static_cast<int>(hs_type::ai)] = hs_convert_ai_id;
+
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)
 		apply_shared_tag_removal_scheme();

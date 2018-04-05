@@ -142,6 +142,11 @@ namespace HaloScriptCommon
 		{ hs_type::scenery_name,	"scenery_name" },
 	};
 
+	template<typename T>
+	inline std::string get_hs_type_string(T type) {
+		return hs_type_string[static_cast<hs_type>(type)];
+	}
+
 	struct hs_command
 	{
 		hs_type return_type;

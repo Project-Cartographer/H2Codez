@@ -3,13 +3,15 @@
 
 struct hs_convert_data_store
 {
-	DWORD field_0;
+	WORD field_0;
+	WORD hs_constant_type;
 	WORD target_hs_type;
-	WORD field_2;
-	DWORD field_3;
+	WORD field_6;
+	DWORD field_8;
 	DWORD string_value_offset;
 	DWORD output;
 };
+static_assert(sizeof(hs_convert_data_store) == 0x14, "Invalid 'hs_convert_data_store' Size");
 
 class H2CommonPatches {
 public:

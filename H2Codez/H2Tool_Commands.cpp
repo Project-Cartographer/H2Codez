@@ -378,17 +378,21 @@ const char *hs_get_string_data(hs_convert_data_store *data_store)
 	return &hs_string_data[data_store->string_value_offset];
 }
 
-void hs_converter_error(hs_convert_data_store *data_store, const char *error)
+char hs_error[0x1024];
+
+void hs_converter_error(hs_convert_data_store *data_store, const std::string &error)
 {
 	const char **hs_error_string_ptr = reinterpret_cast<const char**>(0x00CDB1AC);
 	DWORD *hs_error_offset_ptr = reinterpret_cast<DWORD*>(0x00CDB1B0);
 
-	*hs_error_string_ptr = error;
+	strncpy(hs_error, error.c_str(), sizeof(hs_error));
+
+	*hs_error_string_ptr = hs_error;
 	*hs_error_offset_ptr = data_store->string_value_offset;
 	data_store->output = -1;
 }
 
-char __cdecl hs_convert_ai_id(unsigned __int16 a1)
+char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 a1)
 {
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
 	const char *input_string = hs_get_string_data(data_store);
@@ -397,12 +401,12 @@ char __cdecl hs_convert_ai_id(unsigned __int16 a1)
 		return 1;
 	}
 	catch (invalid_argument) {
-		hs_converter_error(data_store, "invalid AI ID");
+		hs_converter_error(data_store, "invalid " + get_hs_type_string(data_store->target_hs_type) + " ID");
 		return 0;
 	}
 	catch (out_of_range)
 	{
-		hs_converter_error(data_store, "AI ID out of range");
+		hs_converter_error(data_store, get_hs_type_string(data_store->target_hs_type) + " ID out of range");
 		return 0;
 	}
 }
@@ -424,8 +428,18 @@ char __cdecl hs_convert_ai_behaviour(unsigned __int16 a1)
 void fix_hs_converters()
 {
 	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
-	hs_convert_lookup_table[static_cast<int>(hs_type::ai)] = hs_convert_ai_id; // hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_convert_lookup_table[static_cast<int>(hs_type::ai_behavior)] = hs_convert_ai_behaviour;
+
+	// hacky workaround, lets the user directly input the ID it's meant to generate.
+	hs_type passthrough_types[] = {
+		hs_type::ai,        hs_type::ai_command_list,
+		hs_type::ai_orders, hs_type::conversation,
+		hs_type::navpoint,  hs_type::point_reference,
+		hs_type::style,     hs_type::hud_message
+	};
+
+	for (auto i : passthrough_types)
+		hs_convert_lookup_table[static_cast<int>(i)] = hs_convert_internal_id_passthrough;
 }
 
 

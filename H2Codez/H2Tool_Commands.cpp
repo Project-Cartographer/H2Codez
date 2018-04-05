@@ -407,6 +407,27 @@ char __cdecl hs_convert_ai_id(unsigned __int16 a1)
 	}
 }
 
+char __cdecl hs_convert_ai_behaviour(unsigned __int16 a1)
+{
+	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
+	const std::string input = hs_get_string_data(data_store);
+	ai_behaviour out = string_to_ai_behaviour(input);
+	if (out != ai_behaviour::invalid) {
+		data_store->output = static_cast<DWORD>(out);
+		return 1;
+	} else {
+		hs_converter_error(data_store, "Invalid AI behaviour");
+		return 0;
+	}
+}
+
+void fix_hs_converters()
+{
+	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
+	hs_convert_lookup_table[static_cast<int>(hs_type::ai)] = hs_convert_ai_id; // hacky workaround, lets the user directly input the ID it's meant to generate.
+	hs_convert_lookup_table[static_cast<int>(hs_type::ai_behavior)] = hs_convert_ai_behaviour;
+}
+
 
 void H2ToolPatches::Initialize()
 {
@@ -421,11 +442,8 @@ void H2ToolPatches::Initialize()
 	render_model_import_unlock();
 	remove_bsp_version_check();
 	disable_secure_file_locking();
+	fix_hs_converters();
 	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
-
-	// dirty and horrible AI hack
-	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
-	hs_convert_lookup_table[static_cast<int>(hs_type::ai)] = hs_convert_ai_id;
 
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)

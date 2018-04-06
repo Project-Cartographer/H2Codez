@@ -396,6 +396,11 @@ char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 a1)
 {
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
 	const char *input_string = hs_get_string_data(data_store);
+	if (strcmpi(input_string, "NONE"))
+	{
+		data_store->output = -1;
+		return 1;
+	}
 	try {
 		data_store->output = std::stoi(input_string, nullptr, 0);
 		return 1;

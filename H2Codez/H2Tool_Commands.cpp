@@ -4,6 +4,7 @@
 #include "H2ToolsCommon.h"
 #include "Patches.h"
 #include "Version.h"
+#include "ScenarioTag.h"
 
 using namespace HaloScriptCommon;
 
@@ -392,6 +393,36 @@ void hs_converter_error(hs_convert_data_store *data_store, const std::string &er
 	data_store->output = -1;
 }
 
+scnr_tag *get_global_scenario()
+{
+	return *reinterpret_cast<scnr_tag **>(0x00AA00E4);
+}
+
+void hs_convert_string_id_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int offset, int hs_converter_id)
+{
+	typedef void(__cdecl* _hs_convert_to_tagblock_offset)(int offset, int a2, tag_block_ref *tag_block, int element_size);
+	_hs_convert_to_tagblock_offset converter_impl = reinterpret_cast<_hs_convert_to_tagblock_offset>(0x0065D5E0);
+	int a2 = *reinterpret_cast<int*>(0x009C74FC);
+	__asm { mov eax, hs_converter_id };
+	converter_impl(offset, a2, tag_block, element_size);
+}
+
+void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int offset, int hs_converter_id)
+{
+	typedef void(__cdecl* _hs_convert_to_tagblock_offset)(int offset, int a2, tag_block_ref *tag_block, int element_size);
+	_hs_convert_to_tagblock_offset converter_impl = reinterpret_cast<_hs_convert_to_tagblock_offset>(0x0065D510);
+	int a2 = *reinterpret_cast<int*>(0x009C74FC);
+	__asm { mov eax, hs_converter_id };
+	converter_impl(offset, a2, tag_block, element_size);
+}
+
+char __cdecl hs_convert_conversation(unsigned __int16 a1)
+{
+	scnr_tag *scenario = get_global_scenario();
+	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 128, 0, a1);
+	return 1;
+}
+
 char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 a1)
 {
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
@@ -430,23 +461,35 @@ char __cdecl hs_convert_ai_behaviour(unsigned __int16 a1)
 	}
 }
 
+char __cdecl hs_convert_ai_orders(unsigned __int16 a1)
+{
+	scnr_tag *scenario = get_global_scenario();
+	hs_convert_string_to_tagblock_offset(&scenario->orders, 144, 0, a1);
+	return 1;
+}
+
+#define set_hs_converter(type, func) \
+	hs_convert_lookup_table[static_cast<int>(type)] = func;
+
 void fix_hs_converters()
 {
 	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
-	hs_convert_lookup_table[static_cast<int>(hs_type::ai_behavior)] = hs_convert_ai_behaviour;
+	set_hs_converter(hs_type::ai_behavior, hs_convert_ai_behaviour);
+	set_hs_converter(hs_type::conversation, hs_convert_conversation);
+	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {
 		hs_type::ai,        hs_type::ai_command_list,
-		hs_type::ai_orders, hs_type::conversation,
-		hs_type::navpoint,  hs_type::point_reference,
-		hs_type::style,     hs_type::hud_message
+		hs_type::style,     hs_type::hud_message,
+		hs_type::navpoint,  hs_type::point_reference
 	};
 
 	for (auto i : passthrough_types)
-		hs_convert_lookup_table[static_cast<int>(i)] = hs_convert_internal_id_passthrough;
+		set_hs_converter(i, hs_convert_internal_id_passthrough);
 }
 
+#undef set_hs_converter
 
 void H2ToolPatches::Initialize()
 {

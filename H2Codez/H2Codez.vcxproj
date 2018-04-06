@@ -108,6 +108,7 @@
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicTagTypes.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Detours\detours.h" />
     <ClInclude Include="Detours\detver.h" />
@@ -124,6 +125,7 @@
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ScenarioTag.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Version.h" />

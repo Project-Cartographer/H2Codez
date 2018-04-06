@@ -46,6 +46,9 @@
     <Filter Include="Source Files\Utils\ms_detours">
       <UniqueIdentifier>{5a7dab93-c43b-4f54-b6ef-7efaaeaadf19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Common Interfaces\Tags">
+      <UniqueIdentifier>{57453ed4-21c3-4fe6-b127-81ade21db8a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -124,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="HaloScriptCommon.h">
       <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicTagTypes.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioTag.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

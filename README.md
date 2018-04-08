@@ -20,6 +20,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * Add "New Instance" menu item to Guerilla and Sapien.
 * Removed limitation on multiple Sapien instances (may be unstable).
 * Added copy (ctrl + c), paste (ctrl + v) and clear (delete) support to Sapien console, paste replaces the whole line.
+* Add back support for some script types (AI, AI orderes, etc), somewhat hacky right now.
 * Some misc changes and fixes.
 
 ## Installation

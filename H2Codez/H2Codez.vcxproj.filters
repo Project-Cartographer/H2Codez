@@ -31,9 +31,6 @@
     <Filter Include="Source Files\Interfaces">
       <UniqueIdentifier>{58180921-4d86-4ddd-9f94-6f967c0598d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Interfaces\H2Sapien">
-      <UniqueIdentifier>{62db5d7d-4bba-4fb5-b9be-d971de49d3f9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,9 @@
     </Filter>
     <Filter Include="Source Files\Common Interfaces\Tags">
       <UniqueIdentifier>{57453ed4-21c3-4fe6-b127-81ade21db8a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common Interfaces\HaloScript">
+      <UniqueIdentifier>{50187530-4577-4dd1-bd6b-4bca9d0c64da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -107,9 +107,6 @@
     <ClInclude Include="H2Tool\H2Tool_Render_Model.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
-    <ClInclude Include="HaloScript.h">
-      <Filter>Source Files\Interfaces\H2Sapien</Filter>
-    </ClInclude>
     <ClInclude Include="FiloInterface.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
@@ -125,14 +122,32 @@
     <ClInclude Include="Detours\detver.h">
       <Filter>Source Files\Utils\ms_detours</Filter>
     </ClInclude>
-    <ClInclude Include="HaloScriptCommon.h">
-      <Filter>Source Files\Common Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="BasicTagTypes.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
     <ClInclude Include="ScenarioTag.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_opcodes.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_types.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_command.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_ai_behaviour.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_global_ids.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="hs_global_variable.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScriptInterface.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -166,9 +181,6 @@
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
-    <ClCompile Include="HaloScript.cpp">
-      <Filter>Source Files\Interfaces\H2Sapien</Filter>
-    </ClCompile>
     <ClCompile Include="FiloInterface.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
@@ -193,8 +205,11 @@
     <ClCompile Include="Detours\modules.cpp">
       <Filter>Source Files\Utils\ms_detours</Filter>
     </ClCompile>
-    <ClCompile Include="HaloScriptCommon.cpp">
-      <Filter>Source Files\Common Interfaces</Filter>
+    <ClCompile Include="hs_ai_behaviour.cpp">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClCompile>
+    <ClCompile Include="HaloScriptInterface.cpp">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

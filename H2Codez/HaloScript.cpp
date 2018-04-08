@@ -3,22 +3,6 @@
 
 using namespace HaloScriptCommon;
 
-void **HaloScript::epilog(void *a1, int return_data)
-{
-	typedef void **(__cdecl *hs_epilog)(void *a1, int return_data);
-	hs_epilog hs_epilog_impl = reinterpret_cast<hs_epilog>(0x52CC70);
-
-	return hs_epilog_impl(a1, return_data);
-}
-
-void **HaloScript::prolog(__int16 command_id, int a2, char a3)
-{
-	typedef void **(__cdecl *hs_prolog)(__int16 a1, int a2, char a3);
-	hs_prolog hs_prolog_impl = reinterpret_cast<hs_prolog>(0x52CC70);
-
-	return hs_prolog_impl(command_id, a2, a3);
-}
-
 // this is a massive hack but whatever
 bool false_hack = false;
 std::string HaloScript::get_value_as_string(void *var_ptr, hs_type type)

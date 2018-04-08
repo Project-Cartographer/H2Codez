@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "H2Sapien.h"
 #include "H2ToolsCommon.h"
-#include "HaloScript.h"
+#include "HaloScriptInterface.h"
 #include "Patches.h"
 #include "resource.h"
 #include <Shellapi.h>
@@ -214,34 +214,38 @@ int __cdecl fclose_baggage_hook(FILE *File)
 	return ret_data;
 }
 
-void **__cdecl status_func_impl(int command_id, void *a2, char a3)
-{
-	ofstream output;
-	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
-
-	output.open(temp_file_name, ios::out);
-	if (output)
-	{
-		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
-		{
-			hs_global_variable *current_var = global_table[current_global_id];
-			std::string value_as_string = HaloScript::get_value_as_string(current_var->variable_ptr, current_var->type);
-			output << current_var->name << "   :    " << value_as_string << std::endl;
-		}
-	}
-	output.close();
-	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
-	return HaloScript::epilog(a2, 0);
-}
-
-hs_command status_cmd("status", hs_type::nothing, CAST_PTR(func_check,0x581EB0), status_func_impl);
-
 errno_t print_help_to_doc()
 {
 	H2CommonPatches::generate_script_doc("hs_doc.txt");
 	return 0;
 }
+
+void **__cdecl status_func_impl(int command_id, void *a2, char a3)
+{
+	ofstream output;
+	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
+
+	output.open(temp_file_name, ios::out);
+	if (output)
+	{
+		for (hs_global_variable *current_var : g_halo_script_interface->global_table)
+		{
+			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
+			output << current_var->name << "   :    " << value_as_string << std::endl;
+		}
+	}
+	output.close();
+	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
+	return HaloScriptCommon::epilog(a2, 0);
+}
+
+hs_command status_cmd(
+	"status",
+	hs_type::nothing,
+	hs_default_func_check,
+	status_func_impl,
+	"dumps the value of all global status variables to file."
+);
 
 void H2SapienPatches::Init()
 {
@@ -280,6 +284,41 @@ void H2SapienPatches::Init()
 	const char *tag_debug_format = "%S//%s_tag_dump.txt";
 	WriteValue(0x004B5F33 + 1, tag_debug_format);
 
+	// Replace pointers to the commmand table
+	static DWORD cmd_offsets[] = 
+	{
+		0x004E2225 + 3, 0x004E23F0 + 3,  0x004E2414 + 3,
+		0x004E2701 + 3, 0x004E2DF4 + 3, 0x004E3014 + 3,
+		0x004E304D,     0x004E30FB
+	};
+
+	hs_command **cmds = g_halo_script_interface->get_command_table();
+
+	for (DWORD addr : cmd_offsets)
+		WritePointer(addr, cmds);
+
+	// patch command table size
+	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_size();
+	WriteValue(0x008EB118, hs_cmd_table_size);
+
+	// Replace pointers to the globals table
+
+	static DWORD var_offsets[] =
+	{
+		0x004E2295, 0x004E22B0, 0x004E22F0,
+		0x004E2334, 0x004E27B1, 0x00635A11,
+		0x00635A2D, 0x00635A7D, 0x00635AFB,
+		0x00635B12
+	};
+
+	hs_global_variable **vars = g_halo_script_interface->get_global_table();
+
+	for (DWORD addr : var_offsets)
+		WriteValue(addr + 3, vars);
+
+	// patch globals table size
+	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
+	WriteValue(0x008D2238, hs_global_table_size);
 #pragma endregion
 
 #pragma region Hooks
@@ -300,5 +339,7 @@ void H2SapienPatches::Init()
 #pragma endregion
 
 	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
-	command_table[0x200] = &status_cmd;
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
+	g_halo_script_interface->init_custom(command_table, global_table);
+	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
 }

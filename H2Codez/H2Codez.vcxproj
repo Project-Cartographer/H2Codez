@@ -62,7 +62,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4005;4800;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4800;4996;4200</DisableSpecificWarnings>
       <AdditionalOptions>/std:c++14 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -82,7 +82,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <DisableSpecificWarnings>4005;4800;4996</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4800;4996;4200</DisableSpecificWarnings>
       <AdditionalOptions>/std:c++14 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Async</ExceptionHandling>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -108,6 +108,7 @@
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hs_ai_behaviour.h" />
     <ClInclude Include="BasicTagTypes.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Detours\detours.h" />
@@ -120,8 +121,12 @@
     <ClInclude Include="H2ToolsCommon.h" />
     <ClInclude Include="H2Tool\H2Tool_Commands.h" />
     <ClInclude Include="H2Tool\H2Tool_Render_Model.h" />
-    <ClInclude Include="HaloScript.h" />
-    <ClInclude Include="HaloScriptCommon.h" />
+    <ClInclude Include="HaloScriptInterface.h" />
+    <ClInclude Include="hs_command.h" />
+    <ClInclude Include="hs_global_ids.h" />
+    <ClInclude Include="hs_global_variable.h" />
+    <ClInclude Include="hs_opcodes.h" />
+    <ClInclude Include="hs_types.h" />
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
     <ClInclude Include="resource.h" />
@@ -153,10 +158,10 @@
     <ClCompile Include="H2ToolsCommon.cpp" />
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool_Commands.cpp" />
-    <ClCompile Include="HaloScript.cpp" />
-    <ClCompile Include="HaloScriptCommon.cpp" />
+    <ClCompile Include="HaloScriptInterface.cpp" />
     <ClCompile Include="Logs.cpp" />
     <ClCompile Include="patches.cpp" />
+    <ClCompile Include="hs_ai_behaviour.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>

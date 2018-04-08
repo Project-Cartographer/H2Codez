@@ -10,7 +10,6 @@
 #include <Shellapi.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
-#include "HaloScriptCommon.h"
 
 using namespace HaloScriptCommon;
 
@@ -147,29 +146,22 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 {
 	FILE *FilePtr;
 
-	int command_table_ptr_offset = SwitchAddessByMode(0, 0x9E9E90, 0x95BF70);
-	int global_table_ptr_offset = SwitchAddessByMode(0, 0x9ECE28, 0x95EF08);
-	CHECK_FUNCTION_SUPPORT(global_table_ptr_offset);
-
 	std::string file_name = get_temp_name("hs_doc.txt");
 	if (filename)
 		file_name = filename;
-	hs_command **command_table = reinterpret_cast<hs_command **>(command_table_ptr_offset);
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(global_table_ptr_offset);
 
 	if (!fopen_s(&FilePtr, file_name.c_str(), "w"))
 	{	
 		fprintf(FilePtr, "== Commands ==\r\n\r\n");
-		for (USHORT current_command_id = 0; current_command_id < 924; current_command_id++)
+		for (hs_command *cmd : g_halo_script_interface->command_table)
 		{
-			hs_command *cmd = command_table[current_command_id];
 			fprintf(FilePtr, "%s\r\n", get_command_usage(cmd).c_str());
 			fprintf(FilePtr, "%s\r\n\r\n", cmd->desc);
 		}
+
 		fprintf(FilePtr, "== Script Globals ==\r\n\r\n");
-		for (USHORT current_global_id = 0; current_global_id < 706; current_global_id++)
+		for (hs_global_variable *current_var : g_halo_script_interface->global_table)
 		{
-			hs_global_variable *current_var = global_table[current_global_id];
 			fprintf(FilePtr, "(%s <%s>)\r\n", current_var->name, hs_type_string[current_var->type].c_str());
 		}
 		fclose(FilePtr);
@@ -213,6 +205,59 @@ void fix_documents_path_string_type()
 	}
 }
 
+void **__cdecl halo_2_only_stub(int opcode, void *DatumIndex, char user_cmd)
+{
+	return HaloScriptCommon::epilog(DatumIndex, 0);
+}
+
+const hs_type messup_rendering_args = { hs_type::boolean };
+hs_command *mess_up_rendering = NewCommand
+(
+	"break_rendering",
+	hs_type::nothing,
+	hs_default_func_check,
+	halo_2_only_stub,
+	"breaks rendering in a weird way",
+	nullptr,
+	1,
+	&messup_rendering_args
+);
+
+hs_command *unk_1 = NewCommand
+(
+	"unknown_command_1",
+	hs_type::nothing,
+	hs_default_func_check,
+	halo_2_only_stub,
+	"No idea what this does, good luck!"
+);
+
+hs_command *unk_2 = NewCommand
+(
+	"unknown_command_2",
+	hs_type::nothing,
+	hs_default_func_check,
+	halo_2_only_stub,
+	"No idea what this does, good luck!"
+);
+
+const int api_version = 1;
+
+hs_global_variable api_extension_version = hs_global_variable
+(
+	"api_extension_version",
+	hs_type::hs_long,
+	(void*)&api_version
+);
+
+void HaloScriptExtensions()
+{
+	g_halo_script_interface->RegisterCommand(hs_opcode::mess_up_rendering, mess_up_rendering);
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_1, unk_1);
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_2, unk_2);
+	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
+}
+
 void H2CommonPatches::Init()
 {
 	Debug::init();
@@ -230,6 +275,8 @@ void H2CommonPatches::Init()
 	DetourAttach(&(PVOID&)ExitProcess_Orginal, ExitProcess_Hook);
 
 	fix_documents_path_string_type();
+
+	HaloScriptExtensions();
 
 	DetourTransactionCommit();
 }

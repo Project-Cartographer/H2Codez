@@ -907,7 +907,7 @@ namespace HaloScriptCommon {
 		cinematic_lightmap_shadow_disable,
 		cinematic_lightmap_shadow_enable,
 		predict_animation,
-		clan_data_cache_flush,
+		// clan_data_cache_flush, // included in toolkit but not full game
 		online_message_send,
 		test_web_event_local_cheater,
 		test_web_event_remote_cheater,
@@ -921,16 +921,17 @@ namespace HaloScriptCommon {
 		scenario_force_signature_failure_disable,
 		scenario_force_name_failure_disable,
 		scenario_ignore_failures_disable,
+		// existing halo 2 no-ops we didn't support
+		hs_unk_1,
+		hs_unk_2,
+		hs_unk_3,
+		hs_unk_4,
+		// end halo2 nops
 		loading_screen_fade_to_white,
 		rasterizer_debug_frame_usage,
 		rasterizer_debug_crap_pixel_shader,
 		enable_render_light_suppressor,
 		disable_render_light_suppressor,
-
-		// existing halo 2 functions the toolkit couldn't use
-		mess_up_rendering,
-		hs_unk_1,
-		hs_unk_2,
 
 		// API extension functions
 		// TODO

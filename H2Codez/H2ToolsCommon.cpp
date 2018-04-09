@@ -210,35 +210,13 @@ void **__cdecl halo_2_only_stub(int opcode, void *DatumIndex, char user_cmd)
 	return HaloScriptCommon::epilog(DatumIndex, 0);
 }
 
-const hs_type messup_rendering_args = { hs_type::boolean };
-hs_command *mess_up_rendering = NewCommand
+hs_command *unknown_command = NewCommand
 (
-	"break_rendering",
+	"unknown_command",
 	hs_type::nothing,
 	hs_default_func_check,
 	halo_2_only_stub,
-	"breaks rendering in a weird way",
-	nullptr,
-	1,
-	&messup_rendering_args
-);
-
-hs_command *unk_1 = NewCommand
-(
-	"unknown_command_1",
-	hs_type::nothing,
-	hs_default_func_check,
-	halo_2_only_stub,
-	"No idea what this does, good luck!"
-);
-
-hs_command *unk_2 = NewCommand
-(
-	"unknown_command_2",
-	hs_type::nothing,
-	hs_default_func_check,
-	halo_2_only_stub,
-	"No idea what this does, good luck!"
+	"Does nothing."
 );
 
 int api_version = 1;
@@ -252,9 +230,13 @@ hs_global_variable api_extension_version = hs_global_variable
 
 void HaloScriptExtensions()
 {
-	g_halo_script_interface->RegisterCommand(hs_opcode::mess_up_rendering, mess_up_rendering);
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_1, unk_1);
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_2, unk_2);
+	// start halo nops
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_1, unknown_command);
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_2, unknown_command);
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_3, unknown_command);
+	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_4, unknown_command);
+	// end halo nops
+
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 }
 

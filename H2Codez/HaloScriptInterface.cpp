@@ -69,8 +69,17 @@ std::string HaloScriptCommon::get_value_as_string(void *var_ptr, hs_type type)
 
 void HaloScriptInterface::init_custom(hs_command **old_command_table, hs_global_variable **old_global_table)
 {
-	for (unsigned int i = 0; i <= static_cast<int>(hs_opcode::disable_render_light_suppressor); i++) {
-		command_table[i] = old_command_table[i];
+
+	int old_table_offset = 0;
+	int new_table_offset = 0;
+	while (new_table_offset <= static_cast<int>(hs_opcode::disable_render_light_suppressor)) {
+		if (old_table_offset == 905) // extra command in old table
+			old_table_offset++;
+		if (new_table_offset == static_cast<int>(hs_opcode::hs_unk_1))
+			new_table_offset += 4;
+		command_table[new_table_offset] = old_command_table[old_table_offset];
+		old_table_offset++;
+		new_table_offset++;
 	}
 
 	for (unsigned int i = 0; i <= static_cast<int>(hs_global_id::force_crash_uploads); i++) {

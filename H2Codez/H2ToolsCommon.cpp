@@ -241,13 +241,13 @@ hs_command *unk_2 = NewCommand
 	"No idea what this does, good luck!"
 );
 
-const int api_version = 1;
+int api_version = 1;
 
 hs_global_variable api_extension_version = hs_global_variable
 (
 	"api_extension_version",
 	hs_type::hs_long,
-	(void*)&api_version
+	&api_version
 );
 
 void HaloScriptExtensions()

@@ -318,7 +318,7 @@ void H2SapienPatches::Init()
 
 	// patch globals table size
 	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
-	WriteValue(0x008D2238, hs_global_table_size);
+	WriteValue(0x008EFDB4, hs_global_table_size);
 #pragma endregion
 
 #pragma region Hooks

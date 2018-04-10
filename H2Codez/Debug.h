@@ -6,3 +6,5 @@ namespace Debug {
 	LPTOP_LEVEL_EXCEPTION_FILTER get_expection_filter();
 	LONG WINAPI On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo);
 }
+
+extern bool g_process_crashed;

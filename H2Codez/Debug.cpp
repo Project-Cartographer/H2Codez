@@ -9,6 +9,7 @@
 
 using namespace Debug;
 
+extern bool g_process_crashed = false;
 const char version_data[] = "H2codez version: " version;
 
 LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = nullptr;
@@ -73,6 +74,7 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 		NULL);
 
 	CloseHandle(dump_file);
+	g_process_crashed = true;
 
 	std::string message = "H2EK has encountered a fatal error and needs to exit,\n"
 		" a crash dump has been saved to '" + dump_file_name + "',\n"

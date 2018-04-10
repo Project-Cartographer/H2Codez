@@ -37,6 +37,7 @@ namespace HaloScriptCommon
 		style,
 		hud_message,
 		object_list,
+		// tags
 		sound,
 		effect,
 		damage,

@@ -19,6 +19,7 @@ void **HaloScriptCommon::epilog(void *DatumIndex, int return_data)
 {
 	typedef void **(__cdecl *hs_epilog)(void *a1, int return_data);
 	hs_epilog hs_epilog_impl = reinterpret_cast<hs_epilog>(SwitchAddessByMode(0, 0x52CC70, 0));
+	CHECK_FUNCTION_SUPPORT(hs_epilog_impl);
 
 	return hs_epilog_impl(DatumIndex, return_data);
 }
@@ -27,6 +28,7 @@ void **HaloScriptCommon::prolog(__int16 command_id, void *DatumIndex, char user_
 {
 	typedef void **(__cdecl *hs_prolog)(__int16 a1, void *a2, char a3);
 	hs_prolog hs_prolog_impl = reinterpret_cast<hs_prolog>(SwitchAddessByMode(0, 0x52CC70,0 ));
+	CHECK_FUNCTION_SUPPORT(hs_prolog_impl);
 
 	return hs_prolog_impl(command_id, DatumIndex, user_cmd);
 }
@@ -35,6 +37,7 @@ char __cdecl HaloScriptCommon::hs_default_func_check(__int16 opcode, void *Datum
 {
 	int hs_default_check = SwitchAddessByMode(0x65F090, 0x581EB0, 0x56E910);
 	CHECK_FUNCTION_SUPPORT(hs_default_check);
+
 	func_check hs_default_check_impl = reinterpret_cast<func_check>(hs_default_check);
 	return hs_default_check_impl(opcode, DatumIndex);
 }

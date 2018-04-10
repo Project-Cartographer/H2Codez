@@ -398,22 +398,36 @@ scnr_tag *get_global_scenario()
 	return *reinterpret_cast<scnr_tag **>(0x00AA00E4);
 }
 
-void hs_convert_string_id_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int offset, int hs_converter_id)
+void hs_convert_string_id_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int hs_converter_id)
 {
 	typedef void(__cdecl* _hs_convert_to_tagblock_offset)(int offset, int a2, tag_block_ref *tag_block, int element_size);
 	_hs_convert_to_tagblock_offset converter_impl = reinterpret_cast<_hs_convert_to_tagblock_offset>(0x0065D5E0);
 	int a2 = *reinterpret_cast<int*>(0x009C74FC);
-	__asm { mov eax, hs_converter_id };
-	converter_impl(offset, a2, tag_block, element_size);
+	__asm {
+		push element_size
+		push tag_block
+		push a2
+		push block_offset
+		mov eax, hs_converter_id
+		call converter_impl
+		add esp, 16
+	};
 }
 
-void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int offset, int hs_converter_id)
+void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int hs_converter_id)
 {
 	typedef void(__cdecl* _hs_convert_to_tagblock_offset)(int offset, int a2, tag_block_ref *tag_block, int element_size);
 	_hs_convert_to_tagblock_offset converter_impl = reinterpret_cast<_hs_convert_to_tagblock_offset>(0x0065D510);
 	int a2 = *reinterpret_cast<int*>(0x009C74FC);
-	__asm { mov eax, hs_converter_id };
-	converter_impl(offset, a2, tag_block, element_size);
+	__asm {
+		push element_size
+		push tag_block
+		push a2
+		push block_offset
+		mov eax, hs_converter_id
+		call converter_impl
+		add esp, 16
+	};
 }
 
 char __cdecl hs_convert_conversation(unsigned __int16 a1)

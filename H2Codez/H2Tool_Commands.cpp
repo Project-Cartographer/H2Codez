@@ -240,9 +240,6 @@ void H2ToolPatches::Increase_structure_bsp_geometry_check()
 
 #pragma endregion
 
-static wcstring k_campaign_shared_name = L"maps\\single_player_shared.map";
-static signed long _scenario_type;
-
 void H2ToolPatches::apply_shared_tag_removal_scheme()
 {
 	BYTE* patching_offsets_list[] = {
@@ -270,16 +267,17 @@ void H2ToolPatches::unlock_other_scenario_types_compiling()
 	WriteBytes((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE, patch, 1);//change jz to jmp
 
 }
-static void _cdecl _build_cache_file_for_scenario__intercept_get_scenario_type()
+
+static signed long _scenario_type;
+
+static void __declspec(naked) _build_cache_file_for_scenario__intercept_get_scenario_type()
 {
 	//Refer to H2EK_OpenSauce Campaign_sharing
 	//Basically this function helps us to store the scenario_type which can be used in later areas
 	static const unsigned __int32 INTERCEPTOR_EXIT = 0x588313;
-	
-	H2PCTool.WriteLog("intercepting _get_scenario_type()");
 
 	__asm {
-		movsx	edx, word ptr[eax + 0x1C]
+		    movsx	edx, word ptr[eax + 0x1C]
 			push	esi
 			mov[esp + 0x58], edx			// mov     [esp+1F90h+scenario_type], edx
 			mov		_scenario_type, edx
@@ -287,24 +285,44 @@ static void _cdecl _build_cache_file_for_scenario__intercept_get_scenario_type()
 	}
 }
 
+const static wchar_t *campaign_shared_path = L"maps\\single_player_shared.map";
+const static char *load_sharing_log_messages[] =
+{
+	"tag sharing: loading tag names from single_player_shared.map",
+	"tag sharing: failed to open singleplayer shared map file",
+	"singleplayer shared cache file doesn't have its string table!! AAAAaaaaggghh!!!",
+	"singleplayer shared cache file string count is suspect (> 0x6000)",
+	"singleplayer shared cache file doesn't have its tag dependency graph!! AAAAaaaaggghh!!!",
+	"singleplayer shared cache file tag dependency graph size is suspect (> 0x100000)",
+	"tag sharing: ruh roh, single_player_shared.map has no shared tags"
+
+};
+
+const static int load_sharing_log_offsets[] =
+{
+	0x005813E7,
+	0x00581499,
+	0x005814B7,
+	0x005818FF,
+	0x00581587,
+	0x005818EB,
+	0x005817CD
+};
+
 static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(void *a1, void* a2)
 {
 	//Refer to H2EK_OpenSauce Campaign_sharing
 
-	//If scenario_type is single_player,modify the strings
+	// If scenario_type is single_player,modify the strings
 	if (_scenario_type == 0)
-	{		
-		
-	   DWORD TAG_SHARING_LOAD_SHARED_NAME1 = 0x581455;
-	   DWORD TAG_SHARING_LOAD_SHARED_NAME2 = 0x581480;
+	{	
+		// Replace file name strings
+		WritePointer(0x581455, campaign_shared_path);
+		WritePointer(0x581480, campaign_shared_path);
 
-		
-		BYTE *f = reverse_addr((void*)k_campaign_shared_name);
-		BYTE k_name_ptr_patch[4] = { f[0],f[1],f[2],f[3] };
-		
-	    //replacing shared.map text with single_player_shared.map text
-		WriteBytes((DWORD)(TAG_SHARING_LOAD_SHARED_NAME1), k_name_ptr_patch, sizeof(k_name_ptr_patch));
-		WriteBytes((DWORD)(TAG_SHARING_LOAD_SHARED_NAME2), k_name_ptr_patch, sizeof(k_name_ptr_patch));
+		// fix log strings to match
+		for (int i = 0; i < ARRAYSIZE(load_sharing_log_offsets); i++)
+			WritePointer(load_sharing_log_offsets[i] + 1, load_sharing_log_messages[i]);
 	}
 	H2PCTool.WriteLog("loading....tag_sharing method");
 
@@ -331,7 +349,7 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 	//Refer to H2EK_OpenSauce Campaign_sharing
 
     void* BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE = CAST_PTR(void*, 0x58830A);
-	void* BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED = CAST_PTR(void*, 0x5883DE);
+	int BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED =  0x5883DE;
 
 	/*
 	//get_scenario_ Intercept codes
@@ -347,7 +365,7 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 	//single_player_shared sharing
 	
 	//.text:005883DE                 call    BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED ; STR: "tag sharing: loading tag names from shared.map", "tag sharing: 
-	PatchCall((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, (DWORD)h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather orignal
+	PatchCall(BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather orignal
 
 	H2PCTool.WriteLog("Single Player tag_sharing enabled");
 }
@@ -558,7 +576,7 @@ void H2ToolPatches::Initialize()
 	disable_secure_file_locking();
 	fix_hs_converters();
 	HaloScriptExtend();
-	//enable_campaign_tags_sharing(); //Crashes H2tool ,maybe we need to update BIN files for Campaign Sharing
+	//enable_campaign_tags_sharing(); // Still crashes might need tag changes.
 
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)

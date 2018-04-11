@@ -319,6 +319,11 @@ void H2SapienPatches::Init()
 	// patch globals table size
 	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
 	WriteValue(0x008EFDB4, hs_global_table_size);
+
+	// hacky workaround for "render_decorators" not working
+	// just nops the second check sapien uses, don't complain if this crashes
+	NopFill(0x006CA1F6, 6);
+	NopFill(0x006B418C, 2);
 #pragma endregion
 
 #pragma region Hooks

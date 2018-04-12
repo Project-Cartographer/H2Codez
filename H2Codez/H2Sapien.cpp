@@ -7,6 +7,7 @@
 #include <Shellapi.h>
 #include <iostream>
 #include <fstream>
+#include <D3D9.h>
 
 using namespace HaloScriptCommon;
 
@@ -239,6 +240,12 @@ void **__cdecl status_func_impl(int command_id, void *a2, char a3)
 	return HaloScriptCommon::epilog(a2, 0);
 }
 
+signed int get_tick_rate()
+{
+	WORD *tick_rate = reinterpret_cast<WORD*>(0x00A6C700);
+	return *tick_rate;
+}
+
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -324,6 +331,10 @@ void H2SapienPatches::Init()
 	// just nops the second check sapien uses, don't complain if this crashes
 	NopFill(0x006CA1F6, 6);
 	NopFill(0x006B418C, 2);
+
+	// fix "game_tick_rate"
+	WriteJmpTo(0x006F7D60, get_tick_rate);
+
 #pragma endregion
 
 #pragma region Hooks

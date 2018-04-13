@@ -493,17 +493,38 @@ char __cdecl hs_convert_ai_orders(unsigned __int16 a1)
 	return 1;
 }
 
+enum ai_id_type
+{
+	squad,
+	squad_group,
+	unknown,
+
+	none = NONE
+};
+
 char __cdecl hs_convert_ai(unsigned __int16 a1)
 {
 	scnr_tag *scenario = get_global_scenario();
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
 	const char *input_string = hs_get_string_data(data_store);
 	
-	DWORD id = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
-	if (id != NONE) {
+	ai_id_type ai_type = ai_id_type::none;
+	
+	// attempt to find a squad with that name first
+	DWORD index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
+	if (index == NONE) {
+		// if no sqaud with that name exists try the sqaud groups
+		ai_type = ai_id_type::squad_group;
+		index = FIND_TAG_BLOCK_STRING(&scenario->squadGroups, 36, 0, input_string);
+	} else {
+		ai_type = ai_id_type::squad;
+	}
+	if (index != NONE) {
+		DWORD id = (ai_type << 30) | index;
 		data_store->output = id;
 		return 1;
 	} else {
+		// fallback to passthrough for backwards compatibility and AI squad starting locations
 		return hs_convert_internal_id_passthrough(a1);
 	}
 }

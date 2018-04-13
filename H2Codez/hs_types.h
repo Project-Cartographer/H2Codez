@@ -68,23 +68,33 @@ namespace HaloScriptCommon
 		vehicle_name,
 		weapon_name,
 		device_name,
-		scenery_name
+		scenery_name,
+
+		enum_count
 	};
 
 
-	static std::unordered_map <const hs_type, std::string> hs_type_string{
-		{ hs_type::unparsed,	"unparsed" },
-		{ hs_type::special_form,	"special form" },
-		{ hs_type::function_name,	"function name" },
-		{ hs_type::passthrough,	"passthrough" },
-		{ hs_type::nothing,	"void" },
-		{ hs_type::boolean,	"boolean" },
-		{ hs_type::real,	"real" },
-		{ hs_type::hs_short,	"short" },
-		{ hs_type::hs_long,	"long" },
-		{ hs_type::string,	"string" },
-		{ hs_type::script,	"script" },
-		{ hs_type::string_id,	"string_id" },
+	static std::unordered_map <const hs_type, std::string> hs_type_string
+	{
+
+		// internal
+		{ hs_type::unparsed,	    "unparsed"       },
+		{ hs_type::special_form,	"special form"   },
+		{ hs_type::function_name,	"function name"  },
+		{ hs_type::passthrough,	    "passthrough"    },
+		{ hs_type::nothing,	        "void"           },
+
+		// basic
+		{ hs_type::boolean,	   "boolean"   },
+		{ hs_type::real,	   "real"      },
+		{ hs_type::hs_short,   "short"     },
+		{ hs_type::hs_long,	   "long"      },
+		{ hs_type::string,	   "string"    },
+		{ hs_type::script,	   "script"    },
+		{ hs_type::string_id,  "string_id" },
+
+
+		// misc
 		{ hs_type::unit_seat_mapping,	"unit_seat_mapping" },
 		{ hs_type::trigger_volume,	"trigger_volume" },
 		{ hs_type::cutscene_flag,	"cutscene_flag" },
@@ -105,6 +115,8 @@ namespace HaloScriptCommon
 		{ hs_type::style,	"style" },
 		{ hs_type::hud_message,	"hud_message" },
 		{ hs_type::object_list,	"object_list" },
+
+		// tags
 		{ hs_type::sound,	"sound" },
 		{ hs_type::effect,	"effect" },
 		{ hs_type::damage,	"damage" },
@@ -117,25 +129,30 @@ namespace HaloScriptCommon
 		{ hs_type::render_model,	"render model" },
 		{ hs_type::structure_definition,	"structure definition" },
 		{ hs_type::lightmap_definition,	"lightmap definition" },
+
+		// enum
 		{ hs_type::game_difficulty,	"game_difficulty" },
 		{ hs_type::team,	"team" },
 		{ hs_type::actor_type,	"actor_type" },
 		{ hs_type::hud_corner,	"hud_corner" },
 		{ hs_type::model_state,	"model_state" },
 		{ hs_type::network_event,	"network_event" },
+
 		// objects
-		{ hs_type::object,	"object" },
-		{ hs_type::unit,	"unit" },
+		{ hs_type::object,	"object"  },
+		{ hs_type::unit,	"unit"    },
 		{ hs_type::vehicle,	"vehicle" },
-		{ hs_type::weapon,	"weapon" },
-		{ hs_type::device,	"device" },
+		{ hs_type::weapon,	"weapon"  },
+		{ hs_type::device,	"device"  },
 		{ hs_type::scenery,	"scenery" },
-		{ hs_type::object_name,	"object_name" },
-		{ hs_type::unit_name,	"unit_name" },
-		{ hs_type::vehicle_name,	"vehicle_name" },
-		{ hs_type::weapon_name,	"weapon_name" },
-		{ hs_type::device_name,	"device_name" },
-		{ hs_type::scenery_name,	"scenery_name" },
+
+		// object names
+		{ hs_type::object_name,	  "object_name"  },
+		{ hs_type::unit_name,	  "unit_name"    },
+		{ hs_type::vehicle_name,  "vehicle_name" },
+		{ hs_type::weapon_name,	  "weapon_name"  },
+		{ hs_type::device_name,	  "device_name"  },
+		{ hs_type::scenery_name,  "scenery_name" },
 	};
 
 	template<typename T>

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "../FiloInterface.h"
+#include "../BasicTagTypes.h"
 
 static const char* get_h2tool_version()
 {
@@ -97,6 +98,72 @@ static int __cdecl TAG_BLOCK_GET_ELEMENT_WITH_SIZE(void* FIELD_OFFSET, int ELEME
 
 	return TAG_BLOCK_GET_ELEMENT_WITH_SIZE_(FIELD_OFFSET, ELEMENT_INDEX, FIELD_SIZE);
 }
+
+static int GET_STRING_ID(const char *string)
+{
+	typedef int (__cdecl *get_string_id)(const char *string);
+	get_string_id get_string_id_impl = reinterpret_cast<get_string_id>(0x0052E830);
+
+	return get_string_id_impl(string);
+}
+
+typedef bool (*find_tag_comparison)(void *element, void *find_data);
+
+static unsigned int FIND_TAG_BLOCK_ELEMENT(tag_block_ref *tag_block, size_t element_size, find_tag_comparison search_func, void *data)
+{
+	for (int index = 0; index < tag_block->size; index++)
+	{
+		void *element = reinterpret_cast<void*>(TAG_BLOCK_GET_ELEMENT_WITH_SIZE(tag_block, index, element_size));
+		if (search_func(element, data))
+			return index;
+	}
+	return NONE;
+}
+
+struct string_id_cmp_info
+{
+	size_t offset;
+	DWORD string_id;
+};
+
+static bool string_id_comparison(DWORD *element, string_id_cmp_info *find_info)
+{
+	DWORD current_string_id = element[find_info->offset / sizeof(DWORD)];
+	return current_string_id == find_info->string_id;
+}
+
+static unsigned int FIND_TAG_BLOCK_STRING_ID(tag_block_ref *tag_block, size_t element_size, size_t offset, DWORD string_id)
+{
+	string_id_cmp_info search_info;
+	search_info.offset = offset;
+	search_info.string_id = string_id;
+
+	return FIND_TAG_BLOCK_ELEMENT(tag_block, element_size, reinterpret_cast<find_tag_comparison>(&string_id_comparison), &search_info);
+}
+
+
+
+struct string_cmp_info
+{
+	size_t offset;
+	const char *string;
+};
+
+static bool string_comparison(char *element, string_cmp_info *find_info)
+{
+	char *current_string = &element[find_info->offset];
+	return !_stricmp(current_string, find_info->string);
+}
+
+static unsigned int FIND_TAG_BLOCK_STRING(tag_block_ref *tag_block, size_t element_size, size_t offset, const char *string)
+{
+	string_cmp_info search_info;
+	search_info.offset = offset;
+	search_info.string = string;
+
+	return FIND_TAG_BLOCK_ELEMENT(tag_block, element_size, reinterpret_cast<find_tag_comparison>(&string_comparison), &search_info);
+}
+
 static char __cdecl load_model_object_definations_(DWORD IMPORT_INFO_OFFSET_, void *proc_definations_, __int16 proc_count, filo& FILE_REF_)
 {
 	typedef char(_cdecl* _load_model_object_definations_)(DWORD, void *, __int16, filo&);

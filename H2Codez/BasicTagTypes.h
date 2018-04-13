@@ -1,5 +1,7 @@
 #pragma once
 
+#define NONE -1
+
 struct tag_ref
 {
 	int tag_type;

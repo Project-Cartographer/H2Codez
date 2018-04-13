@@ -4,12 +4,12 @@
     <LocalDebuggerCommand>"C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\h2tool.exe"</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>build-cache-file "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\tags\scenarios\solo\00a_introduction\00a_introduction"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>build-cache-file "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\tags\scenarios\multi\dreamer\dreamer"</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommand>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor\h2tool</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>build-cache-file "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\tags\scenarios\solo\00a_introduction\00a_introduction"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>build-cache-file "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\tags\scenarios\multi\dreamer\dreamer"</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

@@ -453,6 +453,10 @@ char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 a1)
 {
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
 	const char *input_string = hs_get_string_data(data_store);
+	if (!_stricmp(input_string, "NONE")) {
+		data_store->output = NONE;
+		return 1;
+	}
 	try {
 		data_store->output = std::stoi(input_string, nullptr, 0);
 		return 1;
@@ -489,6 +493,21 @@ char __cdecl hs_convert_ai_orders(unsigned __int16 a1)
 	return 1;
 }
 
+char __cdecl hs_convert_ai(unsigned __int16 a1)
+{
+	scnr_tag *scenario = get_global_scenario();
+	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
+	const char *input_string = hs_get_string_data(data_store);
+	
+	DWORD id = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
+	if (id != NONE) {
+		data_store->output = id;
+		return 1;
+	} else {
+		return hs_convert_internal_id_passthrough(a1);
+	}
+}
+
 #define set_hs_converter(type, func) \
 	hs_convert_lookup_table[static_cast<int>(type)] = func;
 
@@ -498,12 +517,13 @@ void fix_hs_converters()
 	set_hs_converter(hs_type::ai_behavior, hs_convert_ai_behaviour);
 	set_hs_converter(hs_type::conversation, hs_convert_conversation);
 	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);
+	set_hs_converter(hs_type::ai, hs_convert_ai);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {
-		hs_type::ai,        hs_type::ai_command_list,
-		hs_type::style,     hs_type::hud_message,
-		hs_type::navpoint,  hs_type::point_reference
+		hs_type::style,           hs_type::hud_message,
+		hs_type::navpoint,        hs_type::point_reference,
+		hs_type::ai_command_list
 	};
 
 	for (auto i : passthrough_types)

@@ -164,6 +164,11 @@ static unsigned int FIND_TAG_BLOCK_STRING(tag_block_ref *tag_block, size_t eleme
 	return FIND_TAG_BLOCK_ELEMENT(tag_block, element_size, reinterpret_cast<find_tag_comparison>(&string_comparison), &search_info);
 }
 
+static unsigned int FIND_TAG_BLOCK_STRING(tag_block_ref *tag_block, size_t element_size, size_t offset, const std::string &string)
+{
+	return FIND_TAG_BLOCK_STRING(tag_block, element_size, offset, string.c_str());
+}
+
 static char __cdecl load_model_object_definations_(DWORD IMPORT_INFO_OFFSET_, void *proc_definations_, __int16 proc_count, filo& FILE_REF_)
 {
 	typedef char(_cdecl* _load_model_object_definations_)(DWORD, void *, __int16, filo&);

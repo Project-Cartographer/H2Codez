@@ -498,6 +498,7 @@ enum ai_id_type
 	squad,
 	squad_group,
 	unknown,
+	starting_location,
 
 	none = NONE
 };
@@ -506,21 +507,40 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 {
 	scnr_tag *scenario = get_global_scenario();
 	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
-	const char *input_string = hs_get_string_data(data_store);
+	std::string input_string = hs_get_string_data(data_store);
 	
 	ai_id_type ai_type = ai_id_type::none;
 	
-	// attempt to find a squad with that name first
-	DWORD index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
-	if (index == NONE) {
-		// if no sqaud with that name exists try the sqaud groups
-		ai_type = ai_id_type::squad_group;
-		index = FIND_TAG_BLOCK_STRING(&scenario->squadGroups, 36, 0, input_string);
+	DWORD main_index = NONE;
+	DWORD secondary_index = 0;
+
+	if (input_string.find('/') != string::npos) {
+		ai_type = ai_id_type::starting_location;
+		std::string squad_name = input_string.substr(0, input_string.find('/'));
+		std::string squad_pos = input_string.substr(input_string.find('/') + 1);
+
+		secondary_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, squad_name);
+		if (secondary_index != NONE)
+		{
+			// can't get the sqaud block struct working so this is a workaround for now
+			main_index = strtol(squad_pos.c_str(), nullptr, 0);
+		} else {
+			hs_converter_error(data_store, "No such squad.");
+			return 0;
+		}
 	} else {
+
 		ai_type = ai_id_type::squad;
+		// attempt to find a squad with that name first
+		main_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
+		if (main_index == NONE) {
+			// if no sqaud with that name exists try the sqaud groups
+			ai_type = ai_id_type::squad_group;
+			main_index = FIND_TAG_BLOCK_STRING(&scenario->squadGroups, 36, 0, input_string);
+		}
 	}
-	if (index != NONE) {
-		DWORD id = (ai_type << 30) | index;
+	if (main_index != NONE) {
+		DWORD id = (ai_type << 30) | (secondary_index << 16) | main_index;
 		data_store->output = id;
 		return 1;
 	} else {

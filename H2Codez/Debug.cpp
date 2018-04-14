@@ -15,14 +15,12 @@ const char version_data[] = "H2codez version: " version;
 LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = nullptr;
 LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
 {
-	pLog.WriteLog("On_UnhandledException");
 	// make sure the reports path exists
 	MakeSureDirectoryPathExists(crash_reports_path);
 
 	CHAR exe_path_buffer[MAX_PATH + 1];
 	GetModuleFileNameA(NULL, exe_path_buffer, sizeof(exe_path_buffer));
 	std::string exe_name = exe_path_buffer;
-	printf("%s\n%d : %d", exe_path_buffer,  exe_name.size(), exe_name.find_last_not_of("\\") + 1);
 	exe_name = exe_name.substr(exe_name.find_last_of('\\') + 1);
 
 	time_t timer;

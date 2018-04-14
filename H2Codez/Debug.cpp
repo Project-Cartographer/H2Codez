@@ -67,7 +67,7 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 		GetCurrentProcessId(),
 		dump_file,
 		(MINIDUMP_TYPE)(MiniDumpWithDataSegs | MiniDumpWithHandleData | MiniDumpWithUnloadedModules |
-			MiniDumpWithProcessThreadData | MiniDumpWithIndirectlyReferencedMemory | MiniDumpWithCodeSegs
+			MiniDumpWithProcessThreadData | MiniDumpWithIndirectlyReferencedMemory
 			),
 		&aMiniDumpInfo,
 		&extra_data,

@@ -518,12 +518,16 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 		ai_type = ai_id_type::starting_location;
 		std::string squad_name = input_string.substr(0, input_string.find('/'));
 		std::string squad_pos = input_string.substr(input_string.find('/') + 1);
+		DWORD squad_pos_string_id = GET_STRING_ID(squad_pos.c_str());
 
-		secondary_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, squad_name);
+		secondary_index = FIND_TAG_BLOCK_STRING(scenario->squads.get_ref(), sizeof(squads_block), 0, squad_name);
 		if (secondary_index != NONE)
 		{
-			// can't get the sqaud block struct working so this is a workaround for now
-			main_index = strtol(squad_pos.c_str(), nullptr, 0);
+			main_index = FIND_TAG_BLOCK_STRING_ID(scenario->squads.data->startingLocations.get_ref(), sizeof(actor_starting_locations_block), 0, squad_pos_string_id);
+			if (main_index == NONE) {
+				hs_converter_error(data_store, "No such starting location.");
+				return 0;
+			}
 		} else {
 			hs_converter_error(data_store, "No such squad.");
 			return 0;
@@ -532,7 +536,7 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 
 		ai_type = ai_id_type::squad;
 		// attempt to find a squad with that name first
-		main_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
+		main_index = FIND_TAG_BLOCK_STRING(scenario->squads.get_ref(), 120, 0, input_string);
 		if (main_index == NONE) {
 			// if no sqaud with that name exists try the sqaud groups
 			ai_type = ai_id_type::squad_group;

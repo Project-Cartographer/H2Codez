@@ -157,12 +157,46 @@ void H2ToolPatches::structure_bsp_geometry_2D_check_increase()
 	//No Need to modify the Proc error here cuz it will never hit :)
 }
 
+static const int BSP_MAX_DEPTH = 512;
+
+static const int function_epilog = 0x00465797;
+static void __declspec(naked) bsp_depth_check()
+{
+	__asm {
+		add eax, 1
+		cmp eax, BSP_MAX_DEPTH
+		jle continue_compile
+		jmp abort_with_error
+
+		continue_compile:
+		// remove return address
+		pop eax
+	    // push function epilog for ret
+		push function_epilog
+		ret
+
+
+		abort_with_error:
+		ret
+	}
+}
+
+void structure_bsp_depth_check_increase()
+{
+	// remove old check
+	NopFill(0x00465726, 0xA);
+
+	// write call to our check
+	WriteCallTo(0x00465726, bsp_depth_check);
+}
+
 void H2ToolPatches::Increase_structure_bsp_geometry_check()
 {
 	H2PCTool.WriteLog("Increasing structure_bsp_geometry checks");
 	structure_bsp_geometry_2D_check_increase();
 	structure_bsp_geometry_3D_check_increase();
 	structure_bsp_geometry_collision_check_increase();
+	structure_bsp_depth_check_increase();
 }
 
 #pragma endregion

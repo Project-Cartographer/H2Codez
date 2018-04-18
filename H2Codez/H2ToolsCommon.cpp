@@ -245,14 +245,18 @@ typedef BOOL (WINAPI *T_FuncOpenFileNameW)(LPOPENFILENAMEW info);
 T_FuncOpenFileNameW GetOpenFileNameWOriginal;
 BOOL WINAPI GetOpenFileNameWHook(LPOPENFILENAMEW info)
 {
-	info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+	// check if it's the basic file select dialog
+	if (reinterpret_cast<DWORD>(info->lpfnHook) == SwitchAddessByMode(0, 0x0040c450, 0x0069a0f7))
+		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
 	return GetOpenFileNameWOriginal(info);
 }
 
 T_FuncOpenFileNameW GetSaveFileNameWOriginal;
 BOOL WINAPI GetSaveFileNameWHook(LPOPENFILENAMEW info)
 {
-	info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+	// check if it's the basic file select dialog
+	if (reinterpret_cast<DWORD>(info->lpfnHook) == SwitchAddessByMode(0, 0x0040c450, 0x0069a0f7))
+		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
 	return GetSaveFileNameWOriginal(info);
 }
 

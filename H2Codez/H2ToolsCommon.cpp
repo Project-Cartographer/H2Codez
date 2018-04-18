@@ -10,6 +10,7 @@
 #include <Shellapi.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
+#include <CommDlg.h>
 
 using namespace HaloScriptCommon;
 
@@ -240,6 +241,21 @@ void HaloScriptExtensions()
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 }
 
+typedef BOOL (WINAPI *T_FuncOpenFileNameW)(LPOPENFILENAMEW info);
+T_FuncOpenFileNameW GetOpenFileNameWOriginal;
+BOOL WINAPI GetOpenFileNameWHook(LPOPENFILENAMEW info)
+{
+	info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+	return GetOpenFileNameWOriginal(info);
+}
+
+T_FuncOpenFileNameW GetSaveFileNameWOriginal;
+BOOL WINAPI GetSaveFileNameWHook(LPOPENFILENAMEW info)
+{
+	info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+	return GetSaveFileNameWOriginal(info);
+}
+
 void H2CommonPatches::Init()
 {
 	Debug::init();
@@ -255,6 +271,14 @@ void H2CommonPatches::Init()
 
 	ExitProcess_Orginal = ExitProcess;
 	DetourAttach(&(PVOID&)ExitProcess_Orginal, ExitProcess_Hook);
+
+	// disable custom save/open dialogs 
+
+	GetOpenFileNameWOriginal = GetOpenFileNameW;
+	DetourAttach(&(PVOID&)GetOpenFileNameWOriginal, GetOpenFileNameWHook);
+
+	GetSaveFileNameWOriginal = GetSaveFileNameW;
+	DetourAttach(&(PVOID&)GetSaveFileNameWOriginal, GetSaveFileNameWHook);
 
 	fix_documents_path_string_type();
 

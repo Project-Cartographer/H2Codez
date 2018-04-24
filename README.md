@@ -20,7 +20,18 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * Add "New Instance" menu item to Guerilla and Sapien.
 * Removed limitation on multiple Sapien instances (may be unstable).
 * Added copy (ctrl + c), paste (ctrl + v) and clear (delete) support to Sapien console, paste replaces the whole line.
-* Add back support for some script types (AI, AI orderes, etc), somewhat hacky right now.
+* Add back support for the following HS types
+  * AI behaviour
+  * Conversation
+  * AI orders
+  * AI (starting locations referenced by block index)
+  * Style (internal ID only)
+  * Navpoint (internal ID only)
+  * AI command list (internal ID only)
+  * HUD message (internal ID only)
+  * Point reference (internal ID only)
+* Increase max 3D BSP depth.
+* Use default OS style for file/folder selection dialog.
 * Some misc changes and fixes.
 
 ## Installation

@@ -399,8 +399,9 @@ void H2SapienPatches::Init()
 
 	WriteValue(0x00A5D104, sapien_defaults);
 
+	// disable this for now
 	// Don't force display mode to 1
-	NopFill(0x006FBFF4, 0x16);
+	//NopFill(0x006FBFF4, 0x16);
 #pragma endregion
 
 #pragma region Hooks

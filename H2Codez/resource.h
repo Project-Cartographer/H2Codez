@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by H2Guerilla.rc
+// Used by H2Sapien.rc
 //
 #define SAPIEN_COMMAND                  0
 #define VS_VERSION_INFO                 1

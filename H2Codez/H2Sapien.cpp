@@ -60,6 +60,9 @@ inline void CheckItem(UINT item, bool enable)
 	CheckMenuItem(new_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
 }
 
+video_settings halo2_video_settings;
+video_settings sapien_defaults;
+
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
 {
 	if (uMsg == WM_COMMAND) {
@@ -80,8 +83,15 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			}
 			case SAPIEN_IN_GAME_LOD:
 			{
+				typedef void (__cdecl *update_video_settings)(char a1);
+				update_video_settings update_video_settings_impl = reinterpret_cast<update_video_settings>(0x006FBCF0);
+
 				using_in_game_settings = !using_in_game_settings;
 				CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
+
+				WriteValue(0x00A5D104, using_in_game_settings ? halo2_video_settings : sapien_defaults);
+				update_video_settings_impl(0);
+
 				return 1;
 			}
 			case 32870:
@@ -267,8 +277,47 @@ hs_command status_cmd(
 	"dumps the value of all global status variables to file."
 );
 
+template <typename value_type>
+inline void GetHalo2DisplaySetting(const char *name, value_type &result)
+{
+	HKEY video_settings;
+	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Halo 2\\Video Settings", 0, KEY_READ, &video_settings) == ERROR_SUCCESS) {
+		DWORD size = sizeof(DWORD);
+		DWORD value;
+		if (RegGetValueA(video_settings, NULL, name, RRF_RT_REG_DWORD, NULL, &value, &size) == ERROR_SUCCESS)
+			result = static_cast<value_type>(value);
+		RegCloseKey(video_settings);
+	}
+}
+
+void InitHalo2DisplaySettings()
+{
+	GetHalo2DisplaySetting("AntiAliasing", halo2_video_settings.AntiAliasing);
+	GetHalo2DisplaySetting("AspectRatio", halo2_video_settings.AspectRatio);
+	GetHalo2DisplaySetting("Brightness", halo2_video_settings.Brightness);
+	GetHalo2DisplaySetting("DisplayMode", halo2_video_settings.DisplayMode);
+	GetHalo2DisplaySetting("Gamma", halo2_video_settings.Gamma);
+	GetHalo2DisplaySetting("HubArea", halo2_video_settings.HubArea);
+	GetHalo2DisplaySetting("LevelOfDetail", halo2_video_settings.LevelOfDetail);
+	GetHalo2DisplaySetting("SafeArea", halo2_video_settings.SafeArea);
+	GetHalo2DisplaySetting("ScreenRefresh", halo2_video_settings.ScreenInfo.refresh_rate);
+	GetHalo2DisplaySetting("ScreenResX", halo2_video_settings.ScreenInfo.x);
+	GetHalo2DisplaySetting("ScreenResY", halo2_video_settings.ScreenInfo.y);
+}
+
 void H2SapienPatches::Init()
 {
+#pragma region value init
+	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
+	g_halo_script_interface->init_custom(command_table, global_table);
+	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
+
+	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
+	sapien_defaults.LevelOfDetail = video_settings::level_of_detail::low;
+	InitHalo2DisplaySettings();
+#pragma endregion
+
 #pragma region Patches
 	// stop the default menu overwriting our custom one
 	NopFill(0x47AD09, 0x15);
@@ -348,8 +397,10 @@ void H2SapienPatches::Init()
 	// fix "game_tick_rate"
 	WriteJmpTo(0x006F7D60, get_tick_rate);
 
+	WriteValue(0x00A5D104, sapien_defaults);
+
 	// Don't force display mode to 1
-	//NopFill(0x006FBFF4, 0x16);
+	NopFill(0x006FBFF4, 0x16);
 #pragma endregion
 
 #pragma region Hooks
@@ -365,11 +416,4 @@ void H2SapienPatches::Init()
 
 	DetourTransactionCommit();
 #pragma endregion
-
-	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
-	g_halo_script_interface->init_custom(command_table, global_table);
-	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
-
-	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 }

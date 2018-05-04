@@ -99,19 +99,13 @@ void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 .text:005A2D5F 000 cmp     [esp+a2], eax 
 */
    //increasing the collision_surfaces_count
-	DWORD collision_surfaces_count = 0x7FFF * TOOL_INCREASE_FACTOR; ///1048576
-	BYTE* f = reverse_addr(CAST_PTR(void*, collision_surfaces_count));
-	BYTE collision_surfaces_count_Patch[4] = { f[0],f[1],f[2],f[3] };
+	DWORD collision_surfaces_count = 0x7FFF * TOOL_INCREASE_FACTOR; /// 0xFFFE0
+	WriteValue(0x5A2D50 + 4, collision_surfaces_count);
 
 
 	//increasing the edges_vertices_count
-	DWORD edges_vertices_count = 0xFFFF * TOOL_INCREASE_FACTOR; ///2097120
-	f = reverse_addr(CAST_PTR(void*, edges_vertices_count));
-	BYTE edges_vertices_count_Patch[4] = { f[0],f[1],f[2],f[3] };
-
-	//Patching in Memory
-	WriteBytes(0x5A2D50 + 4, collision_surfaces_count_Patch, 4);
-	WriteBytes(0x5A2D5A + 1, edges_vertices_count_Patch, 4);
+	DWORD edges_vertices_count = 0xFFFF * TOOL_INCREASE_FACTOR; /// 0x1FFFE0
+	WriteValue(0x5A2D5A + 1, edges_vertices_count);
 
 	///Also Patching in the error_proc method incase we ever hit this Limit :)
 /*
@@ -121,9 +115,9 @@ void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 .text:00464C5B 124 push    ecx
 .text:00464C5C 128 push    7FFFh
 */
-	WriteBytes(0x464C50 + 1, edges_vertices_count_Patch, 4);
-	WriteBytes(0x464C56 + 1, edges_vertices_count_Patch, 4);
-	WriteBytes(0x464C5C + 1, collision_surfaces_count_Patch, 4);
+	WriteValue(0x464C50 + 1, edges_vertices_count);
+	WriteValue(0x464C56 + 1, edges_vertices_count);
+	WriteValue(0x464C5C + 1, collision_surfaces_count);
 
 
 }
@@ -137,11 +131,8 @@ void H2ToolPatches::structure_bsp_geometry_3D_check_increase()
 .text:005A2D03
 */
 	////increasing the planes_count Check
-	DWORD new_planes_count = 0x8000 *TOOL_INCREASE_FACTOR; ///1048576
-	BYTE* f = reverse_addr(CAST_PTR(void*, new_planes_count));
-	BYTE count_Patch[4] = { f[0],f[1],f[2],f[3] };
-	WriteBytes(0x5A2CFB+4, count_Patch, 4);
-
+	DWORD new_planes_count = 0x8000 *TOOL_INCREASE_FACTOR; /// 0x100000
+	WriteValue(0x5A2CFB + 4, new_planes_count);
 
 }
 void H2ToolPatches::structure_bsp_geometry_2D_check_increase()

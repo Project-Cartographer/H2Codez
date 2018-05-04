@@ -7,17 +7,6 @@
 char app_directory[256];
 std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
 
-DWORD H2EK_Globals::GetBase()
-{
-	return (DWORD)base;
-}
-
-BYTE* reverse_addr(void* address)
-{
-	BYTE *f = (BYTE*)(&address);
-	return f;
-}
-
 H2EK H2Toolz::detect_type()
 {
 	if (GetModuleHandleW(L"h2Guerilla.exe"))

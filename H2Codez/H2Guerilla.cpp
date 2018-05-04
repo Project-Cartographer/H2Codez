@@ -9,7 +9,7 @@ typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;
 
 typedef HMENU (WINAPI *LoadMenuTypedef)(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName);
-LoadMenuTypedef LoadMenuOrginal;
+static LoadMenuTypedef LoadMenuOrginal;
 
 typedef void(__fastcall *CCmdUI__Enable)(void *thisptr, BYTE _, int a2);
 CCmdUI__Enable CCmdUI__Enable_Orginal;
@@ -52,7 +52,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 }
 
 
-HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
+static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
 	int menu_id = reinterpret_cast<int>(lpMenuName);
 	if (menu_id == 1000 || menu_id == 6014 || menu_id == 11 || menu_id == 14) {

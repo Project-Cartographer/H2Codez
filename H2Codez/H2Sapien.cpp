@@ -11,15 +11,11 @@
 
 using namespace HaloScriptCommon;
 
-typedef HWND(__fastcall *create_main_window)(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam);
-create_main_window create_main_window_orginal;
-
-//bool __fastcall load_main_window(int thisptr,int unused, int a2, int a3, int a4, int *a5)
-typedef bool(__fastcall *load_main_window)(int thisptr, int unused, int a2, int a3, int a4, int *a5);
-load_main_window load_main_window_orginal;
-
 typedef int (__thiscall *main_window_input)(void *thisptr, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7);
 main_window_input main_window_input_orginal;
+
+typedef HMENU(WINAPI *LoadMenuTypedef)(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName);
+static LoadMenuTypedef LoadMenuOrginal;
 
 bool run_script(char *script_text);
 
@@ -45,6 +41,25 @@ void **script_epilog(void *a1, int return_data)
 	return script_epilog_impl(a1, return_data);
 }
 
+HMENU new_menu;
+
+static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
+{
+	int menu_id = reinterpret_cast<int>(lpMenuName);
+	if (hInstance == GetModuleHandle(NULL) && menu_id == 241) {
+		return new_menu;
+	}
+	return LoadMenuOrginal(hInstance, lpMenuName);
+}
+
+bool running_game_scripts = false;
+bool using_in_game_settings = false;
+
+inline void CheckItem(UINT item, bool enable)
+{
+	CheckMenuItem(new_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
+}
+
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
 {
 	if (uMsg == WM_COMMAND) {
@@ -63,23 +78,21 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 				H2CommonPatches::generate_script_doc();
 				return 1;
 			}
+			case SAPIEN_IN_GAME_LOD:
+			{
+				using_in_game_settings = !using_in_game_settings;
+				CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
+				return 1;
+			}
+			case 32870:
+			{
+				running_game_scripts = !running_game_scripts;
+				CheckItem(32870, running_game_scripts);
+				break;
+			}
 		}
 	}
 	return main_window_input_orginal(thisptr, a2, uMsg, hMenu, lParam, a6, a7);
-}
-
-bool __fastcall load_main_window_hook(int thisptr, int unused, int a2, int a3, int a4, int *a5)
-{
-	int menu_ptr = thisptr + 12;
-	HMENU menu = CAST_PTR(HMENU, menu_ptr);
-	menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
-	return load_main_window_orginal(thisptr, 0, a2, a3, a4, a5);
-}
-
-HWND __fastcall create_main_window_hook(HMENU thisptr, int __unused, HWND hWndParent, HMENU hMenu, LPCWSTR lpWindowName, DWORD dwStyle, DWORD dwExStyle, HMENU oldmenu, LPVOID lpParam)
-{
-	HMENU new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
-	return create_main_window_orginal(thisptr, 0, hWndParent, hMenu, lpWindowName, dwStyle, dwExStyle, new_menu, lpParam);
 }
  
 bool is_ctrl_down()
@@ -335,6 +348,8 @@ void H2SapienPatches::Init()
 	// fix "game_tick_rate"
 	WriteJmpTo(0x006F7D60, get_tick_rate);
 
+	// Don't force display mode to 1
+	//NopFill(0x006FBFF4, 0x16);
 #pragma endregion
 
 #pragma region Hooks
@@ -342,14 +357,11 @@ void H2SapienPatches::Init()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	create_main_window_orginal =CAST_PTR(create_main_window,0x469030);
-	DetourAttach(&(PVOID&)create_main_window_orginal, create_main_window_hook);
-
-	load_main_window_orginal = CAST_PTR(load_main_window,0x47ACE0);
-	DetourAttach(&(PVOID&)load_main_window_orginal, load_main_window_hook);
-
 	main_window_input_orginal = CAST_PTR(main_window_input, 0x475B60);
 	DetourAttach(&(PVOID&)main_window_input_orginal, main_window_input_hook);
+
+	LoadMenuOrginal = LoadMenuW;
+	DetourAttach(&(PVOID&)LoadMenuOrginal, LoadMenuHook);
 
 	DetourTransactionCommit();
 #pragma endregion
@@ -358,4 +370,6 @@ void H2SapienPatches::Init()
 	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
 	g_halo_script_interface->init_custom(command_table, global_table);
 	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
+
+	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 }

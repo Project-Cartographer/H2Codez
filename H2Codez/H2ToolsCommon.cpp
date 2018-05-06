@@ -100,7 +100,7 @@ std::string get_command_usage(hs_command *cmd)
 	return usage;
 }
 
-std::string H2CommonPatches::get_temp_name(std::string name_suffix)
+std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)
 {
 	std::string name = std::tmpnam(nullptr);
 	if (name_suffix.size() > 0)
@@ -108,7 +108,7 @@ std::string H2CommonPatches::get_temp_name(std::string name_suffix)
 	return name;
 }
 
-void H2CommonPatches::copy_to_clipboard(std::string text, HWND owner)
+void H2CommonPatches::copy_to_clipboard(const std::string &text, HWND owner)
 {
 	if (OpenClipboard(owner)) {
 		EmptyClipboard();

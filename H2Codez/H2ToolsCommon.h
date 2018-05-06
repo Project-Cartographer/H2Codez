@@ -17,9 +17,9 @@ class H2CommonPatches {
 public:
 	static void Init();
 	static bool newInstance();
-	static std::string get_temp_name(std::string name_suffix = "");
+	static std::string get_temp_name(const std::string &name_suffix = "");
 	static void generate_script_doc(const char *filename = nullptr);
-	static void copy_to_clipboard(std::string text, HWND owner = NULL);
+	static void copy_to_clipboard(const std::string &text, HWND owner = NULL);
 	static bool read_clipboard(std::string &contents, HWND owner = NULL);
 };
 

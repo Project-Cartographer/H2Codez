@@ -63,6 +63,17 @@ inline void CheckItem(UINT item, bool enable)
 video_settings halo2_video_settings;
 video_settings sapien_defaults;
 
+void apply_video_settings()
+{
+	typedef void(__cdecl *update_video_settings)(char a1);
+	update_video_settings update_video_settings_impl = reinterpret_cast<update_video_settings>(0x006FBCF0);
+
+	CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
+
+	WriteValue(0x00A5D104, using_in_game_settings ? halo2_video_settings : sapien_defaults);
+	update_video_settings_impl(0);
+}
+
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
 {
 	if (uMsg == WM_COMMAND) {
@@ -83,20 +94,22 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			}
 			case SAPIEN_IN_GAME_LOD:
 			{
-				typedef void (__cdecl *update_video_settings)(char a1);
-				update_video_settings update_video_settings_impl = reinterpret_cast<update_video_settings>(0x006FBCF0);
-
 				using_in_game_settings = !using_in_game_settings;
-				CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
-
-				WriteValue(0x00A5D104, using_in_game_settings ? halo2_video_settings : sapien_defaults);
-				update_video_settings_impl(0);
+				apply_video_settings();
+				conf.setBoolean("in_game_lod", using_in_game_settings);
 
 				return 1;
+			}
+			case 32837:
+			{
+				char expert_mode = *CAST_PTR(char*, 0xA68319);
+				conf.setBoolean("expert_mode", expert_mode);
+				break;
 			}
 			case 32870:
 			{
 				running_game_scripts = !running_game_scripts;
+				conf.setBoolean("running_game_scripts", running_game_scripts);
 				CheckItem(32870, running_game_scripts);
 				break;
 			}
@@ -269,6 +282,11 @@ signed int get_tick_rate()
 	return *tick_rate;
 }
 
+bool __cdecl scripts_disabled()
+{
+	return !running_game_scripts;
+}
+
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -316,6 +334,12 @@ void H2SapienPatches::Init()
 	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	sapien_defaults.LevelOfDetail = video_settings::level_of_detail::low;
 	InitHalo2DisplaySettings();
+
+	using_in_game_settings = conf.getBoolean("in_game_lod", 0);
+	WriteValue(0xA68319, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
+	running_game_scripts = conf.getBoolean("running_game_scripts", 0);
+	CheckItem(32870, running_game_scripts);
+	apply_video_settings();
 #pragma endregion
 
 #pragma region Patches
@@ -393,6 +417,8 @@ void H2SapienPatches::Init()
 	WriteJmpTo(0x006F7D60, get_tick_rate);
 
 	WriteValue(0x00A5D104, sapien_defaults);
+
+	PatchCall(0x0052C516, scripts_disabled);
 
 	// disable this for now
 	// Don't force display mode to 1

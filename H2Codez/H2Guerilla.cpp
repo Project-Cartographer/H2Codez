@@ -65,6 +65,8 @@ int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 {
 	int return_value = toggle_expert_mode_orginal(thisptr, 0);
 	H2GuerrilaPatches::update_field_display();
+	char *expert_mode = CAST_PTR(char*, 0x9AF809);
+	conf.setBoolean("expert_mode", *expert_mode);
 	return return_value;
 }
 
@@ -169,7 +171,7 @@ void H2GuerrilaPatches::Init()
 	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();
 #pragma endregion
-	WriteValue(0x9AF809, (BYTE)1); // set is_expert_mode to one
+	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
 	update_field_display();
 	toggle_display_templates();
 	main_menu = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));

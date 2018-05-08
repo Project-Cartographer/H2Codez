@@ -13,14 +13,14 @@ std::string tolower(const std::string &str)
 
 void trim(std::string &str)
 {
-	str = str.substr(str.find_first_not_of(' '), str.find_last_not_of(' '));
+	str = str.substr(str.find_first_not_of(' '), str.find_last_not_of(' ') + 1);
 }
 
 Settings::Settings(const std::string &settings_path) :
 	settings_filename(settings_path)
 {
 	std::ifstream settings_file(settings_path);
-	while (!settings_file.badbit && !settings_file.eof()) {
+	while (settings_file && !settings_file.eof()) {
 		std::string line;
 		std::getline(settings_file, line);
 
@@ -116,10 +116,16 @@ bool Settings::getBoolean(const std::string &setting, bool default)
 		return default;
 	}
 	auto str = tolower(value);
-	auto num = getNumber(setting, static_cast<int>(default));
-	if (str == "true" || str == "on" || num == 1) {
+	try {
+		return stol(value);
+	}
+	catch (std::invalid_argument) {
+	}
+	catch (std::out_of_range) {
+	}
+	if (str == "true" || str == "on") {
 		return true;
-	} else if (str == "false" || str == "off" || num == 0) {
+	} else if (str == "false" || str == "off") {
 		return false;
 	} else {
 		setBoolean(setting, default);

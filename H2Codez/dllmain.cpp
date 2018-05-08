@@ -14,7 +14,7 @@ H2EK_Globals game;
 
 Logs pLog("H2Codez.log");
 Logs H2PCTool("H2PCTool.log");
-Settings conf("h2_codez.conf");
+Settings conf("H2Codez.conf");
 
 BOOL EnableDbgConsole;
 

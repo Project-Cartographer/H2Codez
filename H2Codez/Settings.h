@@ -50,9 +50,47 @@ public:
 	}
 
 	/* Throws an error if the setting name is invalid */
-	long getNumber(const std::string &setting, long default = 0);
+	template <typename NumericType>
+	NumericType getNumber(const std::string &setting, NumericType default_value)
+	{
+		static_assert(std::is_arithmetic<NumericType>::value, "NumericType must be numeric");
+		std::string value;
+		if (!getString(setting, value)) {
+			setNumber(setting, default_value);
+			return default_value;
+		}
+		try {
+			if (std::is_integral<NumericType>::value) {
+				if (std::is_signed<NumericType>::value)
+					return static_cast<NumericType>(std::stoll(value));
+				else
+					return static_cast<NumericType>(std::stoull(value));
+			}
+			else if (std::is_floating_point<NumericType>::value) {
+				return static_cast<NumericType>(std::stold(value));
+			}
+			else {
+				throw std::runtime_error("Settings::getNumber: unknown NumericType");
+			}
+		}
+		catch (std::invalid_argument) {
+			setNumber(setting, default_value);
+			return default_value;
+		}
+		catch (std::out_of_range) {
+			setNumber(setting, default_value);
+			return default_value;
+		}
+	}
+
 	/* Throws an error if the setting name is invalid */
-	void setNumber(const std::string & setting, long value);
+	template <typename NumericType>
+	inline void setNumber(const std::string & setting, NumericType value)
+	{
+		static_assert(std::is_arithmetic<NumericType>::value, "NumericType must be numeric");
+		setString(setting, std::to_string(value));
+	}
+
 	/* Throws an error if the setting name is invalid */
 	bool getBoolean(const std::string &setting, bool default = false);
 	/* Throws an error if the setting name is invalid */
@@ -66,5 +104,6 @@ private:
 	}
 	std::string settings_filename;
 	std::unordered_map<std::string, std::string> key_value_pairs;
+	bool settings_edited = false;
 };
 

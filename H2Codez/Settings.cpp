@@ -40,6 +40,8 @@ Settings::Settings(const std::string &settings_path) :
 
 Settings::~Settings()
 {
+	if (!settings_edited)
+		return;
 	std::ofstream settings_file(settings_filename);
 	for (auto i : key_value_pairs)
 		settings_file << i.first << " = " << i.second << std::endl;
@@ -76,36 +78,14 @@ bool Settings::getString(const std::string &setting, std::string &value)
 void Settings::setString(const std::string &setting, const std::string &value)
 {
 	if (validate_setting_name(setting)) {
-		key_value_pairs[setting] = value;
+		if (key_value_pairs[setting] != value) {
+			key_value_pairs[setting] = value;
+			settings_edited = true;
+		}
 	}
 	else {
 		throw SettingError("Invalid setting name");
 	}
-}
-
-long Settings::getNumber(const std::string &setting, long default)
-{
-	std::string value;
-	if (!getString(setting, value)) {
-		setNumber(setting, default);
-		return default;
-	}
-	try {
-		return stol(value);
-	}
-	catch (std::invalid_argument) {
-		setNumber(setting, default);
-		return default;
-	}
-	catch (std::out_of_range) {
-		setNumber(setting, default);
-		return default;
-	}
-}
-
-void Settings::setNumber(const std::string &setting, long value)
-{
-	setString(setting, std::to_string(value));
 }
 
 bool Settings::getBoolean(const std::string &setting, bool default)

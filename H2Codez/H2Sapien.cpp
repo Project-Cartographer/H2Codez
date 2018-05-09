@@ -337,8 +337,26 @@ void H2SapienPatches::Init()
 
 	using_in_game_settings = conf.getBoolean("in_game_lod", 0);
 	WriteValue(0xA68319, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
+
 	running_game_scripts = conf.getBoolean("running_game_scripts", 0);
 	CheckItem(32870, running_game_scripts);
+
+	WriteValue(0x00F84D30, conf.getNumber("CPUScore", 5.0));
+	WriteValue(0x00F84D28, conf.getBoolean("AllowVsync", 0));
+	WriteValue(0x00F84D24, conf.getBoolean("CinematicShadow", 0));
+
+	MEMORYSTATUSEX statex;
+
+	statex.dwLength = sizeof(statex);
+
+	GlobalMemoryStatusEx(&statex);
+
+	int SystemMemory = statex.ullAvailPhys / (1024 * 1024);
+	int VideoMemory = conf.getNumber("VideoMemory", 0x6400000);
+	int use_hardware_vertexprocessing = conf.getBoolean("use_hardware_vertexprocessing", true);
+	WriteValue(0xF84D1C, SystemMemory);
+	WriteValue(0xF84D18, VideoMemory);
+	WriteValue(0xF84D10, use_hardware_vertexprocessing);
 	apply_video_settings();
 #pragma endregion
 

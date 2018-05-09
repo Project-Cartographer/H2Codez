@@ -65,13 +65,9 @@ video_settings sapien_defaults;
 
 void apply_video_settings()
 {
-	typedef void(__cdecl *update_video_settings)(char a1);
-	update_video_settings update_video_settings_impl = reinterpret_cast<update_video_settings>(0x006FBCF0);
-
 	CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
 
 	WriteValue(0x00A5D104, using_in_game_settings ? halo2_video_settings : sapien_defaults);
-	update_video_settings_impl(0);
 }
 
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
@@ -94,9 +90,15 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			}
 			case SAPIEN_IN_GAME_LOD:
 			{
+				typedef void(__cdecl *update_video_settings)(char a1);
+				update_video_settings update_video_settings_impl = reinterpret_cast<update_video_settings>(0x006FBCF0);
+
 				using_in_game_settings = !using_in_game_settings;
 				apply_video_settings();
+
 				conf.setBoolean("in_game_lod", using_in_game_settings);
+
+				update_video_settings_impl(0);
 
 				return 1;
 			}

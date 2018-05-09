@@ -67,7 +67,7 @@ void apply_video_settings()
 {
 	CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
 
-	WriteValue(0x00A5D104, using_in_game_settings ? halo2_video_settings : sapien_defaults);
+	WriteValue(0x00A5D134, using_in_game_settings ? halo2_video_settings : sapien_defaults);
 }
 
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
@@ -334,7 +334,6 @@ void H2SapienPatches::Init()
 	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
 
 	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
-	sapien_defaults.LevelOfDetail = video_settings::level_of_detail::low;
 	InitHalo2DisplaySettings();
 
 	using_in_game_settings = conf.getBoolean("in_game_lod", 0);

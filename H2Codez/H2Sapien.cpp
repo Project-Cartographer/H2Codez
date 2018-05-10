@@ -353,7 +353,7 @@ void H2SapienPatches::Init()
 	GlobalMemoryStatusEx(&statex);
 
 	int SystemMemory = statex.ullAvailPhys / (1024 * 1024);
-	int VideoMemory = conf.getNumber("VideoMemory", 0x6400000);
+	int VideoMemory = conf.getNumber("VideoMemory", 100) * 1024 * 1024; // megabytes --> bytes
 	int use_hardware_vertexprocessing = conf.getBoolean("use_hardware_vertexprocessing", true);
 	WriteValue(0xF84D1C, SystemMemory);
 	WriteValue(0xF84D18, VideoMemory);

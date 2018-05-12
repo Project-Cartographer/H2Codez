@@ -19,7 +19,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * Allows compiling of scenario types other than multiplayer.
 * Support editing larger scripts.
 * Add "New Instance" menu item to Guerilla and Sapien.
-* Removed limitation on multiple Sapien instances (may be unstable).
+* Removed limitation on multiple Sapien instances.
 * Added copy (ctrl + c), paste (ctrl + v) and clear (delete) support to Sapien console, paste replaces the whole line.
 * Add back support for the following HS types
   * AI behaviour

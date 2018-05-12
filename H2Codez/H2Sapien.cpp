@@ -362,8 +362,6 @@ void H2SapienPatches::Init()
 #pragma endregion
 
 #pragma region Patches
-	// stop the default menu overwriting our custom one
-	NopFill(0x47AD09, 0x15);
 	// Stop sapien from getting a mutex on the main directory
 	NopFill(0x409D3D, 0xD);
 

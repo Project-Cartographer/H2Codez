@@ -3,12 +3,13 @@ A mod for the H2EK that aims to restore use of existing broken or otherwise disa
 fix bugs/crashes, and add new features or re-add removed ones.
 
 ## Changelog ##
+* Increased FPS in Sapien (hardware TCL/vertex processing)
 * Some H2tool commands restored. (model-collision, model-physics)
 * Basic render model import method (BSP conversion)
 * Shared tag removal made optional.
 * Restored JMS import function. Can import both CE JMS and JMSv2
 * Tag restrictions removed in Guerilla
-* Some hardcoded limits have been increased/removed. (BSP 2D checks, BSP 3D checks)
+* Some hardcoded limits have been increased/removed. (BSP 2D checks, BSP 3D checks, max 3D BSP depth)
 * Open as text has been restored and will open a temp txt file with the source text inside. Buttons labeled as "open as text" have been relabeled as "export as text".
 * Baggage.txt command now usable and no longer causes a crash.
 * Hs_doc added to Sapien and Guerilla drop down menu. Modified to include script globals.
@@ -30,8 +31,8 @@ fix bugs/crashes, and add new features or re-add removed ones.
   * AI command list (internal ID only)
   * HUD message (internal ID only)
   * Point reference (internal ID only)
-* Increase max 3D BSP depth.
 * Use default OS style for file/folder selection dialog.
+* In-game display settings option in Sapien.
 * Some misc changes and fixes.
 
 ## Installation

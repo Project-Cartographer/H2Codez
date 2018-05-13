@@ -11,8 +11,8 @@
 
 using namespace HaloScriptCommon;
 
-typedef int (__thiscall *main_window_input)(void *thisptr, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7);
-main_window_input main_window_input_orginal;
+typedef int (__thiscall *WTL_CWindow_Input)(void *thisptr, int a2, UINT uMsg, int hMenu, LPARAM lParam, int *a6, int a7);
+WTL_CWindow_Input main_window_input_orginal;
 
 typedef HMENU(WINAPI *LoadMenuTypedef)(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName);
 static LoadMenuTypedef LoadMenuOrginal;
@@ -70,10 +70,10 @@ void apply_video_settings()
 	WriteValue(0x00A5D134, using_in_game_settings ? halo2_video_settings : sapien_defaults);
 }
 
-int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int hMenu, LPARAM lParam, int a6, int a7)
+int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int wParam, LPARAM lParam, int *subfunction_out, int handled)
 {
-	if (uMsg == WM_COMMAND) {
-		switch (hMenu) {
+	if (uMsg == WM_COMMAND && !handled) {
+		switch (wParam) {
 			case SAPIEN_FILE_NEWINSTANCE:
 			{
 				return H2CommonPatches::newInstance();
@@ -117,7 +117,7 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			}
 		}
 	}
-	return main_window_input_orginal(thisptr, a2, uMsg, hMenu, lParam, a6, a7);
+	return main_window_input_orginal(thisptr, a2, uMsg, wParam, lParam, subfunction_out, handled);
 }
  
 bool is_ctrl_down()
@@ -447,7 +447,7 @@ void H2SapienPatches::Init()
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-	main_window_input_orginal = CAST_PTR(main_window_input, 0x475B60);
+	main_window_input_orginal = CAST_PTR(WTL_CWindow_Input, 0x475B60);
 	DetourAttach(&(PVOID&)main_window_input_orginal, main_window_input_hook);
 
 	LoadMenuOrginal = LoadMenuW;

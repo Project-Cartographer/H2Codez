@@ -289,6 +289,17 @@ bool __cdecl scripts_disabled()
 	return !running_game_scripts;
 }
 
+void __cdecl process_decoration_brush_input__hook(int *a1, int *a2, char left_pressed, char right_pressed)
+{
+	typedef void(__cdecl *process_decoration_brush_input)(int *a1, int *a2, char left_pressed, char right_pressed);
+	process_decoration_brush_input process_decoration_brush_input_impl = reinterpret_cast<process_decoration_brush_input>(0x4A8ED0);
+
+	process_decoration_brush_input_impl(a1, a2, left_pressed, right_pressed);
+
+	if (left_pressed || right_pressed)
+		WriteValue(0xFE8CE4, 1); // not sure how but this reset something and makes the new decor render correctly.
+}
+
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -436,6 +447,9 @@ void H2SapienPatches::Init()
 	WriteValue(0x00A5D104, sapien_defaults);
 
 	PatchCall(0x0052C516, scripts_disabled);
+
+	if (conf.getBoolean("decoration_force_update", false))
+		PatchCall(0x004876DE, process_decoration_brush_input__hook);
 
 	// disable this for now
 	// Don't force display mode to 1

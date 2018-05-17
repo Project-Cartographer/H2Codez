@@ -1,5 +1,5 @@
 #pragma once
-#include <unordered_map>
+#include <map>
 #include <string>
 #include <algorithm> 
 
@@ -103,7 +103,7 @@ private:
 			&& std::find_if(setting.begin(), setting.end(), [](char c) {return !isalnum(c) && c != '_' && c != '-';  }) == setting.end();
 	}
 	std::string settings_filename;
-	std::unordered_map<std::string, std::string> key_value_pairs;
+	std::map<std::string, std::string> key_value_pairs;
 	bool settings_edited = false;
 };
 

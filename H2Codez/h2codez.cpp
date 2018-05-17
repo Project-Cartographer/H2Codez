@@ -53,6 +53,13 @@ H2EK H2Toolz::detect_type()
 	return H2EK::Invalid;
 }
 
+void H2Toolz::minimal_init()
+{
+	game.process_type = detect_type();
+	if (game.process_type == H2EK::H2Tool)
+		H2ToolPatches::fix_command_line();
+}
+
 bool H2Toolz::Init()
 {
 	GetCurrentDirectory(sizeof(app_directory), app_directory);

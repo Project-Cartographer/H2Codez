@@ -4,6 +4,7 @@
 #include "DiscordInterface.h"
 #include "SigScanning.h"
 #include "Debug.h"
+#include "H2ToolsCommon.h"
 
 #pragma region declarations
 
@@ -31,6 +32,12 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	{
 
 	case DLL_PROCESS_ATTACH:
+		if (!conf.getBoolean("patches_enabled", true)) // enable basic stuff so launcher doesn't break
+		{
+			H2Toolz::minimal_init();
+			break;
+		}
+
 #if _DEBUG
 		Debug::Start_Console();
 #endif

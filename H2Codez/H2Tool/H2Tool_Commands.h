@@ -66,6 +66,8 @@ class H2ToolPatches
 public:
 	static void Initialize();
 
+	static void fix_command_line();
+
 private:
 	static void AddExtraCommands();
 

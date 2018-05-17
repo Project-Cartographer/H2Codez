@@ -5,6 +5,7 @@
 #include "Patches.h"
 #include "Version.h"
 #include "ScenarioTag.h"
+#include <regex>
 
 using namespace HaloScriptCommon;
 
@@ -641,6 +642,22 @@ void HaloScriptExtend()
 	WriteValue(0x008D2238, hs_global_table_size);
 }
 
+LPWSTR __crtGetCommandLineW_hook()
+{
+	typedef LPWSTR (*__crtGetCommandLineW_t)();
+	__crtGetCommandLineW_t __crtGetCommandLineW_impl = reinterpret_cast<__crtGetCommandLineW_t>(0x00764EB3);
+
+	wchar_t *real_cmd = __crtGetCommandLineW_impl();
+	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L"( pause_after_run| shared_tag_removal)"), L"");
+	wcscpy(real_cmd, fake_cmd.c_str());
+	return real_cmd;
+}
+
+void H2ToolPatches::fix_command_line()
+{
+	PatchCall(0x00751F83, __crtGetCommandLineW_hook);
+}
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
@@ -656,6 +673,7 @@ void H2ToolPatches::Initialize()
 	disable_secure_file_locking();
 	fix_hs_converters();
 	HaloScriptExtend();
+	fix_command_line();
 	//enable_campaign_tags_sharing(); // Still crashes might need tag changes.
 
 	std::string cmd = GetCommandLineA();

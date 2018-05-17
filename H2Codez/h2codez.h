@@ -40,7 +40,7 @@ class H2EK_Globals
 	
 public:
 	HMODULE base;
-	H2EK process_type;
+	H2EK process_type = H2EK::Invalid;
 };
 extern H2EK_Globals game;
 
@@ -48,6 +48,7 @@ class H2Toolz
 {
 public:
 	static bool Init();
+	static void minimal_init();
 private:
 	static H2EK detect_type();
 };

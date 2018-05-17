@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "Patches.h"
 #include "H2ToolsCommon.h"
-#include <regex>
 #include "Psapi.h"
 #include "DiscordInterface.h"
 #include "Debug.h"
@@ -53,14 +52,12 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 bool discord_init_finished = false;
 wchar_t* __stdcall GetCommandLineW_Hook()
 {
-	if (conf.getBoolean("discord_enabled", true) && !discord_init_finished) {
+	if (!discord_init_finished &&
+			conf.getBoolean("patches_enabled", true) && conf.getBoolean("discord_enabled", true)) {
 		DiscordInterface::init();
 		discord_init_finished = true;
 	}
-	wchar_t *real_cmd = GetCommandLineW_Orginal();
-	std::wstring fake_cmd = std::regex_replace(real_cmd, std::wregex(L"( pause_after_run| shared_tag_removal)"), L"");
-	wcscpy(real_cmd, fake_cmd.c_str());
-	return real_cmd;
+	return GetCommandLineW_Orginal();
 }
 
 void __stdcall ExitProcess_Hook(UINT exitcode)
@@ -259,6 +256,7 @@ BOOL WINAPI GetSaveFileNameWHook(LPOPENFILENAMEW info)
 		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
 	return GetSaveFileNameWOriginal(info);
 }
+
 
 void H2CommonPatches::Init()
 {

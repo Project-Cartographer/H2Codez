@@ -7,6 +7,7 @@ std::string tool_in_use = "How did you do that??!";
 std::string icon_key;
 std::string screenshot_key;
 std::string image_hover;
+bool interface_online;
 
 static void updateDiscordPresence()
 {
@@ -57,11 +58,15 @@ void DiscordInterface::init()
 	handlers.joinRequest = handleDiscordJoinRequest;
 	Discord_Initialize("379406777500041228", &handlers, 1, NULL);
 	updateDiscordPresence();
+	interface_online = true;
 }
 
 void DiscordInterface::shutdown()
 {
-	Discord_Shutdown();
+	if (interface_online) {
+		Discord_Shutdown();
+		interface_online = false;
+	}
 }
 
 void DiscordInterface::setAppType(H2EK type)

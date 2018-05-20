@@ -25,11 +25,8 @@ GetLocalTime(&tt);
 
 #if _DEBUG
 	// print to console
-	printf("Logs: %s\n", line);
+	printf("Logs: %s\n", buf);
 #endif
-	
-	if(EnableDbgConsole)
-	cout<<buf<<endl; //Write to Allocated Console
 
 	//Lets now Write the buffer to our opened File
 

@@ -85,6 +85,24 @@ char *__cdecl hs_remote_generate_command_hook(char *command_name, void **args, s
 	return output;
 }
 
+void __fastcall guerilla_wide_string__append__hook(int this_ptr, int _, int this_ptr_copy, void *a4, char *string_start, char *string_end, int a7)
+{
+	typedef void(__fastcall *t_guerilla_wide_string__append)(int this_ptr, int, int this_ptr_copy, void *a4, const wchar_t *string_start, const wchar_t *string_end, int a7);
+	auto guerilla_wide_string__append = reinterpret_cast<t_guerilla_wide_string__append>(0x475BC0);
+
+	std::wstring wide_string;
+	size_t string_max_len = (string_end - string_start) + 1;
+
+	wide_string = wstring_to_string.from_bytes(string_start, string_start + strnlen_s(string_start, string_max_len));
+
+	const wchar_t *new_string_start = wide_string.c_str();
+	const wchar_t *new_string_end = new_string_start + wide_string.size() - 1;
+	guerilla_wide_string__append(this_ptr, 0, this_ptr_copy, a4, new_string_start, new_string_end, a7);
+
+	// Don't ask how this fixes anything, I don't know
+	Sleep(500);
+}
+
 void H2GuerrilaPatches::update_field_display()
 {
 	char *expert_mode = CAST_PTR(char*,0x9AF809);
@@ -147,6 +165,10 @@ void H2GuerrilaPatches::Init()
 
 	// patch code for embedded tool console to use the right exe name
 	WritePointer(0x004761AC + 1, "H2tool ");
+
+	PatchCall(0x00476408, guerilla_wide_string__append__hook);
+	PatchCall(0x00476494, guerilla_wide_string__append__hook);
+
 #pragma endregion
 
 #pragma region Hooks

@@ -32,6 +32,7 @@ static const wchar_t *map_types[] =
 };
 
 static wchar_t const open_as_text[] = L"Export as text";
+static wchar_t const scenario_saved[] = L"%s.%hs saved";
 
 int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax)
 { 
@@ -44,6 +45,11 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 	if (uID == 26)
 	{
 		wcsncpy_s(lpBuffer, cchBufferMax, open_as_text, sizeof(open_as_text));
+		return std::wcslen(lpBuffer);
+	}
+	if (uID == 0x1018)
+	{
+		wcsncpy_s(lpBuffer, cchBufferMax, scenario_saved, sizeof(scenario_saved));
 		return std::wcslen(lpBuffer);
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);

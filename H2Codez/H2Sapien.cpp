@@ -45,8 +45,7 @@ HMENU new_menu;
 
 static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
-	int menu_id = reinterpret_cast<int>(lpMenuName);
-	if (hInstance == GetModuleHandle(NULL) && menu_id == 241) {
+	if (hInstance == GetModuleHandle(NULL)) {
 		return new_menu;
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);

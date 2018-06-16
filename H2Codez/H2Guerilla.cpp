@@ -21,22 +21,36 @@ typedef char *(__cdecl *hs_remote_generate_command)(char *command_name, void **a
 hs_remote_generate_command hs_remote_generate_command_orginal;
 
 HMENU main_menu;
-bool enable_advanced_shaders = true;
+bool disable_templete_view = true;
+bool show_hidden_fields = true;
+
+inline void CheckItem(UINT item, bool enable)
+{
+	CheckMenuItem(main_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
+}
 
 int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
 {
-	CheckMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, enable_advanced_shaders ? MF_CHECKED : MF_UNCHECKED);
 	if (!AFX_CMDHANDLERINFO && !a3 && !a4) {
-		if (msg == ID_EDIT_ADVANCEDSHADERVIEW) {
-			H2GuerrilaPatches::toggle_display_templates();
+		switch (msg) {
+		case ID_EDIT_ADVANCEDSHADERVIEW:
+			disable_templete_view = !disable_templete_view;
+			H2GuerrilaPatches::update_display_templates();
+			conf.setBoolean("disable_templete_view", disable_templete_view);
 			return true;
-		} else if (msg == ID_FILE_NEWINSTANCE) {
+
+		case ID_FILE_NEWINSTANCE:
 			H2CommonPatches::newInstance();
 			return true;
-		}
-		else if (msg == SCRIPT_DOC)
-		{
+
+		case SCRIPT_DOC:
 			H2CommonPatches::generate_script_doc();
+			return true;
+
+		case SHOW_HIDDEN_FIELDS:
+			show_hidden_fields = !show_hidden_fields;
+			H2GuerrilaPatches::update_field_display();
+			conf.setBoolean("show_hidden_fields", show_hidden_fields);
 			return true;
 		}
 	}
@@ -49,13 +63,13 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 	EnableMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, MF_ENABLED);
 	EnableMenuItem(main_menu, ID_FILE_NEWINSTANCE, MF_ENABLED);
 	EnableMenuItem(main_menu, SCRIPT_DOC, MF_ENABLED);
+	EnableMenuItem(main_menu, SHOW_HIDDEN_FIELDS, MF_ENABLED);
 }
 
 
 static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
-	int menu_id = reinterpret_cast<int>(lpMenuName);
-	if (menu_id == 1000 || menu_id == 6014 || menu_id == 11 || menu_id == 14) {
+	if (hInstance == GetModuleHandle(NULL)) {
 		return main_menu;
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);
@@ -64,7 +78,6 @@ static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMe
 int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 {
 	int return_value = toggle_expert_mode_orginal(thisptr, 0);
-	H2GuerrilaPatches::update_field_display();
 	char *expert_mode = CAST_PTR(char*, 0x9AF809);
 	conf.setBoolean("expert_mode", *expert_mode);
 	return return_value;
@@ -105,8 +118,8 @@ void __fastcall guerilla_wide_string__append__hook(int this_ptr, int _, int this
 
 void H2GuerrilaPatches::update_field_display()
 {
-	char *expert_mode = CAST_PTR(char*,0x9AF809);
-	if (*expert_mode) {
+	CheckItem(SHOW_HIDDEN_FIELDS, show_hidden_fields);
+	if (show_hidden_fields) {
 		// Display All Fields
 		NopFill(0x44CDAA, 0x8);
 	}
@@ -117,10 +130,10 @@ void H2GuerrilaPatches::update_field_display()
 	}
 }
 
-void H2GuerrilaPatches::toggle_display_templates()
+void H2GuerrilaPatches::update_display_templates()
 {
-	enable_advanced_shaders = !enable_advanced_shaders;
-	if (enable_advanced_shaders) {
+	CheckItem(ID_EDIT_ADVANCEDSHADERVIEW, disable_templete_view);
+	if (disable_templete_view) {
 		// Disable Tag Template Views
 		BYTE patch[0x3] = { 0x33, 0xC0, 0xC3 }; // xor eax, eax; retn
 		WriteBytes(0x48E730, patch, 0x3);
@@ -196,10 +209,14 @@ void H2GuerrilaPatches::Init()
 	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();
 #pragma endregion
-	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
-	update_field_display();
-	toggle_display_templates();
 	main_menu = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));
+
+	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
+	show_hidden_fields = conf.getBoolean("show_hidden_fields", true);
+	disable_templete_view = conf.getBoolean("disable_templete_view", false);
+
+	update_field_display();
+	update_display_templates();
 
 	hs_command **command_table = reinterpret_cast<hs_command **>(0x95BF70);
 	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x95EF08);

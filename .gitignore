@@ -42,3 +42,4 @@ H2Codez/Release/*
 *.iobj
 *.opensdf
 *.sdf
+*.vcxproj.user

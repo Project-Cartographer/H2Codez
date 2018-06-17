@@ -25,6 +25,8 @@ inline void NopFill(const DWORD address, int len)
 	BYTE *nop_fill = new BYTE[len];
 	memset(nop_fill, 0x90, len);
 	WriteBytes(address, nop_fill, len);
+
+	delete[] nop_fill;
 }
 
 inline void NopFill(const void *address, int len)

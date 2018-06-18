@@ -144,13 +144,15 @@ void __stdcall on_console_input(WORD keycode)
 		break;
 	case 'C':
 		if (is_ctrl_down()) {
-			H2CommonPatches::copy_to_clipboard(console_input);
-			print_console("copied to clipboard!");
+			HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
+			if (H2CommonPatches::copy_to_clipboard(console_input, *main_hwnd))
+				print_console("copied to clipboard!");
 		}
 		break;
 	case 'V':
 		std::string new_text;
-		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
+		HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
+		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text, *main_hwnd)) {
 			*cursor_pos = static_cast<WORD>(new_text.size());
 			strncpy(console_input, new_text.c_str(), 0x100);
 			print_console("pasted from clipboard!");

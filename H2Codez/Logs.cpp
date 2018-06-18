@@ -22,7 +22,6 @@ GetLocalTime(&tt);
 	va_start(myarg,line);
 	vsnprintf(buf,2048,line,myarg);
 	va_end(myarg);
-
 #if _DEBUG
 	// print to console
 	printf("Logs: %s\n", buf);

@@ -13,13 +13,12 @@ struct hs_convert_data_store
 };
 static_assert(sizeof(hs_convert_data_store) == 0x14, "Invalid 'hs_convert_data_store' Size");
 
-class H2CommonPatches {
-public:
-	static void Init();
-	static bool newInstance();
-	static std::string get_temp_name(const std::string &name_suffix = "");
-	static void generate_script_doc(const char *filename = nullptr);
-	static void copy_to_clipboard(const std::string &text, HWND owner = NULL);
-	static bool read_clipboard(std::string &contents, HWND owner = NULL);
+namespace H2CommonPatches {
+	void Init();
+	bool newInstance();
+	std::string get_temp_name(const std::string &name_suffix = "");
+	void generate_script_doc(const char *filename = nullptr);
+	bool copy_to_clipboard(const std::string &text, HWND owner);
+	bool read_clipboard(std::string &contents, HWND owner = NULL);
 };
 

@@ -111,37 +111,41 @@ std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)
 	return name;
 }
 
-void H2CommonPatches::copy_to_clipboard(const std::string &text, HWND owner)
+bool H2CommonPatches::copy_to_clipboard(const std::string &text, HWND owner)
 {
-	if (OpenClipboard(owner)) {
-		EmptyClipboard();
+	bool success = false;
+	if (LOG_CHECK(OpenClipboard(owner))) {
+		if (owner != NULL)
+			LOG_CHECK(EmptyClipboard() != FALSE);
 
 		size_t len = text.length() + 1;
 		HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
-		if (hMem != NULL) {
-			char *clipboard_text = static_cast<char*>(GlobalLock(hMem));
-			strncpy(clipboard_text, text.c_str(), len);
-			GlobalUnlock(hMem);
-
-			SetClipboardData(CF_TEXT, hMem);
+		if (LOG_CHECK(hMem != NULL)) {
+			char *clipboard_text = LOG_CHECK(static_cast<char*>(GlobalLock(hMem)));
+			if (clipboard_text) {
+				strncpy(clipboard_text, text.c_str(), len);
+				if (LOG_CHECK(GlobalUnlock(hMem) || GetLastError() == NO_ERROR))
+					success = (SetClipboardData(CF_TEXT, hMem) != NULL);
+			}
 		}
-		CloseClipboard();
+		LOG_CHECK(CloseClipboard());
 	}
+	return success;
 }
 
 bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
 {
-	if (OpenClipboard(owner)) {
+	if (LOG_CHECK(OpenClipboard(owner))) {
 		HANDLE data = GetClipboardData(CF_TEXT);
-		if (data != NULL) {
+		if (LOG_CHECK(data != NULL)) {
 			LPTSTR text = static_cast<LPTSTR>(GlobalLock(data));
-			if (text != NULL) {
+			if (LOG_CHECK(text != NULL)) {
 				contents = text;
-				GlobalUnlock(data);
-				return true;
+				if (LOG_CHECK(GlobalUnlock(data) || GetLastError() == NO_ERROR))
+					return true;
 			}
 		}
-		CloseClipboard();
+		LOG_CHECK(CloseClipboard());
 	}
 	return false;
 }

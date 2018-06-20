@@ -54,7 +54,7 @@ static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMe
 bool running_game_scripts = false;
 bool using_in_game_settings = false;
 
-inline void CheckItem(UINT item, bool enable)
+inline static void CheckItem(UINT item, bool enable)
 {
 	CheckMenuItem(new_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
 }

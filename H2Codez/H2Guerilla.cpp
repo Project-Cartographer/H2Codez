@@ -24,7 +24,7 @@ HMENU main_menu;
 bool disable_templete_view = true;
 bool show_hidden_fields = true;
 
-inline void CheckItem(UINT item, bool enable)
+inline static void CheckItem(UINT item, bool enable)
 {
 	CheckMenuItem(main_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
 }

@@ -301,6 +301,22 @@ void __cdecl process_decoration_brush_input__hook(int *a1, int *a2, char left_pr
 		WriteValue(0xFE8CE4, 1); // not sure how but this reset something and makes the new decor render correctly.
 }
 
+char __cdecl set_scenario_path_hook(LPCWSTR path_passed_to_us)
+{
+	typedef char (__cdecl *set_scenario_path)(LPCWSTR path);
+	auto set_scenario_path_impl = reinterpret_cast<set_scenario_path>(0x00458E40);
+	if (!set_scenario_path_impl(path_passed_to_us)) // support standard path escaping
+	{
+		int argwc = *reinterpret_cast<int*>(0x010E6A7C);
+		wchar_t **argwv = *reinterpret_cast<wchar_t ***>(0x010E6A84);
+		if (argwc >= 2)
+			return set_scenario_path_impl(argwv[1]);
+		return false;
+	}
+	return true;
+}
+
+
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -339,6 +355,9 @@ void InitHalo2DisplaySettings()
 
 void H2SapienPatches::Init()
 {
+	// set current directory to executable path
+	std::wstring new_current_dir = H2CommonPatches::GetExeDirectory();
+	SetCurrentDirectoryW(new_current_dir.c_str());
 #pragma region value init
 	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
 	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
@@ -451,6 +470,9 @@ void H2SapienPatches::Init()
 
 	if (conf.getBoolean("decoration_force_update", false))
 		PatchCall(0x004876DE, process_decoration_brush_input__hook);
+
+	// fix sapien not working well with shell
+	PatchCall(0x0046361A, set_scenario_path_hook);
 
 	// disable this for now
 	// Don't force display mode to 1

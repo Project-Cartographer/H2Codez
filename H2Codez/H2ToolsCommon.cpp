@@ -103,6 +103,19 @@ std::string get_command_usage(hs_command *cmd)
 	return usage;
 }
 
+std::wstring H2CommonPatches::GetExeDirectory()
+{
+	wchar_t main_exe_dir[MAX_PATH];
+	GetModuleFileNameW(NULL, main_exe_dir, sizeof(main_exe_dir));
+	size_t path_len = wcsnlen_s(main_exe_dir, sizeof(main_exe_dir));
+	if (main_exe_dir[path_len - 1] == L'\\')
+		main_exe_dir[path_len - 1] = NULL;
+	wchar_t *last_part = wcsrchr(main_exe_dir, L'\\');
+	if (last_part)
+		*last_part = NULL;
+	return main_exe_dir;
+}
+
 std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)
 {
 	std::string name = std::tmpnam(nullptr);

@@ -1,6 +1,15 @@
 version: 2.0.{build}
 image: Visual Studio 2017
 configuration: Release
+environment:
+  deploy_token:
+    secure: WGPN509P83WUoyHa9LJ+yXqS4zm8Ql1mOg9pzl3eUzg0JWEO+pjL1hJEHgclkUPR
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: KEk0FetjPrWziRGWRW7YwQ==
+  on:
+    branch: H2OS_EK
 before_build:
 - cmd: 'echo #define version ^"%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_COMMIT:~0,7%^" 1>  H2Codez\Version.h'
 - cmd: 'cat H2Codez\Version.h'

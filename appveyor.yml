@@ -7,7 +7,6 @@ environment:
     secure: WGPN509P83WUoyHa9LJ+yXqS4zm8Ql1mOg9pzl3eUzg0JWEO+pjL1hJEHgclkUPR
 deploy:
 - provider: GitHub
-  artifact: H2Codez.dll, hash, Release\*
   auth_token:
     secure: KEk0FetjPrWziRGWRW7YwQ==
   on:
@@ -19,10 +18,9 @@ deploy:
   password:
     secure: YMFg0qsprFpw24EX2gPxvQ==
   folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)
-  artifact: Release\H2Codez.dll, Release\H2Codez.pdb ,hash
   active_mode: false
   beta: true
-  debug: true
+  debug: false
   on:
     branch: H2OS_EK
 before_build:
@@ -37,6 +35,4 @@ before_package:
 - cmd: xcopy /i "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\H2Codez.pdb" ".\Release\"
 artifacts:
 - path: '\Release\*'
-- path: '\version'
-- path: '\Patches\*'
 - path: '\hash'

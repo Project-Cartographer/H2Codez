@@ -16,12 +16,25 @@ deploy:
   auth_token: $(GITHUB_DEPLOY_TOKEN)
   on:
     branch: H2OS_EK
+
 - provider: FTP
   host: $(FTP_SERVER)
   protocol: ftp
   username: $(FTP_USER)
   password: $(FTP_PASSWORD)
   folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)-$(APPVEYOR_REPO_COMMIT)
+  active_mode: false
+  beta: true
+  debug: false
+  on:
+    branch: H2OS_EK
+    
+- provider: FTP
+  host: $(FTP_SERVER)
+  protocol: ftp
+  username: $(FTP_USER)
+  password: $(FTP_PASSWORD)
+  folder: /Tools/PC/h2codez/latest
   active_mode: false
   beta: true
   debug: false

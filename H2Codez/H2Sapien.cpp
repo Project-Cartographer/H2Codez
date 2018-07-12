@@ -19,26 +19,25 @@ static LoadMenuTypedef LoadMenuOrginal;
 
 bool run_script(char *script_text);
 
-char command_script[0x100];
-INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	if (uMsg == WM_CLOSE) {
-		EndDialog(hwndDlg, 0);
-		return true;
-	}
-	if (uMsg == WM_COMMAND && LOWORD(wParam)) {
-		if (GetDlgItemText(hwndDlg, SAPIEN_COMMAND, command_script, sizeof(command_script)))
-			run_script(command_script);
-		EndDialog(hwndDlg, 0);
-		return true;
-	}
-	return false;
-}
-
 void **script_epilog(void *a1, int return_data)
 {
 	auto script_epilog_impl = reinterpret_cast<void**(__cdecl *)(void *a1, int return_data)>(0x52CC70);
 	return script_epilog_impl(a1, return_data);
+}
+
+struct console_colour
+{
+	float alpha = 1.0f;
+	float red = 1.0f;
+	float green = 1.0f;
+	float blue = 1.0f;
+};
+
+void print_to_console(const std::string &message, const console_colour text_colour = console_colour())
+{
+	typedef char (*print_to_screen_with_colour)(const console_colour *colours, char *Format, ...);
+	auto print_to_screen_with_colour_impl = reinterpret_cast<print_to_screen_with_colour>(0x00504BC0);
+	print_to_screen_with_colour_impl(&text_colour, "%s", message.c_str());
 }
 
 HMENU new_menu;
@@ -69,6 +68,50 @@ void apply_video_settings()
 	WriteValue(0x00A5D134, using_in_game_settings ? halo2_video_settings : sapien_defaults);
 }
 
+char command_script[0x100];
+INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_CLOSE) {
+		EndDialog(hwndDlg, 0);
+		return true;
+	}
+	if (uMsg == WM_COMMAND && LOWORD(wParam)) {
+		if (GetDlgItemText(hwndDlg, SAPIEN_COMMAND, command_script, sizeof(command_script)))
+			run_script(command_script);
+		EndDialog(hwndDlg, 0);
+		return false;
+	}
+	return false;
+}
+
+// TODO: fix MessageBoxA refuseing to work right.
+INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+
+	if (uMsg == WM_COMMAND) {
+		if (wParam == IDOK) {
+			char speed_text[200];
+			if (GetDlgItemText(hwndDlg, IDC_CUSTOM_SPEED, speed_text, sizeof(speed_text)))
+			{
+				try {
+					float new_speed = std::stof(speed_text);
+					WriteValue(0x009AAC60, new_speed);
+					print_to_console("speed is now " + std::to_string(new_speed));
+				}
+				catch (invalid_argument ex) {
+					//MessageBoxA(hwndDlg, "Not a valid number!", "ERROR!", MB_OK | MB_SETFOREGROUND);
+				}
+				catch (out_of_range ex) {
+					//MessageBoxA(hwndDlg, "Number out of range!", "ERROR!", MB_OK | MB_SETFOREGROUND);
+				}
+			}
+			EndDialog(hwndDlg, 0);
+			return 0;
+		}
+	}
+	return DefWindowProc(hwndDlg, uMsg, wParam, lParam);
+}
+
 int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, int wParam, LPARAM lParam, int *subfunction_out, int handled)
 {
 	if (uMsg == WM_COMMAND && !handled) {
@@ -80,6 +123,11 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			case SAPIEN_OPEN_RUN_COMMAND_DIALOG:
 			{
 				DialogBoxParam(g_hModule, MAKEINTRESOURCE(SAPIEN_COMMAND_DIALOG), 0, SapienRunCommandProc, 0);
+				return 1;
+			}
+			case ID_VIEW_CUSTOMDIRECTORSPEED:
+			{
+				DialogBoxParam(g_hModule, MAKEINTRESOURCE(IDD_SELECT_CUSTOM_SPEED), 0, CustomDirectorSpeed, 0);
 				return 1;
 			}
 			case SAPIEN_SCRIPT_DOC:
@@ -124,15 +172,12 @@ bool is_ctrl_down()
 	return HIBYTE(GetKeyState(VK_CONTROL));
 }
 
-typedef char(__cdecl *print_to_console)(char *Format);
-
 void __stdcall on_console_input(WORD keycode)
 {
 	printf("key  :  %d\n", keycode);
 
 	char *console_input = reinterpret_cast<char*>(0xA9F52C);
 	WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
-	auto print_console = reinterpret_cast<print_to_console>(0x00616720);
 
 	printf("console: %s \n", console_input);
 
@@ -140,13 +185,13 @@ void __stdcall on_console_input(WORD keycode)
 	case 46: // delete key
 		ZeroMemory(console_input, 0x100);
 		*cursor_pos = 0;
-		print_console("cleared console.");
+		print_to_console("cleared console.");
 		break;
 	case 'C':
 		if (is_ctrl_down()) {
 			HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
 			if (H2CommonPatches::copy_to_clipboard(console_input, *main_hwnd))
-				print_console("copied to clipboard!");
+				print_to_console("copied to clipboard!");
 		}
 		break;
 	case 'V':
@@ -155,7 +200,7 @@ void __stdcall on_console_input(WORD keycode)
 		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text, *main_hwnd)) {
 			*cursor_pos = static_cast<WORD>(new_text.size());
 			strncpy(console_input, new_text.c_str(), 0x100);
-			print_console("pasted from clipboard!");
+			print_to_console("pasted from clipboard!");
 		}
 		break;
 	}

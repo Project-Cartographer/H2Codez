@@ -1,6 +1,7 @@
 version: 2.0.{build}
 image: Visual Studio 2017
 configuration: Release
+skip_tags: true
 environment:
   deploy_token:
     secure: WGPN509P83WUoyHa9LJ+yXqS4zm8Ql1mOg9pzl3eUzg0JWEO+pjL1hJEHgclkUPR
@@ -8,6 +9,18 @@ deploy:
 - provider: GitHub
   auth_token:
     secure: KEk0FetjPrWziRGWRW7YwQ==
+  on:
+    branch: H2OS_EK
+- provider: FTP
+  host: ftp.dlptest.com
+  protocol: ftp
+  username: dlpuser@dlptest.com
+  password:
+    secure: YMFg0qsprFpw24EX2gPxvQ==
+  folder: /Tools/PC/h2codez-$(APPVEYOR_BUILD_VERSION)
+  active_mode: false
+  beta: true
+  debug: true
   on:
     branch: H2OS_EK
 before_build:

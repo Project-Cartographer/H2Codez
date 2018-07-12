@@ -18,13 +18,13 @@ deploy:
     branch: H2OS_EK
 - provider: FTP
   host: $(FTP_SERVER)
-  protocol: ftps
+  protocol: ftp
   username: $(FTP_USER)
   password: $(FTP_PASSWORD)
   folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)-$(APPVEYOR_REPO_COMMIT)
   active_mode: false
-  beta: false
-  debug: true
+  beta: true
+  debug: false
   on:
     branch: H2OS_EK
 before_build:

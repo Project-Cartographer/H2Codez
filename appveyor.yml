@@ -3,24 +3,25 @@ image: Visual Studio 2017
 configuration: Release
 skip_tags: true
 environment:
-  deploy_token:
+  FTP_SERVER: ftp.dlptest.com
+  FTP_USER: dlpuser@dlptest.com
+  FTP_PASSWORD: 3D6XZV9MKdhM5fF
+  GITHUB_DEPLOY_TOKEN:
     secure: WGPN509P83WUoyHa9LJ+yXqS4zm8Ql1mOg9pzl3eUzg0JWEO+pjL1hJEHgclkUPR
 deploy:
 - provider: GitHub
-  auth_token:
-    secure: KEk0FetjPrWziRGWRW7YwQ==
+  auth_token: $(GITHUB_DEPLOY_TOKEN)
   on:
     branch: H2OS_EK
 - provider: FTP
-  host: ftp.dlptest.com
+  host: $(FTP_SERVER)
   protocol: ftp
-  username: dlpuser@dlptest.com
-  password:
-    secure: YMFg0qsprFpw24EX2gPxvQ==
-  folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)
+  username: $(FTP_USER)
+  password: $(FTP_PASSWORD)
+  folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)-$(APPVEYOR_REPO_COMMIT)
   active_mode: false
   beta: true
-  debug: false
+  debug: true
   on:
     branch: H2OS_EK
 before_build:

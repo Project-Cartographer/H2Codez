@@ -152,6 +152,12 @@
     <ClInclude Include="Settings.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="BlamBaseTypes.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="RingBuffer.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

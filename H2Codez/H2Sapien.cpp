@@ -2,12 +2,14 @@
 #include "H2Sapien.h"
 #include "H2ToolsCommon.h"
 #include "HaloScriptInterface.h"
+#include "BlamBaseTypes.h"
 #include "Patches.h"
 #include "resource.h"
 #include <Shellapi.h>
 #include <iostream>
 #include <fstream>
 #include <D3D9.h>
+#include "RingBuffer.h"
 
 using namespace HaloScriptCommon;
 
@@ -25,17 +27,9 @@ void **script_epilog(void *a1, int return_data)
 	return script_epilog_impl(a1, return_data);
 }
 
-struct console_colour
+void print_to_console(const std::string &message, const colour text_colour = colour())
 {
-	float alpha = 1.0f;
-	float red = 1.0f;
-	float green = 1.0f;
-	float blue = 1.0f;
-};
-
-void print_to_console(const std::string &message, const console_colour text_colour = console_colour())
-{
-	typedef char (*print_to_screen_with_colour)(const console_colour *colours, char *Format, ...);
+	typedef char (*print_to_screen_with_colour)(const colour *colours, char *Format, ...);
 	auto print_to_screen_with_colour_impl = reinterpret_cast<print_to_screen_with_colour>(0x00504BC0);
 	print_to_screen_with_colour_impl(&text_colour, "%s", message.c_str());
 }
@@ -172,39 +166,97 @@ bool is_ctrl_down()
 	return HIBYTE(GetKeyState(VK_CONTROL));
 }
 
-void __stdcall on_console_input(WORD keycode)
+RingBuffer<std::string> console_history(8);
+
+inline void update_console_state()
+{
+	typedef void (__cdecl *_t_update_console_state)(int console_state);
+	auto update_console_state_impl = reinterpret_cast<_t_update_console_state>(0x58F580);
+	update_console_state_impl(0xA9F630); // hardcoded console state offset
+}
+
+inline void console_close()
+{
+	typedef void (*t_console_close)();
+	auto console_close_impl = reinterpret_cast<t_console_close>(0x004EBE50);
+}
+
+int history_view_location = 0;
+bool history_view_inital = true;
+
+void copy_from_console_history()
+{
+	history_view_inital = false;
+	char *console_input = reinterpret_cast<char*>(0xA9F52C);
+	if (!console_history.empty())
+	{
+		strncpy(console_input, console_history.get(history_view_location).c_str(), 0x100);
+		update_console_state();
+	}
+}
+
+bool __stdcall on_console_input(WORD keycode)
 {
 	printf("key  :  %d\n", keycode);
+	printf("key (low)  :  %d\n", LOBYTE(keycode));
+	printf("key (high)  :  %d\n", HIBYTE(keycode));
 
 	char *console_input = reinterpret_cast<char*>(0xA9F52C);
 	WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
+	HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
 
 	printf("console: %s \n", console_input);
 
 	switch (keycode) {
-	case 46: // delete key
-		ZeroMemory(console_input, 0x100);
-		*cursor_pos = 0;
+	case 263: // `
+		history_view_location = 0;
+		history_view_inital = true;
+		console_close();
+		return false;
+	case VK_RETURN:
+	case 262: // somehow sapien encodes enter as this
+		history_view_location = 0;
+		history_view_inital = true;
+		if (strnlen_s(console_input, 0x100) > 0)
+		{
+			console_history.push(console_input);
+			HaloScriptCommon::hs_execute(console_input);
+			update_console_state();
+		} else {
+			console_close();
+		}
+		return true;
+	case VK_DELETE:
+		SecureZeroMemory(console_input, 0x100);
+		update_console_state();
 		print_to_console("cleared console.");
 		break;
+	case VK_UP:
+		if (!history_view_inital)
+			history_view_location--;
+		copy_from_console_history();
+		return true;
+	case VK_DOWN:
+		history_view_location++;
+		copy_from_console_history();
+		return true;
 	case 'C':
 		if (is_ctrl_down()) {
-			HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
 			if (H2CommonPatches::copy_to_clipboard(console_input, *main_hwnd))
 				print_to_console("copied to clipboard!");
+			update_console_state();
 		}
 		break;
 	case 'V':
 		std::string new_text;
-		HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
 		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text, *main_hwnd)) {
-			*cursor_pos = static_cast<WORD>(new_text.size());
 			strncpy(console_input, new_text.c_str(), 0x100);
 			print_to_console("pasted from clipboard!");
+			update_console_state();
 		}
 		break;
 	}
-
+	return false;
 }
 
 // hooks a switch statement that handles speical key presses (e.g. enter, tab)
@@ -213,25 +265,34 @@ __declspec(naked) void console_input_jump_hook()
 	__asm {
 		// save register
 		push eax
-		push ecx
-		push edx
 
 		// undo add
 		sub eax, 0xFFFFFFF7
 		// pass eax (keycode) to our code
 		push eax
 		call on_console_input
+		// check if default code should be skipped
+		cmp eax, 1
+		jz SKIP
+
+
+	DEFAULT:
 
 		// restore registers
-		pop edx
-		pop ecx
 		pop eax
 
 		// replaced code
 		cmp eax, 254
 
 		// jump back to sapien code
+		push 0x004ECC33
 		ret
+
+	SKIP:
+		pop eax
+		push 0x004ECD24
+		ret
+
 	}
 }
 
@@ -435,6 +496,8 @@ void H2SapienPatches::Init()
 	WriteValue(0xF84D18, VideoMemory);
 	WriteValue(0xF84D10, use_hardware_vertexprocessing);
 	apply_video_settings();
+
+	console_history.resize(conf.getNumber("console_history_size", 8));
 #pragma endregion
 
 #pragma region Patches
@@ -455,7 +518,7 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
-	WriteCallTo(0x4ECC2E, &console_input_jump_hook);
+	WriteJmpTo(0x4ECC2E, &console_input_jump_hook);
 	// replace a call to memcpy
 	PatchCall(0x58F6AA, &console_write_hook);
 

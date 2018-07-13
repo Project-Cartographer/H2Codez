@@ -108,6 +108,7 @@
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlamBaseTypes.h" />
     <ClInclude Include="hs_ai_behaviour.h" />
     <ClInclude Include="BasicTagTypes.h" />
     <ClInclude Include="Debug.h" />
@@ -130,6 +131,7 @@
     <ClInclude Include="Logs.h" />
     <ClInclude Include="Patches.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RingBuffer.h" />
     <ClInclude Include="ScenarioTag.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />

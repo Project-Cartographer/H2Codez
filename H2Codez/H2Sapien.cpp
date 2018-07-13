@@ -183,6 +183,7 @@ inline void console_close()
 
 int history_view_location = 0;
 bool history_view_inital = true;
+bool history_disable = false;
 
 void copy_from_console_history()
 {
@@ -219,7 +220,8 @@ bool __stdcall on_console_input(WORD keycode)
 		history_view_inital = true;
 		if (strnlen_s(console_input, 0x100) > 0)
 		{
-			console_history.push(console_input);
+			if (!history_disable)
+				console_history.push(console_input);
 			HaloScriptCommon::hs_execute(console_input);
 			update_console_state();
 		} else {
@@ -232,11 +234,15 @@ bool __stdcall on_console_input(WORD keycode)
 		print_to_console("cleared console.");
 		break;
 	case VK_UP:
+		if (history_disable) return true;
+
 		if (!history_view_inital)
 			history_view_location--;
 		copy_from_console_history();
 		return true;
 	case VK_DOWN:
+		if (history_disable) return true;
+
 		history_view_location++;
 		copy_from_console_history();
 		return true;
@@ -497,7 +503,11 @@ void H2SapienPatches::Init()
 	WriteValue(0xF84D10, use_hardware_vertexprocessing);
 	apply_video_settings();
 
-	console_history.resize(conf.getNumber("console_history_size", 8));
+	int history_size = conf.getNumber("console_history_size", 8);
+	if (history_size > 0)
+		console_history.resize(history_size);
+	else
+		history_disable = true;
 #pragma endregion
 
 #pragma region Patches

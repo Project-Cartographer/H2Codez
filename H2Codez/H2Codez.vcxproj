@@ -48,6 +48,7 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>H2Codez</TargetName>
     <OutDir>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor\</OutDir>
+    <IntDir>build\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,6 +56,7 @@
     <LibraryPath>$(ProjectDir);C:\Program Files (x86)\Microsoft Visual Studio\Shared\14.0\VC\lib;$(LibraryPath)</LibraryPath>
     <OutDir>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor\</OutDir>
     <TargetName>H2Codez</TargetName>
+    <IntDir>build\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

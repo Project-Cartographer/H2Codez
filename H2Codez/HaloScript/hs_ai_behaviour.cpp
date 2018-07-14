@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "hs_ai_behaviour.h"
 
 std::string search_for;

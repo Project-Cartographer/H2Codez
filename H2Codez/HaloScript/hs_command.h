@@ -1,6 +1,6 @@
 #pragma once
 #include "hs_types.h"
-#include "stdafx.h"
+#include "../stdafx.h"
 
 namespace HaloScriptCommon
 {

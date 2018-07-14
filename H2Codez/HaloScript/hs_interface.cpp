@@ -1,6 +1,5 @@
-#include "HaloScriptInterface.h"
-#include "h2codez.h"
-#include "HaloScript.h"
+#include "hs_interface.h"
+#include "../h2codez.h"
 
 HaloScriptInterface *g_halo_script_interface = new HaloScriptInterface;
 

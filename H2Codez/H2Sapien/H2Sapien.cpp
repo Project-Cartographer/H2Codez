@@ -1,15 +1,15 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "H2Sapien.h"
-#include "H2ToolsCommon.h"
-#include "HaloScriptInterface.h"
-#include "BlamBaseTypes.h"
-#include "Patches.h"
-#include "resource.h"
+#include "..\Common\H2EKCommon.h"
+#include "..\HaloScript\hs_interface.h"
+#include "..\Common\BlamBaseTypes.h"
+#include "..\util\Patches.h"
+#include "..\Resources\resource.h"
 #include <Shellapi.h>
 #include <iostream>
 #include <fstream>
 #include <D3D9.h>
-#include "RingBuffer.h"
+#include "..\util\RingBuffer.h"
 
 using namespace HaloScriptCommon;
 
@@ -528,7 +528,7 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
-	WriteJmpTo(0x4ECC2E, &console_input_jump_hook);
+	WriteJmp(0x4ECC2E, &console_input_jump_hook);
 	// replace a call to memcpy
 	PatchCall(0x58F6AA, &console_write_hook);
 
@@ -580,7 +580,7 @@ void H2SapienPatches::Init()
 	WriteValue(0x008EFDB4, hs_global_table_size);
 
 	// fix "game_tick_rate"
-	WriteJmpTo(0x006F7D60, get_tick_rate);
+	WriteJmp(0x006F7D60, get_tick_rate);
 
 	WriteValue(0x00A5D104, sapien_defaults);
 

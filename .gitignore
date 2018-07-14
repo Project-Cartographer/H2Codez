@@ -14,7 +14,6 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -26,7 +25,6 @@
 *.a
 
 # Executables
-*.exe
 *.out
 *.app
 
@@ -36,7 +34,6 @@ H2Codez/build/*
 *.VC.db
 *.VC.VC.opendb
 *.ipch
-*.pdb
 *.exp
 *.ipdb
 *.iobj

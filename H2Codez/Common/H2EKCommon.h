@@ -1,5 +1,5 @@
 #pragma once
-#include "HaloScriptInterface.h"
+#include "..\HaloScript\hs_interface.h"
 
 struct hs_convert_data_store
 {

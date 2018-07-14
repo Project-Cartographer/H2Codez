@@ -1,10 +1,9 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 
 #include "stdafx.h"
-#include "DiscordInterface.h"
-#include "SigScanning.h"
-#include "Debug.h"
-#include "H2ToolsCommon.h"
+#include "Common\DiscordInterface.h"
+#include "Util\Debug.h"
+#include "Common\H2EKCommon.h"
 
 #pragma region declarations
 

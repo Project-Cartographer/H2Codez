@@ -1,17 +1,18 @@
-#include <cwchar>
-#include "stdafx.h"
-#include "Patches.h"
-#include "H2ToolsCommon.h"
+#include "H2EKCommon.h"
+#include "../stdafx.h"
+#include "../util/Patches.h"
 #include "Psapi.h"
 #include "DiscordInterface.h"
-#include "Debug.h"
+#include "../util/Debug.h"
+#include "../HaloScript/hs_interface.h"
+#include <cwchar>
 #include <cassert>
 #include <Shellapi.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #include <CommDlg.h>
 
-using namespace HaloScriptCommon;
+using namespace H2CommonPatches;
 
 typedef int (WINAPI *LoadStringW_Typedef)(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax);
 LoadStringW_Typedef LoadStringW_Orginal;
@@ -215,7 +216,7 @@ wchar_t* __stdcall get_wide_halo_2_documents_path()
 // This fixes that by making sure the code gets the string type it was expecting
 void fix_documents_path_string_type()
 {
-	WriteJmpTo(SwitchAddessByMode(0x00589D10, 0x004BA7C0, 0x0048A050), get_narrow_halo_2_documents_path);
+	WriteJmp(SwitchAddessByMode(0x00589D10, 0x004BA7C0, 0x0048A050), get_narrow_halo_2_documents_path);
 
 	// The only two functions that weren't broken before
 	PatchCall(SwitchAddessByMode(0x006708E6, 0x005061A5, 0x005AEFF6), get_wide_halo_2_documents_path); // wrl export

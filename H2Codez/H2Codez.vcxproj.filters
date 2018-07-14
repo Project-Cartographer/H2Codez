@@ -31,23 +31,23 @@
     <Filter Include="Source Files\Interfaces">
       <UniqueIdentifier>{58180921-4d86-4ddd-9f94-6f967c0598d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Utils">
-      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Interfaces\H2Tool">
       <UniqueIdentifier>{0ba390b2-f03c-404c-988f-facf6ae1964d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Common Interfaces">
       <UniqueIdentifier>{fa4a8928-3838-40b7-8b15-0f517eb11655}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Utils\ms_detours">
-      <UniqueIdentifier>{5a7dab93-c43b-4f54-b6ef-7efaaeaadf19}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Common Interfaces\Tags">
       <UniqueIdentifier>{57453ed4-21c3-4fe6-b127-81ade21db8a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Common Interfaces\HaloScript">
       <UniqueIdentifier>{50187530-4577-4dd1-bd6b-4bca9d0c64da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{bf0d6f38-d03a-43e4-b8b2-31f929a0cd61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util\detours">
+      <UniqueIdentifier>{5a7dab93-c43b-4f54-b6ef-7efaaeaadf19}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,158 +77,155 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="H2Tool\H2Tool_Commands.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
     <ClInclude Include="h2codez.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="H2Guerilla.h">
-      <Filter>Source Files\Patches\H2Guerilla</Filter>
-    </ClInclude>
-    <ClInclude Include="Patches.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="H2Sapien.h">
-      <Filter>Source Files\Patches\H2Sapien</Filter>
-    </ClInclude>
-    <ClInclude Include="H2ToolsCommon.h">
-      <Filter>Source Files\Common Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="Version.h">
-      <Filter>Source Files\Common Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="DiscordInterface.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="H2Tool\H2Tool_Render_Model.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
-    <ClInclude Include="FiloInterface.h">
+    <ClInclude Include="Resources\resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Detours\detours.h">
+      <Filter>Source Files\util\detours</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Detours\detver.h">
+      <Filter>Source Files\util\detours</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Logs.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Patches.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\RingBuffer.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Settings.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_ai_behaviour.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_command.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_global_ids.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_global_variable.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_types.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_opcodes.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\hs_interface.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Debug.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\BlamBaseTypes.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="Logs.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\detours.h">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClInclude>
-    <ClInclude Include="Detours\detver.h">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicTagTypes.h">
-      <Filter>Source Files\Common Interfaces\Tags</Filter>
-    </ClInclude>
-    <ClInclude Include="ScenarioTag.h">
-      <Filter>Source Files\Common Interfaces\Tags</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_opcodes.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_types.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_command.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_ai_behaviour.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_global_ids.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="hs_global_variable.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="HaloScriptInterface.h">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Source Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="BlamBaseTypes.h">
+    <ClInclude Include="Common\DiscordInterface.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="RingBuffer.h">
-      <Filter>Source Files\Utils</Filter>
+    <ClInclude Include="Common\FiloInterface.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\H2EKCommon.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\BasicTagTypes.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Sapien\H2Sapien.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\ScenarioTag.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Guerilla\H2Guerilla.h">
+      <Filter>Source Files\Patches\H2Guerilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="H2Tool_Commands.cpp">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClCompile>
     <ClCompile Include="h2codez.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="H2Guerilla.cpp">
-      <Filter>Source Files\Patches\H2Guerilla</Filter>
-    </ClCompile>
-    <ClCompile Include="patches.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="H2Sapien.cpp">
-      <Filter>Source Files\Patches\H2Sapien</Filter>
-    </ClCompile>
-    <ClCompile Include="H2ToolsCommon.cpp">
-      <Filter>Source Files\Common Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordInterface.cpp">
-      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
-    <ClCompile Include="FiloInterface.cpp">
-      <Filter>Source Files\Common Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Logs.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\detours.cpp">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disasm.cpp">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\disolx86.cpp">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\image.cpp">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClCompile>
-    <ClCompile Include="Detours\modules.cpp">
-      <Filter>Source Files\Utils\ms_detours</Filter>
-    </ClCompile>
-    <ClCompile Include="hs_ai_behaviour.cpp">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClCompile>
-    <ClCompile Include="HaloScriptInterface.cpp">
-      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="util\Detours\detours.cpp">
+      <Filter>Source Files\util\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Detours\disasm.cpp">
+      <Filter>Source Files\util\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Detours\disolx86.cpp">
+      <Filter>Source Files\util\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Detours\image.cpp">
+      <Filter>Source Files\util\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Detours\modules.cpp">
+      <Filter>Source Files\util\detours</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Logs.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Settings.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="HaloScript\hs_ai_behaviour.cpp">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClCompile>
+    <ClCompile Include="HaloScript\hs_interface.cpp">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Debug.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\DiscordInterface.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\FiloInterface.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\H2EKCommon.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\H2Sapien.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\H2Tool_Commands.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Guerilla\H2Guerilla.cpp">
+      <Filter>Source Files\Patches\H2Guerilla</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="H2Sapien.rc">
+    <ResourceCompile Include="Resources\H2Sapien.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="H2Guerilla.rc">
+    <ResourceCompile Include="Resources\H2Guerilla.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

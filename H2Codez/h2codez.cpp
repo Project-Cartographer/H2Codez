@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "H2Guerilla.h"
-#include "H2Sapien.h"
-#include "H2ToolsCommon.h"
-#include "DiscordInterface.h"
+#include "H2Guerilla\H2Guerilla.h"
+#include "H2Sapien\H2Sapien.h"
+#include "Common\H2EKCommon.h"
+#include "Common\DiscordInterface.h"
 
 char app_directory[256];
 std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;

@@ -33,6 +33,7 @@
 .vs/*
 *.tlog
 H2Codez/Release/*
+H2Codez/Debug/*
 *.VC.db
 *.VC.VC.opendb
 *.ipch

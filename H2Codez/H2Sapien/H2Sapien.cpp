@@ -89,6 +89,7 @@ INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 			{
 				try {
 					float new_speed = std::stof(speed_text);
+					new_speed = std::fmin(std::fabs(new_speed), 5000.0f);
 					WriteValue(0x009AAC60, new_speed);
 					print_to_console("speed is now " + std::to_string(new_speed));
 				}

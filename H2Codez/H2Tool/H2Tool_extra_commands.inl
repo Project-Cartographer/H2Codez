@@ -1,7 +1,7 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "H2ToolLibrary.inl"
 #include "H2Tool_Render_Model.h"
-#include "../FiloInterface.h"
+#include "../Common/FiloInterface.h"
 #include <codecvt>
 
 #define extra_commands_count 0x43

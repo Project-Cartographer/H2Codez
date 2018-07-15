@@ -19,8 +19,8 @@ jmrx	- replacement extended
 jmz		- 3d animation
 jmw		- world animation
 */
-#include "stdafx.h"
-#include "../FiloInterface.h"
+#include "../stdafx.h"
+#include "../Common/FiloInterface.h"
 static void import_model_animations_proc_impl(filo& reference)
 {
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);

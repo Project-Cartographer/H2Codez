@@ -1,5 +1,5 @@
 #pragma once
-#include "BasicTagTypes.h"
+#include "../Common/BasicTagTypes.h"
 
 struct scnr_tag
 {

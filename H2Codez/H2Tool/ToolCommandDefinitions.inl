@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 // LostToolCommands.inl
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "LostToolCommands.inl"
 
 static const s_tool_command_argument import_model_render_arguments[] = {

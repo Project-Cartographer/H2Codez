@@ -1,10 +1,10 @@
-#include "stdafx.h"
-#include "H2Tool\ToolCommandDefinitions.inl"
-#include "H2Tool\H2Tool_extra_commands.inl"
-#include "H2ToolsCommon.h"
-#include "util/Patches.h"
-#include "Version.h"
-#include "ScenarioTag.h"
+#include "..\stdafx.h"
+#include "ToolCommandDefinitions.inl"
+#include "H2Tool_extra_commands.inl"
+#include "..\Common\H2EKCommon.h"
+#include "../util/Patches.h"
+#include "../Version.h"
+#include "../Tags/ScenarioTag.h"
 #include <regex>
 
 using namespace HaloScriptCommon;

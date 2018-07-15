@@ -575,6 +575,47 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 	}
 }
 
+char __cdecl hs_convert_point_ref(unsigned __int16 a1)
+{
+	scnr_tag *scenario = get_global_scenario();
+	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
+	std::string input_string = hs_get_string_data(data_store);
+	auto scripting_data = scenario->scriptingData;
+
+	if (input_string.find('/') != string::npos) {
+		std::string point_set = input_string.substr(0, input_string.find('/'));
+		std::string point = input_string.substr(input_string.find('/') + 1);
+
+		int point_set_index = FIND_TAG_BLOCK_STRING(&scripting_data.data->pointSets,
+			sizeof(cs_point_set_block),
+			offsetof(cs_point_set_block, name),
+			point_set);
+		if (point_set_index != NONE)
+		{
+			cs_point_set_block *points = &scripting_data.data->pointSets.data[point_set_index];
+			int point_index = FIND_TAG_BLOCK_STRING(&points->points,
+				sizeof(cs_point_block),
+				offsetof(cs_point_block, name),
+				point);
+
+			if (point_index != NONE)
+			{
+				data_store->output = (point_set_index << 16 | point_index);
+				return 1;
+			} else {
+				hs_converter_error(data_store, "No such point.");
+				return false;
+			}
+		} else {
+			hs_converter_error(data_store, "No such point set.");
+			return false;
+		}
+	} else {
+		hs_converter_error(data_store, "Invalid format.");
+		return false;
+	}
+}
+
 #define set_hs_converter(type, func) \
 	hs_convert_lookup_table[static_cast<int>(type)] = func;
 
@@ -585,12 +626,12 @@ void fix_hs_converters()
 	set_hs_converter(hs_type::conversation, hs_convert_conversation);
 	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);
 	set_hs_converter(hs_type::ai, hs_convert_ai);
+	set_hs_converter(hs_type::point_reference, hs_convert_point_ref);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {
 		hs_type::style,           hs_type::hud_message,
-		hs_type::navpoint,        hs_type::point_reference,
-		hs_type::ai_command_list
+		hs_type::navpoint,        hs_type::ai_command_list
 	};
 
 	for (auto i : passthrough_types)

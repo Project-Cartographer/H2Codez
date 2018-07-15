@@ -1,6 +1,44 @@
 #pragma once
 #include "../Common/BasicTagTypes.h"
 
+struct cs_point_block
+{
+	char name[32];
+	real_point3d position;
+	short referenceFrame;
+	BYTE padding21[2];
+	int surfaceIndex;
+	real_euler_angles2d facingDirection;
+};
+CHECK_STRUCT_SIZE(cs_point_block, 60);
+
+
+struct cs_point_set_block
+{
+	char name[32];
+	tag_block<cs_point_block> points;
+
+	// BlockIndex1("scenario_structure_bsp_reference_block")
+	short bspIndex;
+	short manualReferenceFrame;
+
+	enum Flags : int
+	{
+		ManualReferenceFrame = 0x1,
+		TurretDeployment = 0x2,
+	};
+	Flags flags;
+};
+CHECK_STRUCT_SIZE(cs_point_set_block, 52);
+
+struct cs_script_data_block
+{
+	tag_block<cs_point_set_block> pointSets;
+
+	BYTE padding[120];
+};
+CHECK_STRUCT_SIZE(cs_script_data_block, 132);
+
 struct scnr_tag
 {
 	tag_ref unused_sbsp;
@@ -64,7 +102,7 @@ struct scnr_tag
 	tag_block_ref globals;
 	tag_block_ref references;
 	tag_block_ref sourceFiles;
-	tag_block_ref scriptingData;
+	tag_block<cs_script_data_block> scriptingData;
 	tag_block_ref cutsceneFlags;
 	tag_block_ref cutsceneCameraPoints;
 	tag_block_ref cutsceneTitles;

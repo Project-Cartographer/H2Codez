@@ -27,6 +27,8 @@ typedef char long_string[255 + 1];
 #define CHECK_FUNCTION_SUPPORT(expersion)\
 	if (!expersion)                      \
 		_wassert(__FUNCTIONW__ L" doesn't support this process type.", _CRT_WIDE(__FILE__), (unsigned)(__LINE__))
+#define CHECK_STRUCT_SIZE(struct_name, size)\
+	static_assert(sizeof(struct_name) == size, #struct_name " size is invalid" )
 
 enum H2EK
 {

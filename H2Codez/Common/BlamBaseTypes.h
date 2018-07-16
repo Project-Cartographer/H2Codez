@@ -45,3 +45,18 @@ struct real_euler_angles2d
 	float yaw;
 	float pitch;
 };
+
+struct tag_enum_map_element
+{
+	DWORD string;
+	DWORD number;
+	tag_enum_map_element(char* _string, int _number) :
+		string(reinterpret_cast<DWORD>(_string)),
+		number(_number)
+	{}
+	tag_enum_map_element(DWORD _string, int _number) :
+		string(_string),
+		number(_number)
+	{}
+
+};

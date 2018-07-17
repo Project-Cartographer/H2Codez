@@ -2,7 +2,7 @@
 A mod for the H2EK that aims to restore use of existing broken or otherwise disabled functionality,
 fix bugs/crashes, and add new features or re-add removed ones.
 
-[![status](https://ci.appveyor.com/api/projects/status/github/Himanshu-01/H2Codez?branch=H2OS_EK&svg=true)](https://ci.appveyor.com/project/Himanshu-01/h2codez)
+[![status](https://ci.appveyor.com/api/projects/status/github/num0005/h2codez-0w3n8?branch=H2OS_EK&svg=true)](https://ci.appveyor.com/project/Himanshu-01/h2codez)
 
 ## Changelog ##
 * Increased FPS in Sapien (hardware TCL/vertex processing)

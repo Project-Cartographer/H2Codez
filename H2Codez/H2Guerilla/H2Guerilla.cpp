@@ -5,6 +5,7 @@
 #include "..\Common\H2EKCommon.h"
 #include "..\Common\FiloInterface.h"
 #include "..\Common\BlamBaseTypes.h"
+#include "..\Tags\ScenarioTag.h"
 
 typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;
@@ -186,11 +187,11 @@ void H2GuerrilaPatches::Init()
 	// re-add removed information about scenario types.
 	const static tag_enum_map_element scenario_types[5] =
 	{
-		tag_enum_map_element("Singleplayer", 0),
-		tag_enum_map_element("Multiplayer", 1),
-		tag_enum_map_element("Mainmenu", 2),
-		tag_enum_map_element("Mainmenu Shared", 3),
-		tag_enum_map_element("Singleplayer Shared", 4),
+		tag_enum_map_element("Singleplayer", scnr_tag::Type::Singleplayer),
+		tag_enum_map_element("Multiplayer",  scnr_tag::Type::Multiplayer),
+		tag_enum_map_element("Mainmenu",     scnr_tag::Type::Mainmenu),
+		tag_enum_map_element("Multiplayer Shared",   scnr_tag::Type::MultiplayerShared),
+		tag_enum_map_element("Singleplayer Shared",  scnr_tag::Type::SingleplayerShared),
 	};
 	WriteValue(0x00901920, ARRAYSIZE(scenario_types));
 	WritePointer(0x00901924, scenario_types);

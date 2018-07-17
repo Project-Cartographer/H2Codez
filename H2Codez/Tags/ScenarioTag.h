@@ -43,7 +43,15 @@ struct scnr_tag
 {
 	tag_ref unused_sbsp;
 	tag_block_ref skies;
-	__int16 type;
+	enum Type : short
+	{
+		Singleplayer = 0,
+		Multiplayer = 1,
+		Mainmenu = 2,
+		MultiplayerShared = 3,
+		SingleplayerShared = 4,
+	};
+	Type type;
 	__int16 flags;
 	tag_block_ref childScenarios;
 	float localNorth;
@@ -153,3 +161,4 @@ struct scnr_tag
 	tag_block_ref screenEffectReferences;
 	tag_block_ref simulationDefinitionTable;
 };
+CHECK_STRUCT_SIZE(scnr_tag, 1476);

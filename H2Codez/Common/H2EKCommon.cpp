@@ -11,6 +11,7 @@
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #include <CommDlg.h>
+#include <mutex>
 
 using namespace H2CommonPatches;
 
@@ -125,12 +126,14 @@ std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)
 	return name;
 }
 
+std::mutex clipboard_mutex;
+
 bool H2CommonPatches::copy_to_clipboard(const std::string &text, HWND owner)
 {
+	std::unique_lock<std::mutex> clipboard_lock(clipboard_mutex);
 	bool success = false;
 	if (LOG_CHECK(OpenClipboard(owner))) {
-		if (owner != NULL)
-			LOG_CHECK(EmptyClipboard() != FALSE);
+		LOG_CHECK(EmptyClipboard() != FALSE);
 
 		size_t len = text.length() + 1;
 		HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, len);
@@ -149,6 +152,9 @@ bool H2CommonPatches::copy_to_clipboard(const std::string &text, HWND owner)
 
 bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
 {
+	std::unique_lock<std::mutex> clipboard_lock(clipboard_mutex);
+	if (!IsClipboardFormatAvailable(CF_TEXT))
+		return false;
 	if (LOG_CHECK(OpenClipboard(owner))) {
 		HANDLE data = GetClipboardData(CF_TEXT);
 		if (LOG_CHECK(data != NULL)) {

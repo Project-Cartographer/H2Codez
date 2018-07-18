@@ -249,14 +249,14 @@ bool __stdcall on_console_input(WORD keycode)
 		return true;
 	case 'C':
 		if (is_ctrl_down()) {
-			if (H2CommonPatches::copy_to_clipboard(console_input, *main_hwnd))
+			if (H2CommonPatches::copy_to_clipboard(console_input))
 				print_to_console("copied to clipboard!");
 			update_console_state();
 		}
 		break;
 	case 'V':
 		std::string new_text;
-		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text, *main_hwnd)) {
+		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
 			strncpy(console_input, new_text.c_str(), 0x100);
 			print_to_console("pasted from clipboard!");
 			update_console_state();

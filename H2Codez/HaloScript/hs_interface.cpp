@@ -3,9 +3,9 @@
 
 HaloScriptInterface *g_halo_script_interface = new HaloScriptInterface;
 
-bool HaloScriptCommon::hs_execute(char *script, bool ran_from_console)
+bool HaloScriptCommon::hs_execute(const char *script, bool ran_from_console)
 {
-	typedef char (__cdecl *c_hs_execute)(char *script, int ran_from_console);
+	typedef char (__cdecl *c_hs_execute)(const char *script, int ran_from_console);
 
 	int hs_execute_string_ptr = SwitchAddessByMode(0x005C6440, 0x004E35F0, 0x004D5790);
 	CHECK_FUNCTION_SUPPORT(hs_execute_string_ptr);

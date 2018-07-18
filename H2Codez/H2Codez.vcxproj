@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\BlamBaseTypes.h" />
+    <ClInclude Include="H2Sapien\Console.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="util\Debug.h" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="H2Sapien\Console.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />
     <ClCompile Include="util\Detours\disasm.cpp" />

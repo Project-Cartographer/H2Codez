@@ -13,7 +13,7 @@
 
 namespace HaloScriptCommon
 {
-	bool hs_execute(char *script, bool ran_from_console = true);
+	bool hs_execute(const char *script, bool ran_from_console = true);
 
 	/* Used to return data to the scripting engine, marks the end of a script command*/
 	void **epilog(void *DatumIndex, int return_data);

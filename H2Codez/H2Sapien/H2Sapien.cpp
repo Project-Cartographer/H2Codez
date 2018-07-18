@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <D3D9.h>
-#include "..\util\RingBuffer.h"
+#include "Console.h"
 
 using namespace HaloScriptCommon;
 
@@ -18,21 +18,6 @@ WTL_CWindow_Input main_window_input_orginal;
 
 typedef HMENU(WINAPI *LoadMenuTypedef)(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName);
 static LoadMenuTypedef LoadMenuOrginal;
-
-bool run_script(char *script_text);
-
-void **script_epilog(void *a1, int return_data)
-{
-	auto script_epilog_impl = reinterpret_cast<void**(__cdecl *)(void *a1, int return_data)>(0x52CC70);
-	return script_epilog_impl(a1, return_data);
-}
-
-void print_to_console(const std::string &message, const colour text_colour = colour())
-{
-	typedef char (*print_to_screen_with_colour)(const colour *colours, char *Format, ...);
-	auto print_to_screen_with_colour_impl = reinterpret_cast<print_to_screen_with_colour>(0x00504BC0);
-	print_to_screen_with_colour_impl(&text_colour, "%s", message.c_str());
-}
 
 HMENU new_menu;
 
@@ -71,7 +56,7 @@ INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 	}
 	if (uMsg == WM_COMMAND && LOWORD(wParam)) {
 		if (GetDlgItemText(hwndDlg, SAPIEN_COMMAND, command_script, sizeof(command_script)))
-			run_script(command_script);
+			H2SapienConsole::run_hs_command(command_script);
 		EndDialog(hwndDlg, 0);
 		return false;
 	}
@@ -91,7 +76,7 @@ INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 					float new_speed = std::stof(speed_text);
 					new_speed = std::fmin(std::fabs(new_speed), 5000.0f);
 					WriteValue(0x009AAC60, new_speed);
-					print_to_console("speed is now " + std::to_string(new_speed));
+					H2SapienConsole::print("speed is now " + std::to_string(new_speed));
 				}
 				catch (invalid_argument ex) {
 					//MessageBoxA(hwndDlg, "Not a valid number!", "ERROR!", MB_OK | MB_SETFOREGROUND);
@@ -160,196 +145,6 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 		}
 	}
 	return main_window_input_orginal(thisptr, a2, uMsg, wParam, lParam, subfunction_out, handled);
-}
- 
-bool is_ctrl_down()
-{
-	return HIBYTE(GetKeyState(VK_CONTROL));
-}
-
-RingBuffer<std::string> console_history(8);
-
-inline void update_console_state()
-{
-	typedef void (__cdecl *_t_update_console_state)(int console_state);
-	auto update_console_state_impl = reinterpret_cast<_t_update_console_state>(0x58F580);
-	update_console_state_impl(0xA9F630); // hardcoded console state offset
-}
-
-inline void console_close()
-{
-	typedef void (*t_console_close)();
-	auto console_close_impl = reinterpret_cast<t_console_close>(0x004EBE50);
-}
-
-int history_view_location = 0;
-bool history_view_inital = true;
-bool history_disable = false;
-
-void copy_from_console_history()
-{
-	history_view_inital = false;
-	char *console_input = reinterpret_cast<char*>(0xA9F52C);
-	if (!console_history.empty())
-	{
-		strncpy(console_input, console_history.get(history_view_location).c_str(), 0x100);
-		update_console_state();
-	}
-}
-
-bool __stdcall on_console_input(WORD keycode)
-{
-	printf("key  :  %d\n", keycode);
-	printf("key (low)  :  %d\n", LOBYTE(keycode));
-	printf("key (high)  :  %d\n", HIBYTE(keycode));
-
-	char *console_input = reinterpret_cast<char*>(0xA9F52C);
-	WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
-	HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
-
-	printf("console: %s \n", console_input);
-
-	switch (keycode) {
-	case 263: // `
-		history_view_location = 0;
-		history_view_inital = true;
-		console_close();
-		return false;
-	case VK_RETURN:
-	case 262: // somehow sapien encodes enter as this
-		history_view_location = 0;
-		history_view_inital = true;
-		if (strnlen_s(console_input, 0x100) > 0)
-		{
-			if (!history_disable)
-				console_history.push(console_input);
-			HaloScriptCommon::hs_execute(console_input);
-			update_console_state();
-		} else {
-			console_close();
-		}
-		return true;
-	case VK_DELETE:
-		SecureZeroMemory(console_input, 0x100);
-		update_console_state();
-		print_to_console("cleared console.");
-		break;
-	case VK_UP:
-		if (history_disable) return true;
-
-		if (!history_view_inital)
-			history_view_location--;
-		copy_from_console_history();
-		return true;
-	case VK_DOWN:
-		if (history_disable) return true;
-
-		history_view_location++;
-		copy_from_console_history();
-		return true;
-	case 'C':
-		if (is_ctrl_down()) {
-			if (H2CommonPatches::copy_to_clipboard(console_input))
-				print_to_console("copied to clipboard!");
-			update_console_state();
-		}
-		break;
-	case 'V':
-		std::string new_text;
-		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
-			strncpy(console_input, new_text.c_str(), 0x100);
-			print_to_console("pasted from clipboard!");
-			update_console_state();
-		}
-		break;
-	}
-	return false;
-}
-
-// hooks a switch statement that handles speical key presses (e.g. enter, tab)
-__declspec(naked) void console_input_jump_hook()
-{
-	__asm {
-		// save register
-		push eax
-
-		// undo add
-		sub eax, 0xFFFFFFF7
-		// pass eax (keycode) to our code
-		push eax
-		call on_console_input
-		// check if default code should be skipped
-		cmp eax, 1
-		jz SKIP
-
-
-	DEFAULT:
-
-		// restore registers
-		pop eax
-
-		// replaced code
-		cmp eax, 254
-
-		// jump back to sapien code
-		push 0x004ECC33
-		ret
-
-	SKIP:
-		pop eax
-		push 0x004ECD24
-		ret
-
-	}
-}
-
-int console_write_return_addr;
-int memcpy_impl = 0x4ADDC0;
-// hooks the function that handles writing keypresses to console buffer if printable
-__declspec(naked) void console_write_hook()
-{
-	__asm {
-		// backup the return address
-		pop eax
-		mov console_write_return_addr, eax
-
-		// replaced code
-		call memcpy_impl
-		
-		// get keycode and check
-		mov al, [ebx + 1]
-		cmp al, 0x60 // ascii '`'
-
-		// ignore input
-		jz ignore_input
-		// return to normal execution
-		jmp end_function
-
-		ignore_input:
-		add esp, 0x18
-		// push new return addr pointing to function epilog
-		mov console_write_return_addr, 0x58F85E
-
-	end_function:
-		jmp console_write_return_addr
-	}
-}
-
-bool run_script(char *script_text)
-{
-	bool return_data;
-	int run_command_console = 0x4EC020;
-	int esp_backup;
-
-	__asm {
-		mov esp_backup, esp
-		push 1
-		mov	esi, script_text
-		call run_command_console
-		mov return_data, al
-		mov esp, esp_backup
-	}
-	return return_data;
 }
 
 std::string baggage_name;
@@ -468,6 +263,8 @@ void InitHalo2DisplaySettings()
 
 void H2SapienPatches::Init()
 {
+	// apply in-game console patches
+	ConsoleInit();
 	// set current directory to executable path
 	std::wstring new_current_dir = H2CommonPatches::GetExeDirectory();
 	SetCurrentDirectoryW(new_current_dir.c_str());
@@ -504,11 +301,6 @@ void H2SapienPatches::Init()
 	WriteValue(0xF84D10, use_hardware_vertexprocessing);
 	apply_video_settings();
 
-	int history_size = conf.getNumber("console_history_size", 8);
-	if (history_size > 0)
-		console_history.resize(history_size);
-	else
-		history_disable = true;
 #pragma endregion
 
 #pragma region Patches
@@ -529,9 +321,6 @@ void H2SapienPatches::Init()
 	WritePointer(0x477D40, L"%ws\n");
 
 	PatchCall(0x5783B0, print_help_to_doc);
-	WriteJmp(0x4ECC2E, &console_input_jump_hook);
-	// replace a call to memcpy
-	PatchCall(0x58F6AA, &console_write_hook);
 
 	// don't clear the console contents when closed
 	NopFill(0x4ECD7C, 5);

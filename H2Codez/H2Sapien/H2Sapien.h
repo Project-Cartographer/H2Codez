@@ -33,7 +33,6 @@ struct video_settings {
 };
 static_assert(sizeof(video_settings) == 0x30, "invalid 'video_settings' size");
 
-class H2SapienPatches {
-public:
-	static void Init();
+namespace H2SapienPatches {
+	void Init();
 };

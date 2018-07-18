@@ -1,4 +1,5 @@
 #pragma once
+#include "../stdafx.h"
 
 /* channel intensity is represented on a 0 to 1 scale */
 struct colour

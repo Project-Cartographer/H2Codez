@@ -11,7 +11,7 @@ struct hs_convert_data_store
 	DWORD string_value_offset;
 	DWORD output;
 };
-static_assert(sizeof(hs_convert_data_store) == 0x14, "Invalid 'hs_convert_data_store' Size");
+CHECK_STRUCT_SIZE(hs_convert_data_store, 0x14);
 
 namespace H2CommonPatches {
 	void Init();

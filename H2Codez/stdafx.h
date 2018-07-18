@@ -27,6 +27,7 @@
 #include <filesystem>
 #pragma endregion
 
+#pragma pack(1)
 #include "h2codez.h"
 #include "util\Detours\detours.h"
 #include "util\Logs.h"

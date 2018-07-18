@@ -1,4 +1,6 @@
 #pragma once
+#pragma pack(1)
+
 #include "hs_types.h"
 #include "../stdafx.h"
 
@@ -35,7 +37,7 @@ namespace HaloScriptCommon
 		}
 
 	};
-	static_assert(sizeof(hs_command) == 0x20, "Bad struct size");
+	CHECK_STRUCT_SIZE(hs_command, 0x1E);
 
 	inline hs_command *NewCommand(char *cmd_name,
 		hs_type ret_type,

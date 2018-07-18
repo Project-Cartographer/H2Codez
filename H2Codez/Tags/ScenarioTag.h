@@ -1,4 +1,5 @@
 #pragma once
+#pragma pack(1)
 #include "../Common/BasicTagTypes.h"
 
 struct cs_point_block

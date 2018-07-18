@@ -1,4 +1,6 @@
 #pragma once
+#pragma pack(1)
+
 #include "hs_types.h"
 
 namespace HaloScriptCommon

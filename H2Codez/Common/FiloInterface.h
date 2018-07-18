@@ -1,4 +1,6 @@
 #pragma once
+#pragma pack(1)
+
 #include "../stdafx.h"
 
 struct filo
@@ -10,7 +12,7 @@ struct filo
 	HANDLE		            handle;
 	HRESULT		            api_result;
 };
-BOOST_STATIC_ASSERT(sizeof(filo) == 0x110);
+CHECK_STRUCT_SIZE(filo, 0x110);
 
 enum PATH_FLAGS : BYTE {
 	CONTAINING_DIRECTORY_PATH = 1, // base

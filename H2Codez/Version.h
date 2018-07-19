@@ -1,5 +1,5 @@
 #ifdef _DEBUG
-#define version "development build (debugging)"
+#define version "Development build (debugging)"
 #else
-#define version "development build (release)"
+#define version "Development build (release)"
 #endif

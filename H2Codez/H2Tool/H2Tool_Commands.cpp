@@ -699,6 +699,35 @@ void H2ToolPatches::fix_command_line()
 	PatchCall(0x00751F83, __crtGetCommandLineW_hook);
 }
 
+void tag_dump(int tag_index)
+{
+	char old_name[0x200];
+	strncpy_s(old_name, TAG_GET_NAME(tag_index), sizeof(old_name));
+
+	std::string new_name = "dump\\";
+	new_name += old_name;
+
+	printf("dumping tag '%s' as '%s' ***\n", old_name, new_name.c_str());
+
+	TAG_RENAME(tag_index, new_name);
+	TAG_SAVE(tag_index);
+	TAG_RENAME(tag_index, old_name);
+}
+
+char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
+{
+	typedef char (__cdecl *scenario_write_patch_file)(int TAG_INDEX, int a2);
+	auto scenario_write_patch_file_impl = reinterpret_cast<scenario_write_patch_file>(0x0056A110);
+
+	tag_dump(TAG_INDEX);
+
+	scnr_tag *scenario = (scnr_tag*)TAG_GET('scnr', TAG_INDEX);
+	for (int i = 0; i < scenario->structureBSPs.size; i++)
+		tag_dump(scenario->structureBSPs.data[i].structureBSP.tag_index);
+
+	return scenario_write_patch_file_impl(TAG_INDEX, a2);
+}
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
@@ -720,8 +749,9 @@ void H2ToolPatches::Initialize()
 	std::string cmd = GetCommandLineA();
 	if (cmd.find("shared_tag_removal") != string::npos)
 		apply_shared_tag_removal_scheme();
-	
 
+	if (conf.getBoolean("dump_tags_packaging", false))
+		PatchCall(0x00588A66, scenario_write_patch_file_hook);
 }
 
 

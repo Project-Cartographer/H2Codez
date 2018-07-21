@@ -2,6 +2,33 @@
 #pragma pack(1)
 #include "../Common/BasicTagTypes.h"
 
+struct scenario_structure_bsp_reference_block
+{
+	BYTE padding26[16];
+	// TagReference("sbsp")
+	tag_ref structureBSP;
+	// TagReference("ltmp")
+	tag_ref structureLightmap;
+	BYTE padding27[4];
+	float uNUSEDRadianceEstSearchDistance;
+	BYTE padding28[4];
+	float uNUSEDLuminelsPerWorldUnit;
+	float uNUSEDOutputWhiteReference;
+	BYTE padding29[8];
+
+	enum Flags : short
+	{
+		DefaultSkyEnabled = 0x1,
+	};
+	Flags flags;
+	BYTE padding30[2];
+	// BlockIndex1("scenario_sky_reference_block")
+	short defaultSky;
+	BYTE padding31[2];
+};
+CHECK_STRUCT_SIZE(scenario_structure_bsp_reference_block, 84);
+
+
 struct cs_point_block
 {
 	char name[32];
@@ -118,7 +145,7 @@ struct scnr_tag
 	tag_ref customObjectNames;
 	tag_ref chapterTitleText;
 	tag_ref hUDMessages;
-	tag_block_ref structureBSPs;
+	tag_block<scenario_structure_bsp_reference_block> structureBSPs;
 	tag_block_ref scenarioResources;
 	tag_block_ref scenarioResources_unused;
 	tag_block_ref hsUnitSeats;

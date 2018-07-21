@@ -17,13 +17,19 @@ static int __cdecl TAG_LOAD(int TAG_TYPE, cstring tags_directory, int a3)
 
 	return TAG_LOAD(TAG_TYPE, tags_directory, a3);
 }
-static int __cdecl TAG_GET(int TAG_TYPE, int TAG_INDEX)
+static void *TAG_GET(int TAG_TYPE, int TAG_INDEX)
 {
-	typedef int(_cdecl* _TAG_GET)(int, int);
+	typedef void*(_cdecl* _TAG_GET)(int, int);
 	static _TAG_GET TAG_GET = CAST_PTR(_TAG_GET, 0x52F150);
 
 	return TAG_GET(TAG_TYPE, TAG_INDEX);
 }
+
+static void *TAG_GET(char TAG_GROUP, int TAG_INDEX)
+{
+	return TAG_GET(static_cast<int>(TAG_GROUP), TAG_INDEX);
+}
+
 static DWORD TAG_NEW(int TAG_TYPE, char* TAG_PATH)
 {
 	typedef DWORD(_cdecl* _TAG_NEW)(int, char*);
@@ -105,6 +111,19 @@ static int GET_STRING_ID(const char *string)
 	get_string_id get_string_id_impl = reinterpret_cast<get_string_id>(0x0052E830);
 
 	return get_string_id_impl(string);
+}
+
+static bool TAG_RENAME(int tag_index, const char *new_name)
+{
+	typedef char (__cdecl *TAG_RENAME)(int tag_index, const char *new_name);
+	auto TAG_RENAME_IMPL = reinterpret_cast<TAG_RENAME>(0x0052F840);
+
+	return TAG_RENAME_IMPL(tag_index, new_name);
+}
+
+static bool TAG_RENAME(int tag_index, const std::string &new_name)
+{
+	return TAG_RENAME(tag_index, new_name.c_str());
 }
 
 typedef bool (*find_tag_comparison)(void *element, void *find_data);

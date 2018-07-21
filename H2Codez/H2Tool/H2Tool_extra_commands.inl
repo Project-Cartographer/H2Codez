@@ -175,7 +175,7 @@ tag_data_struct** global_sbsp_data_list;
 static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDEX_)
 {
 	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
-	DWORD MODE_TAG = TAG_GET('mode', TAG_INDEX);
+	DWORD MODE_TAG = (DWORD)TAG_GET('mode', TAG_INDEX);
 	DWORD import_info_block_offset = MODE_TAG + 0xC;
 
 	if (MODE_TAG != -1) {
@@ -288,7 +288,7 @@ static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C35
 static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 {
 
-	DWORD mode_tag_file = TAG_GET('mode', TAG_INDEX);
+	DWORD mode_tag_file = (DWORD)TAG_GET('mode', TAG_INDEX);
 	DWORD import_info_block_offset = mode_tag_file + 0xC;
 
 	DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
@@ -378,7 +378,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 		DWORD TAG_INDEX = TAG_LOAD('mode', path.c_str(), 7);
 		if (TAG_INDEX != -1)
 		{
-			DWORD RENDER_MODEL_TAG = TAG_GET('mode', TAG_INDEX);
+			DWORD RENDER_MODEL_TAG = (DWORD)TAG_GET('mode', TAG_INDEX);
 			DWORD import_info_field = RENDER_MODEL_TAG + 0xC;
 
 			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, filo))

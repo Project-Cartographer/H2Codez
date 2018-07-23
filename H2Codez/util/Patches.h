@@ -144,3 +144,38 @@ inline void WriteCall(void *address, void *function_ptr)
 {
 	WriteCall(reinterpret_cast<DWORD>(address), reinterpret_cast<DWORD>(function_ptr));
 }
+
+
+
+/*
+	Patches an absolute call
+*/
+inline void PatchAbsCall(DWORD call_addr, DWORD new_function_ptr)
+{
+	WriteCall(call_addr, new_function_ptr);
+	NopFill(call_addr + 5, 1);
+}
+
+/*
+	Patches an absolute call
+*/
+inline void PatchAbsCall(void *call_addr, void *new_function_ptr)
+{
+	PatchAbsCall(reinterpret_cast<DWORD>(call_addr), reinterpret_cast<DWORD>(new_function_ptr));
+}
+
+/*
+	Patches an absolute call
+*/
+inline void PatchAbsCall(DWORD call_addr, void *new_function_ptr)
+{
+	PatchAbsCall(call_addr, reinterpret_cast<DWORD>(new_function_ptr));
+}
+
+/*
+	Patches an absolute call
+*/
+inline void PatchAbsCall(void *call_addr, DWORD new_function_ptr)
+{
+	PatchAbsCall(reinterpret_cast<DWORD>(call_addr), new_function_ptr);
+}

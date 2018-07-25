@@ -46,15 +46,9 @@ void copy_from_console_history()
 
 bool __stdcall on_console_input(WORD keycode)
 {
-	printf("key  :  %d\n", keycode);
-	printf("key (low)  :  %d\n", LOBYTE(keycode));
-	printf("key (high)  :  %d\n", HIBYTE(keycode));
-
 	char *console_input = reinterpret_cast<char*>(0xA9F52C);
 	WORD *cursor_pos = reinterpret_cast<WORD*>(0xa9f636);
 	HWND *main_hwnd = reinterpret_cast<HWND *>(0x00A68B9C);
-
-	printf("console: %s \n", console_input);
 
 	switch (keycode) {
 	case 263: // `

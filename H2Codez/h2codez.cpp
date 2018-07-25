@@ -3,6 +3,7 @@
 #include "H2Sapien\H2Sapien.h"
 #include "Common\H2EKCommon.h"
 #include "Common\DiscordInterface.h"
+#include "Util\Debug.h"
 
 char app_directory[256];
 std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
@@ -68,6 +69,10 @@ bool H2Toolz::Init()
 		MessageBoxA(0, "H2toolz loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
 		return false;
 	}
+#ifndef _DEBUG
+	if (game.process_type != H2EK::H2Tool && conf.getBoolean("enable_debug_console", false))
+#endif
+		Debug::Start_Console();
 
 	DiscordInterface::setAppType(game.process_type);
 	H2CommonPatches::Init();

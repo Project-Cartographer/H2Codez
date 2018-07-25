@@ -2,8 +2,8 @@
 
 #include "stdafx.h"
 #include "Common\DiscordInterface.h"
-#include "Util\Debug.h"
 #include "Common\H2EKCommon.h"
+#include "Util\Debug.h"
 
 #pragma region declarations
 
@@ -27,27 +27,20 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	                   LPVOID lpReserved
 	                  )
 {
-	pLog.WriteLog("DLLMain called by CRT with %d", ul_reason_for_call);
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		pLog.WriteLog("DLL_PROCESS_ATTACH");
 		if (!conf.getBoolean("patches_enabled", true)) // enable basic stuff so launcher doesn't break
 		{
 			H2Toolz::minimal_init();
 			break;
 		}
-
-#if _DEBUG
-		Debug::Start_Console();
-#endif
 		g_hModule = hModule;
 		if (!H2Toolz::Init())
 			std::exit(0);     
 	    break;
 	
 	case DLL_PROCESS_DETACH:
-		pLog.WriteLog("DLL_PROCESS_DETACH");
 		std::string cmd = GetCommandLineA();
 		if (!g_process_crashed && game.process_type == H2EK::H2Tool 
 				&& cmd.find("pause_after_run") != string::npos) {

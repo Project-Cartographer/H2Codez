@@ -68,7 +68,7 @@ bool __stdcall on_console_input(WORD keycode)
 		history_view_inital = true;
 		if (strnlen_s(console_input, 0x100) > 0)
 		{
-
+			H2SapienConsole::run_hs_command(console_input);
 			update_console_state();
 		}
 		else {

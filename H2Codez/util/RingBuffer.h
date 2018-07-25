@@ -70,7 +70,7 @@ public:
 	*/
 	void push(const Type &value)
 	{
-		_data[_next_index] = value;
+		_data.insert(_data.begin() + _next_index, value);
 		_next_index = (_next_index + 1) % _max_size;
 		if (_next_index == 0)
 			_full = true;

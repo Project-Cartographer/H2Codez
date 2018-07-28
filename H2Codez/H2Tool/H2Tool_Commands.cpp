@@ -744,7 +744,7 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	if (conf.getBoolean("dump_tags_packaging", false)) {
 		tag_dump(TAG_INDEX);
 
-		for (int i = 0; i < scenario->structureBSPs.size; i++)
+		for (size_t i = 0; i < scenario->structureBSPs.size; i++)
 			tag_dump(scenario->structureBSPs.data[i].structureBSP.tag_index);
 	}
 

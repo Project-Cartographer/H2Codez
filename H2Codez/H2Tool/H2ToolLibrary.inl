@@ -130,7 +130,7 @@ typedef bool (*find_tag_comparison)(void *element, void *find_data);
 
 static unsigned int FIND_TAG_BLOCK_ELEMENT(tag_block_ref *tag_block, size_t element_size, find_tag_comparison search_func, void *data)
 {
-	for (int index = 0; index < tag_block->size; index++)
+	for (size_t index = 0; index < tag_block->size; index++)
 	{
 		void *element = reinterpret_cast<void*>(TAG_BLOCK_GET_ELEMENT_WITH_SIZE(tag_block, index, element_size));
 		if (search_func(element, data))

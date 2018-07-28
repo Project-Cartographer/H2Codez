@@ -11,7 +11,12 @@ inline std::string tolower(const std::string &str)
 	return lower_case;
 };
 
-inline void str_trim(std::string &str)
+inline void str_trim(std::string &str, const char trim_char = ' ')
 {
-	str = str.substr(str.find_first_not_of(' '), str.find_last_not_of(' ') + 1);
+	if (str.empty())
+		return;
+	if (str.find_first_not_of(trim_char) == std::string::npos)
+		str.clear();
+	else
+		str = str.substr(str.find_first_not_of(trim_char), str.find_last_not_of(trim_char) + 1);
 }

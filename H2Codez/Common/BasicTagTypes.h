@@ -15,7 +15,7 @@ struct tag_ref
 
 struct tag_block_ref
 {
-	int size;
+	size_t size;
 	void *data;
 	void *definition;
 };
@@ -23,7 +23,7 @@ struct tag_block_ref
 template<typename T>
 struct tag_block
 {
-	int size;
+	size_t size;
 	T *data;
 	void *defination;
 

@@ -1,20 +1,7 @@
 #include "Settings.h"
 #include <fstream>
 #include <cctype>
-
-std::string tolower(const std::string &str)
-{
-	std::string lower_case;
-	for (char elem : str) {
-		lower_case += static_cast<unsigned char>(std::tolower(elem));
-	}
-	return lower_case;
-}
-
-void trim(std::string &str)
-{
-	str = str.substr(str.find_first_not_of(' '), str.find_last_not_of(' ') + 1);
-}
+#include "string_util.h"
 
 Settings::Settings(const std::string &settings_path) :
 	settings_filename(settings_path)
@@ -30,8 +17,8 @@ Settings::Settings(const std::string &settings_path) :
 		std::string setting = line.substr(0, cut_point);
 		std::string value = line.substr(cut_point + 1);
 
-		trim(setting);
-		trim(value);
+		str_trim(setting);
+		str_trim(value);
 		if (validate_setting_name(setting))
 			key_value_pairs[setting] = value;
 	}

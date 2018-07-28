@@ -6,6 +6,7 @@
 #include "../Version.h"
 #include "../Tags/ScenarioTag.h"
 #include <regex>
+#include "../util/string_util.h"
 
 using namespace HaloScriptCommon;
 
@@ -719,11 +720,33 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	typedef char (__cdecl *scenario_write_patch_file)(int TAG_INDEX, int a2);
 	auto scenario_write_patch_file_impl = reinterpret_cast<scenario_write_patch_file>(0x0056A110);
 
-	tag_dump(TAG_INDEX);
-
 	scnr_tag *scenario = (scnr_tag*)TAG_GET('scnr', TAG_INDEX);
-	for (int i = 0; i < scenario->structureBSPs.size; i++)
-		tag_dump(scenario->structureBSPs.data[i].structureBSP.tag_index);
+
+	// fix the compiler not setting up AI orders right and causing weird things to happen with scripts
+	for (size_t i = 0; i < scenario->orders.size; i++)
+	{
+		orders_block *order = &scenario->orders.data[i];
+		order->scriptIndex = NONE; // defaults to zero instead of none, so this fixes that
+		std::string target_script = order->entryScript;
+		str_trim(target_script);
+		if (!target_script.empty())
+		{
+			auto script_idx = FIND_TAG_BLOCK_STRING(&scenario->scripts, sizeof(hs_scripts_block), offsetof(hs_scripts_block, name), target_script);
+			if (script_idx == NONE)
+				printf("[orders] Can't find script \"%s\"", target_script.c_str());
+			else
+				order->scriptIndex = script_idx;
+		}
+	}
+
+	
+	// dump tags for debuging if requested
+	if (conf.getBoolean("dump_tags_packaging", false)) {
+		tag_dump(TAG_INDEX);
+
+		for (int i = 0; i < scenario->structureBSPs.size; i++)
+			tag_dump(scenario->structureBSPs.data[i].structureBSP.tag_index);
+	}
 
 	return scenario_write_patch_file_impl(TAG_INDEX, a2);
 }
@@ -750,8 +773,8 @@ void H2ToolPatches::Initialize()
 	if (cmd.find("shared_tag_removal") != string::npos)
 		apply_shared_tag_removal_scheme();
 
-	if (conf.getBoolean("dump_tags_packaging", false))
-		PatchCall(0x00588A66, scenario_write_patch_file_hook);
+	// hooks the last step after all preprocessing and before packing
+	PatchCall(0x00588A66, scenario_write_patch_file_hook);
 }
 
 

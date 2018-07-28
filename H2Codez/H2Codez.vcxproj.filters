@@ -161,6 +161,9 @@
     <ClInclude Include="H2Sapien\Console.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="util\string_util.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

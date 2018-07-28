@@ -28,6 +28,8 @@ struct scenario_structure_bsp_reference_block
 };
 CHECK_STRUCT_SIZE(scenario_structure_bsp_reference_block, 84);
 
+#pragma region cs_script_data_block
+
 
 struct cs_point_block
 {
@@ -66,6 +68,297 @@ struct cs_script_data_block
 	BYTE padding[120];
 };
 CHECK_STRUCT_SIZE(cs_script_data_block, 132);
+
+#pragma endregion
+
+#pragma region orders_block
+
+struct zone_set_block
+{
+	enum AreaType : short
+	{
+		Deault = 0,
+		Search = 1,
+		Goal = 2,
+	};
+	AreaType areaType;
+	BYTE padding41[2];
+	// BlockIndex1("zone_block")
+	short zone;
+	// BlockIndex2(GetBlockProc = 0x005c0d70, IsValidSourceBlockProc = 0x005c0dc0))
+	short area;
+};
+CHECK_STRUCT_SIZE(zone_set_block, 8);
+
+
+struct secondary_zone_set_block
+{
+
+	enum AreaType : short
+	{
+		Deault = 0,
+		Search = 1,
+		Goal = 2,
+	};
+	AreaType areaType;
+	BYTE padding45[2];
+	// BlockIndex1("zone_block")
+	short zone;
+	// BlockIndex2(GetBlockProc = 0x005c0d70, IsValidSourceBlockProc = 0x005c0dc0))
+	short area;
+};
+CHECK_STRUCT_SIZE(secondary_zone_set_block, 8);
+
+
+struct secondary_set_trigger_block
+{
+	struct trigger_references
+	{
+
+		enum TriggerFlags : int
+		{
+			Not = 0x1,
+		};
+		TriggerFlags triggerFlags;
+		// BlockIndex1("triggers_block")
+		short trigger;
+		BYTE padding50[2];
+	};
+	CHECK_STRUCT_SIZE(trigger_references, 8);
+
+	enum CombinationRule : short
+	{
+		OR = 0,
+		AND = 1,
+	};
+	CombinationRule combinationRule;
+
+	enum DialogueType : short
+	{
+		None = 0,
+		Advance = 1,
+		Charge = 2,
+		FallBack = 3,
+		Retreat = 4,
+		Moveone = 5,
+		Arrival = 6,
+		EnterVehicle = 7,
+		ExitVehicle = 8,
+		FollowPlayer = 9,
+		LeavePlayer = 10,
+		Support = 11,
+	};
+	/// when this ending is triggered, launch a dialogue event of the given type
+	DialogueType dialogueType;
+	tag_block<trigger_references> triggers;
+};
+CHECK_STRUCT_SIZE(secondary_set_trigger_block, 16);
+
+
+struct order_ending_block
+{
+	// BlockIndex1("orders_block")
+	short nextOrder;
+
+	enum CombinationRule : short
+	{
+		OR = 0,
+		AND = 1,
+	};
+	CombinationRule combinationRule;
+	float delayTime;
+
+	enum DialogueType : short
+	{
+		None = 0,
+		Advance = 1,
+		Charge = 2,
+		FallBack = 3,
+		Retreat = 4,
+		Moveone = 5,
+		Arrival = 6,
+		EnterVehicle = 7,
+		ExitVehicle = 8,
+		FollowPlayer = 9,
+		LeavePlayer = 10,
+		Support = 11,
+	};
+	/// when this ending is triggered, launch a dialogue event of the given type
+	DialogueType dialogueType;
+	BYTE padding57[2];
+	struct trigger_references
+	{
+
+		enum TriggerFlags : int
+		{
+			Not = 0x1,
+		};
+		TriggerFlags triggerFlags;
+		// BlockIndex1("triggers_block")
+		short trigger;
+		BYTE padding61[2];
+	};
+	CHECK_STRUCT_SIZE(trigger_references, 8);
+
+	tag_block<trigger_references> triggers;
+};
+CHECK_STRUCT_SIZE(order_ending_block, 24);
+
+
+struct orders_block
+{
+	/* filt */
+	char name[32];
+	// BlockIndex1("style_palette_block")
+	short style;
+	BYTE padding38[2];
+
+	enum Flags : int
+	{
+		Locked = 0x1,
+		AlwaysActive = 0x2,
+		DebugOn = 0x4,
+		StrictAreaDef = 0x8,
+		FollowClosestPlayer = 0x10,
+		FollowSquad = 0x20,
+		ActiveCamo = 0x40,
+		SuppressCombatUntilEngaged = 0x80,
+		InhibitVehicleUse = 0x100,
+	};
+	Flags flags;
+
+	enum ForceCombatStatus : short
+	{
+		None = 0,
+		Asleep = 1,
+		Idle = 2,
+		Alert = 3,
+		Combat = 4,
+	};
+	ForceCombatStatus forceCombatStatus;
+	BYTE padding39[2];
+	char entryScript[32];
+	WORD scriptIndex;
+	// BlockIndex1("squads_block")
+	short followSquad;
+	float followRadius;
+	tag_block<zone_set_block> primaryAreaSet;
+
+	tag_block<secondary_zone_set_block> secondaryAreaSet;
+
+	tag_block<secondary_set_trigger_block> secondarySetTrigger;
+
+	struct special_movement_block
+	{
+
+		enum SpecialMovement1 : int
+		{
+			Jump = 0x1,
+			Climb = 0x2,
+			Vault = 0x4,
+			Mount = 0x8,
+			Hoist = 0x10,
+			WallJump = 0x20,
+			Na = 0x40,
+		};
+		SpecialMovement1 specialMovement1;
+	};
+	CHECK_STRUCT_SIZE(special_movement_block, 4);
+
+	tag_block<special_movement_block> specialMovement;
+
+	tag_block<order_ending_block> orderEndings;
+
+};
+CHECK_STRUCT_SIZE(orders_block, 144);
+
+#pragma endregion
+
+#pragma region hs_scripts_block
+struct hs_scripts_block
+{
+	char name[32];
+
+	enum ScriptType : short
+	{
+		Startup = 0,
+		Dormant = 1,
+		Continuous = 2,
+		Static = 3,
+		Stub = 4,
+		CommandScript = 5,
+	};
+	ScriptType scriptType;
+
+	enum ReturnType : short
+	{
+		Unparsed = 0,
+		SpecialForm = 1,
+		FunctionName = 2,
+		Passthrough = 3,
+		Void = 4,
+		Boolean = 5,
+		Real = 6,
+		Short = 7,
+		Long = 8,
+		String = 9,
+		Script = 10,
+		StringId = 11,
+		UnitSeatMapping = 12,
+		TriggerVolume = 13,
+		CutsceneFlag = 14,
+		CutsceneCameraPoint = 15,
+		CutsceneTitle = 16,
+		CutsceneRecording = 17,
+		DeviceGroup = 18,
+		Ai = 19,
+		AiCommandList = 20,
+		AiCommandScript = 21,
+		AiBehavior = 22,
+		AiOrders = 23,
+		StartingProfile = 24,
+		Conversation = 25,
+		StructureBsp = 26,
+		Navpoint = 27,
+		PointReference = 28,
+		Style = 29,
+		HudMessage = 30,
+		ObjectList = 31,
+		Sound = 32,
+		Effect = 33,
+		Damage = 34,
+		LoopingSound = 35,
+		AnimationGraph = 36,
+		DamageEffect = 37,
+		ObjectDefinition = 38,
+		Bitmap = 39,
+		Shader = 40,
+		RenderModel = 41,
+		StructureDefinition = 42,
+		LightmapDefinition = 43,
+		GameDifficulty = 44,
+		Team = 45,
+		ActorType = 46,
+		HudCorner = 47,
+		ModelState = 48,
+		NetworkEvent = 49,
+		Object = 50,
+		Unit = 51,
+		Vehicle = 52,
+		Weapon = 53,
+		Device = 54,
+		Scenery = 55,
+		ObjectName = 56,
+		UnitName = 57,
+		VehicleName = 58,
+		WeaponName = 59,
+		DeviceName = 60,
+		SceneryName = 61,
+	};
+	ReturnType returnType;
+	int rootExpressionIndex;
+};
+#pragma endregion
 
 struct scnr_tag
 {
@@ -134,7 +427,7 @@ struct scnr_tag
 	tag_block_ref aIConversations;
 	byte_ref scriptSyntaxData;
 	byte_ref scriptStringData;
-	tag_block_ref scripts;
+	tag_block<hs_scripts_block> scripts;
 	tag_block_ref globals;
 	tag_block_ref references;
 	tag_block_ref sourceFiles;
@@ -151,7 +444,7 @@ struct scnr_tag
 	tag_block_ref hsUnitSeats;
 	tag_block_ref scenarioKillTriggers;
 	tag_block_ref hsSyntaxDatums;
-	tag_block_ref orders;
+	tag_block<orders_block> orders;
 	tag_block_ref triggers;
 	tag_block_ref backgroundSoundPalette;
 	tag_block_ref soundEnvironmentPalette;

@@ -47,6 +47,16 @@ struct real_euler_angles2d
 	float pitch;
 };
 
+struct string_id
+{
+	DWORD id;
+};
+
+struct old_string_id
+{
+	DWORD id;
+};
+
 struct tag_enum_map_element
 {
 	DWORD string;

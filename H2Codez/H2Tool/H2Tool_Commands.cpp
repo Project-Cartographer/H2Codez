@@ -715,6 +715,21 @@ void tag_dump(int tag_index)
 	TAG_RENAME(tag_index, old_name);
 }
 
+template<typename T>
+void SetScriptIdx(T *element, std::string placement_script, scnr_tag *scenario)
+{
+	element->scriptIndex = NONE; // defaults to zero instead of none, so this fixes that
+	str_trim(placement_script);
+	if (!placement_script.empty())
+	{
+		auto script_idx = FIND_TAG_BLOCK_STRING(&scenario->scripts, sizeof(hs_scripts_block), offsetof(hs_scripts_block, name), placement_script);
+		if (script_idx == NONE)
+			printf("[%s] Can't find script \"%s\"\n", typeid(T).name(), placement_script.c_str());
+		else
+			element->scriptIndex = script_idx;
+	}
+}
+
 char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 {
 	typedef char (__cdecl *scenario_write_patch_file)(int TAG_INDEX, int a2);
@@ -726,16 +741,22 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	for (size_t i = 0; i < scenario->orders.size; i++)
 	{
 		orders_block *order = &scenario->orders.data[i];
-		order->scriptIndex = NONE; // defaults to zero instead of none, so this fixes that
 		std::string target_script = order->entryScript;
-		str_trim(target_script);
-		if (!target_script.empty())
+		SetScriptIdx(order, target_script, scenario);
+	}
+
+	// squad placement scripts are also broken
+	for (size_t i = 0; i < scenario->squads.size; i++)
+	{
+		auto *squad = &scenario->squads.data[i];
+		std::string placement_script = squad->placementScript;
+		SetScriptIdx(squad, placement_script, scenario);
+
+		for (size_t j = 0; j < squad->startingLocations.size; j++)
 		{
-			auto script_idx = FIND_TAG_BLOCK_STRING(&scenario->scripts, sizeof(hs_scripts_block), offsetof(hs_scripts_block, name), target_script);
-			if (script_idx == NONE)
-				printf("[orders] Can't find script \"%s\"", target_script.c_str());
-			else
-				order->scriptIndex = script_idx;
+			auto *starting_location = &squad->startingLocations.data[j];
+			std::string placement_script = starting_location->placementScript;
+			SetScriptIdx(starting_location, placement_script, scenario);
 		}
 	}
 

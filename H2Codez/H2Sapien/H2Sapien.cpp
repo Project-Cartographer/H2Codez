@@ -382,9 +382,12 @@ void H2SapienPatches::Init()
 	// fix sapien not working well with shell
 	PatchCall(0x0046361A, set_scenario_path_hook);
 
-	// disable this for now
-	// Don't force display mode to 1
-	//NopFill(0x006FBFF4, 0x16);
+	// ...
+	if (conf.getBoolean("use_loading_animation", false))
+	{
+		NopFill(0x004A7730, 2);
+		NopFill(0x004A7A36, 2);
+	}
 #pragma endregion
 
 #pragma region Hooks

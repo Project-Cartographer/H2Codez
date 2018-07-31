@@ -105,7 +105,7 @@ std::string get_command_usage(hs_command *cmd)
 	return usage;
 }
 
-std::wstring H2CommonPatches::GetExeDirectory()
+std::wstring H2CommonPatches::GetExeDirectoryWide()
 {
 	wchar_t main_exe_dir[MAX_PATH];
 	GetModuleFileNameW(NULL, main_exe_dir, sizeof(main_exe_dir));
@@ -113,6 +113,19 @@ std::wstring H2CommonPatches::GetExeDirectory()
 	if (main_exe_dir[path_len - 1] == L'\\')
 		main_exe_dir[path_len - 1] = NULL;
 	wchar_t *last_part = wcsrchr(main_exe_dir, L'\\');
+	if (last_part)
+		*last_part = NULL;
+	return main_exe_dir;
+}
+
+std::string H2CommonPatches::GetExeDirectoryNarrow()
+{
+	char main_exe_dir[MAX_PATH];
+	GetModuleFileNameA(NULL, main_exe_dir, sizeof(main_exe_dir));
+	size_t path_len = strnlen_s(main_exe_dir, sizeof(main_exe_dir));
+	if (main_exe_dir[path_len - 1] == L'\\')
+		main_exe_dir[path_len - 1] = NULL;
+	char *last_part = strrchr(main_exe_dir, L'\\');
 	if (last_part)
 		*last_part = NULL;
 	return main_exe_dir;

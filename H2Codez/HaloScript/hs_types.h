@@ -74,7 +74,7 @@ namespace HaloScriptCommon
 	};
 
 
-	static std::unordered_map <const hs_type, std::string> hs_type_string
+	static std::unordered_map <const hs_type, const std::string> hs_type_string
 	{
 
 		// internal

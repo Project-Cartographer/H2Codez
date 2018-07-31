@@ -20,6 +20,7 @@ namespace H2CommonPatches {
 	void generate_script_doc(const char *filename = nullptr);
 	bool copy_to_clipboard(const std::string &text, HWND owner = NULL);
 	bool read_clipboard(std::string &contents, HWND owner = NULL);
-	std::wstring GetExeDirectory();
+	std::wstring GetExeDirectoryWide();
+	std::string GetExeDirectoryNarrow();
 };
 

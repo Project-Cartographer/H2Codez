@@ -10,6 +10,7 @@
 #include <fstream>
 #include <D3D9.h>
 #include "Console.h"
+#include "TagUpdate.h"
 
 using namespace HaloScriptCommon;
 
@@ -265,8 +266,10 @@ void H2SapienPatches::Init()
 {
 	// apply in-game console patches
 	ConsoleInit();
+	// setup tag sync
+	StartTagSync();
 	// set current directory to executable path
-	std::wstring new_current_dir = H2CommonPatches::GetExeDirectory();
+	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());
 #pragma region value init
 	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);

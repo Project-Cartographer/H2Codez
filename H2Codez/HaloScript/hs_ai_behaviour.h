@@ -141,7 +141,7 @@ namespace HaloScriptCommon
 		invalid = 0xFFFFFFFF
 	};
 
-	static std::map<const ai_behaviour, std::string> ai_behaviour_string
+	static std::map<const ai_behaviour, const std::string> ai_behaviour_string
 	{
 		{ ai_behaviour::GENERAL_GROUP, "------GENERAL------" },
 		{ ai_behaviour::root, "root" },

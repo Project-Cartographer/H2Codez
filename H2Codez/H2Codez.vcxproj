@@ -122,7 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\BlamBaseTypes.h" />
+    <ClInclude Include="Common\tag_group_names.h" />
     <ClInclude Include="H2Sapien\Console.h" />
+    <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="util\Debug.h" />
@@ -142,6 +144,7 @@
     <ClInclude Include="HaloScript\hs_global_variable.h" />
     <ClInclude Include="HaloScript\hs_opcodes.h" />
     <ClInclude Include="HaloScript\hs_types.h" />
+    <ClInclude Include="util\FileWatcher.h" />
     <ClInclude Include="util\Logs.h" />
     <ClInclude Include="util\Patches.h" />
     <ClInclude Include="Resources\resource.h" />
@@ -155,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="H2Sapien\Console.cpp" />
+    <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />
     <ClCompile Include="util\Detours\disasm.cpp" />
@@ -178,6 +182,7 @@
     <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool\H2Tool_Commands.cpp" />
     <ClCompile Include="HaloScript\hs_interface.cpp" />
+    <ClCompile Include="util\FileWatcher.cpp" />
     <ClCompile Include="util\Logs.cpp" />
     <ClCompile Include="HaloScript\hs_ai_behaviour.cpp" />
     <ClCompile Include="util\Settings.cpp" />

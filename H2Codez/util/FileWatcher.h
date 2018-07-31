@@ -1,0 +1,137 @@
+/*
+@author James Wynn
+@date 4/15/2009
+Copyright (c) 2009 James Wynn (james@jameswynn.com)
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+#pragma once
+
+#include <string>
+#include <stdexcept>
+#include <map>
+
+namespace FW
+{
+	/// Type for a watch id
+	typedef unsigned long WatchID;
+	struct WatchStruct;
+	/// type for a map from WatchID to WatchStruct pointer
+	typedef std::map<WatchID, WatchStruct*> WatchMap;
+
+	// forward declarations
+	class FileWatcherImpl;
+	class FileWatchListener;
+
+	/// Base exception class
+	/// @class Exception
+	class Exception : public std::runtime_error
+	{
+	public:
+		Exception(const std::string& message)
+			: std::runtime_error(message)
+		{}
+	};
+
+	/// Exception thrown when a file is not found.
+	/// @class FileNotFoundException
+	class FileNotFoundException : public Exception
+	{
+	public:
+		FileNotFoundException()
+			: Exception("File not found")
+		{}
+
+		FileNotFoundException(const std::string& filename)
+			: Exception("File not found (" + filename + ")")
+		{}
+	};
+
+	/// Actions to listen for. Rename will send two events, one for
+	/// the deletion of the old file, and one for the creation of the
+	/// new file.
+	namespace Actions
+	{
+		enum Action
+		{
+			/// Sent when a file is created or renamed
+			Add = 1,
+			/// Sent when a file is deleted or renamed
+			Delete = 2,
+			/// Sent when a file is modified
+			Modified = 4
+		};
+	};
+	typedef Actions::Action Action;
+
+	/// Listens to files and directories and dispatches events
+	/// to notify the parent program of the changes.
+	/// @class FileWatcher
+	class FileWatcher
+	{
+	public:
+		///
+		///
+		FileWatcher();
+
+		///
+		///
+		~FileWatcher();
+
+		/// Add a directory watch
+		/// @exception FileNotFoundException Thrown when the requested directory does not exist
+		WatchID addWatch(const std::string& directory, FileWatchListener* watcher, bool recursive = false);
+
+		/// Remove a directory watch. This is a brute force search O(nlogn).
+		void removeWatch(const std::string& directory);
+
+		/// Remove a directory watch. This is a map lookup O(logn).
+		void removeWatch(WatchID watchid);
+
+		/// Updates the watcher. Must be called often.
+		void update();
+
+		/// Handles the action
+		void handleAction(WatchStruct* watch, const std::string& filename, unsigned long action);
+
+	private:
+		/// Map of WatchID to WatchStruct pointers
+		WatchMap mWatches;
+		/// The last watchid
+		WatchID mLastWatchID;
+
+	};//end FileWatcher
+
+
+	  /// Basic interface for listening for file events.
+	  /// @class FileWatchListener
+	class FileWatchListener
+	{
+	public:
+		FileWatchListener() {}
+		virtual ~FileWatchListener() {}
+
+		/// Handles the action file action
+		/// @param watchid The watch id for the directory
+		/// @param dir The directory
+		/// @param filename The filename that was accessed (not full path)
+		/// @param action Action that was performed
+		virtual void handleFileAction(WatchID watchid, const std::string& dir, const std::string& filename, Action action) = 0;
+
+	};//class FileWatchListener
+
+};//namespace FW

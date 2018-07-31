@@ -164,6 +164,15 @@
     <ClInclude Include="util\string_util.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="H2Sapien\TagUpdate.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
+    <ClInclude Include="util\FileWatcher.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\tag_group_names.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -228,6 +237,12 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\Console.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\TagUpdate.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="util\FileWatcher.cpp">
+      <Filter>Source Files\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

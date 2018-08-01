@@ -3,7 +3,7 @@
 
 namespace HaloScriptCommon
 {
-	static std::unordered_map <int, const std::string> tag_group_names
+	static const std::unordered_map <int, std::string> tag_group_names
 	{
 		{ '$#!+', "cache_file_sound" },
 		{ '*cen', "scenario_scenery_resource" },

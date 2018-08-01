@@ -2,9 +2,19 @@
 #include "../stdafx.h"
 #include "../util/FileWatcher.h"
 #include "../Common/H2EKCommon.h"
+#include "../Common/tag_group_names.h"
+#include "../util/string_util.h"
+#include "../util/Logs.h"
 #include <Shlobj.h>
 #include <shlwapi.h>
-#include "../Common/tag_group_names.h"
+#include <algorithm>
+#include <set>
+
+const static int millseconds_in_second = 1000;
+const static float update_frequency = 1;
+const static float max_valid_time = update_frequency * 5;
+
+std::map<std::string, time_t> tags_being_saved;
 
 class UpdateListener : public FW::FileWatchListener
 {
@@ -28,7 +38,18 @@ public:
 			auto tag_group = string_to_tag_group(file_ext);
 			if (tag_group == 0xFFFF) // not a tag
 				return;
-			std::cout << "Reloading tag: \"" << tag_name << "\" type: \"" << file_ext << "\"" << std::endl;
+			auto last_save = tags_being_saved.find(tolower(filename));
+			if (last_save != tags_being_saved.end())
+			{
+				if (difftime(time(nullptr), last_save->second) <= max_valid_time) {
+					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modifed by us in the past %F seconds", filename, max_valid_time);
+					return;
+				} else {
+					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename, max_valid_time);
+					tags_being_saved.erase(last_save);
+				}
+			}
+			pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
 			tag_reload_impl(tag_group, tag_name.c_str());
 		}
 	}
@@ -50,13 +71,50 @@ DWORD WINAPI TagSyncUpdate(
 	while (true)
 	{
 		fileWatcher.update();
-		Sleep(1 * 1000);
+		Sleep(static_cast<DWORD>(update_frequency * millseconds_in_second));
+
+		for (auto it = tags_being_saved.begin(), ite = tags_being_saved.end(); it != ite;)
+		{
+			if (difftime(time(nullptr), it->second) > max_valid_time) {
+				pLog.WriteLog("Unmarked tag \"%s\" as being_saved", it->first.c_str());
+				it = tags_being_saved.erase(it);
+			} else {
+				++it;
+			}
+		}
 	}
+}
+
+typedef char (__cdecl *TAG_SAVE)(int tag_index);
+TAG_SAVE TAG_SAVE_ORG = reinterpret_cast<TAG_SAVE>(0x4B47C0);
+char __cdecl TAG_SAVE_HOOK(int tag_index)
+{
+	typedef char *(__cdecl *Tag__GetName)(unsigned __int16 a1);
+	Tag__GetName Tag__GetName_Impl = reinterpret_cast<Tag__GetName>(0x4AE940);
+	typedef int (__cdecl *TAG_GET_GROUP_TAG)(unsigned __int16 a1);
+	auto TAG_GET_GROUP_TAG_IMPL = reinterpret_cast<TAG_GET_GROUP_TAG>(0x004AE900);
+
+	std::string tag_name = Tag__GetName_Impl(tag_index);
+	int tag_group = TAG_GET_GROUP_TAG_IMPL(tag_index);
+
+	std::string tag_file_name = tag_name + "." + tag_group_names.at(tag_group);
+
+	tags_being_saved[tag_file_name] = time(nullptr);
+	pLog.WriteLog("Marked tag \"%s\" as being_saved", tag_file_name.c_str());
+
+	return TAG_SAVE_ORG(tag_index);
 }
 
 
 void H2SapienPatches::StartTagSync()
 {
-	if (conf.getBoolean("experimental_tag_sync", false))
+	if (conf.getBoolean("experimental_tag_sync", false)) {
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+
+		DetourAttach(&(PVOID&)TAG_SAVE_ORG, TAG_SAVE_HOOK);
+
+		DetourTransactionCommit();
 		CreateThread(NULL, 0, TagSyncUpdate, nullptr, 0, NULL);
+	}
 }

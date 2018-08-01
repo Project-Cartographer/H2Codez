@@ -1,4 +1,5 @@
 #include "Logs.h"
+#include "../h2codez.h"
 
 Logs::Logs(char* filename)
 {
@@ -15,15 +16,17 @@ GetLocalTime(&tt);
 
 	char buf[2048];	
 	va_list myarg;
-
 	//Creating the buffer 
 	va_start(myarg,line);
 	vsnprintf(buf,2048,line,myarg);
 	va_end(myarg);
-#if _DEBUG
 	// print to console
+#ifndef _DEBUG
+	if (game.process_type != H2EK::H2Tool)
+		printf("Logs: %s\n", buf);
+#else
 	printf("Logs: %s\n", buf);
-#endif
+#endif // !_DEBUG
 
 	//Lets now Write the buffer to our opened File
 
@@ -42,8 +45,11 @@ void Logs::Exit()
 
 void Debug::Start_Console()
 {
-	AllocConsole();
-	SetConsoleTitleA("Debug Window");
+	if (game.process_type != H2EK::H2Tool)
+	{
+		AllocConsole();
+		SetConsoleTitleA("Debug Window");
+	}
 
 	// out
 	FILE* pCout;

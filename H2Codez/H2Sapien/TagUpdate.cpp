@@ -5,6 +5,7 @@
 #include "../Common/tag_group_names.h"
 #include "../util/string_util.h"
 #include "../util/Logs.h"
+#include "../Common/BasicTagTypes.h"
 #include <Shlobj.h>
 #include <shlwapi.h>
 #include <algorithm>
@@ -24,7 +25,9 @@ public:
 		FW::Action action)
 	{
 		typedef int (__cdecl *tag_reload)(int tag_group, const char *tag_name);
-		auto tag_reload_impl = reinterpret_cast<tag_reload>(0x004B5A90);
+		typedef int(__cdecl *tag_loaded)(int tag_group, const char *name);
+		auto tag_loaded_impl = reinterpret_cast<tag_loaded>(0x4B1340);
+		auto tag_reload_impl = reinterpret_cast<tag_reload>(0x4B5A90);
 		void *sbsp_ptr = *reinterpret_cast<void**>(0xA9CA74);
 
 		std::cout << "DIR (" << dir + ") FILE (" + filename + ") has event " << action << std::endl;
@@ -42,15 +45,20 @@ public:
 			if (last_save != tags_being_saved.end())
 			{
 				if (difftime(time(nullptr), last_save->second) <= max_valid_time) {
-					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modifed by us in the past %F seconds", filename, max_valid_time);
+					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modifed by us in the past %F seconds", filename.c_str(), max_valid_time);
 					return;
 				} else {
-					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename, max_valid_time);
+					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename.c_str(), max_valid_time);
 					tags_being_saved.erase(last_save);
 				}
 			}
-			pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
-			tag_reload_impl(tag_group, tag_name.c_str());
+			if (tag_loaded_impl(tag_group, tag_name.c_str()) != NONE)
+			{
+				pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
+				tag_reload_impl(tag_group, tag_name.c_str());
+			} else {
+				pLog.WriteLog("Ignoring change to tag \"%s\" because it's not loaded", filename.c_str());
+			}
 		}
 	}
 };

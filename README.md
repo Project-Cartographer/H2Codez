@@ -5,6 +5,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 [![status](https://ci.appveyor.com/api/projects/status/github/Project-Cartographer/H2Codez?branch=H2OS_EK&svg=true)](https://ci.appveyor.com/project/num0005/h2codez-0w3n8)
 
 ## Changelog ##
+* Real-time tag editing (experimental)
 * Increased FPS in Sapien (hardware TCL/vertex processing)
 * Some H2tool commands restored. (model-collision, model-physics)
 * Basic render model import method (BSP conversion)

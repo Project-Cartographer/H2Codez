@@ -281,14 +281,14 @@ void H2SapienPatches::Init()
 	InitHalo2DisplaySettings();
 
 	using_in_game_settings = conf.getBoolean("in_game_lod", 0);
-	WriteValue(0xA68319, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
+	WriteValue<BYTE>(0xA68319, conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
 
 	running_game_scripts = conf.getBoolean("running_game_scripts", 0);
 	CheckItem(32870, running_game_scripts);
 
-	WriteValue(0x00F84D30, conf.getNumber("CPUScore", 5.0));
-	WriteValue(0x00F84D28, conf.getBoolean("AllowVsync", 0));
-	WriteValue(0x00F84D24, conf.getBoolean("CinematicShadow", 0));
+	WriteValue<double>(0x00F84D30, 5.0); // CPUScore; used to decide when to force low lod
+	WriteValue(0x00F84D28, conf.getBoolean("AllowVsync", 1));
+	WriteValue(0x00F84D24, conf.getBoolean("CinematicShadow", 1));
 
 	MEMORYSTATUSEX statex;
 

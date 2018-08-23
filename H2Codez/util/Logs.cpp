@@ -47,7 +47,13 @@ void Debug::Start_Console()
 {
 	if (game.process_type != H2EK::H2Tool)
 	{
-		AllocConsole();
+		if (!AttachConsole(ATTACH_PARENT_PROCESS))
+		{
+#ifndef _DEBUG
+			if (conf.getBoolean("enable_debug_console", false))
+#endif
+				AllocConsole();
+		}
 		SetConsoleTitleA("Debug Window");
 	}
 

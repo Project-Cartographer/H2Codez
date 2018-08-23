@@ -33,9 +33,6 @@ static const wchar_t *map_types[] =
 	L"Single Player Shared"
 };
 
-static wchar_t const open_as_text[] = L"Export as text";
-static wchar_t const scenario_saved[] = L"%s.%hs saved";
-
 int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax)
 { 
 	if (GetModuleHandleW(L"H2alang") != hInstance)
@@ -44,14 +41,14 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 		wcsncpy_s(lpBuffer, cchBufferMax, map_types[uID / 2 - 155], cchBufferMax);
 		return std::wcslen(lpBuffer);
 	}
-	if (uID == 26)
+	if (uID == 26) // org: open as text
 	{
-		wcsncpy_s(lpBuffer, cchBufferMax, open_as_text, sizeof(open_as_text));
+		wcscpy_s(lpBuffer, cchBufferMax, L"Export as text");
 		return std::wcslen(lpBuffer);
 	}
 	if (uID == 0x1018)
 	{
-		wcsncpy_s(lpBuffer, cchBufferMax, scenario_saved, sizeof(scenario_saved));
+		wcscpy_s(lpBuffer, cchBufferMax, L"%s.%hs saved");
 		return std::wcslen(lpBuffer);
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);

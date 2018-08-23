@@ -23,7 +23,7 @@ namespace HaloScriptCommon
 
 	char __cdecl hs_default_func_check(__int16 opcode, void *DatumIndex);
 
-	std::string get_value_as_string(void *var_ptr, hs_type type);
+	std::string get_value_as_string(const void *var_ptr, hs_type type);
 }
 
 using namespace HaloScriptCommon;

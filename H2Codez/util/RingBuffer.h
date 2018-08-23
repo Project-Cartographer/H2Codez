@@ -8,9 +8,9 @@ public:
 	RingBuffer(size_t max_size) :
 		_max_size(max_size)
 	{
-		_data.reserve(max_size);
 		if (max_size < 1)
 			throw std::length_error("Bad size");
+		_data.reserve(max_size);
 	}
 	RingBuffer() = delete;
 

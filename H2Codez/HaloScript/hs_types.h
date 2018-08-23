@@ -5,11 +5,14 @@ namespace HaloScriptCommon
 {
 
 	enum class hs_type {
+		// internal
 		unparsed,
 		special_form,
 		function_name,
 		passthrough,
 		nothing,
+
+		// basic
 		boolean,
 		real,
 		hs_short,
@@ -17,6 +20,8 @@ namespace HaloScriptCommon
 		string,
 		script,
 		string_id,
+
+		// misc
 		unit_seat_mapping,
 		trigger_volume,
 		cutscene_flag,
@@ -37,6 +42,7 @@ namespace HaloScriptCommon
 		style,
 		hud_message,
 		object_list,
+
 		// tags
 		sound,
 		effect,
@@ -50,12 +56,15 @@ namespace HaloScriptCommon
 		render_model,
 		structure_definition,
 		lightmap_definition,
+
+		// enum
 		game_difficulty,
 		team,
 		actor_type,
 		hud_corner,
 		model_state,
 		network_event,
+
 		// objects
 		object,
 		unit,
@@ -63,6 +72,8 @@ namespace HaloScriptCommon
 		weapon,
 		device,
 		scenery,
+
+		// object names
 		object_name,
 		unit_name,
 		vehicle_name,

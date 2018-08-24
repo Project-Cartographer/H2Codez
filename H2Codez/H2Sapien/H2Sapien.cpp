@@ -48,6 +48,11 @@ void apply_video_settings()
 	WriteValue(0x00A5D134, using_in_game_settings ? halo2_video_settings : sapien_defaults);
 }
 
+video_settings *read_game_video_settings()
+{
+	return reinterpret_cast<video_settings*>(0x00A5D134);
+}
+
 char command_script[0x100];
 INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -310,6 +315,10 @@ void H2SapienPatches::Init()
 	GlobalMemoryStatusEx(&statex);
 
 	int SystemMemory = static_cast<int>(statex.ullAvailPhys / (1024 * 1024));
+	if (SystemMemory < 1200)
+	{
+		MessageBoxA(NULL, "At least 1200 megabytes of free memory is recommanded when running sapien.", "Warning : Low memory", MB_OK);
+	}
 	int VideoMemory = conf.getNumber("VideoMemory", 100) * 1024 * 1024; // megabytes --> bytes
 	int use_hardware_vertexprocessing = conf.getBoolean("use_hardware_vertexprocessing", true);
 	WriteValue(0xF84D1C, SystemMemory);
@@ -406,7 +415,7 @@ void H2SapienPatches::Init()
 	}
 
 	// game_view experiments
-#ifdef _DEBUG
+#if 0
 	WriteCall(0x004882B1, hierarchy_selection_code__cmp_hook); // player_simulation
 	WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
 	WriteCall(0x00488686, hierarchy_selection_code__cmp_hook); // leaf_debug
@@ -420,8 +429,9 @@ void H2SapienPatches::Init()
 #endif // DEBUG
 
 	// removes the structure painter option because it crashes on low lod
-	if (!using_in_game_settings || halo2_video_settings.LevelOfDetail == video_settings::level_of_detail::low)
-		NopFillRange(0x0041601A, 00416114);
+	if (read_game_video_settings()->LevelOfDetail == video_settings::level_of_detail::low ||
+			SystemMemory < 1200 || !use_hardware_vertexprocessing || conf.getNumber("VideoMemory", 100) < 100)
+		NopFillRange(0x41601A, 0x416114);
 
 #pragma endregion
 

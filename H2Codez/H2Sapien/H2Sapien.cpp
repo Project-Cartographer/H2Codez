@@ -405,6 +405,7 @@ void H2SapienPatches::Init()
 		NopFill(0x004A7A36, 2);
 	}
 
+	// game_view experiments
 #ifdef _DEBUG
 	WriteCall(0x004882B1, hierarchy_selection_code__cmp_hook); // player_simulation
 	WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
@@ -417,6 +418,10 @@ void H2SapienPatches::Init()
 	WritePointer(0x008028C4, game_view_true_stub);
 	WritePointer(0x0080296C, game_view_true_stub);
 #endif // DEBUG
+
+	// removes the structure painter option because it crashes on low lod
+	if (!using_in_game_settings || halo2_video_settings.LevelOfDetail == video_settings::level_of_detail::low)
+		NopFillRange(0x0041601A, 00416114);
 
 #pragma endregion
 

@@ -71,6 +71,17 @@ inline void NopFill(const void *address, int len)
 	NopFill(reinterpret_cast<DWORD>(address), len);
 }
 
+inline void NopFillRange(const DWORD address_start, const DWORD address_end)
+{
+	NopFill(address_start, address_end - address_start);
+}
+
+inline void NopFillRange(const void *address_start, const void *address_end)
+{
+	NopFillRange(reinterpret_cast<DWORD>(address_start), reinterpret_cast<DWORD>(address_end));
+}
+
+
 
 
 /*

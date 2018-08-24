@@ -136,6 +136,18 @@ void __fastcall guerilla_wide_string__append__hook(int this_ptr, int _, int this
 	Sleep(500);
 }
 
+int WINAPI GetMenuItemCountHook(
+	HMENU hMenu
+)
+{
+	// hide the version element from guerilla.
+	DWORD hMenuId = reinterpret_cast<DWORD>(hMenu);
+	if (menu_map.find(hMenuId) != menu_map.end())
+		return 5;
+	else
+		return GetMenuItemCount(hMenu);
+}
+
 void H2GuerrilaPatches::update_field_display()
 {
 	CheckItem(SHOW_HIDDEN_FIELDS, show_hidden_fields);
@@ -215,6 +227,9 @@ void H2GuerrilaPatches::Init()
 	};
 	WriteValue(0x00901920, ARRAYSIZE(scenario_types));
 	WritePointer(0x00901924, scenario_types);
+
+	// fix "help" menu getting replaced by "window" menu
+	PatchAbsCall(0x00686D0A, GetMenuItemCountHook);
 
 #pragma endregion
 

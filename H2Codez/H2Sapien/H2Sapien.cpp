@@ -225,6 +225,19 @@ char __cdecl set_scenario_path_hook(LPCWSTR path_passed_to_us)
 	return true;
 }
 
+__declspec(naked) void hierarchy_selection_code__cmp_hook()
+{
+	__asm {
+		cmp eax, eax // set zero flag
+		ret
+	}
+}
+
+int __stdcall game_view_true_stub(int)
+{
+	return true;
+}
+
 
 hs_command status_cmd(
 	"status",
@@ -391,6 +404,20 @@ void H2SapienPatches::Init()
 		NopFill(0x004A7730, 2);
 		NopFill(0x004A7A36, 2);
 	}
+
+#ifdef _DEBUG
+	WriteCall(0x004882B1, hierarchy_selection_code__cmp_hook); // player_simulation
+	WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
+	WriteCall(0x00488686, hierarchy_selection_code__cmp_hook); // leaf_debug
+	WriteCall(0x0048781D, hierarchy_selection_code__cmp_hook); // decorator_paint
+	WriteCall(0x0048D45D, hierarchy_selection_code__cmp_hook); // world_measure
+
+	WritePointer(0x00802894, game_view_true_stub);
+	WritePointer(0x008028A4, game_view_true_stub);
+	WritePointer(0x008028C4, game_view_true_stub);
+	WritePointer(0x0080296C, game_view_true_stub);
+#endif // DEBUG
+
 #pragma endregion
 
 #pragma region Hooks

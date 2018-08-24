@@ -37,15 +37,15 @@ inline void WriteValue(DWORD address, value_type data)
 /*
 	Writes pointer to memory address
 */
-inline void WritePointer(DWORD offset, void *ptr) {
+inline void WritePointer(DWORD offset, const void *ptr) {
 	WriteValue(offset, ptr);
 }
 
 /*
 	Writes pointer to memory address
 */
-inline void WritePointer(DWORD offset, const void *ptr) {
-	WriteValue(offset, ptr);
+inline void WritePointer(void *offset, const void *ptr) {
+	WriteValue(reinterpret_cast<DWORD>(offset), ptr);
 }
 
 

@@ -22,13 +22,28 @@ CCmdTarget__OnCmdMsg CCmdTarget__OnCmdMsg_Orginal;
 typedef char *(__cdecl *hs_remote_generate_command)(char *command_name, void **args, signed int arg_count, char *output, rsize_t output_size);
 hs_remote_generate_command hs_remote_generate_command_orginal;
 
-HMENU main_menu;
+#define INVALID_HMENU_VALUE (HMENU)INVALID_HANDLE_VALUE
+
+std::unordered_map<DWORD, HMENU> menu_map
+{
+	{ 0014, INVALID_HMENU_VALUE },
+	{ 6014, INVALID_HMENU_VALUE },
+	{ 1000, INVALID_HMENU_VALUE },
+};
+
 bool disable_templete_view = true;
 bool show_hidden_fields = true;
 
 inline static void CheckItem(UINT item, bool enable)
 {
-	CheckMenuItem(main_menu, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
+	for (const auto menu : menu_map)
+		CheckMenuItem(menu.second, item, MF_BYCOMMAND | (enable ? MF_CHECKED : MF_UNCHECKED));
+}
+
+inline static void EnableItem(UINT item, bool enable)
+{
+	for (const auto menu : menu_map)
+		EnableMenuItem(menu.second, item, enable ? MF_ENABLED : MF_DISABLED);
 }
 
 int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
@@ -62,17 +77,20 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 {
 	CCmdUI__Enable_Orginal(thisptr, 0, a2);
-	EnableMenuItem(main_menu, ID_EDIT_ADVANCEDSHADERVIEW, MF_ENABLED);
-	EnableMenuItem(main_menu, ID_FILE_NEWINSTANCE, MF_ENABLED);
-	EnableMenuItem(main_menu, SCRIPT_DOC, MF_ENABLED);
-	EnableMenuItem(main_menu, SHOW_HIDDEN_FIELDS, MF_ENABLED);
+	EnableItem(ID_EDIT_ADVANCEDSHADERVIEW, true);
+	EnableItem(ID_FILE_NEWINSTANCE, true);
+	EnableItem(SCRIPT_DOC, true);
+	EnableItem(SHOW_HIDDEN_FIELDS, true);
 }
 
 
 static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
-	if (hInstance == GetModuleHandle(NULL)) {
-		return main_menu;
+	DWORD MenuId = reinterpret_cast<DWORD>(lpMenuName);
+	if (hInstance == GetModuleHandle(NULL) && MenuId != 11) {
+		pLog.WriteLog("LoadMenuHook: %d", lpMenuName);
+		if (menu_map.find(MenuId) != menu_map.end())
+			return menu_map[MenuId];
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);
 }
@@ -148,6 +166,8 @@ void H2GuerrilaPatches::update_display_templates()
 
 void H2GuerrilaPatches::Init()
 {
+	for (auto &menu : menu_map)
+		menu.second = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));
 #pragma region Patches
 	// Start patches copied from opensauce
 
@@ -223,7 +243,6 @@ void H2GuerrilaPatches::Init()
 	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();
 #pragma endregion
-	main_menu = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));
 
 	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
 	show_hidden_fields = conf.getBoolean("show_hidden_fields", true);

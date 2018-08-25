@@ -64,6 +64,7 @@ bool __stdcall on_console_input(WORD keycode)
 		{
 			H2SapienConsole::run_hs_command(console_input);
 			update_console_state();
+			ZeroMemory(console_input, 0x100);
 		}
 		else {
 			console_close();

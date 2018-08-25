@@ -51,6 +51,11 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 		wcscpy_s(lpBuffer, cchBufferMax, L"%s.%hs saved");
 		return std::wcslen(lpBuffer);
 	}
+	if (uID == 0x12AE)
+	{
+		wcscpy_s(lpBuffer, cchBufferMax, L"Unit Playtest");
+		return std::wcslen(lpBuffer);
+	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }
 

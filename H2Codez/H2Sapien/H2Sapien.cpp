@@ -415,23 +415,22 @@ void H2SapienPatches::Init()
 	}
 
 	// game_view experiments
-#if 0
+#if _DEBUG
 	WriteCall(0x004882B1, hierarchy_selection_code__cmp_hook); // player_simulation
 	WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
 	WriteCall(0x00488686, hierarchy_selection_code__cmp_hook); // leaf_debug
 	WriteCall(0x0048781D, hierarchy_selection_code__cmp_hook); // decorator_paint
 	WriteCall(0x0048D45D, hierarchy_selection_code__cmp_hook); // world_measure
 
-	WritePointer(0x00802894, game_view_true_stub);
-	WritePointer(0x008028A4, game_view_true_stub);
-	WritePointer(0x008028C4, game_view_true_stub);
-	WritePointer(0x0080296C, game_view_true_stub);
+	//WritePointer(0x00802894, game_view_true_stub);
+	//WritePointer(0x008028A4, game_view_true_stub);
+	//WritePointer(0x008028C4, game_view_true_stub);
+	//WritePointer(0x0080296C, game_view_true_stub);
 #endif // DEBUG
 
-	// removes the structure painter option because it crashes on low lod
-	if (read_game_video_settings()->LevelOfDetail == video_settings::level_of_detail::low ||
-			SystemMemory < 1200 || !use_hardware_vertexprocessing || conf.getNumber("VideoMemory", 100) < 100)
-		NopFillRange(0x41601A, 0x416114);
+	// replace structure painter with something more fun
+	WriteValue(0x00416028 + 4, 'play');
+	WriteValue(0x00416072 + 1, 'play');
 
 #pragma endregion
 

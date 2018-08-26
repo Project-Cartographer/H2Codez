@@ -7,6 +7,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 ## Changelog ##
 * Real-time tag editing (experimental)
 * Increased FPS in Sapien (hardware TCL/vertex processing)
+* Unit playtest mode. Spawns a player letting you test how something would work with one/seeing the map from an in-game point of view. (no movement)
 * Some H2tool commands restored. (model-collision, model-physics)
 * Basic render model import method (BSP conversion)
 * Shared tag removal made optional.

@@ -11,6 +11,7 @@
 #include <D3D9.h>
 #include "Console.h"
 #include "TagUpdate.h"
+#include "Profile.h"
 
 using namespace HaloScriptCommon;
 
@@ -243,7 +244,6 @@ int __stdcall game_view_true_stub(int)
 	return true;
 }
 
-
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -284,8 +284,12 @@ void H2SapienPatches::Init()
 {
 	// apply in-game console patches
 	ConsoleInit();
+
 	// setup tag sync
 	StartTagSync();
+
+	// fix game profiles
+	fix_game_save();
 	// set current directory to executable path
 	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());
@@ -416,13 +420,10 @@ void H2SapienPatches::Init()
 
 	// game_view experiments
 #if _DEBUG
-	WriteCall(0x004882B1, hierarchy_selection_code__cmp_hook); // player_simulation
-	WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
+	//WriteCall(0x00485280, hierarchy_selection_code__cmp_hook); // ai_path
 	WriteCall(0x00488686, hierarchy_selection_code__cmp_hook); // leaf_debug
-	WriteCall(0x0048781D, hierarchy_selection_code__cmp_hook); // decorator_paint
-	WriteCall(0x0048D45D, hierarchy_selection_code__cmp_hook); // world_measure
 
-	//WritePointer(0x00802894, game_view_true_stub);
+	WritePointer(0x00802894, game_view_true_stub);
 	//WritePointer(0x008028A4, game_view_true_stub);
 	//WritePointer(0x008028C4, game_view_true_stub);
 	//WritePointer(0x0080296C, game_view_true_stub);

@@ -72,7 +72,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
@@ -102,7 +102,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SetChecksum>true</SetChecksum>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
@@ -124,6 +124,7 @@
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\tag_group_names.h" />
     <ClInclude Include="H2Sapien\Console.h" />
+    <ClInclude Include="H2Sapien\Profile.h" />
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="H2Sapien\Console.cpp" />
+    <ClCompile Include="H2Sapien\Profile.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />

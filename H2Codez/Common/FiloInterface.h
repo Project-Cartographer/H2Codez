@@ -77,5 +77,21 @@ namespace  FiloInterface
 	/* Returns success */
 	bool get_size(filo *data, DWORD *file_size);
 
+	/* Can be used to truncate or extend an open file , returns success */
+	inline bool change_size(filo *filo_ptr, LONG new_size)
+	{
+		if (filo_ptr->handle)
+		{
+			if (SetFilePointer(filo_ptr->handle, new_size, NULL, FILE_BEGIN) != INVALID_SET_FILE_POINTER)
+			{
+				return SetEndOfFile(filo_ptr->handle);
+			}
+		}
+		else {
+			SetLastError(ERROR_INVALID_HANDLE);
+		}
+		return false;
+	}
+
 	std::string get_path_info(filo *data, PATH_FLAGS flags);
 };

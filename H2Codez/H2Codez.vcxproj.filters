@@ -173,6 +173,9 @@
     <ClInclude Include="Common\tag_group_names.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="H2Sapien\Profile.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -243,6 +246,9 @@
     </ClCompile>
     <ClCompile Include="util\FileWatcher.cpp">
       <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\Profile.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

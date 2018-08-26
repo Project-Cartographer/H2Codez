@@ -177,7 +177,10 @@ bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
 			if (LOG_CHECK(text != NULL)) {
 				contents = text;
 				if (LOG_CHECK(GlobalUnlock(data) || GetLastError() == NO_ERROR))
+				{
+					LOG_CHECK(CloseClipboard());
 					return true;
+				}
 			}
 		}
 		LOG_CHECK(CloseClipboard());

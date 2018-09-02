@@ -24,9 +24,9 @@ hs_remote_generate_command hs_remote_generate_command_orginal;
 
 #define INVALID_HMENU_VALUE (HMENU)INVALID_HANDLE_VALUE
 
-std::unordered_map<DWORD, HMENU> menu_map
+static std::unordered_map<DWORD, HMENU> menu_map
 {
-	{ 0014, INVALID_HMENU_VALUE },
+	{ 14,   INVALID_HMENU_VALUE },
 	{ 6014, INVALID_HMENU_VALUE },
 	{ 1000, INVALID_HMENU_VALUE },
 };
@@ -87,9 +87,9 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
 	DWORD MenuId = reinterpret_cast<DWORD>(lpMenuName);
-	if (hInstance == GetModuleHandle(NULL) && MenuId != 11) {
+	if (hInstance == GetModuleHandle(NULL)) {
 		pLog.WriteLog("LoadMenuHook: %d", lpMenuName);
-		if (menu_map.find(MenuId) != menu_map.end())
+		if (LOG_CHECK(menu_map.find(MenuId) != menu_map.end()))
 			return menu_map[MenuId];
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);

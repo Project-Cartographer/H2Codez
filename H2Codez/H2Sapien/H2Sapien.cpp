@@ -136,6 +136,10 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 
 				return 1;
 			}
+			case SAPIEN_TILE_VERTICAL:
+			{
+				SendMessageW(((HWND*)thisptr)[2], WM_MDITILE, MDITILE_VERTICAL, 0);
+			}
 			case 32837:
 			{
 				char expert_mode = *CAST_PTR(char*, 0xA68319);
@@ -432,6 +436,12 @@ void H2SapienPatches::Init()
 	// replace structure painter with something more fun
 	WriteValue(0x00416028 + 4, 'play');
 	WriteValue(0x00416072 + 1, 'play');
+
+
+
+	// allow dumping screen print to standard output
+	WriteValue(0xAAC0BD, conf.getBoolean("dump_screen_print_to_console", is_debug_build()));
+	NopFillRange(0x50448A, 0x504491);
 
 #pragma endregion
 

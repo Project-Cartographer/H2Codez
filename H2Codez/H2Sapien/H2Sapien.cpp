@@ -12,6 +12,7 @@
 #include "Console.h"
 #include "TagUpdate.h"
 #include "Profile.h"
+#include "..\Resources\sapien_accelerators.h"
 
 using namespace HaloScriptCommon;
 
@@ -29,6 +30,15 @@ static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMe
 		return new_menu;
 	}
 	return LoadMenuOrginal(hInstance, lpMenuName);
+}
+typedef HACCEL (__stdcall *LoadAcceleratorsW_T)(HINSTANCE hInstance, LPCWSTR lpTableName);
+LoadAcceleratorsW_T LoadAcceleratorsWOrg;
+HACCEL __stdcall LoadAcceleratorsWHook(HINSTANCE hInstance, LPCWSTR lpTableName)
+{
+	if (hInstance == GetModuleHandle(NULL)) {
+		return LoadAcceleratorsWOrg(g_hModule, lpTableName);
+	}
+	return LoadAcceleratorsWOrg(hInstance, lpTableName);
 }
 
 bool running_game_scripts = false;

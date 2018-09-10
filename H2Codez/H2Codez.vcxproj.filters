@@ -179,6 +179,9 @@
     <ClInclude Include="Tags\MultiplayerGlobals.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\sapien_accelerators.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -259,6 +262,9 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
     <ResourceCompile Include="Resources\H2Guerilla.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\sapien_accelerators.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

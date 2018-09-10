@@ -176,6 +176,9 @@
     <ClInclude Include="H2Sapien\Profile.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\MultiplayerGlobals.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

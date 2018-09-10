@@ -128,6 +128,7 @@
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
+    <ClInclude Include="Tags\MultiplayerGlobals.h" />
     <ClInclude Include="util\Debug.h" />
     <ClInclude Include="util\Detours\detours.h" />
     <ClInclude Include="util\Detours\detver.h" />

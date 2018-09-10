@@ -2,9 +2,16 @@
 #include "../stdafx.h"
 
 /* channel intensity is represented on a 0 to 1 scale */
-struct colour
+struct colour_rgba
 {
 	float alpha = 1.0f;
+	float red = 1.0f;
+	float green = 1.0f;
+	float blue = 1.0f;
+};
+
+struct colour_rgb
+{
 	float red = 1.0f;
 	float green = 1.0f;
 	float blue = 1.0f;

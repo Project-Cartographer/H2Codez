@@ -5,6 +5,13 @@
 
 #define NONE -1
 
+struct datum
+{
+	short index;
+	short salt;
+};
+CHECK_STRUCT_SIZE(datum, 4);
+
 struct tag_ref
 {
 	int tag_type;

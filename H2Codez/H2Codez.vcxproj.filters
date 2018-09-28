@@ -182,6 +182,9 @@
     <ClInclude Include="Resources\sapien_accelerators.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\ShaderTag.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

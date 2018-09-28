@@ -4,6 +4,10 @@
 #include "Common\DiscordInterface.h"
 #include "Common\H2EKCommon.h"
 #include "Util\Debug.h"
+#include "Tags\ShaderTag.h"
+
+// use this to export a type to ida
+//extern shader_block *block = new shader_block;
 
 #pragma region declarations
 

@@ -258,6 +258,22 @@ int __stdcall game_view_true_stub(int)
 	return true;
 }
 
+signed int __cdecl wdp_initialize__game()
+{
+	return 2;
+}
+
+char __cdecl is_sapien__game()
+{
+	return 0;
+}
+
+int __cdecl is_render_enabled__sapien()
+{
+	char no_renderer = *reinterpret_cast<char*>(0xA68318);
+	return no_renderer == 0;
+}
+
 hs_command status_cmd(
 	"status",
 	hs_type::nothing,
@@ -447,11 +463,21 @@ void H2SapienPatches::Init()
 	WriteValue(0x00416028 + 4, 'play');
 	WriteValue(0x00416072 + 1, 'play');
 
-
-
 	// allow dumping screen print to standard output
 	WriteValue(0xAAC0BD, conf.getBoolean("dump_screen_print_to_console", is_debug_build()));
 	NopFillRange(0x50448A, 0x504491);
+
+	if (conf.getBoolean("simulate_game", false))
+	{
+		WriteJmp(0x409A40, wdp_initialize__game);
+		WriteJmp(0x458940, is_sapien__game); // hook is_renderer_enabled
+		// hook stuff that should still be renderer_enabled
+		PatchCall(0x006EE31E, is_render_enabled__sapien); // display mode
+		PatchCall(0x006B9DF0, is_render_enabled__sapien); // decorations
+		NopFill(0x6FC641, 5); // update_display crashes if called too earlier
+		//PatchCall(0x00682E63, is_render_enabled__sapien); // ??
+		//PatchCall(0x00643A5A, is_render_enabled__sapien); // ??
+	}
 
 #pragma endregion
 

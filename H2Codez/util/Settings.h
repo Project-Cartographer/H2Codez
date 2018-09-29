@@ -95,6 +95,17 @@ public:
 	bool getBoolean(const std::string &setting, bool default = false);
 	/* Throws an error if the setting name is invalid */
 	void setBoolean(const std::string & setting, bool value);
+
+	/* set temp setting, returns success */
+	inline bool setTempSetting(std::string setting, const std::string &value)
+	{
+		if (validate_setting_name(setting)) {
+			temp_setting_data[setting] = value;
+			return true;
+		} else {
+			return false;
+		}
+	}
 private:
 	/* check if the setting name is valid */
 	inline bool validate_setting_name(const std::string &setting)
@@ -102,6 +113,9 @@ private:
 		return !setting.empty() && isalpha(setting[0])
 			&& std::find_if(setting.begin(), setting.end(), [](char c) {return !isalnum(c) && c != '_' && c != '-';  }) == setting.end();
 	}
+	// for the current session only, are not saved
+	std::map<std::string, std::string> temp_setting_data;
+	
 	std::string settings_filename;
 	std::map<std::string, std::string> key_value_pairs;
 	bool settings_edited = false;

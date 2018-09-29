@@ -38,6 +38,10 @@ Settings::~Settings()
 const std::string& Settings::getString(const std::string &setting)
 {
 	if (validate_setting_name(setting)) {
+		auto temp = temp_setting_data.find(setting);
+		if (temp != temp_setting_data.end()) {
+			return temp->second;
+		}
 		auto ilter = key_value_pairs.find(setting);
 		if (ilter != key_value_pairs.end())
 			return ilter->second;
@@ -51,6 +55,11 @@ const std::string& Settings::getString(const std::string &setting)
 bool Settings::getString(const std::string &setting, std::string &value)
 {
 	if (validate_setting_name(setting)) {
+		auto temp = temp_setting_data.find(setting);
+		if (temp != temp_setting_data.end()) {
+			value = temp->second;
+			return true;
+		}
 		auto ilter = key_value_pairs.find(setting);
 		if (ilter != key_value_pairs.end()) {
 			value = ilter->second;
@@ -65,6 +74,7 @@ bool Settings::getString(const std::string &setting, std::string &value)
 void Settings::setString(const std::string &setting, const std::string &value)
 {
 	if (validate_setting_name(setting)) {
+		temp_setting_data.erase(setting);
 		if (key_value_pairs[setting] != value) {
 			key_value_pairs[setting] = value;
 			settings_edited = true;

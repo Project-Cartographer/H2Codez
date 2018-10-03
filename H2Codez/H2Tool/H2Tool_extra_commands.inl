@@ -3,6 +3,8 @@
 #include "H2Tool_Render_Model.h"
 #include "../Common/FiloInterface.h"
 #include <codecvt>
+#include "../util/string_util.h"
+#include "../Tags/ScenarioStructureBSP.h"
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -436,5 +438,68 @@ static const s_tool_command list_extra_commands = {
 	L"extra commands list",
 	CAST_PTR(_tool_command_proc,list_all_extra_commands_proc),
 	nullptr, 0,
+	true
+};
+
+std::string filesystem_path_to_tag_path(const wchar_t *fs_path)
+{
+	std::string narrow_fs_path = tolower(wstring_to_string.to_bytes(fs_path));
+	auto tags_offset = narrow_fs_path.find("tags\\");
+	if (tags_offset != std::string::npos && narrow_fs_path.size() > tags_offset + 5)
+	{
+		return narrow_fs_path.substr(tags_offset + 5);
+	} else {
+		return narrow_fs_path;
+	}
+}
+
+void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
+{
+	std::string source_path = filesystem_path_to_tag_path(argv[0]);
+	std::string target_path = filesystem_path_to_tag_path(argv[1]);
+	printf_s("source :'%s'\n", source_path.c_str());
+	printf_s("target :'%s'\n", target_path.c_str());
+
+	auto load_tag = [](const std::string &path, bool can_save) -> int
+	{
+		auto index = TAG_LOAD('sbsp', path.c_str(), can_save ? 1 : 7);
+		if (index == NONE)
+		{
+			printf_s("Failed to load tag '%s', aborting\n", path.c_str());
+		}
+		return index;
+	};
+
+	int source_index = load_tag(source_path, false);
+	int target_index = load_tag(target_path, true);
+
+	if (source_index == NONE || target_index == NONE)
+		return;
+	scenario_structure_bsp_block *source = (scenario_structure_bsp_block*)TAG_GET('sbsp', source_index);
+	scenario_structure_bsp_block *target = (scenario_structure_bsp_block*)TAG_GET('sbsp', target_index);
+
+	typedef char __cdecl TAG_BLOCK_COPY(tag_block_ref *source_block, tag_block_ref *dest_block);
+	auto tag_block_copy = reinterpret_cast<TAG_BLOCK_COPY*>(0x534810);
+	LOG_CHECK(tag_block_copy(&source->pathfindingData, &target->pathfindingData));
+	if (!TAG_SAVE(target_index))
+		printf_s("Failed to save target tag!\n");
+
+	LOG_CHECK(TAG_UNLOAD(source_index));
+	LOG_CHECK(TAG_UNLOAD(target_index));
+	printf_s("Done!");
+}
+
+const s_tool_command_argument copy_pathfinding_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"source", ".scenario_structure_bsp", "source sbsp" },
+	{ _tool_command_argument_type_tag_name, L"destination", ".scenario_structure_bsp", "destination sbsp" }
+};
+
+static const s_tool_command copy_pathfinding
+{
+	L"copy pathfinding",
+	copy_pathfinding_proc,
+	copy_pathfinding_args,
+	ARRAYSIZE(copy_pathfinding_args),
 	false
 };

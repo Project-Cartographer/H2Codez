@@ -27,7 +27,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&tool_build_structure_from_jms,
 	&h2dev_extra_commands_defination,
 	&list_extra_commands,
-
+	&copy_pathfinding,
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)
@@ -43,28 +43,6 @@ int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)
 	return _wcsicmp(l, r);
 }
 
-void _H2ToolAttachHooks()
-{
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-
-
-	//  DetourAttach(&(PVOID&)pPlayerSpeed,OnPlayerSpeed);	
-
-	//  DetourAttach(&(PVOID&)pcreatechar,h_CreateCharacter);
-	//DetourAttach(&(PVOID&)pXYZ, h_XYZUpdate);
-
-
-	DetourTransactionCommit();
-	return;
-}
-void _H2ToolDetachHooks()
-{
-	//DetourDetach(&(PVOID&)pgameoptions,h_GetGameOptions);
-	// DetourDetach(&(PVOID&)pMapSelect,h_MPMapSelect);
-	// DetourDetach(&(PVOID&)psquadsettings,h_SquadSettings);	
-	return;
-}
 #pragma region structure_import Tweeks
 void H2ToolPatches::Increase_structure_import_size_Check()
 {

@@ -11,10 +11,10 @@
 
 
 
-static void _cdecl import_model_render_proc(wcstring arguments)
+static void _cdecl import_model_render_proc(const wchar_t *argv[])
 {
 	static _tool_command_proc _import_model_render_proc = CAST_PTR(_tool_command_proc, 0x41C7A0);
-	_import_model_render_proc(arguments);
+	_import_model_render_proc(argv);
 }
 
 

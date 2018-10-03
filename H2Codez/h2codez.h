@@ -9,7 +9,7 @@ typedef const char* cstring;
 typedef wchar_t* wstring;
 // Constant '\0\0' terminated unicode string
 typedef const wchar_t* wcstring;
-typedef void(_cdecl* _tool_command_proc)(wcstring arguments);
+typedef void(_cdecl* _tool_command_proc)(const wchar_t *argv[]);
 typedef bool(_cdecl* tool_dev_command_proc)(wchar_t *a1, DWORD TAG_INDEX);
 typedef void(_cdecl* _tool_import__defination_proc)(void* FILE_REFERENCE, void* ref_ptr);
 typedef char long_string[255 + 1];

@@ -13,6 +13,13 @@ struct hs_convert_data_store
 };
 CHECK_STRUCT_SIZE(hs_convert_data_store, 0x14);
 
+enum wdp_type : signed int
+{
+	_tool = 0,
+	_sapien = 1,
+	_game = 2
+};
+
 namespace H2CommonPatches {
 	void Init();
 	bool newInstance();

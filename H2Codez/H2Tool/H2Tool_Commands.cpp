@@ -796,6 +796,15 @@ void H2ToolPatches::Initialize()
 
 	// hooks the last step after all preprocessing and before packing
 	PatchCall(0x00588A66, scenario_write_patch_file_hook);
+
+	if (conf.getBoolean("simulate_game", false))
+	{
+		BYTE wdp_initialize_patch[] = { 0xB0, wdp_type::_sapien };
+		WriteArray(0x53AB40, wdp_initialize_patch);
+		WriteValue(0xA77DD0, GetModuleHandleA(NULL)); // g_hinstance
+		WritePointer(0xA77DE0, DefWindowProcW);
+		wcscpy_s(reinterpret_cast<wchar_t*>(0xA77DE4), 0x40, L"halo");
+	}
 }
 
 

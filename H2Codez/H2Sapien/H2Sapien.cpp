@@ -265,13 +265,6 @@ bool __cdecl is_render_enabled()
 	return no_renderer == 0;
 }
 
-enum wdp_type : signed int
-{
-	_tool = 0,
-	_sapien = 1,
-	_game = 2
-};
-
 wdp_type __cdecl wdp_initialize()
 {
 	if (conf.getBoolean("simulate_game", false)) // see if we should pretend to be game
@@ -477,36 +470,32 @@ void H2SapienPatches::Init()
 	WriteValue(0xAAC0BD, conf.getBoolean("dump_screen_print_to_console", is_debug_build()));
 	NopFillRange(0x50448A, 0x504491);
 
-	WriteJmp(0x458940, is_render_enabled); // default is_sapien
+	WriteJmp(0x458940, is_sapien); // default is_sapien
 
 	// used is_sapien/is_render_enabled
 	WriteJmp(0x409A40, wdp_initialize);
 
 	NopFill(0x6FC641, 5); // update_display crashes if called too earlier
+	NopFill(0x64E3B8, 2); // always enable editor_strip_dialogue_sounds
 	PatchCall(0x006FCA65, is_render_enabled); // technically a call to wdp_initialize, but just need this to return something other than 2
 
 	std::unordered_set<DWORD> patch_to_simulate_game  {
-		0x00682360, // alloc_device_groups
-		0x00638074, // objects_initialize
 		//0x005D28F0, // verify_physics_maybe
-		//0x005A2321, // player_effect_setup_scenario
-		0x0059B953, // check_havok_memory_usage
-		//0x0059B8B8, // havok_second_mem_overflow_maybe
-		//0x0059B791, // havok_second_mem_overflow_maybe
-		//0x0059B6E5, // havok_second_mem_overflow_maybe
-		//0x0059B5D3, // havok_second_mem_overflow_maybe
-		//0x0059B525, // havok_second_mem_overflow_maybe
-		//0x0059B41C, // havok_second_mem_overflow_maybe
-		0x004D75C6, // main_loop
-		0x00505BF0, // flags_clear
-		0x00505DD0, // new_flag_at_pos
-		0x0050F860, // cinematic_cleanup
-		0x005102BB, // cinematic_update
+		0x005A2321, // player_effect_setup_scenario
+		0x006EE31E, // rasterizer_initialize
+		0x006B9DF0, // c_decorator_placement_definition_setup_sbsp
+		0x004F1D15, // director_setup_scenario
+		0x00682E63, // ???
+		0x00643A5A, // ???
+		0x004B5AE7, // tag_reload
+		0x004CAD26, // update_input
+		0x004CAF24, // update_input
+		0x00514C9D, // havok_setup_sbsp
 	};
 
 	for (auto addr : patch_to_simulate_game)
 	{
-		PatchCall(addr, is_sapien);
+		PatchCall(addr, is_render_enabled);
 	}
 
 

@@ -130,6 +130,7 @@
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
+    <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
     <ClInclude Include="util\Debug.h" />
     <ClInclude Include="util\Detours\detours.h" />

@@ -48,11 +48,30 @@ struct real_vector3d
 	float k;
 };
 
+struct real_plane2d
+{
+	real_vector2d normal;
+	float distance;
+};
+
+struct real_plane3d
+{
+	real_vector3d normal;
+	float distance;
+};
+
 struct real_euler_angles2d
 {
 	float yaw;
 	float pitch;
 };
+
+struct real_bounds
+{
+	float lower;
+	float upper;
+};
+
 
 struct string_id
 {

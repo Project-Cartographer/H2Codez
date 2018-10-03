@@ -185,6 +185,9 @@
     <ClInclude Include="Tags\ShaderTag.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\ScenarioStructureBSP.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

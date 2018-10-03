@@ -23,6 +23,10 @@ inline void WriteBytes(DWORD destAddress, void *patch, DWORD numBytes)
 }
 
 /*
+	Writes an array into memory
+*/
+#define WriteArray(dest, patch) WriteBytes(dest, patch, sizeof(patch))
+/*
 	Writes data to memory at address
 */
 template <typename value_type>

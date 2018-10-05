@@ -12,12 +12,12 @@ namespace HaloScriptCommon
 	struct hs_command
 	{
 		hs_type return_type;
-		char *name;
+		const char *name;
 		DWORD unk1 = 0;
 		func_check check_command_args;
 		func_impl command_impl;
-		char *desc;
-		char *usage;
+		const char *desc;
+		const char *usage;
 		WORD arg_count = 0;
 		WORD arg_type_array[];
 
@@ -25,8 +25,8 @@ namespace HaloScriptCommon
 			hs_type ret_type,
 			const func_check arg_check,
 			const func_impl impl,
-			char *_desc = nullptr,
-			char *_usage = nullptr) :
+			const char *_desc = nullptr,
+			const char *_usage = nullptr) :
 			name(cmd_name),
 			return_type(ret_type),
 			check_command_args(arg_check),
@@ -39,12 +39,12 @@ namespace HaloScriptCommon
 	};
 	CHECK_STRUCT_SIZE(hs_command, 0x1E);
 
-	inline hs_command *NewCommand(char *cmd_name,
+	inline hs_command *NewCommand(const char *cmd_name,
 		hs_type ret_type,
 		const func_check arg_check,
 		const func_impl impl,
-		char *_desc = nullptr,
-		char *_usage = nullptr,
+		const char *_desc = nullptr,
+		const char *_usage = nullptr,
 		int _arg_count = 0,
 		const hs_type *arg_types = nullptr)
 	{

@@ -23,10 +23,10 @@ void **HaloScriptCommon::epilog(void *DatumIndex, int return_data)
 	return hs_epilog_impl(DatumIndex, return_data);
 }
 
-void **HaloScriptCommon::prolog(__int16 command_id, void *DatumIndex, char user_cmd)
+void *HaloScriptCommon::prolog(__int16 command_id, void *DatumIndex, char user_cmd)
 {
-	typedef void **(__cdecl *hs_prolog)(__int16 a1, void *a2, char a3);
-	hs_prolog hs_prolog_impl = reinterpret_cast<hs_prolog>(SwitchAddessByMode(0, 0x52CC70,0 ));
+	typedef void *(__cdecl *hs_prolog)(__int16 a1, void *a2, char a3);
+	hs_prolog hs_prolog_impl = reinterpret_cast<hs_prolog>(SwitchAddessByMode(0, 0x52D3E0,0 ));
 	CHECK_FUNCTION_SUPPORT(hs_prolog_impl);
 
 	return hs_prolog_impl(command_id, DatumIndex, user_cmd);
@@ -87,4 +87,46 @@ void HaloScriptInterface::init_custom(hs_command **old_command_table, hs_global_
 	for (unsigned int i = 0; i <= static_cast<int>(hs_global_id::force_crash_uploads); i++) {
 		global_table[i] = old_global_table[i];
 	}
+}
+
+void **__cdecl custom_func_wrapper(int opcode, void *DatumIndex, char user_cmd)
+{
+	hs_opcode id = static_cast<hs_opcode>(opcode);
+	auto custom_func = g_halo_script_interface->get_custom_func(id);
+	void *args = HaloScriptCommon::prolog(static_cast<short>(opcode), DatumIndex, user_cmd);
+	int return_data = 0;
+	if (LOG_CHECK(custom_func) && LOG_CHECK(args))
+	{
+		return_data = custom_func(args);
+	}
+	return HaloScriptCommon::epilog(DatumIndex, return_data);
+}
+
+// not freed till the process exists and the OS cleans up
+const char *cmd_string(const std::string &str)
+{
+	if (!str.empty())
+	{
+		size_t data_size = str.size() + 1;
+		char *data = new char[data_size];
+		strncpy_s(data, data_size, str.c_str(), str.size());
+		return static_cast<const char*>(data);
+	}
+	return nullptr;
+}
+
+void HaloScriptInterface::RegisterCustomCommand(hs_opcode id, const hs_custom_command &custom_cmd)
+{
+	custom_funcs[id] = custom_cmd.command_impl;
+	hs_command *command = NewCommand(
+		cmd_string(custom_cmd.name),
+		custom_cmd.return_type,
+		hs_default_func_check,
+		custom_func_wrapper,
+		cmd_string(custom_cmd.description),
+		cmd_string(custom_cmd.custom_usage),
+		custom_cmd.args.size(),
+		custom_cmd.args.data()
+	);
+	RegisterCommand(id, command);
 }

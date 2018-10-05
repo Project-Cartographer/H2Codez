@@ -251,20 +251,6 @@ void fix_documents_path_string_type()
 	}
 }
 
-void **__cdecl halo_2_only_stub(int opcode, void *DatumIndex, char user_cmd)
-{
-	return HaloScriptCommon::epilog(DatumIndex, 0);
-}
-
-hs_command *unknown_command = NewCommand
-(
-	"unknown_command",
-	hs_type::nothing,
-	hs_default_func_check,
-	halo_2_only_stub,
-	"Does nothing."
-);
-
 int api_version = 1;
 
 hs_global_variable api_extension_version = hs_global_variable
@@ -276,11 +262,16 @@ hs_global_variable api_extension_version = hs_global_variable
 
 void HaloScriptExtensions()
 {
+	hs_custom_command unknown_stub(
+		"unknown_command", 
+		"Does nothing.",
+		[](void *) ->int {return 0; }
+	);
 	// start halo nops
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_1, unknown_command);
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_2, unknown_command);
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_3, unknown_command);
-	g_halo_script_interface->RegisterCommand(hs_opcode::hs_unk_4, unknown_command);
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_1, unknown_stub);
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_2, unknown_stub);
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_3, unknown_stub);
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_4, unknown_stub);
 	// end halo nops
 
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);

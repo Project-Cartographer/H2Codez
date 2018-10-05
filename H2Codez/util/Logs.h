@@ -26,7 +26,7 @@ template <typename T>
 inline T verify_output(T output, const char *expression, const char *func_name, const char* file, const int line)
 {
 	if (!output) {
-		pLog.WriteLog("'%s' failed in '%s' at '%s:%d'!", func_name, expression, file, line);
+		pLog.WriteLog("'%s' failed in '%s' at '%s:%d'!", expression, func_name, file, line);
 		DWORD last_error = GetLastError();
 		if (last_error)
 		{

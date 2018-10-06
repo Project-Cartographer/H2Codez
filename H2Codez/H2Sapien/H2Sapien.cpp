@@ -190,7 +190,7 @@ errno_t print_help_to_doc()
 	return 0;
 }
 
-void **__cdecl status_func_impl(int command_id, void *a2, char a3)
+void __cdecl status_func_impl(__int16 command_id, datum thread_id, char a3)
 {
 	ofstream output;
 	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
@@ -206,7 +206,7 @@ void **__cdecl status_func_impl(int command_id, void *a2, char a3)
 	}
 	output.close();
 	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
-	return HaloScriptCommon::epilog(a2, 0);
+	HaloScriptCommon::epilog(thread_id, 0);
 }
 
 signed int get_tick_rate()

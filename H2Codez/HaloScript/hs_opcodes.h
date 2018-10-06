@@ -934,7 +934,8 @@ namespace HaloScriptCommon {
 		disable_render_light_suppressor,
 
 		// API extension functions
-		// TODO
+		enable_custom_script_sync,
+		wake_sync,
 
 
 		enum_count,

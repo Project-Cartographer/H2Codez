@@ -260,19 +260,44 @@ hs_global_variable api_extension_version = hs_global_variable
 	&api_version
 );
 
+bool wake_hs_thread_by_name(char *thread)
+{
+	typedef char __cdecl _wake_hs_thread_by_name(char *thread);
+	auto _wake_hs_thread_by_name_impl = reinterpret_cast<_wake_hs_thread_by_name*>(0x52C5B0);
+	return _wake_hs_thread_by_name_impl(thread);
+}
+
 void HaloScriptExtensions()
 {
+#pragma region unknown nops
 	hs_custom_command unknown_stub(
-		"unknown_command", 
+		"unknown_command",
 		"Does nothing.",
-		[](void *) ->int {return 0; }
+		NULL_HS_FUNC
 	);
-	// start halo nops
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_1, unknown_stub);
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_2, unknown_stub);
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_3, unknown_stub);
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_4, unknown_stub);
-	// end halo nops
+#pragma endregion
+
+	hs_custom_command enable_custom_script_sync("enable_custom_script_sync", "Allows running scripts on client using wake_sync (extension function).", NULL_HS_FUNC); // does nothing in sapien
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::enable_custom_script_sync, enable_custom_script_sync);
+
+	struct start_sync_args
+	{
+		char *script_name;
+	};
+	auto start_sync_func = HS_FUNC(
+		wake_hs_thread_by_name((static_cast<start_sync_args*>(args))->script_name);
+		return 0;
+		);
+	hs_custom_command wake_sync("wake_sync",
+		"Run a script on both server and clients (extension function).",
+		start_sync_func,
+		{ hs_type::string }
+	);
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::wake_sync, wake_sync);
 
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 }

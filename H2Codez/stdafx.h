@@ -32,8 +32,6 @@
 #include "util\Detours\detours.h"
 #include "util\Logs.h"
 #include "H2Tool\H2Tool_Commands.h"
-#include "Common\discord-rpc.h"
-#include "util\Patches.h"
 #include "util\Settings.h"
 
 extern Settings conf;

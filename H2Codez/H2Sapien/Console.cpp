@@ -2,6 +2,7 @@
 #include "..\util\RingBuffer.h"
 #include "..\stdafx.h"
 #include "..\Common\H2EKCommon.h"
+#include "..\util\Patches.h"
 
 inline bool is_ctrl_down()
 {

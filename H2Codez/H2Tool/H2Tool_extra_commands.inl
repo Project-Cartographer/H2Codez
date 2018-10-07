@@ -1,10 +1,12 @@
 #include "../stdafx.h"
+#include "H2Tool_Commands.h"
 #include "H2ToolLibrary.inl"
 #include "H2Tool_Render_Model.h"
 #include "../Common/FiloInterface.h"
 #include <codecvt>
 #include "../util/string_util.h"
 #include "../Tags/ScenarioStructureBSP.h"
+#include "../util/Patches.h"
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"

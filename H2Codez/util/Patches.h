@@ -1,17 +1,25 @@
 #pragma once
+class Logs;
+extern Logs pLog;
 
 /*
 	Writes `numBytes` bytes from `patch` to `destAddress`
 */
 inline void WriteBytes(void* destAddress, void *patch, DWORD numBytes)
 {
-	DWORD OldProtection;
+	if (destAddress && patch && numBytes > 0)
+	{
+		DWORD OldProtection;
 
-	VirtualProtect(destAddress, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(destAddress, patch, numBytes);
-	VirtualProtect(destAddress, numBytes, OldProtection, NULL);
+		VirtualProtect(destAddress, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection);
+		memcpy(destAddress, patch, numBytes);
+		VirtualProtect(destAddress, numBytes, OldProtection, NULL);
 
-	FlushInstructionCache(GetCurrentProcess(), destAddress, numBytes);
+		FlushInstructionCache(GetCurrentProcess(), destAddress, numBytes);
+	} else if (is_debug_build() && (!patch || numBytes == 0))
+	{
+		pLog.WriteLog("Invalid arguments supplied to WriteBytes patch: %x numBytes: %d", patch, numBytes);
+	}
 }
 
 /*

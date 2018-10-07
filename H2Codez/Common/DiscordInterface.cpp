@@ -1,4 +1,5 @@
 #include "../stdafx.h"
+#include "Common\discord-rpc.h"
 #include "DiscordInterface.h"
 #include <process.h>
 

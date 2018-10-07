@@ -1,12 +1,6 @@
 #pragma once
 #include "stdafx.h"
 
-void _H2ToolAttachHooks();
-void _H2ToolDetachHooks();
-
-
-
-
 enum tool_command_argument_type : long {
 	_tool_command_argument_type_0,
 	_tool_command_argument_type_1,

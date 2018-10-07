@@ -63,7 +63,8 @@ private:
 	static H2EK detect_type();
 };
 
-inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
+template <typename T>
+inline T SwitchByMode(T tool, T sapien, T guerilla)
 {
 	assert(game.process_type != H2EK::Invalid);
 	switch (game.process_type)
@@ -76,6 +77,11 @@ inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
 		return guerilla;
 	}
 	abort(); // this should never happen
+}
+
+inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
+{
+	return SwitchByMode(tool, sapien, guerilla);
 }
 
 extern std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;

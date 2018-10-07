@@ -69,9 +69,7 @@ bool H2Toolz::Init()
 		MessageBoxA(0, "H2toolz loaded into unsupported process, will now exit!", "ERROR!", MB_OK);
 		return false;
 	}
-#ifndef _DEBUG
-	if (game.process_type != H2EK::H2Tool && conf.getBoolean("enable_debug_console", false))
-#endif
+	if (is_debug_build() || game.process_type != H2EK::H2Tool && conf.getBoolean("enable_debug_console", false))
 		Debug::Start_Console();
 
 	DiscordInterface::setAppType(game.process_type);

@@ -267,8 +267,68 @@ bool wake_hs_thread_by_name(char *thread)
 	return _wake_hs_thread_by_name_impl(thread);
 }
 
-void HaloScriptExtensions()
+void fix_haloscript_pointers()
 {
+	// Replace pointers to the commmand table
+	const static std::vector<DWORD> cmd_table_offsets_tool =
+	{
+		0x005C5365 + 3, 0x005C5530 + 3, 0x005C5554 + 3,
+		0x005C5821 + 3, 0x005C5C44 + 3, 0x005C5E64 + 3,
+		0x005C5E9A + 3, 0x005C5F48 + 3
+	};
+	const static std::vector<DWORD> cmd_table_offsets_sapien =
+	{
+		0x004E2225 + 3, 0x004E23F0 + 3,  0x004E2414 + 3,
+		0x004E2701 + 3, 0x004E2DF4 + 3, 0x004E3014 + 3,
+		0x004E304D,     0x004E30FB
+	};
+	std::vector<DWORD> &cmd_table_offsets = SwitchByMode(cmd_table_offsets_tool, cmd_table_offsets_sapien, {});
+
+	hs_command **cmds = g_halo_script_interface->get_command_table();
+
+	for (DWORD addr : cmd_table_offsets)
+		WritePointer(addr, cmds);
+
+	// patch command table size
+	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_size();
+	WriteValue(SwitchByMode(0x008CD59C, 0x008EB118, NULL), hs_cmd_table_size);
+
+	// Replace pointers to the globals table
+
+	const static std::vector<DWORD> var_table_offsets_tool =
+	{
+		0x005C53D5, 0x005C53F0, 0x005C5430,
+		0x005C5474, 0x005C58D1, 0x006884A1,
+		0x006884BD, 0x0068850D, 0x0068858B,
+		0x006885A2
+	};
+	const static std::vector<DWORD> var_table_offsets_sapien =
+	{
+		0x004E2295, 0x004E22B0, 0x004E22F0,
+		0x004E2334, 0x004E27B1, 0x00635A11,
+		0x00635A2D, 0x00635A7D, 0x00635AFB,
+		0x00635B12
+	};
+
+	std::vector<DWORD> &var_table_offsets = SwitchByMode(var_table_offsets_tool, var_table_offsets_sapien, {});
+
+	hs_global_variable **vars = g_halo_script_interface->get_global_table();
+
+	for (DWORD addr : var_table_offsets)
+		WriteValue(addr + 3, vars);
+
+	// patch globals table size
+	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
+	WriteValue(SwitchByMode(0x008D2238, 0x008EFDB4, NULL), hs_global_table_size);
+}
+
+void init_haloscript_patches()
+{
+	hs_command **command_table = reinterpret_cast<hs_command **>(SwitchByMode(0x009ECFE0, 0x9E9E90, 0x95BF70));
+	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(SwitchByMode(0x009EFF78, 0x9ECE28, 0x95EF08));
+	g_halo_script_interface->init_custom(command_table, global_table);
+
+	fix_haloscript_pointers();
 #pragma region unknown nops
 	hs_custom_command unknown_stub(
 		"unknown_command",
@@ -280,6 +340,8 @@ void HaloScriptExtensions()
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_3, unknown_stub);
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::hs_unk_4, unknown_stub);
 #pragma endregion
+
+#pragma region extensions
 
 	hs_custom_command enable_custom_script_sync("enable_custom_script_sync", "Allows running scripts on client using wake_sync (extension function).", NULL_HS_FUNC); // does nothing in sapien
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::enable_custom_script_sync, enable_custom_script_sync);
@@ -300,6 +362,7 @@ void HaloScriptExtensions()
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::wake_sync, wake_sync);
 
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
+#pragma endregion
 }
 
 typedef BOOL (WINAPI *T_FuncOpenFileNameW)(LPOPENFILENAMEW info);
@@ -348,7 +411,7 @@ void H2CommonPatches::Init()
 
 	fix_documents_path_string_type();
 
-	HaloScriptExtensions();
+	init_haloscript_patches();
 
 	DetourTransactionCommit();
 }

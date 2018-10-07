@@ -265,8 +265,4 @@ void H2GuerrilaPatches::Init()
 
 	update_field_display();
 	update_display_templates();
-
-	hs_command **command_table = reinterpret_cast<hs_command **>(0x95BF70);
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x95EF08);
-	g_halo_script_interface->init_custom(command_table, global_table);
 }

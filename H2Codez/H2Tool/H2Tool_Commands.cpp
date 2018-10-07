@@ -619,49 +619,6 @@ void fix_hs_converters()
 
 #undef set_hs_converter
 
-void HaloScriptExtend()
-{
-
-	hs_command **command_table = reinterpret_cast<hs_command **>(0x009ECFE0);
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x009EFF78);
-	g_halo_script_interface->init_custom(command_table, global_table);
-
-	// Replace pointers to the commmand table
-	static DWORD cmd_offsets[] =
-	{
-		0x005C5365 + 3, 0x005C5530 + 3, 0x005C5554 + 3,
-		0x005C5821 + 3, 0x005C5C44 + 3, 0x005C5E64 + 3,
-		0x005C5E9A + 3, 0x005C5F48 + 3
-	};
-
-	hs_command **cmds = g_halo_script_interface->get_command_table();
-
-	for (DWORD addr : cmd_offsets)
-		WritePointer(addr, cmds);
-
-	// patch command table size
-	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_size();
-	WriteValue(0x008CD59C, hs_cmd_table_size);
-
-	// Replace pointers to the globals table
-	static DWORD var_offsets[] =
-	{
-		0x005C53D5, 0x005C53F0, 0x005C5430,
-		0x005C5474, 0x005C58D1, 0x006884A1,
-		0x006884BD, 0x0068850D, 0x0068858B,
-		0x006885A2
-	};
-
-	hs_global_variable **vars = g_halo_script_interface->get_global_table();
-
-	for (DWORD addr : var_offsets)
-		WritePointer(addr + 3, vars);
-
-	// patch globals table size
-	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
-	WriteValue(0x008D2238, hs_global_table_size);
-}
-
 LPWSTR __crtGetCommandLineW_hook()
 {
 	typedef LPWSTR (*__crtGetCommandLineW_t)();
@@ -764,7 +721,6 @@ void H2ToolPatches::Initialize()
 	remove_bsp_version_check();
 	disable_secure_file_locking();
 	fix_hs_converters();
-	HaloScriptExtend();
 	fix_command_line();
 	//enable_campaign_tags_sharing(); // Still crashes might need tag changes.
 

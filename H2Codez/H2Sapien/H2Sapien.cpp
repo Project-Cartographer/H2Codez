@@ -327,9 +327,7 @@ void H2SapienPatches::Init()
 	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());
 #pragma region value init
-	hs_command **command_table = reinterpret_cast<hs_command **>(0x9E9E90);
-	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(0x9ECE28);
-	g_halo_script_interface->init_custom(command_table, global_table);
+
 	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
 
 	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
@@ -394,42 +392,6 @@ void H2SapienPatches::Init()
 	// and getting a werid path directly in program files
 	const char *tag_debug_format = "%S//%s_tag_dump.txt";
 	WriteValue(0x004B5F33 + 1, tag_debug_format);
-
-	// Replace pointers to the commmand table
-	static DWORD cmd_offsets[] = 
-	{
-		0x004E2225 + 3, 0x004E23F0 + 3,  0x004E2414 + 3,
-		0x004E2701 + 3, 0x004E2DF4 + 3, 0x004E3014 + 3,
-		0x004E304D,     0x004E30FB
-	};
-
-	hs_command **cmds = g_halo_script_interface->get_command_table();
-
-	for (DWORD addr : cmd_offsets)
-		WritePointer(addr, cmds);
-
-	// patch command table size
-	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_size();
-	WriteValue(0x008EB118, hs_cmd_table_size);
-
-	// Replace pointers to the globals table
-
-	static DWORD var_offsets[] =
-	{
-		0x004E2295, 0x004E22B0, 0x004E22F0,
-		0x004E2334, 0x004E27B1, 0x00635A11,
-		0x00635A2D, 0x00635A7D, 0x00635AFB,
-		0x00635B12
-	};
-
-	hs_global_variable **vars = g_halo_script_interface->get_global_table();
-
-	for (DWORD addr : var_offsets)
-		WriteValue(addr + 3, vars);
-
-	// patch globals table size
-	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
-	WriteValue(0x008EFDB4, hs_global_table_size);
 
 	// fix "game_tick_rate"
 	WriteJmp(0x006F7D60, get_tick_rate);

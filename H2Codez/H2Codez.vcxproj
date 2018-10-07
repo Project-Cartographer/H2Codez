@@ -125,6 +125,7 @@
     <ClInclude Include="Common\tag_group_names.h" />
     <ClInclude Include="H2Sapien\Console.h" />
     <ClInclude Include="H2Sapien\Profile.h" />
+    <ClInclude Include="H2Sapien\RenderDebug.h" />
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClCompile Include="H2Sapien\Console.cpp" />
     <ClCompile Include="H2Sapien\Profile.cpp" />
+    <ClCompile Include="H2Sapien\RenderDebug.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />

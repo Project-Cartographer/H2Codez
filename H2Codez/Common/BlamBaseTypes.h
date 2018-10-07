@@ -8,6 +8,15 @@ struct colour_rgba
 	float red = 1.0f;
 	float green = 1.0f;
 	float blue = 1.0f;
+
+	colour_rgba() {}
+
+	colour_rgba(float _alpha, float _red, float _green, float _blue) :
+		alpha(_alpha),
+		red(_red),
+		green(_green),
+		blue(_blue)
+	{}
 };
 
 struct colour_rgb

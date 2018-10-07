@@ -12,6 +12,7 @@
 #include "Console.h"
 #include "TagUpdate.h"
 #include "Profile.h"
+#include "RenderDebug.h"
 #include "..\Resources\sapien_accelerators.h"
 #include <unordered_set>
 
@@ -323,6 +324,8 @@ void H2SapienPatches::Init()
 
 	// fix game profiles
 	fix_game_save();
+
+	render_debug_info_init();
 	// set current directory to executable path
 	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());

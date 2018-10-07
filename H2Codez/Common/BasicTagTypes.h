@@ -41,6 +41,31 @@ struct tag_block
 	{
 		return get_ref();
 	}
+
+	T *operator[](size_t index)
+	{
+		if (index == NONE)
+			return nullptr;
+		if (index >= this->size)
+			return nullptr;
+		if (LOG_CHECK(this->data))
+			return &this->data[index];
+		else
+			return nullptr;
+	}
+
+	T *begin()
+	{
+		return this->data;
+	}
+
+	T *end()
+	{
+		if (this->data)
+			return &this->data[this->size];
+		else
+			return nullptr;
+	}
 };
 
 struct byte_ref

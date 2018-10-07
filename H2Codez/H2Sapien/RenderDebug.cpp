@@ -3,6 +3,7 @@
 #include "..\util\Patches.h"
 #include "..\Tags\ScenarioStructureBSP.h"
 #include "..\stdafx.h"
+#include "..\util\string_util.h"
 
 scenario_structure_bsp_block *get_sbsp()
 {
@@ -25,7 +26,7 @@ void draw_debug_line(real_point3d *v0, real_point3d *v1,
 	draw_debug_line_impl(v0, v1, start_colour, end_colour);
 }
 
-const colour_rgba pathfinding_debug_colour( 1.0f, 0.0f, 1.0f, 1.0f );
+const colour_rgba pathfinding_debug_colour_default( 1.0f, 0.0f, 1.0f, 1.0f );
 
 void __cdecl render_debug_info_game_in_progress()
 {
@@ -37,6 +38,15 @@ void __cdecl render_debug_info_game_in_progress()
 			auto pathfinding = bsp->pathfindingData[0];
 			if (pathfinding)
 			{
+				colour_rgba pathfinding_debug_colour = pathfinding_debug_colour_default;
+				if (conf.exists("pathfinding_color"))
+				{
+					colour_rgb colour;
+					if (string_to_colour_rgb(conf.getString("pathfinding_color"), colour))
+					{
+						pathfinding_debug_colour = colour.as_rgba();
+					}
+				}
 				for (const auto sector : pathfinding->sectors)
 				{
 					auto current_link = pathfinding->links[sector.firstLinkdoNotSetManually];

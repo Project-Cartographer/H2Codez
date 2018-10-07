@@ -363,6 +363,25 @@ void init_haloscript_patches()
 
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 #pragma endregion
+
+	struct set_temp_args
+	{
+		char *setting;
+		char *value;
+	};
+	hs_custom_command set_temp(
+		"set_temp",
+		"Sets temporally setting",
+		HS_FUNC(
+			auto info = static_cast<set_temp_args*>(args);
+			return conf.setTempSetting(info->setting, info->value);
+		),
+		{ hs_type::string , hs_type::string },
+		hs_type::boolean,
+		"<string:setting> <string:value>"
+	);
+	// already a nop in both game and sapien so safe to reuse.
+	g_halo_script_interface->RegisterCustomCommand(hs_opcode::test_network_storage_simulate, set_temp);
 }
 
 typedef BOOL (WINAPI *T_FuncOpenFileNameW)(LPOPENFILENAMEW info);

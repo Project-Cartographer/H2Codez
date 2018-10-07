@@ -40,9 +40,11 @@ public:
 	/* Returns if a setting exists */
 	inline bool exists(const std::string &setting)
 	{
-		return validate_setting_name(setting) && key_value_pairs.find(setting) != key_value_pairs.end();
+		return validate_setting_name(setting) &&
+			(key_value_pairs.find(setting) != key_value_pairs.end() ||
+			temp_setting_data.find(setting) != temp_setting_data.end());
 	}
-
+	
 	/* Checks if the string is a valid setting name */
 	inline bool is_setting_name_valid(const std::string &name)
 	{

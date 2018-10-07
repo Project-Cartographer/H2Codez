@@ -1,6 +1,7 @@
 #pragma once
 #include "../stdafx.h"
 
+struct colour_rgb;
 /* channel intensity is represented on a 0 to 1 scale */
 struct colour_rgba
 {
@@ -24,6 +25,30 @@ struct colour_rgb
 	float red = 1.0f;
 	float green = 1.0f;
 	float blue = 1.0f;
+
+	colour_rgb() {}
+
+	colour_rgb(float _red, float _green, float _blue) :
+		red(_red),
+		green(_green),
+		blue(_blue)
+	{}
+
+	colour_rgb(const colour_rgba &colour) :
+		red(colour.red),
+		green(colour.green),
+		blue(colour.blue)
+	{}
+
+	colour_rgba as_rgba(float _alpha = 1.0f)
+	{
+		colour_rgba converted;
+		converted.alpha = _alpha;
+		converted.red = red;
+		converted.green = green;
+		converted.blue = blue;
+		return converted;
+	}
 };
 
 struct point2d

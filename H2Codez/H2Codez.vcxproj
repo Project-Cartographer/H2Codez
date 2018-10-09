@@ -122,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\BlamBaseTypes.h" />
+    <ClInclude Include="Common\TagInterface.h" />
     <ClInclude Include="Common\tag_group_names.h" />
     <ClInclude Include="H2Sapien\Console.h" />
     <ClInclude Include="H2Sapien\Profile.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\TagInterface.cpp" />
     <ClCompile Include="H2Sapien\Console.cpp" />
     <ClCompile Include="H2Sapien\Profile.cpp" />
     <ClCompile Include="H2Sapien\RenderDebug.cpp" />

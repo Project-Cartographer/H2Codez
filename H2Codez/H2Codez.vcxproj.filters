@@ -191,6 +191,9 @@
     <ClInclude Include="H2Sapien\RenderDebug.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="Common\TagInterface.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -267,6 +270,9 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\RenderDebug.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TagInterface.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

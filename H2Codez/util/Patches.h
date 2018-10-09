@@ -202,3 +202,10 @@ inline void PatchAbsCall(void *call_addr, DWORD new_function_ptr)
 {
 	PatchAbsCall(reinterpret_cast<DWORD>(call_addr), new_function_ptr);
 }
+
+template<typename T>
+inline T ReadFromAddress(DWORD address)
+{
+	T *ptr = reinterpret_cast<T*>(address);
+	return *ptr;
+}

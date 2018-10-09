@@ -20,6 +20,13 @@ enum wdp_type : signed int
 	_game = 2
 };
 
+inline int *get_object_at_data_array_index(void *array, unsigned __int16 id)
+{
+	int _array = reinterpret_cast<int>(array);
+	int data = (*(DWORD *)(_array + 68)) + ((*(DWORD *)(_array + 36)) * id);
+	return reinterpret_cast<int*>(data);
+}
+
 namespace H2CommonPatches {
 	void Init();
 	bool newInstance();

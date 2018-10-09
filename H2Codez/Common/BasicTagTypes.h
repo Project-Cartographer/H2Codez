@@ -44,7 +44,7 @@ struct tag_block
 
 	T *operator[](size_t index)
 	{
-		if (index == NONE)
+		if (index == NONE || reinterpret_cast<size_t>(this->data) == NONE)
 			return nullptr;
 		if (index >= this->size)
 			return nullptr;
@@ -65,6 +65,12 @@ struct tag_block
 			return &this->data[this->size];
 		else
 			return nullptr;
+	}
+
+	void clear()
+	{
+		this->size = 0;
+		this->data = reinterpret_cast<T*>(NONE);
 	}
 };
 

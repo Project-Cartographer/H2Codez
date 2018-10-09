@@ -7,6 +7,7 @@
 #include "../util/string_util.h"
 #include "../Tags/ScenarioStructureBSP.h"
 #include "../util/Patches.h"
+#include <iostream>
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -455,6 +456,39 @@ std::string filesystem_path_to_tag_path(const wchar_t *fs_path)
 	}
 }
 
+/*
+	Check if a sbsp DOESN'T have pathfinding data and prompt user otherwise
+*/
+bool check_pathfinding_clear(scenario_structure_bsp_block *target)
+{
+	if (target->pathfindingData.size > 0)
+	{
+		std::cout << "bsp already has pathfinding. Do you want to overwrite it? (Y/N)" << std::endl;
+		while (std::cin)
+		{
+			std::string input;
+			std::cin >> input;
+			str_trim(input);
+			input = tolower(input);
+			if (input.size() >= 1)
+			{
+				if (input[0] == 'y')
+				{
+					std::cout << "Clearing old pathfinding data" << std::endl;
+					target->pathfindingData.clear();
+					return true;
+				}
+				else if (input[0] == 'n')
+				{
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+	return true;
+}
+
 void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
 {
 	std::string source_path = filesystem_path_to_tag_path(argv[0]);
@@ -479,6 +513,15 @@ void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
 		return;
 	scenario_structure_bsp_block *source = (scenario_structure_bsp_block*)TAG_GET('sbsp', source_index);
 	scenario_structure_bsp_block *target = (scenario_structure_bsp_block*)TAG_GET('sbsp', target_index);
+
+	if (source->pathfindingData.size == 0)
+	{
+		printf_s("Source sbsp (\"%s\") has no pathfinding, aborting\n", source_path.c_str());
+		return;
+	}
+
+	if (!check_pathfinding_clear(target))
+		return;
 
 	typedef char __cdecl TAG_BLOCK_COPY(tag_block_ref *source_block, tag_block_ref *dest_block);
 	auto tag_block_copy = reinterpret_cast<TAG_BLOCK_COPY*>(0x534810);

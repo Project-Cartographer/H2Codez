@@ -6,12 +6,12 @@
 #include "..\stdafx.h"
 #include "..\util\string_util.h"
 
-scenario_structure_bsp_block *get_sbsp()
+static inline scenario_structure_bsp_block *get_sbsp()
 {
 	return *reinterpret_cast<scenario_structure_bsp_block **>(0xA9CA74);
 }
 
-IDirect3DDevice9Ex *get_global_d3d_device()
+static inline IDirect3DDevice9Ex *get_global_d3d_device()
 {
 	return *reinterpret_cast<IDirect3DDevice9Ex **>(0xFE6B34);
 }
@@ -30,7 +30,7 @@ inline D3DCOLOR halo_colour_to_d3d_colour(const colour_rgba *colour)
 	return D3DCOLOR_ARGB(halo_to_hex(colour->alpha), halo_to_hex(colour->red), halo_to_hex(colour->green), halo_to_hex(colour->blue));
 }
 
-void draw_debug_line(real_point3d *v0, real_point3d *v1, 
+void draw_debug_line(const real_point3d *v0, const real_point3d *v1, 
 	const colour_rgba *start_colour = nullptr, 
 	const colour_rgba *end_colour = nullptr)
 {
@@ -76,23 +76,13 @@ void __cdecl render_debug_info_game_in_progress()
 						pathfinding_debug_colour = colour.as_rgba();
 					}
 				}
-				for (const auto sector : pathfinding->sectors)
+				for (const auto &link : pathfinding->links)
 				{
-					auto current_link = pathfinding->links[sector.firstLinkdoNotSetManually];
-					while (current_link)
-					{
-						auto vertex1 = pathfinding->vertices[current_link->vertex1];
-						auto vertex2 = pathfinding->vertices[current_link->vertex2];
+					auto vertex1 = pathfinding->vertices[link.vertex1];
+					auto vertex2 = pathfinding->vertices[link.vertex2];
 
-						if (vertex1 && vertex1)
-							draw_debug_line(&vertex1->point, &vertex2->point, &pathfinding_debug_colour);
-
-						if (current_link->forwardLink == sector.firstLinkdoNotSetManually)
-							break; // exit if we made a full loop
-						if (current_link->linkFlags & current_link->SectorLinkMagicHangingLink)
-							break; // just a guess the game might actually handle this differently
-						current_link = pathfinding->links[current_link->forwardLink];
-					}
+					if (vertex1 && vertex1)
+						draw_debug_line(&vertex1->point, &vertex2->point, &pathfinding_debug_colour);
 				}
 			}
 		}

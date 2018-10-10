@@ -194,6 +194,12 @@
     <ClInclude Include="Common\TagInterface.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Pathfinding.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Sapien\HaloScript.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -273,6 +279,12 @@
     </ClCompile>
     <ClCompile Include="Common\TagInterface.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Pathfinding.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\HaloScript.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,18 +1,17 @@
 #include "../stdafx.h"
 #include "H2Sapien.h"
 #include "..\Common\H2EKCommon.h"
-#include "..\HaloScript\hs_interface.h"
 #include "..\Common\BlamBaseTypes.h"
 #include "..\util\Patches.h"
 #include "..\Resources\resource.h"
 #include <Shellapi.h>
 #include <iostream>
 #include <fstream>
-#include <D3D9.h>
 #include "Console.h"
 #include "TagUpdate.h"
 #include "Profile.h"
 #include "RenderDebug.h"
+#include "HaloScript.h"
 #include "..\Resources\sapien_accelerators.h"
 #include <unordered_set>
 
@@ -95,7 +94,7 @@ INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 					float new_speed = std::stof(speed_text);
 					new_speed = std::fmin(std::fabs(new_speed), 5000.0f);
 					WriteValue(0x009AAC60, new_speed);
-					H2SapienConsole::print("speed is now " + std::to_string(new_speed));
+					H2SapienConsole::print("speed is now x" + std::to_string(new_speed));
 				}
 				catch (invalid_argument ex) {
 					//MessageBoxA(hwndDlg, "Not a valid number!", "ERROR!", MB_OK | MB_SETFOREGROUND);
@@ -185,29 +184,10 @@ int __cdecl fclose_baggage_hook(FILE *File)
 	return ret_data;
 }
 
-errno_t print_help_to_doc()
+errno_t __cdecl print_help_to_doc()
 {
 	H2CommonPatches::generate_script_doc("hs_doc.txt");
 	return 0;
-}
-
-void __cdecl status_func_impl(__int16 command_id, datum thread_id, char a3)
-{
-	ofstream output;
-	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
-
-	output.open(temp_file_name, ios::out);
-	if (output)
-	{
-		for (hs_global_variable *current_var : g_halo_script_interface->global_table)
-		{
-			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
-			output << current_var->name << "   :    " << value_as_string << std::endl;
-		}
-	}
-	output.close();
-	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
-	HaloScriptCommon::epilog(thread_id, 0);
 }
 
 signed int get_tick_rate()
@@ -278,14 +258,6 @@ bool __cdecl is_sapien()
 	return wdp_initialize() == wdp_type::_sapien;
 }
 
-hs_command status_cmd(
-	"status",
-	hs_type::nothing,
-	hs_default_func_check,
-	status_func_impl,
-	"dumps the value of all global status variables to file."
-);
-
 template <typename value_type>
 inline void GetHalo2DisplaySetting(const char *name, value_type &result)
 {
@@ -326,12 +298,12 @@ void H2SapienPatches::Init()
 	fix_game_save();
 
 	render_debug_info_init();
+
+	haloscript_init();
 	// set current directory to executable path
 	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());
 #pragma region value init
-
-	g_halo_script_interface->RegisterCommand(hs_opcode::status, &status_cmd);
 
 	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
 	InitHalo2DisplaySettings();

@@ -28,6 +28,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&h2dev_extra_commands_defination,
 	&list_extra_commands,
 	&copy_pathfinding,
+	&pathfinding_from_coll
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

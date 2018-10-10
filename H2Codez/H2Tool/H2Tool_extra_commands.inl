@@ -8,6 +8,8 @@
 #include "../Tags/ScenarioStructureBSP.h"
 #include "../util/Patches.h"
 #include <iostream>
+#include "../Common/TagInterface.h"
+#include "../Common/Pathfinding.h"
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -475,7 +477,7 @@ bool check_pathfinding_clear(scenario_structure_bsp_block *target)
 				if (input[0] == 'y')
 				{
 					std::cout << "Clearing old pathfinding data" << std::endl;
-					target->pathfindingData.clear();
+					tags::block_delete_all(&target->pathfindingData);
 					return true;
 				}
 				else if (input[0] == 'n')
@@ -489,6 +491,16 @@ bool check_pathfinding_clear(scenario_structure_bsp_block *target)
 	return true;
 }
 
+auto load_tag = [](const std::string &path, bool can_save) -> datum
+{
+	datum tag = tags::load_tag('sbsp', path.c_str(), can_save ? 1 : 7);
+	if (tag.index == NONE)
+	{
+		printf_s("Failed to load tag '%s', aborting\n", path.c_str());
+	}
+	return tag;
+};
+
 void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
 {
 	std::string source_path = filesystem_path_to_tag_path(argv[0]);
@@ -496,23 +508,13 @@ void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
 	printf_s("source :'%s'\n", source_path.c_str());
 	printf_s("target :'%s'\n", target_path.c_str());
 
-	auto load_tag = [](const std::string &path, bool can_save) -> int
-	{
-		auto index = TAG_LOAD('sbsp', path.c_str(), can_save ? 1 : 7);
-		if (index == NONE)
-		{
-			printf_s("Failed to load tag '%s', aborting\n", path.c_str());
-		}
-		return index;
-	};
+	datum source_tag = load_tag(source_path, false);
+	datum target_tag = load_tag(target_path, true);
 
-	int source_index = load_tag(source_path, false);
-	int target_index = load_tag(target_path, true);
-
-	if (source_index == NONE || target_index == NONE)
+	if (source_tag.index == NONE || target_tag.index == NONE)
 		return;
-	scenario_structure_bsp_block *source = (scenario_structure_bsp_block*)TAG_GET('sbsp', source_index);
-	scenario_structure_bsp_block *target = (scenario_structure_bsp_block*)TAG_GET('sbsp', target_index);
+	scenario_structure_bsp_block *source = tags::get_tag<scenario_structure_bsp_block>('sbsp', source_tag);
+	scenario_structure_bsp_block *target = tags::get_tag<scenario_structure_bsp_block>('sbsp', target_tag);
 
 	if (source->pathfindingData.size == 0)
 	{
@@ -523,14 +525,12 @@ void _cdecl copy_pathfinding_proc(const wchar_t *argv[])
 	if (!check_pathfinding_clear(target))
 		return;
 
-	typedef char __cdecl TAG_BLOCK_COPY(tag_block_ref *source_block, tag_block_ref *dest_block);
-	auto tag_block_copy = reinterpret_cast<TAG_BLOCK_COPY*>(0x534810);
-	LOG_CHECK(tag_block_copy(&source->pathfindingData, &target->pathfindingData));
-	if (!TAG_SAVE(target_index))
+	LOG_CHECK(tags::copy_block(&source->pathfindingData, &target->pathfindingData));
+	if (!tags::save_tag(target_tag))
 		printf_s("Failed to save target tag!\n");
 
-	LOG_CHECK(TAG_UNLOAD(source_index));
-	LOG_CHECK(TAG_UNLOAD(target_index));
+	tags::unload_tag(source_tag);
+	tags::unload_tag(target_tag);
 	printf_s("Done!");
 }
 
@@ -542,9 +542,46 @@ const s_tool_command_argument copy_pathfinding_args[] =
 
 static const s_tool_command copy_pathfinding
 {
-	L"copy pathfinding",
+	L"pathfinding copy",
 	copy_pathfinding_proc,
 	copy_pathfinding_args,
 	ARRAYSIZE(copy_pathfinding_args),
+	false
+};
+
+void _cdecl pathfinding_from_coll_proc(const wchar_t *argv[])
+{
+	std::string sbsp_path = filesystem_path_to_tag_path(argv[0]);
+	printf_s("sbsp :'%s'\n", sbsp_path.c_str());
+
+	datum sbsp = load_tag(sbsp_path, false);
+
+	if (sbsp.index == NONE)
+		return;
+	scenario_structure_bsp_block *sbsp_data = tags::get_tag<scenario_structure_bsp_block>('sbsp', sbsp);
+
+	if (!check_pathfinding_clear(sbsp_data))
+		return;
+	
+	pathfinding::generate(sbsp_data);
+
+	if (!tags::save_tag(sbsp))
+		printf_s("Failed to save tag!\n");
+
+	tags::unload_tag(sbsp);
+	printf_s("Done!");
+}
+
+const s_tool_command_argument pathfinding_from_coll_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"sbsp", ".scenario_structure_bsp" },
+};
+
+static const s_tool_command pathfinding_from_coll
+{
+	L"pathfinding from coll",
+	pathfinding_from_coll_proc,
+	pathfinding_from_coll_args,
+	ARRAYSIZE(pathfinding_from_coll_args),
 	false
 };

@@ -9,6 +9,11 @@ struct datum
 {
 	short index;
 	short salt;
+	datum(size_t info)
+	{
+		index = LOWORD(info);
+		salt = HIWORD(info);
+	}
 };
 CHECK_STRUCT_SIZE(datum, 4);
 
@@ -19,6 +24,7 @@ struct tag_ref
 	int field_8;
 	int tag_index;
 };
+CHECK_STRUCT_SIZE(tag_ref, 16);
 
 struct tag_block_ref
 {
@@ -26,6 +32,7 @@ struct tag_block_ref
 	void *data;
 	void *definition;
 };
+CHECK_STRUCT_SIZE(tag_block_ref, 12);
 
 template<typename T>
 struct tag_block

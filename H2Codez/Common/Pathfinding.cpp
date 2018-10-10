@@ -38,6 +38,10 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 
 				link->rightSector = edge->rightSurface;
 				link->leftSector = edge->leftSurface;
+				int *flags_ptr = reinterpret_cast<int*>(&link->linkFlags);
+				*flags_ptr = link->SectorLinkFromCollisionEdge;
+				if (link->rightSector != NONE && link->rightSector != NONE)
+					*flags_ptr |= link->SectorLinkBothSectorsWalkable;
 			}
 
 			tags::resize_block(&pathfinding->sectors, collision_bsp->surfaces.size);
@@ -53,7 +57,8 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 
 				sector->firstLinkdoNotSetManually = surface->firstEdge;
 				int *flags_ptr = reinterpret_cast<int*>(&sector->pathfindingSectorFlags);
-				*flags_ptr = ((surface->flags & surface->Breakable) ? sector->SectorBreakable : 0) | sector->SectorBspSource;
+				*flags_ptr = ((surface->flags & surface->Breakable) ? sector->SectorBreakable : 0) | 
+					sector->SectorBspSource | sector->SectorWalkable | sector->Floor;
 			}
 			return true;
 		}

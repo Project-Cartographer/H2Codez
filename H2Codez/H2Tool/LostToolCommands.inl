@@ -5,6 +5,7 @@
 	See license\OpenSauce\Halo2_CheApe for specific license information
 */
 #include "../stdafx.h"
+#include "H2Tool_Commands.h"
 #include "Animations.inl"
 #include "Sounds.inl"
 

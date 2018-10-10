@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "H2Tool\H2Tool_Commands.h"
 #include "H2Guerilla\H2Guerilla.h"
 #include "H2Sapien\H2Sapien.h"
 #include "Common\H2EKCommon.h"

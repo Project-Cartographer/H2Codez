@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "..\Common\BlamBaseTypes.h"
 
 enum tool_command_argument_type : long {
 	_tool_command_argument_type_0,
@@ -44,6 +45,8 @@ struct s_tool_import_definations_
 	DWORD                           unk_1;
 	DWORD                           unk_2;
 };
+
+typedef bool(_cdecl* tool_dev_command_proc)(wchar_t *a1, datum tags);
 struct s_tool_h2dev_command {
 	cstring command_name;
 	cstring command_description;

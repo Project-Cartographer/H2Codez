@@ -638,17 +638,15 @@ void H2ToolPatches::fix_command_line()
 
 void tag_dump(int tag_index)
 {
-	char old_name[0x200];
-	strncpy_s(old_name, TAG_GET_NAME(tag_index), sizeof(old_name));
+	std::string old_name = tags::get_name(tag_index);
 
-	std::string new_name = "dump\\";
-	new_name += old_name;
+	std::string new_name = "dump\\" + old_name;
 
-	printf("dumping tag '%s' as '%s' ***\n", old_name, new_name.c_str());
+	printf("dumping tag '%s' as '%s' ***\n", old_name.c_str(), new_name.c_str());
 
-	TAG_RENAME(tag_index, new_name);
-	TAG_SAVE(tag_index);
-	TAG_RENAME(tag_index, old_name);
+	tags::rename_tag(tag_index, new_name);
+	tags::save_tag(tag_index);
+	tags::rename_tag(tag_index, old_name);
 }
 
 template<typename T>
@@ -671,7 +669,7 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	typedef char (__cdecl *scenario_write_patch_file)(int TAG_INDEX, int a2);
 	auto scenario_write_patch_file_impl = reinterpret_cast<scenario_write_patch_file>(0x0056A110);
 
-	scnr_tag *scenario = (scnr_tag*)TAG_GET('scnr', TAG_INDEX);
+	scnr_tag *scenario = tags::get_tag<scnr_tag>('scnr', TAG_INDEX);
 
 	// fix the compiler not setting up AI orders right and causing weird things to happen with scripts
 	for (size_t i = 0; i < scenario->orders.size; i++)

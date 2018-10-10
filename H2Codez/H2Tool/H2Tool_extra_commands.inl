@@ -138,9 +138,9 @@ static void _cdecl h2dev_extra_commands_proc(wchar_t ** arguments)
 		{
 			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
 			H2PCTool.WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
-			DWORD tag_index = TAG_LOAD(cmd->tag_type, f_parameter.c_str(), 7);
+			datum tag = tags::load_tag(cmd->tag_type, f_parameter.c_str(), 7);
 
-			if (cmd->command_impl(nullptr, tag_index))// call Function via address			
+			if (cmd->command_impl(nullptr, tag))// call Function via address			
 				return;
 			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 		}
@@ -182,7 +182,7 @@ tag_data_struct** global_sbsp_data_list;
 static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDEX_)
 {
 	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
-	DWORD MODE_TAG = (DWORD)TAG_GET('mode', TAG_INDEX);
+	DWORD MODE_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
 	DWORD import_info_block_offset = MODE_TAG + 0xC;
 
 	if (MODE_TAG != -1) {
@@ -295,7 +295,7 @@ static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C35
 static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 {
 
-	DWORD mode_tag_file = (DWORD)TAG_GET('mode', TAG_INDEX);
+	DWORD mode_tag_file = (DWORD)tags::get_tag('mode', TAG_INDEX);
 	DWORD import_info_block_offset = mode_tag_file + 0xC;
 
 	DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
@@ -320,8 +320,8 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 			if (k_render_model_imported && global_geometry_imported_count > 0)
 			{
 				printf("    == saving temporary render_model  \n");
-				TAG_SAVE(TAG_INDEX);//creating the current render_model file in Disk
-				TAG_UNLOAD(TAG_INDEX);
+				tags::save_tag(TAG_INDEX);//creating the current render_model file in Disk
+				tags::unload_tag(TAG_INDEX);
 
 
 				std::string render_model_file_name_ = strrchr(c_out_path, '\\');
@@ -382,28 +382,28 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 	if (tool_build_paths(arguments[0], "render", filo, out_path, wide_path))
 	{
 		path = wstring_to_string.to_bytes(wide_path);
-		DWORD TAG_INDEX = TAG_LOAD('mode', path.c_str(), 7);
-		if (TAG_INDEX != -1)
+		datum TAG_INDEX = tags::load_tag('mode', path.c_str(), 7);
+		if (TAG_INDEX.is_valid())
 		{
-			DWORD RENDER_MODEL_TAG = (DWORD)TAG_GET('mode', TAG_INDEX);
+			DWORD RENDER_MODEL_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
 			DWORD import_info_field = RENDER_MODEL_TAG + 0xC;
 
 			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, filo))
 				b_render_imported = false;
 
-			TAG_UNLOAD(TAG_INDEX);
+			tags::unload_tag(TAG_INDEX);
 			if (!b_render_imported)
 				return b_render_imported;
 		}
 		auto dir_name = FiloInterface::get_path_info(&filo, PATH_FLAGS::CONTAINING_DIRECTORY_NAME);
 		printf("        ### creating new render model file with name '%s' \n ", dir_name.c_str());
-		TAG_INDEX = TAG_NEW('mode', path);
+		TAG_INDEX = tags::new_tag('mode', path);
 
-		if (TAG_INDEX != -1)
+		if (TAG_INDEX.is_valid())
 		{
-			if (TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX, false))
+			if (TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX.as_long(), false))
 			{
-				if (h2pc_generate_render_model_(TAG_INDEX, filo))
+				if (h2pc_generate_render_model_(TAG_INDEX.as_long(), filo))
 				{
 					b_render_imported = true;
 					//TAG_SAVE(TAG_INDEX);				
@@ -418,7 +418,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 			else
 			{
 				printf("      ### ERROR render model '%s' is not writable\n", dir_name.c_str());
-				TAG_UNLOAD(TAG_INDEX);
+				tags::unload_tag(TAG_INDEX);
 				b_render_imported = false;
 			}
 		}

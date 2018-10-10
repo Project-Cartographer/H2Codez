@@ -191,14 +191,14 @@
     <ClInclude Include="H2Sapien\RenderDebug.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
-    <ClInclude Include="Common\TagInterface.h">
-      <Filter>Source Files\Common Interfaces\Tags</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Pathfinding.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="H2Sapien\HaloScript.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TagInterface.h">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

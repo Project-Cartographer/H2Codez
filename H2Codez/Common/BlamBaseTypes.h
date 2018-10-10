@@ -1,6 +1,29 @@
 #pragma once
 #include "../stdafx.h"
 
+#define NONE -1
+
+struct datum
+{
+	short index;
+	short salt;
+	datum(size_t info)
+	{
+		index = LOWORD(info);
+		salt = HIWORD(info);
+	}
+	bool is_valid()
+	{
+		return (index != NONE) && (salt != NONE);
+	}
+
+	long as_long()
+	{
+		return *reinterpret_cast<long*>(this);
+	}
+};
+CHECK_STRUCT_SIZE(datum, 4);
+
 struct colour_rgb;
 /* channel intensity is represented on a 0 to 1 scale */
 struct colour_rgba

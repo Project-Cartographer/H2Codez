@@ -31,7 +31,6 @@
 #include "h2codez.h"
 #include "util\Detours\detours.h"
 #include "util\Logs.h"
-#include "H2Tool\H2Tool_Commands.h"
 #include "util\Settings.h"
 
 extern Settings conf;

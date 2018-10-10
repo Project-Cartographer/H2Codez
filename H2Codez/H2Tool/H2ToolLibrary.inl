@@ -8,67 +8,8 @@ static const char* get_h2tool_version()
 	static _get_h2tool_build_date get_h2tool_build_date = CAST_PTR(_get_h2tool_build_date, 0xEA760);
 
 	return get_h2tool_build_date();
-
-}
-static int __cdecl TAG_LOAD(int TAG_TYPE, cstring tags_directory, int a3)
-{
-	typedef int(_cdecl* _TAG_LOAD)(int, cstring, int);
-	static _TAG_LOAD TAG_LOAD = CAST_PTR(_TAG_LOAD, 0x533930);
-
-	return TAG_LOAD(TAG_TYPE, tags_directory, a3);
-}
-static void *TAG_GET(int TAG_TYPE, int TAG_INDEX)
-{
-	typedef void*(_cdecl* _TAG_GET)(int, int);
-	static _TAG_GET TAG_GET = CAST_PTR(_TAG_GET, 0x52F150);
-
-	return TAG_GET(TAG_TYPE, TAG_INDEX);
 }
 
-static void *TAG_GET(char TAG_GROUP, int TAG_INDEX)
-{
-	return TAG_GET(static_cast<int>(TAG_GROUP), TAG_INDEX);
-}
-
-static DWORD TAG_NEW(int TAG_TYPE, char* TAG_PATH)
-{
-	typedef DWORD(_cdecl* _TAG_NEW)(int, char*);
-	static _TAG_NEW TAG_NEW = CAST_PTR(_TAG_NEW, 0x5313F0);
-
-	return TAG_NEW(TAG_TYPE, TAG_PATH);
-}
-
-inline static DWORD TAG_NEW(int TAG_TYPE, const char* TAG_PATH)
-{
-	return TAG_NEW(TAG_TYPE, const_cast<char*>(TAG_PATH));
-}
-
-inline static DWORD TAG_NEW(int TAG_TYPE, std::string TAG_PATH)
-{
-	return TAG_NEW(TAG_TYPE, TAG_PATH.c_str());
-}
-
-static DWORD __cdecl TAG_UNLOAD(int TAG_INDEX)
-{
-	typedef DWORD(_cdecl* _TAG_UNLOAD)(int);
-	static _TAG_UNLOAD TAG_UNLOAD = CAST_PTR(_TAG_UNLOAD, 0x52F7C0);
-
-	return TAG_UNLOAD(TAG_INDEX);
-}
-static DWORD __cdecl TAG_SAVE(int TAG_INDEX)
-{
-	typedef DWORD(_cdecl* _TAG_SAVE)(int);
-	static _TAG_SAVE _TAG_SAVE_ = CAST_PTR(_TAG_SAVE, 0x532F40);
-
-	return _TAG_SAVE_(TAG_INDEX);
-}
-static CHAR*__cdecl TAG_GET_NAME(int TAG_INDEX)
-{
-	typedef CHAR*(_cdecl* TAG_GET_NAME)(int);
-	static TAG_GET_NAME TAG_GET_NAME_ = CAST_PTR(TAG_GET_NAME, 0x52CF50);
-
-	return TAG_GET_NAME_(TAG_INDEX);
-}
 static bool __cdecl TAG_ADD_IMPORT_INFO_BLOCK(void* IMPORT_INFO_OFFSET)
 {
 	typedef bool(_cdecl* TAG_ADD_IMPORT_INFO_BLOCK)(void*);
@@ -90,13 +31,7 @@ static bool __cdecl TAG_FILE_CHECK_READ_ONLY_ACCESS(int TAG_INDEX, int a2)
 
 	return TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX, a2);
 }
-static void* __cdecl TAG_BLOCK_ADD_ELEMENT(void* TAG_ADDRESS)
-{
-	typedef void*(_cdecl* TAG_BLOCK_ADD_ELEMENT)(void*);
-	static TAG_BLOCK_ADD_ELEMENT TAG_BLOCK_ADD_ELEMENT_ = CAST_PTR(TAG_BLOCK_ADD_ELEMENT, 0x533CA0);
 
-	return TAG_BLOCK_ADD_ELEMENT_(TAG_ADDRESS);
-}
 static int __cdecl TAG_BLOCK_GET_ELEMENT_WITH_SIZE(void* FIELD_OFFSET, int ELEMENT_INDEX, int FIELD_SIZE)
 {
 	typedef int(_cdecl* TAG_BLOCK_GET_ELEMENT_WITH_SIZE)(void*, int, int);
@@ -111,19 +46,6 @@ static int GET_STRING_ID(const char *string)
 	get_string_id get_string_id_impl = reinterpret_cast<get_string_id>(0x0052E830);
 
 	return get_string_id_impl(string);
-}
-
-static bool TAG_RENAME(int tag_index, const char *new_name)
-{
-	typedef char (__cdecl *TAG_RENAME)(int tag_index, const char *new_name);
-	auto TAG_RENAME_IMPL = reinterpret_cast<TAG_RENAME>(0x0052F840);
-
-	return TAG_RENAME_IMPL(tag_index, new_name);
-}
-
-static bool TAG_RENAME(int tag_index, const std::string &new_name)
-{
-	return TAG_RENAME(tag_index, new_name.c_str());
 }
 
 typedef bool (*find_tag_comparison)(void *element, void *find_data);
@@ -159,8 +81,6 @@ static unsigned int FIND_TAG_BLOCK_STRING_ID(tag_block_ref *tag_block, size_t el
 
 	return FIND_TAG_BLOCK_ELEMENT(tag_block, element_size, reinterpret_cast<find_tag_comparison>(&string_id_comparison), &search_info);
 }
-
-
 
 struct string_cmp_info
 {

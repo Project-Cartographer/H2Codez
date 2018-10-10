@@ -3,20 +3,6 @@
 
 #include "BlamBaseTypes.h"
 
-#define NONE -1
-
-struct datum
-{
-	short index;
-	short salt;
-	datum(size_t info)
-	{
-		index = LOWORD(info);
-		salt = HIWORD(info);
-	}
-};
-CHECK_STRUCT_SIZE(datum, 4);
-
 struct tag_ref
 {
 	int tag_type;

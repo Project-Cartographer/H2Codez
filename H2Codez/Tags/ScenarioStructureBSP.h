@@ -56,8 +56,8 @@ struct global_collision_bsp_block
 
 	struct surfaces_block
 	{
-		short plane;
-		short firstEdge;
+		unsigned short plane;
+		unsigned short firstEdge;
 
 		enum Flags : BYTE
 		{
@@ -78,12 +78,12 @@ struct global_collision_bsp_block
 
 	struct edges_block
 	{
-		short startVertex;
-		short endVertex;
-		short forwardEdge;
-		short reverseEdge;
-		short leftSurface;
-		short rightSurface;
+		unsigned short startVertex;
+		unsigned short endVertex;
+		unsigned short forwardEdge;
+		unsigned short reverseEdge;
+		unsigned short leftSurface;
+		unsigned short rightSurface;
 	};
 	CHECK_STRUCT_SIZE(edges_block, 12);
 	tag_block<edges_block> edges;

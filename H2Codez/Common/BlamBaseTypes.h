@@ -41,6 +41,18 @@ struct colour_rgba
 		green(_green),
 		blue(_blue)
 	{}
+	void clamp()
+	{
+		clamp_value(alpha);
+		clamp_value(red);
+		clamp_value(green);
+		clamp_value(blue);
+	}
+private :
+	void clamp_value(float &value)
+	{
+		value = std::min(std::max(0.0f, value), 1.0f);
+	}
 };
 CHECK_STRUCT_SIZE(colour_rgba, 4 * 4);
 

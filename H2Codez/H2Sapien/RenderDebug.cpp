@@ -6,6 +6,7 @@
 #include "..\stdafx.h"
 #include "..\util\string_util.h"
 #include "..\Common\Pathfinding.h"
+#include <random>
 
 static inline scenario_structure_bsp_block *get_sbsp()
 {
@@ -78,8 +79,22 @@ void __cdecl render_debug_info_game_in_progress()
 						pathfinding_debug_colour = colour.as_rgba();
 					}
 				}
+				std::mt19937 gen(343 + lines_to_render.sector_lines.size()); // guaranteed to be random choosen via 400-side dice
+				std::uniform_real_distribution<float> random_colour_change(-0.2f, 0.2f);
+
 				for (auto &sector_info : lines_to_render.sector_lines)
 				{
+					auto mutate_channel = [&](float &colour) {
+						float offset = random_colour_change(gen);
+						colour += offset;
+						colour = std::abs(colour);
+					};
+					mutate_channel(pathfinding_debug_colour.blue);
+					mutate_channel(pathfinding_debug_colour.red);
+					mutate_channel(pathfinding_debug_colour.green);
+					mutate_channel(pathfinding_debug_colour.alpha);
+					pathfinding_debug_colour.alpha = std::max(pathfinding_debug_colour.alpha, 0.5f); // make sure the sector doesn't get too dark
+					pathfinding_debug_colour.clamp();
 					for (auto line : sector_info.second.lines)
 					{
 						auto link = pathfinding->links[line];

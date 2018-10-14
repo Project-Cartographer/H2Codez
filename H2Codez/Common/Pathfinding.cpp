@@ -135,6 +135,8 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 				auto edge = collision_bsp->edges[ilter.first];
 				if (!LOG_CHECK(link && edge))
 					break;
+				link->hintIndex = NONE;
+
 				link->vertex1 = get_idx(coll_to_path_vertex, edge->startVertex);
 				link->vertex2 = get_idx(coll_to_path_vertex, edge->endVertex);
 				link->forwardLink = get_idx(edge_link_mapping, edge->forwardEdge);
@@ -154,6 +156,7 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 				if (!LOG_CHECK(sector && surface))
 					break;
 
+				sector->hintIndex = NONE;
 				sector->firstLinkdoNotSetManually = edge_link_mapping[surface->firstEdge];
 				int *flags_ptr = reinterpret_cast<int*>(&sector->pathfindingSectorFlags);
 				*flags_ptr = ((surface->flags & surface->Breakable) ? sector->SectorBreakable : 0) | 

@@ -87,7 +87,8 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 
 void Debug::init()
 {
-	expection_filter = SetUnhandledExceptionFilter(Debug::On_UnhandledException);
+	if (!is_debug_build())
+		expection_filter = SetUnhandledExceptionFilter(Debug::On_UnhandledException);
 }
 
 void Debug::set_expection_filter(LPTOP_LEVEL_EXCEPTION_FILTER filter)

@@ -40,9 +40,7 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			std::cout << "Converting surfaces to sectors" << std::endl;
 
 			// calculate surfaces to use
-			std::map<unsigned short, unsigned short> sector_surface_mapping;
 			std::map<unsigned short, unsigned short> surface_sector_mapping;
-			std::unordered_set<unsigned short> edges_used;
 			tags::resize_block(&pathfinding->refs, collision_bsp->surfaces.size);
 			unsigned short sector_index = 0;
 			for (unsigned short surface_idx = 0; surface_idx < collision_bsp->surfaces.size; surface_idx++)
@@ -55,8 +53,6 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 				auto normal_angle = plane.normal.get_angle();
 				if (!is_between(normal_angle.roll.as_degree(), 45.0, 135.0))
 				{
-					edges_used.insert(surface->firstEdge);
-					sector_surface_mapping[sector_index] = surface_idx;
 					surface_sector_mapping[surface_idx] = sector_index;
 					ref_index = sector_index;
 					sector_index++;
@@ -71,25 +67,42 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			std::unordered_set<size_t> vertices_used;
 			std::map<unsigned short, unsigned short> edge_link_mapping;
 			unsigned short link_idx = 0;
-			std::unordered_set<unsigned short> edges_to_check = edges_used; // make a copy for ilterating
-			for (unsigned short edge_idx: edges_to_check)
+			std::unordered_set<unsigned short> edges_used; // make a copy for ilterating
+			for (auto &ilter : surface_sector_mapping)
 			{
-				std::function<void(short)> parse_edge;
-				parse_edge = [=, &link_idx, &edge_link_mapping, &vertices_used, &edges_used, &parse_edge](short edge_idx)
+				auto surface_idx = ilter.first;
+				std::unordered_set<unsigned short> edges_checked;
+				std::function<void(unsigned short)> parse_edge;
+				parse_edge = [&](unsigned short edge_idx)
 				{
-					edges_used.insert(edge_idx);
-					auto *edge = collision_bsp->edges[edge_idx];
+					// check if we already checked this edge for the current surface
+					// stops it from locking up
+					if (edges_checked.count(edge_idx) != 0)
+						return;
+					edges_checked.insert(edge_idx);
 
-					vertices_used.insert(edge->startVertex);
-					vertices_used.insert(edge->endVertex);
-					edge_link_mapping[edge_idx] = link_idx;
-					link_idx++;
-					if (edge->reverseEdge != NONE && edges_used.count(edge->reverseEdge) == 0)
-						parse_edge(edge->reverseEdge);
-					if (edge->forwardEdge != NONE && edges_used.count(edge->forwardEdge) == 0)
-						parse_edge(edge->forwardEdge);
+					auto *edge = collision_bsp->edges[edge_idx];
+					if (!edge) //invalid edge
+						return;
+
+					if (edge->rightSurface != surface_idx && edge->leftSurface != surface_idx) // not part of current surface
+						return;
+
+					if (edges_used.count(edge_idx) == 0) // add new edge to be copied over
+					{
+						vertices_used.insert(edge->startVertex);
+						vertices_used.insert(edge->endVertex);
+						edge_link_mapping[edge_idx] = link_idx;
+						link_idx++;
+					}
+					edges_used.insert(edge_idx);
+
+					parse_edge(edge->reverseEdge);
+					parse_edge(edge->forwardEdge);
 				};
-				parse_edge(edge_idx);
+				auto surface = collision_bsp->surfaces[surface_idx];
+				if (LOG_CHECK(surface))
+					parse_edge(surface->firstEdge);
 			}
 
 			cout << "Starting data copy..." << std::endl;
@@ -131,11 +144,11 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			cout << "Done" << std::endl;
 
 			cout << "Writing sectors...";
-			tags::resize_block(&pathfinding->sectors, sector_surface_mapping.size());
-			for (auto &ilter : sector_surface_mapping)
+			tags::resize_block(&pathfinding->sectors, surface_sector_mapping.size());
+			for (auto &ilter : surface_sector_mapping)
 			{
-				auto *sector = pathfinding->sectors[ilter.first];
-				auto *surface = collision_bsp->surfaces[ilter.second];
+				auto *sector = pathfinding->sectors[ilter.second];
+				auto *surface = collision_bsp->surfaces[ilter.first];
 				if (!LOG_CHECK(sector && surface))
 					break;
 

@@ -18,7 +18,24 @@ struct global_collision_bsp_block
 	};
 	CHECK_STRUCT_SIZE(planes_block, 16);
 	tag_block<planes_block> planes;
-
+	inline real_plane3d get_plane_by_ref(unsigned short ref)
+	{
+		auto plane_block = planes[ref & 0x7FFF];
+		if (LOG_CHECK(plane_block))
+		{
+			if (ref & 0x8000) {
+				real_plane3d out;
+				out.distance = -plane_block->plane.distance;
+				out.normal.i = -plane_block->plane.normal.i;
+				out.normal.j = -plane_block->plane.normal.j;
+				out.normal.k = -plane_block->plane.normal.k;
+				return out;
+			} else {
+				return plane_block->plane;
+			}
+		}
+		return real_plane3d();
+	}
 
 	struct leaves_block
 	{
@@ -281,6 +298,11 @@ struct scenario_structure_bsp_block
 			PathfindingSectorFlags pathfindingSectorFlags;
 			short hintIndex;
 			int firstLinkdoNotSetManually;
+
+			inline bool is_walkable()
+			{
+				return pathfindingSectorFlags & SectorWalkable;
+			}
 		};
 		CHECK_STRUCT_SIZE(sector_block, 8);
 		tag_block<sector_block> sectors;

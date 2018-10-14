@@ -16,7 +16,7 @@ constexpr bool is_between(const T& v, const T& lo, const T& hi)
 	Helper function for getting blam indices from a map
 */
 template<class t_index, class t_data, class Compare, class Allocator>
-inline t_data get_idx(std::map<t_index, t_data, Compare, Allocator> map, t_index index)
+inline t_data get_idx(const std::map<t_index, t_data, Compare, Allocator> &map, t_index index)
 {
 	auto ilter = map.find(index);
 	if (ilter != map.end())
@@ -51,14 +51,8 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 				auto surface = collision_bsp->surfaces[surface_idx];
 				if (!LOG_CHECK(surface))
 					return false;
-				auto coll_plane = collision_bsp->planes[surface->plane];
-				if (!LOG_CHECK(coll_plane))
-				{
-					cout << to_string(surface_idx) << endl;
-					cout << to_string(surface->plane) << endl;
-					continue;
-				}
-				auto normal_angle = coll_plane->plane.normal.get_angle();
+				auto plane = collision_bsp->get_plane_by_ref(surface->plane);
+				auto normal_angle = plane.normal.get_angle();
 				if (!is_between(normal_angle.roll.as_degree(), 45.0, 135.0))
 				{
 					edges_used.insert(surface->firstEdge);
@@ -133,11 +127,6 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 
 				link->rightSector = get_idx(surface_sector_mapping, edge->rightSurface);
 				link->leftSector = get_idx(surface_sector_mapping, edge->leftSurface);
-				int *flags_ptr = reinterpret_cast<int*>(&link->linkFlags);
-				*flags_ptr = link->SectorLinkFromCollisionEdge;
-				if (link->rightSector != NONE && link->rightSector != NONE)
-					*flags_ptr |= link->SectorLinkBothSectorsWalkable;
-				link_idx++;
 			}
 			cout << "Done" << std::endl;
 
@@ -154,6 +143,22 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 				int *flags_ptr = reinterpret_cast<int*>(&sector->pathfindingSectorFlags);
 				*flags_ptr = ((surface->flags & surface->Breakable) ? sector->SectorBreakable : 0) | 
 					sector->SectorBspSource | sector->SectorWalkable | sector->Floor;
+			}
+			cout << "Done" << endl;
+
+			cout << "Setting link flags...";
+			for (auto &link : pathfinding->links)
+			{
+				int flags = link.SectorLinkFromCollisionEdge;
+				auto sector_left = pathfinding->sectors[link.leftSector];
+				auto sector_right = pathfinding->sectors[link.rightSector];
+				if (sector_left && sector_right)
+				{
+					if (sector_left->is_walkable() && sector_right->is_walkable())
+						flags |= link.SectorLinkBothSectorsWalkable;
+				}
+				int *flags_ptr = reinterpret_cast<int*>(&link.linkFlags);
+				*flags_ptr = flags;
 			}
 			cout << "Done" << endl;
 

@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <functional>
 
+using namespace pathfinding;
+
 template<class T>
 constexpr bool is_between(const T& v, const T& lo, const T& hi)
 {
@@ -188,4 +190,48 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 		}
 	}
 	return false;
+}
+
+render_info pathfinding::get_render_info(scenario_structure_bsp_block *sbsp)
+{
+	render_info info_out;
+	if (LOG_CHECK(sbsp))
+	{
+		auto pathfinding = sbsp->pathfindingData[0];
+		auto collision_bsp = sbsp->collisionBSP[0];
+		if (pathfinding)
+		{
+			for (const auto ref : pathfinding->refs)
+			{
+				auto sector = pathfinding->sectors[ref.nodeRefOrSectorRef];
+				if (sector)
+				{
+					render_info::line_set line_set;
+					std::unordered_set<size_t> links_checked;
+
+					std::function<void(size_t link)> walk_link_recursive;
+					walk_link_recursive = [&](size_t link) {
+						if (links_checked.count(link) != 0)
+							return;
+						links_checked.insert(link); // mark as visted
+
+						auto current_link = pathfinding->links[link];
+						if (!current_link) // incalid
+							return;
+
+						if (current_link->leftSector != ref.nodeRefOrSectorRef && current_link->rightSector != ref.nodeRefOrSectorRef)
+							return; // not part of sector
+
+						line_set.lines.insert(link);
+
+						walk_link_recursive(current_link->forwardLink);
+						walk_link_recursive(current_link->reverseLink);
+					};
+					walk_link_recursive(sector->firstLinkdoNotSetManually);
+					info_out.sector_lines[ref.nodeRefOrSectorRef] = line_set;
+				}
+			}
+		}
+	}
+	return info_out;
 }

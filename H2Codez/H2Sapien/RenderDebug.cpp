@@ -5,6 +5,7 @@
 #include "..\Tags\ScenarioStructureBSP.h"
 #include "..\stdafx.h"
 #include "..\util\string_util.h"
+#include "..\Common\Pathfinding.h"
 
 static inline scenario_structure_bsp_block *get_sbsp()
 {
@@ -56,10 +57,11 @@ void draw_debug_line(const real_point3d *v0, const real_point3d *v1,
 }
 
 const colour_rgba pathfinding_debug_colour_default( 1.0f, 0.0f, 1.0f, 1.0f );
+pathfinding::render_info lines_to_render;
 
 void __cdecl render_debug_info_game_in_progress()
 {
-	if (conf.getBoolean("render_pathfinding_debug", false))
+	if (conf.getBoolean("render_pathfinding_debug", false) || is_debug_build())
 	{
 		auto bsp = get_sbsp();
 		if (bsp)
@@ -76,20 +78,39 @@ void __cdecl render_debug_info_game_in_progress()
 						pathfinding_debug_colour = colour.as_rgba();
 					}
 				}
-				for (const auto &link : pathfinding->links)
+				for (auto &sector_info : lines_to_render.sector_lines)
 				{
-					auto vertex1 = pathfinding->vertices[link.vertex1];
-					auto vertex2 = pathfinding->vertices[link.vertex2];
+					for (auto line : sector_info.second.lines)
+					{
+						auto link = pathfinding->links[line];
+						if (LOG_CHECK(link))
+						{
+							auto vertex1 = pathfinding->vertices[link->vertex1];
+							auto vertex2 = pathfinding->vertices[link->vertex2];
 
-					if (vertex1 && vertex1)
-						draw_debug_line(&vertex1->point, &vertex2->point, &pathfinding_debug_colour);
+							if (vertex1 && vertex2)
+								draw_debug_line(&vertex1->point, &vertex2->point, &pathfinding_debug_colour);
+						}
+					}
 				}
 			}
 		}
 	}
 }
 
+
+
+void setup_engine_for_new_sbsp()
+{
+	lines_to_render = pathfinding::get_render_info(get_sbsp());
+
+	typedef void __cdecl setup_engine_for_new_sbsp();
+	auto setup_engine_for_new_sbsp_impl = reinterpret_cast<setup_engine_for_new_sbsp*>(0x4FF660);
+	return setup_engine_for_new_sbsp_impl();
+}
+
 void H2SapienPatches::render_debug_info_init()
 {
 	PatchCall(0x6D31F0, render_debug_info_game_in_progress);
+	PatchCall(0x4D6A63, setup_engine_for_new_sbsp);
 }

@@ -12,6 +12,6 @@ namespace pathfinding
 		};
 		std::map<size_t, line_set> sector_lines;
 	};
-	bool generate(scenario_structure_bsp_block *sbsp);
+	bool generate(datum sbsp_tag);
 	render_info get_render_info(scenario_structure_bsp_block *sbsp);
 }

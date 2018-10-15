@@ -5,6 +5,7 @@
 #include <map>
 #include <unordered_set>
 #include <functional>
+#include "../util/string_util.h"
 
 using namespace pathfinding;
 
@@ -27,8 +28,100 @@ inline t_data get_idx(const std::map<t_index, t_data, Compare, Allocator> &map, 
 		return NONE;
 }
 
-bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
+class pathfinding_settings_parser
 {
+public:
+	bool parse_file(std::ifstream &file)
+	{
+		const static std::string remove_header = "[remove]";
+		const static std::string keep_header = "[keep]";
+		enum mode
+		{
+			undefined,
+			keep,
+			remove
+		};
+		mode current_mode = undefined;
+		while (file)
+		{
+			std::string line;
+			std::getline(file, line);
+			str_trim(line);
+			line = tolower(line);
+
+			if (line == keep_header)
+			{
+				current_mode = keep;
+				continue;
+			}
+			if (line == remove_header)
+			{
+				current_mode = remove;
+				continue;
+			}
+
+			unsigned short surface_idx = NONE;
+			try {
+				surface_idx = static_cast<unsigned short>(std::stoul(line));
+			} catch(...) {
+				continue;
+			}
+			if (LOG_CHECK(current_mode != undefined))
+			{
+				switch (current_mode)
+				{
+				case remove:
+					surfaces_to_remove.insert(surface_idx);
+				case keep:
+					surfaces_to_keep.insert(surface_idx);
+				}
+			} else {
+				return false;
+			}
+		}
+		return !file.bad();
+	}
+
+	bool parse_file(const std::string &file_name)
+	{
+		std::ifstream file(file_name);
+		if (file)
+		{
+			return parse_file(file);
+		}
+		return false;
+	}
+
+	pathfinding_settings_parser(const std::string &file_name)
+	{
+		parse_file(file_name);
+	}
+	pathfinding_settings_parser() {};
+
+	bool force_keep_surface(unsigned short surface)
+	{
+		return keep_surface(surface) && surfaces_to_keep.count(surface) > 0;
+	}
+
+	bool keep_surface(unsigned short surface)
+	{
+		return !remove_surface(surface);
+	}
+
+	bool remove_surface(unsigned short surface)
+	{
+		return surfaces_to_remove.count(surface) > 0;
+	}
+
+private:
+
+	std::unordered_set<unsigned short> surfaces_to_remove;
+	std::unordered_set<unsigned short> surfaces_to_keep;
+};
+
+bool pathfinding::generate(datum sbsp_tag)
+{
+	auto *sbsp = tags::get_tag<scenario_structure_bsp_block>('sbsp', sbsp_tag);
 	if (LOG_CHECK(sbsp->pathfindingData.size == 0)) // check the map has no pathfinding
 	{
 		tags::resize_block(&sbsp->pathfindingData, 1);
@@ -38,6 +131,12 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			auto collision_bsp = sbsp->collisionBSP[0];
 			if (!LOG_CHECK(pathfinding && collision_bsp))
 				return false;
+
+			std::string import_settings_file = "tags\\" + tags::get_name(sbsp_tag) + "_import_setting.txt";
+			pathfinding_settings_parser importer;
+			std::cout << "Import settings file: \"" + import_settings_file <<  "\"" << std::endl;
+			if (!importer.parse_file(import_settings_file))
+				std::cout << "Import settings file not found or unreadable" << std::endl;
 
 			std::cout << "Converting surfaces to sectors" << std::endl;
 
@@ -53,7 +152,8 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 					return false;
 				auto plane = collision_bsp->get_plane_by_ref(surface->plane);
 				auto normal_angle = plane.normal.get_angle();
-				if (!is_between(normal_angle.roll.as_degree(), 45.0, 135.0))
+				if (importer.force_keep_surface(surface_idx)
+					|| !is_between(normal_angle.roll.as_degree(), 45.0, 135.0) && !importer.remove_surface(surface_idx))
 				{
 					surface_sector_mapping[surface_idx] = sector_index;
 					ref_index = sector_index;
@@ -66,7 +166,7 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			std::cout << "Culling edges and vertices" << std::endl;
 
 			// Ilterating over edges and calculating edges + points used
-			std::unordered_set<size_t> vertices_used;
+			std::unordered_set<unsigned short> vertices_used;
 			std::map<unsigned short, unsigned short> edge_link_mapping;
 			unsigned short link_idx = 0;
 			std::unordered_set<unsigned short> edges_used; // make a copy for ilterating
@@ -113,8 +213,8 @@ bool pathfinding::generate(scenario_structure_bsp_block *sbsp)
 			// copy over vertices
 			std::map<unsigned short, unsigned short> coll_to_path_vertex;
 			tags::resize_block(&pathfinding->vertices, vertices_used.size());
-			size_t p_vertex_idx = 0;
-			for (size_t c_vertex_idx: vertices_used)
+			unsigned short p_vertex_idx = 0;
+			for (auto c_vertex_idx: vertices_used)
 			{
 				auto *p_vertex = pathfinding->vertices[p_vertex_idx];
 				auto *c_vertex = collision_bsp->vertices[c_vertex_idx];

@@ -559,32 +559,10 @@ void _cdecl pathfinding_from_coll_proc(const wchar_t *argv[])
 	if (sbsp.index == NONE)
 		return;
 	scenario_structure_bsp_block *sbsp_data = tags::get_tag<scenario_structure_bsp_block>('sbsp', sbsp);
-	auto collisionBSP = sbsp_data->collisionBSP[0];
-	if (collisionBSP)
-	{
-		size_t i = 0;
-		for (auto &coll_plane : collisionBSP->planes)
-		{
-			continue;
-			auto normal = coll_plane.plane.normal.get_angle();
-			std::cout << "plane: " << std::setw(3) << i;
-			std::cout << " (" << std::setw(6) <<  "yaw: " << std::setw(3) << normal.yaw.as_degree()
-				<< std::setw(6) << " pitch: " << std::setw(3) << normal.pitch.as_degree()
-				<< std::setw(6) << " roll: " << std::setw(3) << normal.roll.as_degree() << " )" << std::endl;
-			i++;
-			continue;
-			auto to_degree = [](double rad) -> double { return rad * (180.0 / 3.14159265358979323846); };
-			auto convert = [to_degree](double vector_v) -> double { return to_degree(std::acos(vector_v)); };
-			//auto convert = [to_degree](double vector_v) -> double { return vector_v; };
-			printf_s("i: %f\n", convert(coll_plane.plane.normal.i));
-			printf_s("j: %f\n", convert(coll_plane.plane.normal.j));
-			printf_s("k: %f\n\n", convert(coll_plane.plane.normal.k));
-		}
-	}
 	if (!check_pathfinding_clear(sbsp_data))
 		return;
 
-	pathfinding::generate(sbsp_data);
+	pathfinding::generate(sbsp);
 
 	if (!tags::save_tag(sbsp))
 		printf_s("Failed to save tag!\n");

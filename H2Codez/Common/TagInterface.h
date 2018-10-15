@@ -5,7 +5,7 @@ namespace tags
 {
 	int get_group_tag(datum tag);
 	tag_block_ref *get_root_block(datum tag);
-	const char *get_name(datum tag);
+	std::string get_name(datum tag);
 	bool tag_exists(int group, std::string path);
 	bool is_read_only(datum tag);
 

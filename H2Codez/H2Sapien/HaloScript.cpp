@@ -3,6 +3,7 @@
 #include "../Common/H2EKCommon.h"
 #include "../HaloScript/hs_interface.h"
 #include <Shellapi.h>
+#include "../Common/TagInterface.h"
 
 void status_dump()
 {
@@ -22,9 +23,9 @@ void status_dump()
 	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
 }
 
-static inline scenario_structure_bsp_block *get_sbsp()
+static inline datum get_sbsp_index()
 {
-	return *reinterpret_cast<scenario_structure_bsp_block **>(0xA9CA74);
+	return *reinterpret_cast<datum *>(0x9A14B8);
 }
 
 void H2SapienPatches::haloscript_init()
@@ -43,8 +44,9 @@ void H2SapienPatches::haloscript_init()
 		"generate_pathfinding",
 		"Generate pathfinding from collision for current bsp",
 		HS_FUNC(
-			auto bsp = get_sbsp();
-			if (bsp->pathfindingData.size == 0)
+			auto bsp = get_sbsp_index();
+			auto bsp_data = tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp);
+			if (bsp_data->pathfindingData.size == 0)
 				pathfinding::generate(bsp);
 			return 0;
 		)

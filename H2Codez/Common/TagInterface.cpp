@@ -34,7 +34,7 @@ namespace tags
 		return (tag_block_ref *)(get_object_at_data_array_index(get_tag_instance_ptr(), tag.index) + 8);
 	}
 
-	const char *get_name(datum tag)
+	std::string get_name(datum tag)
 	{
 		return (const char *)get_object_at_data_array_index(get_tag_instance_ptr(), tag.index)[1];
 	}

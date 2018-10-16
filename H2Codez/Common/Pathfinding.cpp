@@ -60,6 +60,9 @@ public:
 				continue;
 			}
 
+			if (current_mode == undefined)
+				continue;
+
 			unsigned short surface_idx = NONE;
 			try {
 				surface_idx = static_cast<unsigned short>(std::stoul(line));

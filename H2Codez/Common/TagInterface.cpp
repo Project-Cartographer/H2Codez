@@ -98,7 +98,7 @@ namespace tags
 	{
 		typedef int __cdecl TAG_LOADED(int tag_group, const char *name);
 		auto TAG_LOADED_IMPL = reinterpret_cast<TAG_LOADED*>(OS_switch_by_addr(0x484FF0, 0x52F9A0, 0x4B1340));
-		return TAG_LOADED_IMPL(tag_group, name.c_str());
+		return TAG_LOADED_IMPL(tag_group, name.c_str()) != NONE;
 	}
 
 	datum new_tag(int group, const std::string name)

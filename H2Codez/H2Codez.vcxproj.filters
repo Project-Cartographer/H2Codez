@@ -200,6 +200,9 @@
     <ClInclude Include="Common\TagInterface.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="Common\PathfindingConfig.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

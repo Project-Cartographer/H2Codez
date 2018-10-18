@@ -1,9 +1,9 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include <Dbghelp.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #include "Debug.h"
-#include "../Version.h"
+#include "Version.h"
 
 #define crash_reports_path "reports//crash_reports//"
 

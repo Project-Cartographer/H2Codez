@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <cctype>
-#include "../Common/BlamBaseTypes.h"
+#include "Common/BlamBaseTypes.h"
 
 inline std::string tolower(const std::string &str)
 {

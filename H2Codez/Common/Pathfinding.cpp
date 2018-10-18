@@ -1,11 +1,11 @@
 #include "pathfinding.h"
-#include "../h2codez.h"
-#include "../util/Logs.h"
+#include "h2codez.h"
+#include "util/Logs.h"
 #include "TagInterface.h"
 #include <map>
 #include <unordered_set>
 #include <functional>
-#include "../util/string_util.h"
+#include "util/string_util.h"
 #include "PathfindingConfig.h"
 
 using namespace pathfinding;

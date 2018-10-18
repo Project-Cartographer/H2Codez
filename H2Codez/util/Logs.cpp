@@ -1,5 +1,5 @@
 #include "Logs.h"
-#include "../h2codez.h"
+#include "h2codez.h"
 
 Logs::Logs(char* filename)
 {

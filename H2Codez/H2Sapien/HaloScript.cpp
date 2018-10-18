@@ -1,9 +1,9 @@
 #include "HaloScript.h"
-#include "../Common/Pathfinding.h"
-#include "../Common/H2EKCommon.h"
-#include "../HaloScript/hs_interface.h"
+#include "Common/Pathfinding.h"
+#include "Common/H2EKCommon.h"
+#include "Common/TagInterface.h"
+#include "HaloScript/hs_interface.h"
 #include <Shellapi.h>
-#include "../Common/TagInterface.h"
 
 void status_dump()
 {

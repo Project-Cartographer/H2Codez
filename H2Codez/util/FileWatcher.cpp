@@ -23,7 +23,7 @@
 #include "FileWatcher.h"
 
 #define _WIN32_WINNT 0x0550
-#include "../stdafx.h"
+#include "stdafx.h"
 
 #if defined(_MSC_VER)
 #pragma comment(lib, "comctl32.lib")

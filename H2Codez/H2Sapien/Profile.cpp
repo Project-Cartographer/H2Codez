@@ -1,9 +1,9 @@
 #include "Profile.h"
-#include "../stdafx.h"
+#include "util/Patches.h"
+#include "stdafx.h"
+#include "Common/FiloInterface.h"
+#include "Tags/MultiplayerGlobals.h"
 #include <Wincrypt.h>
-#include "../Common/FiloInterface.h"
-#include "../util/Patches.h"
-#include "../Tags/MultiplayerGlobals.h"
 
 void DuplicateDataBlob(DATA_BLOB  *pDataIn, DATA_BLOB  *pDataOut)
 {

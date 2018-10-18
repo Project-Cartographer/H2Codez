@@ -1,10 +1,10 @@
 #include "H2EKCommon.h"
-#include "../stdafx.h"
-#include "../util/Patches.h"
+#include "stdafx.h"
+#include "util/Patches.h"
 #include "Psapi.h"
 #include "DiscordInterface.h"
-#include "../util/Debug.h"
-#include "../HaloScript/hs_interface.h"
+#include "util/Debug.h"
+#include "HaloScript/hs_interface.h"
 #include <cwchar>
 #include <cassert>
 #include <Shellapi.h>

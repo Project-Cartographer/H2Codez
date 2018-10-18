@@ -1,12 +1,11 @@
 #include "RenderDebug.h"
-#include <d3d9.h>
-#include "..\Common\H2EKCommon.h"
-#include "..\util\Patches.h"
-#include "..\Tags\ScenarioStructureBSP.h"
-#include "..\stdafx.h"
-#include "..\util\string_util.h"
-#include "..\Common\Pathfinding.h"
+#include "Common\H2EKCommon.h"
+#include "Common\Pathfinding.h"
+#include "Tags\ScenarioStructureBSP.h"
+#include "util\string_util.h"
+#include "util\Patches.h"
 #include <random>
+#include <d3d9.h>
 
 static inline scenario_structure_bsp_block *get_sbsp()
 {

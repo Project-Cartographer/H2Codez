@@ -1,19 +1,19 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "H2Sapien.h"
-#include "..\Common\H2EKCommon.h"
-#include "..\Common\BlamBaseTypes.h"
-#include "..\util\Patches.h"
-#include "..\Resources\resource.h"
-#include <Shellapi.h>
-#include <iostream>
-#include <fstream>
+#include "Common\H2EKCommon.h"
+#include "Common\BlamBaseTypes.h"
+#include "util\Patches.h"
+#include "Resources\sapien_accelerators.h"
+#include "Resources\resource.h"
 #include "Console.h"
 #include "TagUpdate.h"
 #include "Profile.h"
 #include "RenderDebug.h"
 #include "HaloScript.h"
-#include "..\Resources\sapien_accelerators.h"
 #include <unordered_set>
+#include <Shellapi.h>
+#include <iostream>
+#include <fstream>
 
 using namespace HaloScriptCommon;
 

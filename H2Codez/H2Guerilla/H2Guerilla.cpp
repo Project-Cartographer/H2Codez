@@ -1,11 +1,11 @@
-#include "..\stdafx.h"
+#include "stdafx.h"
 #include "H2Guerilla.h"
-#include "..\util\Patches.h"
-#include "..\Resources\resource.h"
-#include "..\Common\H2EKCommon.h"
-#include "..\Common\FiloInterface.h"
-#include "..\Common\BlamBaseTypes.h"
-#include "..\Tags\ScenarioTag.h"
+#include "util\Patches.h"
+#include "Resources\resource.h"
+#include "Common\H2EKCommon.h"
+#include "Common\FiloInterface.h"
+#include "Common\BlamBaseTypes.h"
+#include "Tags\ScenarioTag.h"
 
 typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;

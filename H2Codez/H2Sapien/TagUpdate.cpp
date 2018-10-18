@@ -1,11 +1,10 @@
 #include "TagUpdate.h"
-#include "../stdafx.h"
-#include "../util/FileWatcher.h"
-#include "../Common/H2EKCommon.h"
-#include "../Common/tag_group_names.h"
-#include "../util/string_util.h"
-#include "../util/Logs.h"
-#include "../Common/BasicTagTypes.h"
+#include "util/FileWatcher.h"
+#include "util/string_util.h"
+#include "util/Logs.h"
+#include "Common/BasicTagTypes.h"
+#include "Common/H2EKCommon.h"
+#include "Common/tag_group_names.h"
 #include <Shlobj.h>
 #include <shlwapi.h>
 #include <algorithm>

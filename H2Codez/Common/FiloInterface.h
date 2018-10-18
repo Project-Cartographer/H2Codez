@@ -1,7 +1,7 @@
 #pragma once
 #pragma pack(1)
 
-#include "../stdafx.h"
+#include "stdafx.h"
 
 struct filo
 {

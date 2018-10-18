@@ -5,6 +5,7 @@
 #include "Common/BasicTagTypes.h"
 #include "Common/H2EKCommon.h"
 #include "Common/tag_group_names.h"
+#include "Common/TagInterface.h"
 #include <Shlobj.h>
 #include <shlwapi.h>
 #include <algorithm>
@@ -23,10 +24,6 @@ public:
 	void handleFileAction(FW::WatchID watchid, const std::string& dir, const std::string& filename,
 		FW::Action action)
 	{
-		typedef int (__cdecl *tag_reload)(int tag_group, const char *tag_name);
-		typedef int(__cdecl *tag_loaded)(int tag_group, const char *name);
-		auto tag_loaded_impl = reinterpret_cast<tag_loaded>(0x4B1340);
-		auto tag_reload_impl = reinterpret_cast<tag_reload>(0x4B5A90);
 		void *sbsp_ptr = *reinterpret_cast<void**>(0xA9CA74);
 
 		std::cout << "DIR (" << dir + ") FILE (" + filename + ") has event " << action << std::endl;
@@ -38,7 +35,7 @@ public:
 			std::string tag_name = filename.substr(0, file_ext_pos);
 
 			auto tag_group = string_to_tag_group(file_ext);
-			if (tag_group == 0xFFFF) // not a tag
+			if (tag_group == NONE) // not a tag
 				return;
 			auto last_save = tags_being_saved.find(tolower(filename));
 			if (last_save != tags_being_saved.end())
@@ -51,10 +48,10 @@ public:
 					tags_being_saved.erase(last_save);
 				}
 			}
-			if (tag_loaded_impl(tag_group, tag_name.c_str()) != NONE)
+			if (tags::is_tag_loaded(tag_group, tag_name.c_str()))
 			{
 				pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
-				tag_reload_impl(tag_group, tag_name.c_str());
+				tags::reload_tag(tag_group, tag_name.c_str());
 			} else {
 				pLog.WriteLog("Ignoring change to tag \"%s\" because it's not loaded", filename.c_str());
 			}

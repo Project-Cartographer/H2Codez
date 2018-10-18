@@ -31,10 +31,9 @@ inline t_data get_idx(const std::map<t_index, t_data, Compare, Allocator> &map, 
 class pathfinding_settings_parser
 {
 public:
+	/* Reads in settings from a file */
 	bool parse_file(std::ifstream &file)
 	{
-		const static std::string remove_header = "[remove]";
-		const static std::string keep_header = "[keep]";
 		enum mode
 		{
 			undefined,
@@ -49,12 +48,12 @@ public:
 			str_trim(line);
 			line = tolower(line);
 
-			if (line == keep_header)
+			if (line == get_keep_header())
 			{
 				current_mode = keep;
 				continue;
 			}
-			if (line == remove_header)
+			if (line == get_remove_header())
 			{
 				current_mode = remove;
 				continue;
@@ -85,6 +84,7 @@ public:
 		return !file.bad();
 	}
 
+	/* Reads in settings from a file */
 	bool parse_file(const std::string &file_name)
 	{
 		std::ifstream file(file_name);
@@ -95,28 +95,95 @@ public:
 		return false;
 	}
 
+	bool write_to_file(std::ofstream &file)
+	{
+		if (file)
+		{
+			std::unordered_set<unsigned short> surfaces_kept;
+			for (const auto surface : surfaces_to_keep)
+			{
+				if (surfaces_to_remove.count(surface) == 0)
+					surfaces_kept.insert(surface);
+			}
+
+			if (surfaces_kept.size() > 0)
+			{
+				file << get_keep_header() << std::endl;
+				for (const size_t surface : surfaces_kept)
+					file << surface << std::endl;
+				file << std::endl;
+			}
+
+			if (surfaces_to_remove.size() > 0)
+			{
+				file << get_remove_header() << std::endl;
+				for (const size_t surface : surfaces_to_remove)
+					file << surface << std::endl;
+				file << std::endl;
+			}
+		}
+		return !file.bad();
+	}
+
+	bool write_to_file(const std::string &file_name)
+	{
+		std::ofstream file(file_name);
+		if (file)
+		{
+			return write_to_file(file);
+		}
+		return false;
+	}
+
 	pathfinding_settings_parser(const std::string &file_name)
 	{
 		parse_file(file_name);
 	}
 	pathfinding_settings_parser() {};
 
-	bool force_keep_surface(unsigned short surface)
+	/* Should include surface even if other checks fail */
+	bool should_force_keep_surface(unsigned short surface)
 	{
-		return keep_surface(surface) && surfaces_to_keep.count(surface) > 0;
+		return should_keep_surface(surface) && surfaces_to_keep.count(surface) > 0;
 	}
 
-	bool keep_surface(unsigned short surface)
+	/* Surface **not** marked for removal */
+	bool should_keep_surface(unsigned short surface)
 	{
-		return !remove_surface(surface);
+		return !should_remove_surface(surface);
 	}
 
-	bool remove_surface(unsigned short surface)
+	/* Surface marked for removal */
+	bool should_remove_surface(unsigned short surface)
 	{
 		return surfaces_to_remove.count(surface) > 0;
 	}
 
+	/* Mark a surface as removed, overrides keep_surface */
+	void remove_surface(unsigned short surface)
+	{
+		surfaces_to_remove.insert(surface);
+	}
+
+	/* Mark a surface as included, overriden by remove_surface */
+	void keep_surface(unsigned short surface)
+	{
+		surfaces_to_keep.insert(surface);
+	}
+
 private:
+
+	const std::string &get_remove_header() const
+	{
+		const static std::string remove_header = "[remove]";
+		return remove_header;
+	}
+
+	const std::string &get_keep_header() const
+	{
+		const static std::string keep_header = "[keep]";
+		return keep_header;
+	}
 
 	std::unordered_set<unsigned short> surfaces_to_remove;
 	std::unordered_set<unsigned short> surfaces_to_keep;
@@ -137,6 +204,8 @@ bool pathfinding::generate(datum sbsp_tag)
 
 			std::string import_settings_file = "tags\\" + tags::get_name(sbsp_tag) + "_import_setting.txt";
 			pathfinding_settings_parser importer;
+			pathfinding_settings_parser exporter;
+			double surface_range = conf.getNumber("pathfinding_keep_angle_range", 45.0);
 			std::cout << "Import settings file: \"" + import_settings_file <<  "\"" << std::endl;
 			if (!importer.parse_file(import_settings_file))
 				std::cout << "Import settings file not found or unreadable" << std::endl;
@@ -155,12 +224,15 @@ bool pathfinding::generate(datum sbsp_tag)
 					return false;
 				auto plane = collision_bsp->get_plane_by_ref(surface->plane);
 				auto normal_angle = plane.normal.get_angle();
-				if (importer.force_keep_surface(surface_idx)
-					|| !is_between(normal_angle.roll.as_degree(), 45.0, 135.0) && !importer.remove_surface(surface_idx))
+				if (importer.should_force_keep_surface(surface_idx)
+					|| !is_between(normal_angle.roll.as_degree(), 90.0 - surface_range, 90 + surface_range) && !importer.should_remove_surface(surface_idx))
 				{
+					exporter.keep_surface(surface_idx);
 					surface_sector_mapping[surface_idx] = sector_index;
 					ref_index = sector_index;
 					sector_index++;
+				} else {
+					exporter.remove_surface(surface_idx);
 				}
 				auto *ref = pathfinding->refs[surface_idx];
 				ref->nodeRefOrSectorRef = ref_index;
@@ -292,6 +364,10 @@ bool pathfinding::generate(datum sbsp_tag)
 				<< "Surfaces: " << collision_bsp->surfaces.size << endl
 				<< "Edges: " << collision_bsp->edges.size << endl
 				<< "Vertices: " << collision_bsp->vertices.size << endl << endl;
+
+			std::string import_results = "tags\\" + tags::get_name(sbsp_tag) + "_import_results.txt";
+			if (!exporter.write_to_file(import_results))
+				std::cout << "Failed to write import results to file" << std::endl;
 			return true;
 		}
 	}

@@ -171,7 +171,7 @@ struct scenario_structure_bsp_block
 		{
 			char path[256];
 			char modificationDate[32];
-			BYTE padding259[8];
+			FILETIME import_time;
 			BYTE padding260[88];
 			int checksumCrc32;
 			int sizeBytes;

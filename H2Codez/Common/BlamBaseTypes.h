@@ -24,6 +24,85 @@ struct datum
 };
 CHECK_STRUCT_SIZE(datum, 4);
 
+struct blam_tag
+{
+	union {
+		char c_data[4];
+		int i_data;
+	};
+
+	blam_tag(int data) :
+		i_data(data)
+	{
+	}
+
+	std::string as_string() const
+	{
+		std::string out;
+		out += c_data[3];
+		out += c_data[2];
+		out += c_data[1];
+		out += c_data[0];
+		return out;
+	}
+
+	int as_int() const
+	{
+		return i_data;
+	}
+
+	bool operator==(const blam_tag &other) const
+	{
+		return this->as_int() == other.as_int();
+	}
+};
+
+struct editor_string
+{
+	const static size_t max_string_id = 5207; // highest id for a string in h2alang
+	const static size_t empty_string_id = 87; // id for empty string
+
+	union {
+		size_t id;
+		const char *string;
+	};
+
+	editor_string(const char* _string) :
+		string(_string)
+	{
+	}
+	
+	editor_string(size_t _id) :
+		id(_id)
+	{
+	}
+
+	std::string get_string()
+	{
+		if (id > max_string_id) // assume it's a c-string
+			return string;
+		if (id == empty_string_id) // empty string
+			return "";
+		char data[0x1000];
+		if (!LOG_CHECK(LoadStringA(get_h2alang(), id, data, ARRAYSIZE(data))))
+		{
+			pLog.WriteLog("Failed to get string %d", id);
+			return "";
+		}
+		return data;
+	}
+
+	// h2alang util
+	static HMODULE get_h2alang()
+	{
+		static HMODULE handle = NULL;
+		if (!handle)
+			handle = LOG_CHECK(LoadLibraryExA("h2alang.dll", NULL, LOAD_LIBRARY_AS_DATAFILE));
+		return handle;
+	}
+};
+CHECK_STRUCT_SIZE(editor_string, 4);
+
 struct colour_rgb;
 /* channel intensity is represented on a 0 to 1 scale */
 struct colour_rgba
@@ -204,10 +283,10 @@ struct old_string_id
 
 struct tag_enum_map_element
 {
-	DWORD string;
+	editor_string string;
 	DWORD number;
-	tag_enum_map_element(char* _string, int _number) :
-		string(reinterpret_cast<DWORD>(_string)),
+	tag_enum_map_element(const char* _string, int _number) :
+		string(_string),
 		number(_number)
 	{}
 	tag_enum_map_element(DWORD _string, int _number) :

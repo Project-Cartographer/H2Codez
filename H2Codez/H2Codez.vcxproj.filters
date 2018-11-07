@@ -49,6 +49,9 @@
     <Filter Include="Source Files\util\detours">
       <UniqueIdentifier>{5a7dab93-c43b-4f54-b6ef-7efaaeaadf19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Interfaces\H2Guerilla">
+      <UniqueIdentifier>{27c4116e-6bf6-4fcb-afdf-f62a7f8767f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -202,6 +205,12 @@
     </ClInclude>
     <ClInclude Include="Common\PathfindingConfig.h">
       <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TagDefinitions.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Guerilla\template_defintions.h">
+      <Filter>Source Files\Interfaces\H2Guerilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

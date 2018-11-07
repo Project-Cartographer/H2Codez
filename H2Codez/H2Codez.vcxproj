@@ -124,8 +124,10 @@
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\Pathfinding.h" />
     <ClInclude Include="Common\PathfindingConfig.h" />
+    <ClInclude Include="Common\TagDefinitions.h" />
     <ClInclude Include="Common\TagInterface.h" />
     <ClInclude Include="Common\tag_group_names.h" />
+    <ClInclude Include="H2Guerilla\template_defintions.h" />
     <ClInclude Include="H2Sapien\Console.h" />
     <ClInclude Include="H2Sapien\HaloScript.h" />
     <ClInclude Include="H2Sapien\Profile.h" />

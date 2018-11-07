@@ -6,6 +6,7 @@
 #include "Common\FiloInterface.h"
 #include "Common\BlamBaseTypes.h"
 #include "Tags\ScenarioTag.h"
+#include "template_defintions.h"
 
 typedef int(__fastcall *toggle_expert_mode)(int thisptr, int __unused);
 toggle_expert_mode toggle_expert_mode_orginal;
@@ -31,7 +32,6 @@ static std::unordered_map<DWORD, HMENU> menu_map
 	{ 1000, INVALID_HMENU_VALUE },
 };
 
-bool disable_templete_view = true;
 bool show_hidden_fields = true;
 
 inline static void CheckItem(UINT item, bool enable)
@@ -46,14 +46,23 @@ inline static void EnableItem(UINT item, bool enable)
 		EnableMenuItem(menu.second, item, enable ? MF_ENABLED : MF_DISABLED);
 }
 
+void update_ui()
+{
+	CheckItem(ID_EDIT_ADVANCEDSHADERVIEW, conf.getBoolean("disable_templete_view"));
+}
+
 int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
 {
+	auto toggle_boolean = [](std::string setting, bool default_value = false)
+	{
+		conf.setBoolean(setting, !conf.getBoolean(setting, default_value));
+	};
+
 	if (!AFX_CMDHANDLERINFO && !a3 && !a4) {
 		switch (msg) {
 		case ID_EDIT_ADVANCEDSHADERVIEW:
-			disable_templete_view = !disable_templete_view;
-			H2GuerrilaPatches::update_display_templates();
-			conf.setBoolean("disable_templete_view", disable_templete_view);
+			toggle_boolean("disable_templete_view", false);
+			update_ui();
 			return true;
 
 		case ID_FILE_NEWINSTANCE:
@@ -148,6 +157,30 @@ int WINAPI GetMenuItemCountHook(
 		return GetMenuItemCount(hMenu);
 }
 
+const static tempate_constructor c_shader_template_con = reinterpret_cast<tempate_constructor>(0x637220);
+const static tempate_constructor c_sound_effect_template_con = reinterpret_cast<tempate_constructor>(0x51A7D0);
+const static tempate_constructor c_particle_movement_template_con = reinterpret_cast<tempate_constructor>(0x51A040);
+const static tag_block_template_def tag_templates[]
+{
+	{'shad', 1, c_shader_template_con },
+	{'prt3', 0, c_shader_template_con },
+	// {'ssfx', 0, c_sound_effect_template_con }, // causes crashes
+	{'pmov', 1, c_particle_movement_template_con },
+};
+
+const tag_block_template_def *__cdecl get_tag_block_template(blam_tag block)
+{
+	if (conf.getBoolean("disable_templete_view", false))
+		return nullptr;
+	for (auto i = 0; i < ARRAYSIZE(tag_templates); i++)
+	{
+		auto tag_template = &tag_templates[i];
+		if (tag_template->type == block)
+			return tag_template;
+	}
+	return nullptr;
+}
+
 void H2GuerrilaPatches::update_field_display()
 {
 	CheckItem(SHOW_HIDDEN_FIELDS, show_hidden_fields);
@@ -159,20 +192,6 @@ void H2GuerrilaPatches::update_field_display()
 		BYTE orginal_code[8] = { 0x84, 0xC0, // test al, al
 			0x0F, 0x84, 0x72, 0x01, 0x00, 0x00 }; // jz loc_44CF24
 		WriteBytes(0x44CDAA, orginal_code, 8);
-	}
-}
-
-void H2GuerrilaPatches::update_display_templates()
-{
-	CheckItem(ID_EDIT_ADVANCEDSHADERVIEW, disable_templete_view);
-	if (disable_templete_view) {
-		// Disable Tag Template Views
-		BYTE patch[0x3] = { 0x33, 0xC0, 0xC3 }; // xor eax, eax; retn
-		WriteBytes(0x48E730, patch, 0x3);
-	} else {
-		// orignal code
-		BYTE patch[0x3] = { 0x8B, 0x4C, 0x24 };
-		WriteBytes(0x48E730, patch, 0x3);
 	}
 }
 
@@ -231,6 +250,9 @@ void H2GuerrilaPatches::Init()
 	// fix "help" menu getting replaced by "window" menu
 	PatchAbsCall(0x00686D0A, GetMenuItemCountHook);
 
+	// allow manipulating tag templates
+	WriteJmp(0x48E730, get_tag_block_template);
+
 #pragma endregion
 
 #pragma region Hooks
@@ -261,8 +283,7 @@ void H2GuerrilaPatches::Init()
 
 	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
 	show_hidden_fields = conf.getBoolean("show_hidden_fields", true);
-	disable_templete_view = conf.getBoolean("disable_templete_view", false);
 
 	update_field_display();
-	update_display_templates();
+	update_ui();
 }

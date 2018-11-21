@@ -114,3 +114,16 @@ void Settings::setBoolean(const std::string &setting, bool value)
 {
 	setString(setting, value ? "true" : "false");
 }
+
+Settings::radix Settings::get_base(const std::string &number)
+{
+	std::string value = tolower(number);
+	str_trim(value);
+	if (!value.empty() && value[0] == '0')
+	{
+		if (value.size() >= 2 && value[1] == 'x')
+			return hexadecinal;
+		return octal;
+	}
+	return decimal;
+};

@@ -56,6 +56,7 @@ public:
 	NumericType getNumber(const std::string &setting, NumericType default_value)
 	{
 		static_assert(std::is_arithmetic<NumericType>::value, "NumericType must be numeric");
+		
 		std::string value;
 		if (!getString(setting, value)) {
 			setNumber(setting, default_value);
@@ -64,9 +65,9 @@ public:
 		try {
 			if (std::is_integral<NumericType>::value) {
 				if (std::is_signed<NumericType>::value)
-					return static_cast<NumericType>(std::stoll(value));
+					return static_cast<NumericType>(std::stoll(value, 0, get_base(value)));
 				else
-					return static_cast<NumericType>(std::stoull(value));
+					return static_cast<NumericType>(std::stoull(value, 0, get_base(value)));
 			}
 			else if (std::is_floating_point<NumericType>::value) {
 				return static_cast<NumericType>(std::stold(value));
@@ -109,6 +110,16 @@ public:
 		}
 	}
 private:
+
+	enum radix
+	{
+		octal = 8,
+		decimal = 10,
+		hexadecinal = 16
+	};
+	/* returns the base/radix of a number */
+	static radix get_base(const std::string &number);
+
 	/* check if the setting name is valid */
 	inline bool validate_setting_name(const std::string &setting)
 	{

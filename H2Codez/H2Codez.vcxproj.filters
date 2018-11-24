@@ -212,6 +212,9 @@
     <ClInclude Include="H2Guerilla\template_defintions.h">
       <Filter>Source Files\Interfaces\H2Guerilla</Filter>
     </ClInclude>
+    <ClInclude Include="util\crc32.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -297,6 +300,9 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\HaloScript.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\CacheBuilder.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

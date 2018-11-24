@@ -12,6 +12,7 @@
 #include <Shlobj.h>
 #include <CommDlg.h>
 #include <mutex>
+#include "util/crc32.h"
 
 using namespace H2CommonPatches;
 
@@ -403,6 +404,24 @@ BOOL WINAPI GetSaveFileNameWHook(LPOPENFILENAMEW info)
 	return GetSaveFileNameWOriginal(info);
 }
 
+unsigned int calc_crc32_checksum(unsigned int *output, const BYTE *data, int size)
+{
+	typedef unsigned int __cdecl calc_crc32_checksum(unsigned int *output, const BYTE *data, int size);
+	auto calc_crc32_checksum_impl = reinterpret_cast<calc_crc32_checksum*>(SwitchAddessByMode(0x00535E40, 0x504130, 0x4A84D0));
+	return calc_crc32_checksum_impl(output, data, size);
+}
+
+bool crc32_unit_test()
+{
+	const static unsigned char test_data[] = "This is some test data";
+	unsigned int halo_crc = 0xFFFFFFFFu;
+	crc32::result h2codez_crc;
+
+	calc_crc32_checksum(&halo_crc, test_data, sizeof(test_data));
+	crc32::calculate(h2codez_crc, test_data, sizeof(test_data));
+	bool is_good = LOG_CHECK(h2codez_crc == halo_crc);
+	return LOG_CHECK(crc32::calculate(test_data, sizeof(test_data)) == crc32::calculate(&test_data)) && is_good;
+}
 
 void H2CommonPatches::Init()
 {
@@ -433,4 +452,10 @@ void H2CommonPatches::Init()
 	init_haloscript_patches();
 
 	DetourTransactionCommit();
+
+	if (is_debug_build())
+	{
+		if (!crc32_unit_test())
+			pLog.WriteLog("crc unit tests failed");
+	}
 }

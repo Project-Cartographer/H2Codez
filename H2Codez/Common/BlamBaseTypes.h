@@ -31,7 +31,7 @@ struct blam_tag
 		uint32_t i_data ;
 	};
 
-	blam_tag(uint32_t data) :
+	constexpr blam_tag(uint32_t data) :
 		i_data(data)
 	{
 	}
@@ -56,7 +56,7 @@ struct blam_tag
 		return this->as_int() == other.as_int();
 	}
 
-	static blam_tag null()
+	constexpr static blam_tag null()
 	{
 		return blam_tag(0xFFFFFFFF);
 	}
@@ -64,20 +64,20 @@ struct blam_tag
 
 struct editor_string
 {
-	const static size_t max_string_id = 5207; // highest id for a string in h2alang
-	const static size_t empty_string_id = 87; // id for empty string
+	constexpr static size_t max_string_id = 5207; // highest id for a string in h2alang
+	constexpr static size_t empty_string_id = 87; // id for empty string
 
 	union {
-		size_t id;
 		const char *string;
+		size_t id;
 	};
 
-	editor_string(const char* _string) :
+	constexpr editor_string(const char* _string) :
 		string(_string)
 	{
 	}
 	
-	editor_string(size_t _id) :
+	constexpr editor_string(size_t _id) :
 		id(_id)
 	{
 	}
@@ -290,11 +290,11 @@ struct tag_enum_map_element
 {
 	editor_string string;
 	DWORD number;
-	tag_enum_map_element(const char* _string, int _number) :
+	constexpr tag_enum_map_element(const char* _string, int _number) :
 		string(_string),
 		number(_number)
 	{}
-	tag_enum_map_element(DWORD _string, int _number) :
+	constexpr tag_enum_map_element(DWORD _string, int _number) :
 		string(_string),
 		number(_number)
 	{}

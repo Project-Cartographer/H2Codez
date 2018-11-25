@@ -236,7 +236,7 @@ void H2GuerrilaPatches::Init()
 	PatchCall(0x00476494, guerilla_wide_string__append__hook);
 
 	// re-add removed information about scenario types.
-	const static tag_enum_map_element scenario_types[5] =
+	constexpr static tag_enum_map_element scenario_types[5] =
 	{
 		tag_enum_map_element("Singleplayer", scnr_tag::Type::Singleplayer),
 		tag_enum_map_element("Multiplayer",  scnr_tag::Type::Multiplayer),
@@ -253,7 +253,7 @@ void H2GuerrilaPatches::Init()
 	// allow manipulating tag templates
 	WriteJmp(0x48E730, get_tag_block_template);
 
-	static const blam_tag widget_tags[] =
+	constexpr static blam_tag widget_tags[] =
 	{
 		'ant!',
 		'devo',

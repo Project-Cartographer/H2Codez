@@ -3,9 +3,9 @@
 
 struct tag_field
 {
-	enum field_tyoe : size_t
+	enum field_type : size_t
 	{
-		_field_string,
+		string,
 		long_string,
 		string_id,
 		old_string_id,

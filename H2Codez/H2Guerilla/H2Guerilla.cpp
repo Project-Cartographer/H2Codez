@@ -253,6 +253,20 @@ void H2GuerrilaPatches::Init()
 	// allow manipulating tag templates
 	WriteJmp(0x48E730, get_tag_block_template);
 
+	static const blam_tag widget_tags[] =
+	{
+		'ant!',
+		'devo',
+		'whip',
+		'BooM',
+		'tdtl',
+		'clwd',
+		blam_tag::null()
+	};
+	static_assert(sizeof(widget_tags) == ARRAYSIZE(widget_tags) * 4, "array element size check failed!");
+
+	WritePointer(0x98412C, widget_tags);
+
 #pragma endregion
 
 #pragma region Hooks

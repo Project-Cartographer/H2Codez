@@ -28,10 +28,10 @@ struct blam_tag
 {
 	union {
 		char c_data[4];
-		int i_data;
+		uint32_t i_data ;
 	};
 
-	blam_tag(int data) :
+	blam_tag(uint32_t data) :
 		i_data(data)
 	{
 	}
@@ -54,6 +54,11 @@ struct blam_tag
 	bool operator==(const blam_tag &other) const
 	{
 		return this->as_int() == other.as_int();
+	}
+
+	static blam_tag null()
+	{
+		return blam_tag(0xFFFFFFFF);
 	}
 };
 

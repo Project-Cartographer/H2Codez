@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "..\Common\BlamBaseTypes.h"
+#include "util\crc32.h"
 
 enum tool_command_argument_type : long {
 	_tool_command_argument_type_0,
@@ -58,12 +59,32 @@ struct s_tool_h2dev_command {
 };
 static_assert(sizeof(s_tool_h2dev_command) == 0x1C, "Invalid struct size for dev_command");
 
+struct cache_builder_state
+{
+	bool building;
+	BYTE pad[1];
+	wchar_t map_name[256 + 1];
+	crc32::result data_crc;
+	HANDLE temp_cache;
+	size_t cache_size;
+	bool display_precache_progress;
+	bool log_precache_progress;
+	BYTE padding[6];
+	wchar_t uncompressed_cache_location[260];
+};
+CHECK_STRUCT_SIZE(cache_builder_state, 0xC48E88 - 0xC48A68);
+
 class H2ToolPatches
 {
 public:
 	static void Initialize();
 
 	static void fix_command_line();
+
+	inline static cache_builder_state *get_build_cache_file_globals()
+	{
+		return reinterpret_cast<cache_builder_state*>(0xC48A68);
+	}
 
 private:
 	static void AddExtraCommands();
@@ -83,6 +104,8 @@ private:
 	static void structure_bsp_geometry_collision_check_increase();
 
 	static void disable_secure_file_locking();
+
+	static void patch_cache_writter();
 };
 
 

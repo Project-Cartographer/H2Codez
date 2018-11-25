@@ -131,5 +131,5 @@ private:
 	std::vector<Type> _data;
 	size_t _max_size;
 	size_t _next_index = 0;
-	bool _full;
+	bool _full = false;
 };

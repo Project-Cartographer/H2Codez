@@ -743,6 +743,8 @@ void H2ToolPatches::Initialize()
 	{
 		NopFill(0x589031, 5); // remove call to build_cache_file_add_debug_tag_names
 	}
+
+	patch_cache_writter();
 }
 
 

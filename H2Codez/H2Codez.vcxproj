@@ -66,13 +66,14 @@
       <PreprocessorDefinitions>WIN32;NOMINMAX;_DEBUG;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4005;4800;4996;4200</DisableSpecificWarnings>
       <AdditionalOptions>/std:c++14 %(AdditionalOptions)</AdditionalOptions>
-      <ExceptionHandling>Async</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
@@ -85,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NOMINMAX;_WINDOWS;_USRDLL;H2CODEZ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -96,6 +97,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <StringPooling>true</StringPooling>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -105,6 +108,7 @@
       <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SetChecksum>true</SetChecksum>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>
@@ -139,6 +143,7 @@
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
+    <ClInclude Include="util\crc32.h" />
     <ClInclude Include="util\Debug.h" />
     <ClInclude Include="util\Detours\detours.h" />
     <ClInclude Include="util\Detours\detver.h" />
@@ -176,6 +181,7 @@
     <ClCompile Include="H2Sapien\Profile.cpp" />
     <ClCompile Include="H2Sapien\RenderDebug.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
+    <ClCompile Include="H2Tool\CacheBuilder.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />
     <ClCompile Include="util\Detours\disasm.cpp" />

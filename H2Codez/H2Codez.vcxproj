@@ -68,6 +68,8 @@
       <AdditionalOptions>/std:c++14 %(AdditionalOptions)</AdditionalOptions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <AssemblerListingLocation>$(IntDir)/%(RelativeDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,6 +101,8 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
+      <AssemblerListingLocation>$(IntDir)/%(RelativeDir)/</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\BlamBaseTypes.h" />
+    <ClInclude Include="Common\HaloScript.h" />
     <ClInclude Include="Common\Pathfinding.h" />
     <ClInclude Include="Common\PathfindingConfig.h" />
     <ClInclude Include="Common\TagDefinitions.h" />
@@ -174,6 +179,7 @@
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\HaloScript.cpp" />
     <ClCompile Include="Common\Pathfinding.cpp" />
     <ClCompile Include="Common\TagInterface.cpp" />
     <ClCompile Include="H2Sapien\Console.cpp" />

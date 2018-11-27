@@ -184,12 +184,6 @@ int __cdecl fclose_baggage_hook(FILE *File)
 	return ret_data;
 }
 
-errno_t __cdecl print_help_to_doc()
-{
-	H2CommonPatches::generate_script_doc("hs_doc.txt");
-	return 0;
-}
-
 signed int get_tick_rate()
 {
 	WORD *tick_rate = reinterpret_cast<WORD*>(0x00A6C700);
@@ -271,7 +265,7 @@ inline void GetHalo2DisplaySetting(const char *name, value_type &result)
 	}
 }
 
-void InitHalo2DisplaySettings()
+void H2SapienPatches::InitDisplaySettings()
 {
 	GetHalo2DisplaySetting("AntiAliasing", halo2_video_settings.AntiAliasing);
 	GetHalo2DisplaySetting("AspectRatio", halo2_video_settings.AspectRatio);
@@ -306,7 +300,7 @@ void H2SapienPatches::Init()
 #pragma region value init
 
 	new_menu = LoadMenu(g_hModule, MAKEINTRESOURCE(SAPIEN_MENU));
-	InitHalo2DisplaySettings();
+	InitDisplaySettings();
 
 	using_in_game_settings = conf.getBoolean("in_game_lod", 0);
 	WriteValue<BYTE>(0xA68319, conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
@@ -354,8 +348,6 @@ void H2SapienPatches::Init()
 	// %ws should really be used for wchar_t strings instead of %s
 	WritePointer(0x477C4F, L"%ws\n\n");
 	WritePointer(0x477D40, L"%ws\n");
-
-	PatchCall(0x5783B0, print_help_to_doc);
 
 	// don't clear the console contents when closed
 	NopFill(0x4ECD7C, 5);

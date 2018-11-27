@@ -10,7 +10,7 @@ namespace HaloScriptCommon
 		hs_type type;
 		void *variable_ptr;
 
-		hs_global_variable
+		constexpr hs_global_variable
 		(
 			const char *_name,
 			hs_type _type,

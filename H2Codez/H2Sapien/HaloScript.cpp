@@ -13,7 +13,7 @@ void status_dump()
 	output.open(temp_file_name, ios::out);
 	if (output)
 	{
-		for (hs_global_variable *current_var : g_halo_script_interface->global_table)
+		for (auto  *current_var : g_halo_script_interface->global_table)
 		{
 			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
 			output << current_var->name << "   :    " << value_as_string << std::endl;
@@ -30,7 +30,7 @@ static inline datum get_sbsp_index()
 
 void H2SapienPatches::haloscript_init()
 {
-	hs_custom_command status_cmd(
+	const hs_custom_command status_cmd(
 		"status",
 		"Dumps the value of all global status variables to file.",
 		HS_FUNC(
@@ -40,7 +40,7 @@ void H2SapienPatches::haloscript_init()
 	);
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::status, status_cmd);
 
-	hs_custom_command pathfinding_cmd(
+	const hs_custom_command pathfinding_cmd(
 		"generate_pathfinding",
 		"Generate pathfinding from collision for current bsp",
 		HS_FUNC(

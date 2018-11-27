@@ -215,6 +215,9 @@
     <ClInclude Include="util\crc32.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="Common\HaloScript.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -303,6 +306,9 @@
     </ClCompile>
     <ClCompile Include="H2Tool\CacheBuilder.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\HaloScript.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -35,4 +35,5 @@ static_assert(sizeof(video_settings) == 0x30, "invalid 'video_settings' size");
 
 namespace H2SapienPatches {
 	void Init();
+	void InitDisplaySettings();
 };

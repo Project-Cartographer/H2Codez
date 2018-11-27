@@ -1,7 +1,8 @@
 #include "hs_interface.h"
 #include "../h2codez.h"
 
-HaloScriptInterface *g_halo_script_interface = new HaloScriptInterface;
+HaloScriptInterface script_interface;
+HaloScriptInterface *g_halo_script_interface = &script_interface;
 
 bool HaloScriptCommon::hs_execute(const char *script, bool ran_from_console)
 {

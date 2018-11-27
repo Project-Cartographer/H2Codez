@@ -61,32 +61,32 @@ public:
 
 	void init_custom(hs_command **old_command_table, hs_global_variable **global_table);
 
-	inline int get_command_table_size() {
+	constexpr int get_command_table_size() const {
 		return static_cast<int>(hs_opcode::enum_count);
 	}
 
-	inline int get_global_table_size() {
+	constexpr int get_global_table_size() const {
 		return static_cast<int>(hs_global_id::enum_count);
 	}
 
-	inline void RegisterCommand(hs_opcode id, hs_command *cmd)
+	inline void RegisterCommand(hs_opcode id, const hs_command *cmd)
 	{
 		command_table[static_cast<int>(id)] = cmd;
 	}
 
 	void RegisterCustomCommand(hs_opcode id, const hs_custom_command &custom_cmd);
 
-	inline void RegisterGlobal(hs_global_id id, hs_global_variable *var)
+	inline void RegisterGlobal(hs_global_id id, const hs_global_variable *var)
 	{
 		global_table[static_cast<int>(id)] = var;
 	}
 
-	inline hs_command **get_command_table()
+	inline const hs_command **get_command_table()
 	{
 		return command_table;
 	}
 
-	inline hs_global_variable **get_global_table()
+	inline const hs_global_variable **get_global_table()
 	{
 		return global_table;
 	}
@@ -101,9 +101,9 @@ public:
 		return nullptr;
 	}
 
-	hs_command *command_table[static_cast<int>(hs_opcode::enum_count)];
+	const hs_command *command_table[static_cast<int>(hs_opcode::enum_count)];
 
-	hs_global_variable *global_table[static_cast<int>(hs_global_id::enum_count)];
+	const hs_global_variable *global_table[static_cast<int>(hs_global_id::enum_count)];
 
 private:
 

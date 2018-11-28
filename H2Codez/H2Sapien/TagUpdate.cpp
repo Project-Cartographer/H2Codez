@@ -2,6 +2,7 @@
 #include "util/FileWatcher.h"
 #include "util/string_util.h"
 #include "util/Logs.h"
+#include "util/process.h"
 #include "Common/BasicTagTypes.h"
 #include "Common/H2EKCommon.h"
 #include "Common/tag_group_names.h"
@@ -70,7 +71,7 @@ DWORD WINAPI TagSyncUpdate(
 	SHGetFolderPathA(0, CSIDL_PERSONAL, 0, 0, h2_docs_folder);// get user documents folder
 	PathAppendA(h2_docs_folder, "Halo 2\\Tags");
 
-	fileWatcher.addWatch(H2CommonPatches::GetExeDirectoryNarrow() + "\\tags", &listener, true);
+	fileWatcher.addWatch(process::GetExeDirectoryNarrow() + "\\tags", &listener, true);
 	fileWatcher.addWatch(h2_docs_folder, &listener, true);
 	while (true)
 	{

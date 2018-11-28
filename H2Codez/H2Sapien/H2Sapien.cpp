@@ -3,6 +3,7 @@
 #include "Common\H2EKCommon.h"
 #include "Common\BlamBaseTypes.h"
 #include "util\Patches.h"
+#include "util\process.h"
 #include "Resources\sapien_accelerators.h"
 #include "Resources\resource.h"
 #include "Console.h"
@@ -116,7 +117,7 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 		switch (wParam) {
 			case SAPIEN_FILE_NEWINSTANCE:
 			{
-				return H2CommonPatches::newInstance();
+				return process::newInstance();
 			}
 			case SAPIEN_OPEN_RUN_COMMAND_DIALOG:
 			{
@@ -295,7 +296,7 @@ void H2SapienPatches::Init()
 
 	haloscript_init();
 	// set current directory to executable path
-	std::wstring new_current_dir = H2CommonPatches::GetExeDirectoryWide();
+	std::wstring new_current_dir = process::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());
 #pragma region value init
 

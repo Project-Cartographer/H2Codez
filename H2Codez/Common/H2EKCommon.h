@@ -29,12 +29,9 @@ inline int *get_object_at_data_array_index(void *array, unsigned __int16 id)
 
 namespace H2CommonPatches {
 	void Init();
-	bool newInstance();
 	std::string get_temp_name(const std::string &name_suffix = "");
 	void generate_script_doc(const char *filename = nullptr);
 	bool copy_to_clipboard(const std::string &text, HWND owner = NULL);
 	bool read_clipboard(std::string &contents, HWND owner = NULL);
-	std::wstring GetExeDirectoryWide();
-	std::string GetExeDirectoryNarrow();
 };
 

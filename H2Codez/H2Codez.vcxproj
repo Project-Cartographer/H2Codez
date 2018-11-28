@@ -170,6 +170,7 @@
     <ClInclude Include="util\Logs.h" />
     <ClInclude Include="util\Patches.h" />
     <ClInclude Include="Resources\resource.h" />
+    <ClInclude Include="util\process.h" />
     <ClInclude Include="util\RingBuffer.h" />
     <ClInclude Include="Tags\ScenarioTag.h" />
     <ClInclude Include="util\Settings.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="util\FileWatcher.cpp" />
     <ClCompile Include="util\Logs.cpp" />
     <ClCompile Include="HaloScript\hs_ai_behaviour.cpp" />
+    <ClCompile Include="util\process.cpp" />
     <ClCompile Include="util\Settings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

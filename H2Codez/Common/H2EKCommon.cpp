@@ -77,21 +77,6 @@ void __stdcall ExitProcess_Hook(UINT exitcode)
 	return ExitProcess_Orginal(exitcode);
 }
 
-bool H2CommonPatches::newInstance()
-{
-	TCHAR exePath[MAX_PATH];
-	if (!GetModuleFileName(game.base, exePath, MAX_PATH))
-		return false;
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	ZeroMemory(&pi, sizeof(pi));
-	CreateProcess(exePath, nullptr, nullptr, nullptr, false, INHERIT_PARENT_AFFINITY, nullptr, nullptr, &si, &pi);
-	return true;
-}
-
 std::string get_command_usage(const hs_command *cmd)
 {
 	std::string usage = "(<" + hs_type_string[cmd->return_type] + "> " + cmd->name;
@@ -106,32 +91,6 @@ std::string get_command_usage(const hs_command *cmd)
 	}
 	usage += ")";
 	return usage;
-}
-
-std::wstring H2CommonPatches::GetExeDirectoryWide()
-{
-	wchar_t main_exe_dir[MAX_PATH];
-	GetModuleFileNameW(NULL, main_exe_dir, sizeof(main_exe_dir));
-	size_t path_len = wcsnlen_s(main_exe_dir, sizeof(main_exe_dir));
-	if (main_exe_dir[path_len - 1] == L'\\')
-		main_exe_dir[path_len - 1] = NULL;
-	wchar_t *last_part = wcsrchr(main_exe_dir, L'\\');
-	if (last_part)
-		*last_part = NULL;
-	return main_exe_dir;
-}
-
-std::string H2CommonPatches::GetExeDirectoryNarrow()
-{
-	char main_exe_dir[MAX_PATH];
-	GetModuleFileNameA(NULL, main_exe_dir, sizeof(main_exe_dir));
-	size_t path_len = strnlen_s(main_exe_dir, sizeof(main_exe_dir));
-	if (main_exe_dir[path_len - 1] == L'\\')
-		main_exe_dir[path_len - 1] = NULL;
-	char *last_part = strrchr(main_exe_dir, L'\\');
-	if (last_part)
-		*last_part = NULL;
-	return main_exe_dir;
 }
 
 std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)

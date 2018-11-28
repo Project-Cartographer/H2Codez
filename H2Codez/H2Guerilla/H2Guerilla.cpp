@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "H2Guerilla.h"
 #include "util\Patches.h"
+#include "util\process.h"
 #include "Resources\resource.h"
 #include "Common\H2EKCommon.h"
 #include "Common\FiloInterface.h"
@@ -66,7 +67,7 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 			return true;
 
 		case ID_FILE_NEWINSTANCE:
-			H2CommonPatches::newInstance();
+			process::newInstance();
 			return true;
 
 		case SCRIPT_DOC:

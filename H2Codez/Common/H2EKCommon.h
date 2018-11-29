@@ -31,7 +31,5 @@ namespace H2CommonPatches {
 	void Init();
 	std::string get_temp_name(const std::string &name_suffix = "");
 	void generate_script_doc(const char *filename = nullptr);
-	bool copy_to_clipboard(const std::string &text, HWND owner = NULL);
-	bool read_clipboard(std::string &contents, HWND owner = NULL);
 };
 

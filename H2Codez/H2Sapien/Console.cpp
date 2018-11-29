@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "Common\H2EKCommon.h"
 #include "util\Patches.h"
+#include "util\ClipboardAPI.h"
 
 inline bool is_ctrl_down()
 {
@@ -91,14 +92,14 @@ bool __stdcall on_console_input(WORD keycode)
 		return true;
 	case 'C':
 		if (is_ctrl_down()) {
-			if (H2CommonPatches::copy_to_clipboard(console_input))
+			if (ClipboardAPI::set(console_input))
 				H2SapienConsole::print("copied to clipboard!");
 			update_console_state();
 		}
 		break;
 	case 'V':
 		std::string new_text;
-		if (is_ctrl_down() && H2CommonPatches::read_clipboard(new_text)) {
+		if (is_ctrl_down() && ClipboardAPI::read(new_text)) {
 			strncpy(console_input, new_text.c_str(), 0x100);
 			H2SapienConsole::print("pasted from clipboard!");
 			update_console_state();

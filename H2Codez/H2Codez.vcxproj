@@ -148,6 +148,7 @@
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
+    <ClInclude Include="util\ClipboardAPI.h" />
     <ClInclude Include="util\crc32.h" />
     <ClInclude Include="util\Debug.h" />
     <ClInclude Include="util\Detours\detours.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="H2Sapien\RenderDebug.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="H2Tool\CacheBuilder.cpp" />
+    <ClCompile Include="util\ClipboardAPI.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />
     <ClCompile Include="util\Detours\disasm.cpp" />

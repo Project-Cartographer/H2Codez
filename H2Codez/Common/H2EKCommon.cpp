@@ -135,8 +135,17 @@ bool H2CommonPatches::read_clipboard(std::string &contents, HWND owner)
 		if (LOG_CHECK(data != NULL)) {
 			LPTSTR text = static_cast<LPTSTR>(GlobalLock(data));
 			if (LOG_CHECK(text != NULL)) {
-				contents = text;
-				if (LOG_CHECK(GlobalUnlock(data) || GetLastError() == NO_ERROR))
+				bool string_is_good = false;
+				try {
+					contents = text;
+					string_is_good = true;
+				}
+				catch (const std::length_error &e) {
+					LOG_FUNC("clipboard contents too long");
+				} catch (const std::exception &e) {
+					LOG_FUNC("%s", e.what());
+				}
+				if (LOG_CHECK(GlobalUnlock(data) || GetLastError() == NO_ERROR) && string_is_good)
 				{
 					LOG_CHECK(CloseClipboard());
 					return true;

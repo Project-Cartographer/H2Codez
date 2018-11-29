@@ -46,3 +46,4 @@ inline T verify_output(T output, const char *expression, const char *func_name, 
 }
 #define LOG_CHECK(expression) \
 	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__)
+#define LOG_FUNC(msg, ...)  pLog.WriteLog(__FUNCTION__  "(): " ## msg, __VA_ARGS__)

@@ -16,6 +16,10 @@ using namespace HaloScriptCommon;
 
 
 static const s_tool_command* h2tool_extra_commands[] = {
+	// commands in tool not added to the command table
+	CAST_PTR(s_tool_command*, 0x97B4C8), // structure plane debug generate
+	CAST_PTR(s_tool_command*, 0x97B4DC), // structure plane debug
+	//
 	&import_model_render,
 	&import_model_collision,
 	&import_model_physics,

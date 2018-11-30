@@ -31,6 +31,10 @@ struct blam_tag
 		uint32_t i_data ;
 	};
 
+	blam_tag()
+	{
+	}
+
 	constexpr blam_tag(uint32_t data) :
 		i_data(data)
 	{

@@ -142,6 +142,7 @@
     <ClInclude Include="H2Sapien\Profile.h" />
     <ClInclude Include="H2Sapien\RenderDebug.h" />
     <ClInclude Include="H2Sapien\TagUpdate.h" />
+    <ClInclude Include="H2Tool\CacheBuilder.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />

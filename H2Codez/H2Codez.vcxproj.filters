@@ -224,6 +224,9 @@
     <ClInclude Include="util\ClipboardAPI.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="H2Tool\CacheBuilder.h">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -310,9 +313,6 @@
     <ClCompile Include="H2Sapien\HaloScript.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
-    <ClCompile Include="H2Tool\CacheBuilder.cpp">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClCompile>
     <ClCompile Include="Common\HaloScript.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
@@ -321,6 +321,9 @@
     </ClCompile>
     <ClCompile Include="util\ClipboardAPI.cpp">
       <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\CacheBuilder.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

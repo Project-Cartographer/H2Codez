@@ -43,9 +43,40 @@ bool CacheBuilder::start_package(const std::wstring &name)
 	builder_state->temp_cache = cache_file;
 	wcsncpy(builder_state->map_name, name.c_str(), 0x100u);
 
-	cache_header empty_header;
+	cache::cache_header empty_header;
 	memset(&empty_header, 0xFF, sizeof(empty_header));
 	return write_unaligned(&empty_header, sizeof(empty_header));
+}
+
+bool CacheBuilder::end_package(cache::cache_header *header)
+{
+	auto builder_state = get_globals();
+	auto size = get_size();
+	std::cout << "cache size: " << size / (1024 * 1024) << "mb" << endl;
+	header->file_size = size;
+	header->resource_crc = builder_state->data_crc;
+	header->Checksum = calculate_xor_checksum();
+
+	if (!write_header(header)){
+		printf("Failed to write cache header");
+		return false;
+	}
+
+	// close and copy
+	if (!LOG_CHECK(CloseHandle(builder_state->temp_cache)))
+	{
+		printf("Failed to close cache");
+		return false;
+	}
+	std::wstring new_name = L"maps//" + std::wstring(builder_state->map_name) + L".map";
+	return MoveFileExW(get_temp_cache_path(), new_name.c_str(), MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+}
+
+bool CacheBuilder::write_header(const cache::cache_header *header)
+{
+	auto cache_state = get_globals();
+	LOG_CHECK(SetFilePointer(cache_state->temp_cache, 0, NULL, FILE_BEGIN) != INVALID_FILE_SIZE);
+	return write_unaligned(header, sizeof(cache::cache_header));
 }
 
 bool CacheBuilder::write_unaligned(LPCVOID data, size_t size, size_t *start)
@@ -104,7 +135,30 @@ char __cdecl cache_writer_write_data(BYTE *data, size_t size, size_t *data_start
 {
 	return CacheBuilder::write_resource(data, size, data_start);
 }
+
+char __stdcall build_cache_file_write_header_and_compress(cache::cache_header *header)
+{
+	if (CacheBuilder::end_package(header))
+	{
+		printf("Done\n");
+		return 1;
+	} else {
+		printf("FAILED!\n");
+		return 0;
+	}
+}
+
+ char __declspec(naked) build_cache_file_write_header_and_compress_wrapper()
+{
+	 __asm {
+		 push esi
+		 call build_cache_file_write_header_and_compress
+		 retn
+	 }
+}
+
 void H2ToolPatches::patch_cache_writter()
 {
 	WriteJmp(0x607BB0, cache_writer_write_data);
+	PatchCall(0x589279, build_cache_file_write_header_and_compress_wrapper);
 }

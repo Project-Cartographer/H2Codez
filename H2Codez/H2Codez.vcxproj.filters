@@ -227,6 +227,9 @@
     <ClInclude Include="H2Tool\CacheBuilder.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Cache.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -324,6 +327,9 @@
     </ClCompile>
     <ClCompile Include="H2Tool\CacheBuilder.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Cache.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

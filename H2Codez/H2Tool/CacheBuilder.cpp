@@ -57,7 +57,8 @@ bool CacheBuilder::end_package(cache::cache_header *header)
 	header->resource_crc = builder_state->data_crc;
 	header->Checksum = calculate_xor_checksum();
 
-	if (!write_header(header)){
+	if (!write_header(header))
+	{
 		printf("Failed to write cache header");
 		return false;
 	}
@@ -159,6 +160,8 @@ char __stdcall build_cache_file_write_header_and_compress(cache::cache_header *h
 
 void H2ToolPatches::patch_cache_writter()
 {
-	WriteJmp(0x607BB0, cache_writer_write_data);
-	PatchCall(0x589279, build_cache_file_write_header_and_compress_wrapper);
+	if (conf.getBoolean("enable_cache_writer_patches", false)) {
+		WriteJmp(0x607BB0, cache_writer_write_data);
+		PatchCall(0x589279, build_cache_file_write_header_and_compress_wrapper);
+	}
 }

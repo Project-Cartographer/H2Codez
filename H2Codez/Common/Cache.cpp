@@ -15,8 +15,8 @@ uint32_t cache::calculate_xor_checksum(HANDLE cache_file)
 		if (bytes_read == 0)
 			break;
 
-		for (auto byte : file_chunk)
-			checksum_out ^= byte;
+		for (size_t i = 0; i < bytes_read; i++)
+			checksum_out ^= file_chunk[i];
 	}
 	return checksum_out;
 }

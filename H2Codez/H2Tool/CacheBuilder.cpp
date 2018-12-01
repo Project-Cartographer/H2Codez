@@ -149,7 +149,7 @@ char __stdcall build_cache_file_write_header_and_compress(cache::cache_header *h
 	}
 }
 
- char __declspec(naked) build_cache_file_write_header_and_compress_wrapper()
+ char ASM_FUNC build_cache_file_write_header_and_compress_wrapper()
 {
 	 __asm {
 		 push esi

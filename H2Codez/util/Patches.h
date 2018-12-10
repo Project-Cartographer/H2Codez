@@ -12,9 +12,9 @@ inline void WriteBytes(void* destAddress, void *patch, DWORD numBytes)
 	{
 		DWORD OldProtection;
 
-		VirtualProtect(destAddress, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection);
+		LOG_CHECK(VirtualProtect(destAddress, numBytes, PAGE_EXECUTE_READWRITE, &OldProtection));
 		memcpy(destAddress, patch, numBytes);
-		VirtualProtect(destAddress, numBytes, OldProtection, NULL);
+		VirtualProtect(destAddress, numBytes, OldProtection, &OldProtection);
 
 		FlushInstructionCache(GetCurrentProcess(), destAddress, numBytes);
 	} else if (is_debug_build() && (!patch || numBytes == 0))

@@ -6,9 +6,9 @@ environment:
   FTP_SERVER:
     secure: kxKILYuyxyQkHS2b4dbqw52AzETflDBT0vUIcBFY7v8=
   FTP_USER: 
-    secure: CNHdgTexYt+E/wfa64NtFyR2O+E4FkTL0F0ys2n2OjU=
+    secure: 3Kls+mo3sXTdX6tqhfVIoajt3lGjJgaNCvqFBjpiT6k=
   FTP_PASSWORD:
-    secure: DwfZSYvtx7G5G9/KpH2oQQ==
+    secure: x2kfU56dAJmCtXvY+t3RAw==
   GITHUB_DEPLOY_TOKEN:
     secure: WGPN509P83WUoyHa9LJ+yXqS4zm8Ql1mOg9pzl3eUzg0JWEO+pjL1hJEHgclkUPR
 deploy:

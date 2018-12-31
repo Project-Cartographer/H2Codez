@@ -749,6 +749,12 @@ void H2ToolPatches::Initialize()
 	}
 
 	patch_cache_writter();
+
+	// stops it from clearing sound references based on scenario type
+	if (conf.getBoolean("disable_sound_references_postprocessing", false))
+	{
+		WritePointer(0x9FCBDC, nullptr);
+	}
 }
 
 

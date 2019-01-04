@@ -17,6 +17,7 @@
 #include <fstream>
 
 using namespace HaloScriptCommon;
+using namespace H2SapienPatches;
 
 typedef int (__thiscall *WTL_CWindow_Input)(void *thisptr, int a2, UINT uMsg, int hMenu, LPARAM lParam, int *a6, int a7);
 WTL_CWindow_Input main_window_input_orginal;
@@ -281,6 +282,45 @@ void H2SapienPatches::InitDisplaySettings()
 	GetHalo2DisplaySetting("ScreenResY", halo2_video_settings.ScreenInfo.y);
 }
 
+inline bool is_module_sapien(HMODULE hModule)
+{
+	return hModule == NULL || reinterpret_cast<uint32_t>(hModule) == 0x400000;
+}
+
+t_GetModuleFileNameA *H2SapienPatches::GetModuleFileNameA_org = &GetModuleFileNameA;
+
+DWORD WINAPI GetModuleFileNameA_hook(
+	HMODULE hModule,
+	LPSTR   lpFilename,
+	DWORD   nSize
+)
+{
+	if (is_module_sapien(hModule))
+	{
+		auto exe_path = process::GetExeDirectoryNarrow() + "\\halo2.exe";
+		strncpy(lpFilename, exe_path.c_str(), nSize);
+		return exe_path.size();
+	}
+	return GetModuleFileNameA_org(hModule, lpFilename, nSize);
+}
+
+t_GetModuleFileNameW *H2SapienPatches::GetModuleFileNameW_org = GetModuleFileNameW;
+
+DWORD WINAPI GetModuleFileNameW_hook(
+	HMODULE hModule,
+	LPWSTR  lpFilename,
+	DWORD   nSize
+)
+{
+	if (is_module_sapien(hModule))
+	{
+		auto exe_path = process::GetExeDirectoryWide() + L"\\halo2.exe";
+		wcsncpy(lpFilename, exe_path.c_str(), nSize);
+		return exe_path.size();
+	}
+	return GetModuleFileNameW_org(hModule, lpFilename, nSize);
+}
+
 void H2SapienPatches::Init()
 {
 	// apply in-game console patches
@@ -441,6 +481,12 @@ void H2SapienPatches::Init()
 
 	LoadMenuOrginal = LoadMenuW;
 	DetourAttach(&(PVOID&)LoadMenuOrginal, LoadMenuHook);
+
+	if (conf.getBoolean("nvidia_fix", false))
+	{
+		DetourAttach(&(PVOID&)GetModuleFileNameW_org, GetModuleFileNameW_hook);
+		DetourAttach(&(PVOID&)GetModuleFileNameA_org, GetModuleFileNameA_hook);
+	}
 
 	DetourTransactionCommit();
 #pragma endregion

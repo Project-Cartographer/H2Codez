@@ -4,6 +4,7 @@
 #include <Shlobj.h>
 #include "Debug.h"
 #include "Version.h"
+#include "process.h"
 
 #define crash_reports_path "reports//crash_reports//"
 
@@ -19,7 +20,7 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 	MakeSureDirectoryPathExists(crash_reports_path);
 
 	CHAR exe_path_buffer[MAX_PATH + 1];
-	GetModuleFileNameA(NULL, exe_path_buffer, sizeof(exe_path_buffer));
+	process::GetModuleFileNameA(NULL, exe_path_buffer, sizeof(exe_path_buffer));
 	std::string exe_name = exe_path_buffer;
 	exe_name = exe_name.substr(exe_name.find_last_of('\\') + 1);
 

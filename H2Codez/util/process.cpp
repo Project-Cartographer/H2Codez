@@ -1,5 +1,5 @@
 #include "process.h"
-#include "h2codez.h"
+#include "H2Sapien\H2Sapien.h"
 
 bool process::newInstance()
 {
@@ -36,9 +36,35 @@ std::string process::GetExeDirectoryNarrow()
 	GetModuleFileNameA(NULL, main_exe_dir, sizeof(main_exe_dir));
 	size_t path_len = strnlen_s(main_exe_dir, sizeof(main_exe_dir));
 	if (main_exe_dir[path_len - 1] == L'\\')
-		main_exe_dir[path_len - 1] = NULL;
+		main_exe_dir[path_len - 1] = '\0';
 	char *last_part = strrchr(main_exe_dir, L'\\');
 	if (last_part)
-		*last_part = NULL;
+		*last_part = '\0';
 	return main_exe_dir;
+}
+
+DWORD process::GetModuleFileNameA(
+	HMODULE hModule,
+	LPSTR   lpFilename,
+	DWORD   nSize
+)
+{
+	if (game.process_type == H2EK::H2Sapien)
+	{
+		return H2SapienPatches::GetModuleFileNameA_org(hModule, lpFilename, nSize);
+	}
+	return ::GetModuleFileNameA(hModule, lpFilename, nSize);
+}
+
+DWORD process::GetModuleFileNameW(
+	HMODULE hModule,
+	LPWSTR  lpFilename,
+	DWORD   nSize
+)
+{
+	if (game.process_type == H2EK::H2Sapien)
+	{
+		return H2SapienPatches::GetModuleFileNameW_org(hModule, lpFilename, nSize);
+	}
+	return ::GetModuleFileNameW(hModule, lpFilename, nSize);
 }

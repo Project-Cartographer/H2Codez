@@ -2,6 +2,7 @@
 #include "H2Sapien.h"
 #include "Common\H2EKCommon.h"
 #include "Common\BlamBaseTypes.h"
+#include "Common\TagDefinitions.h"
 #include "util\Patches.h"
 #include "util\process.h"
 #include "Resources\sapien_accelerators.h"
@@ -166,6 +167,9 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 				CheckItem(32870, running_game_scripts);
 				break;
 			}
+			case DUMP_XML_DEFINITION:
+				TagDefinitions::dump_as_xml();
+				return true;
 		}
 	}
 	return main_window_input_orginal(thisptr, a2, uMsg, wParam, lParam, subfunction_out, handled);

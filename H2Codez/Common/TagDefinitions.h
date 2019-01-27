@@ -1,6 +1,70 @@
 #pragma once
 #include "BlamBaseTypes.h"
 
+static constexpr char *tag_field_type_names[] =
+{
+	"string",
+	"long_string",
+	"string_id",
+	"old_string_id",
+	"char_integer",
+	"short_integer",
+	"long_integer",
+	"angle",
+	"tag",
+	"char_enum",
+	"enum",
+	"long_enum",
+	"long_flags",
+	"word_flags",
+	"byte_flags",
+	"point_2d",
+	"rectangle_2d",
+	"rgb_color",
+	"argb_color",
+	"real",
+	"real_fraction",
+	"real_point_2d",
+	"real_point_3d",
+	"real_vector_2d",
+	"real_vector_3d",
+	"real_quaternion",
+	"real_euler_angles_2d",
+	"real_euler_angles_3d",
+	"real_plane_2d",
+	"real_plane_3d",
+	"real_rgb_color",
+	"real_argb_color",
+	"real_hsv_color",
+	"real_ahsv_color",
+	"short_bounds",
+	"angle_bounds",
+	"real_bounds",
+	"real_fraction_bounds",
+	"tag_reference",
+	"block",
+	"long_block_flags",
+	"word_block_flags",
+	"byte_block_flags",
+	"char_block_index1",
+	"char_block_index2",
+	"short_block_index1",
+	"short_block_index2",
+	"long_block_index1",
+	"long_block_index2",
+	"data",
+	"vertex_buffer",
+	"array_start",
+	"array_end",
+	"pad",
+	"useless_pad",
+	"skip",
+	"explanation",
+	"custom",
+	"struct",
+	"terminator",
+};
+
 struct tag_field
 {
 	enum field_type : size_t
@@ -74,6 +138,19 @@ struct tag_field
 };
 
 CHECK_STRUCT_SIZE(tag_field, 4 * 4);
+
+struct tag_block_defintions;
+struct tag_struct_defintion
+{
+	const char *name;
+	blam_tag tag;
+	editor_string unk;
+	tag_block_defintions *block;
+	size_t unk2;
+	blam_tag tag2;
+	size_t unk3;
+};
+
 
 struct s_tag_field_set_version_upgrade_arguments {
 	size_t set_index;
@@ -164,3 +241,19 @@ struct tag_def
 	__int16 padding3;
 	char *default_tag_path;
 };
+
+namespace TagDefinitions
+{
+	void init();
+	void dump_as_xml(std::string folder = "xml_tag_dump\\");
+
+	constexpr size_t builtin_tag_count = 120;
+	inline size_t get_tag_count()
+	{
+		return builtin_tag_count;
+	}
+
+	tag_def **get_tag_definitions();
+
+	class PTreeGenerator;
+}

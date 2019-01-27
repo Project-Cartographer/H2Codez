@@ -6,6 +6,7 @@
 #include "Common\H2EKCommon.h"
 #include "Common\FiloInterface.h"
 #include "Common\BlamBaseTypes.h"
+#include "Common\TagDefinitions.h"
 #include "Tags\ScenarioTag.h"
 #include "template_defintions.h"
 
@@ -79,6 +80,9 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 			H2GuerrilaPatches::update_field_display();
 			conf.setBoolean("show_hidden_fields", show_hidden_fields);
 			return true;
+		case DUMP_XML_DEFINITION:
+			TagDefinitions::dump_as_xml();
+			return true;
 		}
 	}
 	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, msg, a3, a4, AFX_CMDHANDLERINFO);
@@ -91,6 +95,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 	EnableItem(ID_FILE_NEWINSTANCE, true);
 	EnableItem(SCRIPT_DOC, true);
 	EnableItem(SHOW_HIDDEN_FIELDS, true);
+	EnableItem(DUMP_XML_DEFINITION, true);
 }
 
 

@@ -331,6 +331,9 @@
     <ClCompile Include="Common\Cache.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="Common\TagDefinitions.cpp">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\H2Sapien.rc">

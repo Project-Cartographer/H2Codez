@@ -42,6 +42,10 @@ struct blam_tag
 
 	std::string as_string() const
 	{
+		if (is_none())
+			return "NONE";
+		if (is_null())
+			return "";
 		std::string out;
 		out += c_data[3];
 		out += c_data[2];
@@ -53,6 +57,21 @@ struct blam_tag
 	int as_int() const
 	{
 		return i_data;
+	}
+
+	bool is_null() const
+	{
+		return as_int() == NULL;
+	}
+
+	bool is_none() const
+	{
+		return as_int() == NONE;
+	}
+
+	bool is_set() const
+	{
+		return !is_null() && !is_none();
 	}
 
 	bool operator==(const blam_tag &other) const
@@ -86,12 +105,25 @@ struct editor_string
 	{
 	}
 
+	bool is_string_id()
+	{
+		// assume it's a c-string if it's less than a hardcoded max id
+		return id <= max_string_id;
+	}
+
+	// is string not set or empty
+	bool is_empty()
+	{
+		return id == empty_string_id || string == NULL;
+	}
+
+	// returns contents as C++ string
 	std::string get_string()
 	{
-		if (id > max_string_id) // assume it's a c-string
-			return string;
-		if (id == empty_string_id) // empty string
+		if (is_empty())
 			return "";
+		if (!is_string_id())
+			return string;
 		char data[0x1000];
 		if (!LOG_CHECK(LoadStringA(get_h2alang(), id, data, ARRAYSIZE(data))))
 		{

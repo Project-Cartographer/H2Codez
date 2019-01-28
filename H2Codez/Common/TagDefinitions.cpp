@@ -107,7 +107,7 @@ private:
 		{
 		case tag_field::block:
 			generate_block(parent_tree, reinterpret_cast<tag_block_defintions*>(field.defintion));
-		case tag_field::struct_:
+		//case tag_field::struct_:
 			//generate_struct(field_tree, reinterpret_cast<tag_struct_defintion*>(field.defintion));
 		}
 	}
@@ -127,7 +127,7 @@ private:
 void TagDefinitions::dump_as_xml(std::string folder)
 {
 	PTreeGenerator tag_generator(get_tag_definitions(), get_tag_count());
-	tag_generator.generate_all();
+	//tag_generator.generate_all();
 	for (const auto tag_tree : tag_generator.get_tree_map())
 	{
 		write_xml(folder + tag_tree.first + ".xml", tag_tree.second, std::locale(), xml_writer_settings<std::string>('\t', 1));

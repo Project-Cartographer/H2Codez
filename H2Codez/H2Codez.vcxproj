@@ -129,6 +129,7 @@
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\AssemblyLayoutGenerator.h" />
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\Cache.h" />
     <ClInclude Include="Common\HaloScript.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\AssemblyLayoutGenerator.cpp" />
     <ClCompile Include="Common\Cache.cpp" />
     <ClCompile Include="Common\HaloScript.cpp" />
     <ClCompile Include="Common\Pathfinding.cpp" />

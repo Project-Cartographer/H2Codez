@@ -230,6 +230,9 @@
     <ClInclude Include="Common\Cache.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="Common\AssemblyLayoutGenerator.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -333,6 +336,9 @@
     </ClCompile>
     <ClCompile Include="Common\TagDefinitions.cpp">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\AssemblyLayoutGenerator.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

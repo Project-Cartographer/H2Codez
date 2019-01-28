@@ -7,6 +7,7 @@
 #include "Common\FiloInterface.h"
 #include "Common\BlamBaseTypes.h"
 #include "Common\TagDefinitions.h"
+#include "Common\AssemblyLayoutGenerator.h"
 #include "Tags\ScenarioTag.h"
 #include "template_defintions.h"
 
@@ -82,6 +83,7 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 			return true;
 		case DUMP_XML_DEFINITION:
 			TagDefinitions::dump_as_xml();
+			AssemblyLayoutGenerator::DumpAllTags();
 			return true;
 		}
 	}

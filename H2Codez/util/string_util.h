@@ -12,15 +12,16 @@ inline std::string tolower(const std::string &str)
 	return lower_case;
 };
 
-inline void str_trim(std::string &str, const std::string &trim_char = " ")
+inline std::string &str_trim(std::string &str, const std::string &trim_char = " ")
 {
 	if (str.empty())
-		return;
+		return str;
 	auto start = str.find_first_not_of(trim_char);
 	if (start == std::string::npos)
 		str.clear();
 	else
 		str = str.substr(start, str.find_last_not_of(trim_char) - start + 1);
+	return str;
 }
 
 inline bool string_to_colour_rgb(std::string str, colour_rgb &colour_out)

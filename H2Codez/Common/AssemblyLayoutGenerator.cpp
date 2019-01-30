@@ -2,6 +2,7 @@
 #include "TagDefinitions.h"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include "util/string_util.h"
 
 using boost::property_tree::ptree;
 using boost::property_tree::write_xml;
@@ -386,7 +387,7 @@ void DumpPlugin(std::string folder, tag_def *def)
 	};
 
 	write_xml(
-		folder + sanitize_filename(def->group_tag.as_string()) + ".xml",
+		folder + str_trim(sanitize_filename(def->group_tag.as_string())) + ".xml",
 		tree,
 		std::locale(),
 		xml_writer_settings<std::string>('\t', 1)

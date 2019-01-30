@@ -77,8 +77,9 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		bool visible = true;
 		ptree field_tree;
 		std::string element_name = "undefined";
+		std::string field_name = str_trim(fields->name.get_string(), " ^(#");
 		size_t field_size = get_static_element_size(fields->type);
-		field_tree.add("<xmlattr>.name", fields->name.get_string() + name_suffix);
+		field_tree.add("<xmlattr>.name", field_name + name_suffix);
 		field_tree.add("<xmlattr>.offset", element_offset);
 
 		auto add_element = [&](std::string name, std::string element_name, size_t element_size, bool increment_size = true)
@@ -117,7 +118,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			for (size_t i = 0; i < def->count; i++)
 			{
 				ptree &enum_option = field_tree.add(element_name, "");
-				enum_option.add("<xmlattr>.name", def->names[i].get_string());
+				enum_option.add("<xmlattr>.name", str_trim(def->names[i].get_string(), " ^)(*#"));
 				enum_option.add("<xmlattr>." + value_att_name, i);
 			}
 		};
@@ -143,7 +144,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::struct_:
 		{
 			ptree &element = parent_tree.add("comment", "");
-			field_tree.add("<xmlattr>.title", fields->name.get_string());
+			field_tree.add("<xmlattr>.title", field_name);
 			field_tree.add("<xmlattr>.visible", true);
 
 			auto def = reinterpret_cast<tag_struct_defintion*>(fields->defintion);
@@ -175,67 +176,67 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "stringId";
 			break;
 		case tag_field::old_string_id:
-			add_int32(fields->name.get_string() + " (old string id)", false);
+			add_int32(field_name + " (old string id)", false);
 			skip_field = true;
 			break;
 		case tag_field::point_2d:
-			add_int16(fields->name.get_string() + " (x)");
-			add_int16(fields->name.get_string() + " (y)");
+			add_int16(field_name + " (x)");
+			add_int16(field_name + " (y)");
 			skip_field = true;
 			break;
 		case tag_field::real_point_2d:
-			add_float32(fields->name.get_string() + " (x)");
-			add_float32(fields->name.get_string() + " (y)");
+			add_float32(field_name + " (x)");
+			add_float32(field_name + " (y)");
 			skip_field = true;
 			break;
 		case tag_field::real_point_3d:
-			add_float32(fields->name.get_string() + " (x)");
-			add_float32(fields->name.get_string() + " (y)");
-			add_float32(fields->name.get_string() + " (z)");
+			add_float32(field_name + " (x)");
+			add_float32(field_name + " (y)");
+			add_float32(field_name + " (z)");
 			skip_field = true;
 			break;
 		case tag_field::real_vector_2d:
-			add_vector(fields->name.get_string(), false);
+			add_vector(field_name, false);
 			skip_field = true;
 			break;
 		case tag_field::real_vector_3d:
-			add_vector(fields->name.get_string(), true);
+			add_vector(field_name, true);
 			skip_field = true;
 			break;
 		case tag_field::real_quaternion:
-			add_vector(fields->name.get_string(), true);
-			add_float32(fields->name.get_string() + " (w)");
+			add_vector(field_name, true);
+			add_float32(field_name + " (w)");
 			skip_field = true;
 			break;
 		case tag_field::real_plane_2d:
-			add_vector(fields->name.get_string() + "[normal]", false);
-			add_float32(fields->name.get_string() + " [distance]");
+			add_vector(field_name + " (normal)", false);
+			add_float32(field_name + " (distance)");
 			skip_field = true;
 			break;
 		case tag_field::real_plane_3d:
-			add_vector(fields->name.get_string() + "[normal]", true);
-			add_float32(fields->name.get_string() + " [distance]");
+			add_vector(field_name + " (normal)", true);
+			add_float32(field_name + " (distance)");
 			skip_field = true;
 			break;
 		case tag_field::angle:
 			element_name = "degree";
 			break;
 		case tag_field::real_euler_angles_2d:
-			add_degree(fields->name.get_string() + " (yaw)");
-			add_degree(fields->name.get_string() + " (pitch)");
+			add_degree(field_name + " (yaw)");
+			add_degree(field_name + " (pitch)");
 			skip_field = true;
 			break;
 		case tag_field::real_euler_angles_3d:
-			add_degree(fields->name.get_string() + " (yaw)");
-			add_degree(fields->name.get_string() + " (pitch)");
-			add_degree(fields->name.get_string() + " (roll)");
+			add_degree(field_name + " (yaw)");
+			add_degree(field_name + " (pitch)");
+			add_degree(field_name + " (roll)");
 			skip_field = true;
 			break;
 		case tag_field::real_ahsv_color:
-			add_float32(fields->name.get_string() + " (alpha)");
-			add_float32(fields->name.get_string() + " (hue)");
-			add_float32(fields->name.get_string() + " (saturation)");
-			add_float32(fields->name.get_string() + " (value)");
+			add_float32(field_name + " (alpha)");
+			add_float32(field_name + " (hue)");
+			add_float32(field_name + " (saturation)");
+			add_float32(field_name + " (value)");
 			skip_field = true;
 			break;
 		case tag_field::real_rgb_color:
@@ -249,23 +250,25 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::rgb_color:
 			element_name = "color32";
 			field_tree.add("<xmlattr>.format", "rgb");
+			break;
 		case tag_field::argb_color:
 			element_name = "color32";
 			field_tree.add("<xmlattr>.format", "argb");
+			break;
 		case tag_field::real_bounds:
 		case tag_field::real_fraction_bounds:
-			add_float32(fields->name.get_string() + " (lower)");
-			add_float32(fields->name.get_string() + " (upper)");
+			add_float32(field_name + " (lower)");
+			add_float32(field_name + " (upper)");
 			skip_field = true;
 			break;
 		case tag_field::angle_bounds:
-			add_degree(fields->name.get_string() + " (lower)");
-			add_degree(fields->name.get_string() + " (upper)");
+			add_degree(field_name + " (lower)");
+			add_degree(field_name + " (upper)");
 			skip_field = true;
 			break;
 		case tag_field::short_bounds:
-			add_int16(fields->name.get_string() + " (lower)");
-			add_int16(fields->name.get_string() + " (upper)");
+			add_int16(field_name + " (lower)");
+			add_int16(field_name + " (upper)");
 			skip_field = true;
 			break;
 		case tag_field::real:
@@ -308,15 +311,15 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_enum_contents("bit", "index");
 			break;
 		case tag_field::rectangle_2d:
-			add_int16(fields->name.get_string() + "(top)");
-			add_int16(fields->name.get_string() + "(left)");
-			add_int16(fields->name.get_string() + "(bottom)");
-			add_int16(fields->name.get_string() + "(right)");
+			add_int16(field_name + "(top)");
+			add_int16(field_name + "(left)");
+			add_int16(field_name + "(bottom)");
+			add_int16(field_name + "(right)");
 			skip_field = true;
 			break;
 		case tag_field::explanation:
 			element_name = "comment";
-			field_tree.add("<xmlattr>.title", fields->name.get_string());
+			field_tree.add("<xmlattr>.title", field_name);
 			break;
 		default:
 			fields_without_support[fields->type] = true;

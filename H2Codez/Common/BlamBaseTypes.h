@@ -326,13 +326,14 @@ struct tag_enum_map_element
 {
 	editor_string string;
 	DWORD number;
-	constexpr tag_enum_map_element(const char* _string, int _number) :
+	constexpr tag_enum_map_element(editor_string _string, int _number) :
 		string(_string),
 		number(_number)
 	{}
-	constexpr tag_enum_map_element(DWORD _string, int _number) :
-		string(_string),
-		number(_number)
-	{}
+};
 
+struct tag_enum_def
+{
+	size_t count;
+	editor_string *names;
 };

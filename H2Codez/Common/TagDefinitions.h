@@ -139,6 +139,14 @@ struct tag_field
 
 CHECK_STRUCT_SIZE(tag_field, 4 * 4);
 
+struct data_ref_def
+{
+	const char *name;
+	size_t flags;
+	size_t alignment_bit;
+	size_t max_size;
+};
+
 struct tag_block_defintions;
 struct tag_struct_defintion
 {

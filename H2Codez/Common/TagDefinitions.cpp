@@ -107,8 +107,9 @@ private:
 		{
 		case tag_field::block:
 			generate_block(parent_tree, reinterpret_cast<tag_block_defintions*>(field.defintion));
-		//case tag_field::struct_:
-			//generate_struct(field_tree, reinterpret_cast<tag_struct_defintion*>(field.defintion));
+			break;
+		case tag_field::struct_:
+			generate_struct(field_tree, reinterpret_cast<tag_struct_defintion*>(field.defintion));
 		}
 	}
 

@@ -22,10 +22,10 @@ namespace tags
 	void *get_tag<void>(int tag_group, datum index);
 
 	void unload_tag(datum index);
-	bool is_tag_loaded(int tag_group, const std::string name);
+	bool is_tag_loaded(blam_tag tag_group, const std::string name);
 	datum new_tag(int group, const std::string name);
 	datum load_tag(int group, const std::string name, int flags);
-	size_t reload_tag(int group, const std::string name);
+	size_t reload_tag(blam_tag group, const std::string name);
 
 	bool rename_tag(datum index, const std::string name);
 	bool save_tag(datum index);

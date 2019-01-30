@@ -94,11 +94,11 @@ namespace tags
 		return Tag__Rename_IMPL(index, name.c_str());
 	}
 
-	bool is_tag_loaded(int tag_group, const std::string name)
+	bool is_tag_loaded(blam_tag tag_group, const std::string name)
 	{
 		typedef int __cdecl TAG_LOADED(int tag_group, const char *name);
 		auto TAG_LOADED_IMPL = reinterpret_cast<TAG_LOADED*>(OS_switch_by_addr(0x484FF0, 0x52F9A0, 0x4B1340));
-		return TAG_LOADED_IMPL(tag_group, name.c_str()) != NONE;
+		return TAG_LOADED_IMPL(tag_group.as_int(), name.c_str()) != NONE;
 	}
 
 	datum new_tag(int group, const std::string name)
@@ -128,11 +128,11 @@ namespace tags
 		return TAG_BLOCK_ADD_ELEMENT_IMPL(block);
 	}
 
-	size_t reload_tag(int group, const std::string name)
+	size_t reload_tag(blam_tag group, const std::string name)
 	{
 		typedef signed int __cdecl tag_reload(int tag_group, const char *tag_name);
 		auto tag_reload_impl = reinterpret_cast<tag_reload*>(OS_switch_by_addr(0x489670, 0x534210, 0x4B5A90));
-		return tag_reload_impl(group, name.c_str());
+		return tag_reload_impl(group.as_int(), name.c_str());
 	}
 
 	bool copy_block(tag_block_ref *source_block, tag_block_ref *dest_block)

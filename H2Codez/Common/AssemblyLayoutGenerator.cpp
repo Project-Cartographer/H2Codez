@@ -55,6 +55,10 @@ size_t get_static_element_size(tag_field::field_type type)
 	case tag_field::rgb_color:
 	case tag_field::argb_color:
 		return sizeof(int);
+	case tag_field::real_rgb_color:
+		return sizeof(colour_rgb);
+	case tag_field::real_argb_color:
+		return sizeof(colour_rgba);
 	default:
 		return 0;
 	}
@@ -70,7 +74,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 	{
 		// skip adding the element to parent tree
 		bool skip_field = false;
-		bool visable = true;
+		bool visible = true;
 		ptree field_tree;
 		std::string element_name = "undefined";
 		size_t field_size = get_static_element_size(fields->type);
@@ -120,10 +124,12 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 
 		auto add_vector = [&](std::string name, bool is_3d, bool increment_size = true)
 		{
-			add_float32(name + " (i)");
-			add_float32(name + " (j)");
 			if (is_3d)
-				add_float32(fields->name.get_string() + " (k)");
+			{
+				add_element(name, "vector3", 4 * 3, increment_size);
+			} else {
+				add_element(name, "vector2", 4 * 2, increment_size);
+			}
 		};
 
 		switch (fields->type) {
@@ -155,6 +161,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		}
 		case tag_field::pad:
 		case tag_field::skip:
+			visible = false;
 			LOG_CHECK(fields->name.is_empty());
 			field_tree.add("<xmlattr>.pad_name", tag_field_type_names[fields->type]);
 			field_size = reinterpret_cast<size_t>(fields->defintion);
@@ -232,18 +239,19 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::real_rgb_color:
-			add_float32(fields->name.get_string() + " (red)");
-			add_float32(fields->name.get_string() + " (green)");
-			add_float32(fields->name.get_string() + " (blue)");
-			skip_field = true;
+			element_name = "colorf";
+			field_tree.add("<xmlattr>.format", "rgb");
 			break;
 		case tag_field::real_argb_color:
-			add_float32(fields->name.get_string() + " (alpha)");
-			add_float32(fields->name.get_string() + " (red)");
-			add_float32(fields->name.get_string() + " (green)");
-			add_float32(fields->name.get_string() + " (blue)");
-			skip_field = true;
+			element_name = "colorf";
+			field_tree.add("<xmlattr>.format", "argb");
 			break;
+		case tag_field::rgb_color:
+			element_name = "color32";
+			field_tree.add("<xmlattr>.format", "rgb");
+		case tag_field::argb_color:
+			element_name = "color32";
+			field_tree.add("<xmlattr>.format", "argb");
 		case tag_field::real_bounds:
 		case tag_field::real_fraction_bounds:
 			add_float32(fields->name.get_string() + " (lower)");
@@ -314,7 +322,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			fields_without_support[fields->type] = true;
 			LOG_FUNC("Unhandled field type: %s", tag_field_type_names[fields->type]);
 		case tag_field::custom:
-			visable = false;
+			visible = false;
 			field_tree.add("<xmlattr>.unsupported_type", tag_field_type_names[fields->type]);
 			break;
 		case tag_field::useless_pad: // pretty sure this isn't used
@@ -340,7 +348,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		if (field_size == 0)
 			fields_without_zero_size[fields->type] = true;
 
-		field_tree.add("<xmlattr>.visible", visable);
+		field_tree.add("<xmlattr>.visible", visible);
 		element_offset += field_size;
 		if (!skip_field)
 			parent_tree.add_child(element_name, field_tree);

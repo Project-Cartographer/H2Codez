@@ -25,6 +25,8 @@ size_t get_static_element_size(tag_field::field_type type)
 	case tag_field::word_flags:
 	case tag_field::word_block_flags:
 	case tag_field::short_integer:
+	case tag_field::short_block_index1:
+	case tag_field::short_block_index2:
 	case tag_field::generic_enum:
 		return sizeof(WORD);
 	case tag_field::byte_block_flags:
@@ -46,7 +48,11 @@ size_t get_static_element_size(tag_field::field_type type)
 	case tag_field::old_string_id:
 	case tag_field::long_integer:
 	case tag_field::long_enum:
-	//case tag_field::tag:
+	case tag_field::long_flags:
+	case tag_field::long_block_index1:
+	case tag_field::tag:
+	case tag_field::rgb_color:
+	case tag_field::argb_color:
 		return sizeof(int);
 	default:
 		return 0;

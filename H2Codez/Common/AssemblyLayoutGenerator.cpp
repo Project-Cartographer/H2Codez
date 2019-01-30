@@ -77,7 +77,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		bool visible = true;
 		ptree field_tree;
 		std::string element_name = "undefined";
-		std::string field_name = str_trim(fields->name.get_string(), " ^(#");
+		std::string field_name = str_trim(fields->name.get_string(), " ^)(*#");
 		size_t field_size = get_static_element_size(fields->type);
 		field_tree.add("<xmlattr>.name", field_name + name_suffix);
 		field_tree.add("<xmlattr>.offset", element_offset);
@@ -125,11 +125,11 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 
 		auto add_vector = [&](std::string name, bool is_3d, bool increment_size = true)
 		{
-			if (is_3d)
-			{
+			if (is_3d) {
 				add_element(name, "vector3", 4 * 3, increment_size);
 			} else {
-				add_element(name, "vector2", 4 * 2, increment_size);
+				add_float32(name + " (i)");
+				add_float32(name + " (j)");
 			}
 		};
 
@@ -209,8 +209,8 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::real_plane_2d:
-			add_vector(field_name + " (normal)", false);
-			add_float32(field_name + " (distance)");
+			add_vector(field_name + " [normal]", false);
+			add_float32(field_name + " [distance]");
 			skip_field = true;
 			break;
 		case tag_field::real_plane_3d:
@@ -291,6 +291,10 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::long_block_index1: // temp?
 			element_name = "int32";
 			break;
+		case tag_field::tag: // not really supported by assembly
+			element_name = "uint32";
+			visible = false;
+			break;
 		case tag_field::generic_enum: 
 			add_enum_contents("option", "value");
 			element_name = "enum16";
@@ -317,7 +321,13 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_int16(field_name + "(right)");
 			skip_field = true;
 			break;
+		case tag_field::vertex_buffer:
+			element_name = "raw";
+			field_tree.add("<xmlattr>.size", field_size);
+			break;
 		case tag_field::explanation:
+			if (field_name.empty())
+				skip_field = true;
 			element_name = "comment";
 			field_tree.add("<xmlattr>.title", field_name);
 			break;

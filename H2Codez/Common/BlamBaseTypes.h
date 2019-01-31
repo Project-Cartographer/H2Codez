@@ -12,14 +12,14 @@ struct datum
 		index = LOWORD(info);
 		salt = HIWORD(info);
 	}
-	bool is_valid()
+	constexpr bool is_valid() const
 	{
 		return (index != NONE) && (salt != NONE);
 	}
 
-	long as_long()
+	inline long as_long() const
 	{
-		return *reinterpret_cast<long*>(this);
+		return *reinterpret_cast<const long*>(this);
 	}
 };
 CHECK_STRUCT_SIZE(datum, 4);
@@ -40,7 +40,7 @@ struct blam_tag
 	{
 	}
 
-	std::string as_string() const
+	inline std::string as_string() const
 	{
 		if (is_none())
 			return "NONE";
@@ -54,27 +54,32 @@ struct blam_tag
 		return out;
 	}
 
-	int as_int() const
+	constexpr int as_int() const
 	{
 		return i_data;
 	}
 
-	bool is_null() const
+	constexpr bool is_null() const
 	{
 		return as_int() == NULL;
 	}
 
-	bool is_none() const
+	constexpr bool is_none() const
 	{
 		return as_int() == NONE;
 	}
 
-	bool is_set() const
+	constexpr bool is_set() const
 	{
 		return !is_null() && !is_none();
 	}
 
-	bool operator==(const blam_tag &other) const
+	constexpr bool is_printable() const
+	{
+		return isprint(c_data[0]) && isprint(c_data[1]) && isprint(c_data[2]) && isprint(c_data[3]);
+	}
+
+	constexpr bool operator==(const blam_tag &other) const
 	{
 		return this->as_int() == other.as_int();
 	}

@@ -81,13 +81,14 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		std::string element_name = "undefined";
 		std::string field_name = str_trim(fields->name.get_string(), " ^)(*#");
 		size_t field_size = get_static_element_size(fields->type);
-		field_tree.add("<xmlattr>.name", field_name + name_suffix);
+
+		field_tree.add("<xmlattr>.name", str_trim(field_name + name_suffix));
 		field_tree.add("<xmlattr>.offset", element_offset);
 
 		auto add_element = [&](std::string name, std::string element_name, size_t element_size, bool increment_size = true)
 		{
 			ptree &element = parent_tree.add(element_name, "");
-			element.add("<xmlattr>.name", name + name_suffix);
+			element.add("<xmlattr>.name", str_trim(name + name_suffix));
 			element.add("<xmlattr>.offset", element_offset);
 			element.add("<xmlattr>.visible", true);
 			if (increment_size)
@@ -146,7 +147,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::struct_:
 		{
 			ptree &element = parent_tree.add("comment", "");
-			field_tree.add("<xmlattr>.title", field_name);
+			field_tree.add("<xmlattr>.title", str_trim(field_name));
 			field_tree.add("<xmlattr>.visible", true);
 
 			auto def = reinterpret_cast<tag_struct_defintion*>(fields->defintion);
@@ -278,7 +279,6 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "float32";
 			break;
 		case tag_field::char_integer:
-		case tag_field::char_enum: // temp
 		case tag_field::char_block_index1: // temp
 		case tag_field::char_block_index2: // temp/unused
 			element_name = "int8";
@@ -289,7 +289,6 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "int16";
 			break;	
 		case tag_field::long_integer:
-		case tag_field::long_enum: // temp
 		case tag_field::word_block_flags: // temp?
 		case tag_field::long_block_index1: // temp?
 			element_name = "int32";
@@ -298,9 +297,17 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "uint32";
 			visible = false;
 			break;
+		case tag_field::char_enum:
+			add_enum_contents("option", "value");
+			element_name = "enum8";
+			break;
 		case tag_field::generic_enum: 
 			add_enum_contents("option", "value");
 			element_name = "enum16";
+			break;
+		case tag_field::long_enum:
+			add_enum_contents("option", "value");
+			element_name = "enum32";
 			break;
 		case tag_field::tag_reference:
 			element_name = "tagRef";
@@ -334,11 +341,13 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "comment";
 			field_tree.add("<xmlattr>.title", field_name);
 			break;
-		default:
-			LOG_FUNC("Unhandled field type: %s", tag_field_type_names[fields->type]);
 		case tag_field::custom:
 			visible = false;
-			field_tree.add("<xmlattr>.unsupported_type", tag_field_type_names[fields->type]);
+			if (fields->group_tag.is_set() && LOG_CHECK(fields->group_tag.is_printable()))
+			{
+				element_name = "comment";
+				field_tree.add("<xmlattr>.title", +" custom(" + fields->group_tag.as_string() + ")");
+			}
 			break;
 		case tag_field::useless_pad: // pretty sure this isn't used
 			skip_field = true;
@@ -358,6 +367,9 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		}
 		case tag_field::array_end: // this case should only happen if we are called from array_start
 			return element_offset;
+		default:
+			LOG_FUNC("Unhandled field type: %s", tag_field_type_names[fields->type]);
+			break;
 		}
 
 		if (field_size == 0)

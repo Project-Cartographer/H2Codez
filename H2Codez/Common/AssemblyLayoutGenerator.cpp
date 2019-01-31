@@ -12,7 +12,7 @@ using namespace TagDefinitions;
 
 std::map<int, tag_def*> tag_definition_mapping;
 
-bool fields_without_support[tag_field::count];
+int field_sizes[tag_field::count];
 bool fields_without_zero_size[tag_field::count];
 
 size_t get_static_element_size(tag_field::field_type type)
@@ -33,6 +33,7 @@ size_t get_static_element_size(tag_field::field_type type)
 	case tag_field::byte_block_flags:
 	case tag_field::byte_flags:
 	case tag_field::char_block_index1:
+	case tag_field::char_block_index2: // unused
 	case tag_field::char_integer:
 	case tag_field::char_enum:
 		return sizeof(BYTE);
@@ -46,11 +47,12 @@ size_t get_static_element_size(tag_field::field_type type)
 	case tag_field::long_string:
 		return 0x100 * sizeof(char);
 	case tag_field::string_id:
-	case tag_field::old_string_id:
 	case tag_field::long_integer:
 	case tag_field::long_enum:
 	case tag_field::long_flags:
 	case tag_field::long_block_index1:
+	case tag_field::long_block_index2: // unused
+	case tag_field::long_block_flags: // unused
 	case tag_field::tag:
 	case tag_field::rgb_color:
 	case tag_field::argb_color:
@@ -176,7 +178,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "stringId";
 			break;
 		case tag_field::old_string_id:
-			add_int32(field_name + " (old string id)", false);
+			add_element(field_name + " (old string id)", "stringId", 4, true);
 			skip_field = true;
 			break;
 		case tag_field::point_2d:
@@ -278,6 +280,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::char_integer:
 		case tag_field::char_enum: // temp
 		case tag_field::char_block_index1: // temp
+		case tag_field::char_block_index2: // temp/unused
 			element_name = "int8";
 			break;
 		case tag_field::short_integer:
@@ -332,7 +335,6 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			field_tree.add("<xmlattr>.title", field_name);
 			break;
 		default:
-			fields_without_support[fields->type] = true;
 			LOG_FUNC("Unhandled field type: %s", tag_field_type_names[fields->type]);
 		case tag_field::custom:
 			visible = false;
@@ -360,7 +362,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 
 		if (field_size == 0)
 			fields_without_zero_size[fields->type] = true;
-
+		field_sizes[fields->type] = field_size;
 		field_tree.add("<xmlattr>.visible", visible);
 		element_offset += field_size;
 		if (!skip_field)
@@ -381,8 +383,7 @@ size_t DumpTag(ptree &parent_tree, tag_def *def)
 	size_t block_size = 0;
 	if (def->parent_group_tag.is_set())
 		block_size += DumpTag(parent_tree, tag_definition_mapping[def->parent_group_tag.as_int()]);
-	block_size += DumpBlock(parent_tree, def->block_defs);
-	return block_size;
+	return DumpBlock(parent_tree, def->block_defs, block_size);;
 }
 
 void DumpPlugin(std::string folder, tag_def *def)
@@ -432,8 +433,7 @@ void AssemblyLayoutGenerator::DumpAllTags(std::string folder)
 
 	for (size_t i = 0; i < tag_field::count; i++)
 	{
-		if (fields_without_support[i])
-			LOG_FUNC("Field needs support %s", tag_field_type_names[i]);
+		LOG_FUNC("Field %s size: %d", tag_field_type_names[i], field_sizes[i]);
 	}
 	for (size_t i = 0; i < tag_field::count; i++)
 	{

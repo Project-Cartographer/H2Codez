@@ -343,10 +343,11 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			break;
 		case tag_field::custom:
 			visible = false;
-			if (fields->group_tag.is_set() && LOG_CHECK(fields->group_tag.is_printable()))
-			{
+			if (fields->group_tag.is_set() && LOG_CHECK(fields->group_tag.is_printable())) {
 				element_name = "comment";
 				field_tree.add("<xmlattr>.title", +" custom(" + fields->group_tag.as_string() + ")");
+			} else {
+				skip_field = true;
 			}
 			break;
 		case tag_field::useless_pad: // pretty sure this isn't used

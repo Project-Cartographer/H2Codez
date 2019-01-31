@@ -116,19 +116,22 @@ struct editor_string
 		return id <= max_string_id;
 	}
 
-	bool is_string_ptr_valid()
+#pragma optimize( "", off )
+	bool is_string_ptr_valid(size_t &size_hack)
 	{
 		if (is_string_id())
 			return false;
 		__try
 		{
-			return strlen(string) > 1;
+			size_hack = strlen(string);
+			return true;
 		}
 		__except(EXCEPTION_EXECUTE_HANDLER)
 		{
 			return false;
 		}
 	}
+#pragma optimize( "", on )
 
 	// is string not set or empty
 	bool is_empty()
@@ -142,7 +145,8 @@ struct editor_string
 		if (is_empty())
 			return "";
 		if (!is_string_id()) {
-			if (is_string_ptr_valid())
+			size_t size;
+			if (LOG_CHECK(is_string_ptr_valid(size)))
 				return string;
 			else
 				return "INVALID_STRING";

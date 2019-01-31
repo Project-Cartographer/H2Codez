@@ -116,6 +116,20 @@ struct editor_string
 		return id <= max_string_id;
 	}
 
+	bool is_string_ptr_valid()
+	{
+		if (is_string_id())
+			return false;
+		__try
+		{
+			return strlen(string) > 1;
+		}
+		__except(EXCEPTION_EXECUTE_HANDLER)
+		{
+			return false;
+		}
+	}
+
 	// is string not set or empty
 	bool is_empty()
 	{
@@ -127,8 +141,12 @@ struct editor_string
 	{
 		if (is_empty())
 			return "";
-		if (!is_string_id())
-			return string;
+		if (!is_string_id()) {
+			if (is_string_ptr_valid())
+				return string;
+			else
+				return "INVALID_STRING";
+		}
 		char data[0x1000];
 		if (!LOG_CHECK(LoadStringA(get_h2alang(), id, data, ARRAYSIZE(data))))
 		{

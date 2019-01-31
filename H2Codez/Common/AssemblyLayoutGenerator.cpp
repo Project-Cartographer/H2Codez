@@ -284,13 +284,13 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "int8";
 			break;
 		case tag_field::short_integer:
-		case tag_field::short_block_index1:// temp?
-		case tag_field::short_block_index2:// temp?
+		case tag_field::short_block_index1:
+		case tag_field::short_block_index2:
+		case tag_field::word_block_flags:
 			element_name = "int16";
 			break;	
 		case tag_field::long_integer:
-		case tag_field::word_block_flags: // temp?
-		case tag_field::long_block_index1: // temp?
+		case tag_field::long_block_index1:
 			element_name = "int32";
 			break;
 		case tag_field::tag: // not really supported by assembly
@@ -314,7 +314,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			break;
 		case tag_field::byte_flags:
 			element_name = "bitfield8";
-			//add_enum_contents("bit");
+			add_enum_contents("bit", "index");
 			break;
 		case tag_field::word_flags:
 			element_name = "bitfield16";

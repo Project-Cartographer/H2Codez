@@ -3,13 +3,23 @@
 #include <cctype>
 #include "Common/BlamBaseTypes.h"
 
+inline std::string transform_string(const std::string &str, int(*transform)(int ch))
+{
+	std::string new_string;
+	for (unsigned char elem : str) {
+		new_string += static_cast<unsigned char>(transform(elem));
+	}
+	return new_string;
+}
+
 inline std::string tolower(const std::string &str)
 {
-	std::string lower_case;
-	for (unsigned char elem : str) {
-		lower_case += static_cast<unsigned char>(std::tolower(elem));
-	}
-	return lower_case;
+	return transform_string(str, std::tolower);
+};
+
+inline std::string toupper(const std::string &str)
+{
+	return transform_string(str, std::toupper);
 };
 
 inline std::string &str_trim(std::string &str, const std::string &trim_char = " ")
@@ -46,7 +56,8 @@ inline bool string_to_colour_rgb(std::string str, colour_rgb &colour_out)
 			out.red = hex_to_float_colour(str.substr(0, red_end));
 			out.green = hex_to_float_colour(str.substr(red_end, green_end));
 			out.blue = hex_to_float_colour(str.substr(green_end, blue_end));
-		} catch (std::out_of_range)
+		}
+		catch (std::out_of_range)
 		{
 			return false;
 		}

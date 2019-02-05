@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cctype>
 #include "string_util.h"
+#include "numerical.h"
 
 Settings::Settings(const std::string &settings_path) :
 	settings_filename(settings_path)
@@ -115,15 +116,7 @@ void Settings::setBoolean(const std::string &setting, bool value)
 	setString(setting, value ? "true" : "false");
 }
 
-Settings::radix Settings::get_base(const std::string &number)
+int Settings::get_string_base(const std::string &value)
 {
-	std::string value = tolower(number);
-	str_trim(value);
-	if (!value.empty() && value[0] == '0')
-	{
-		if (value.size() >= 2 && value[1] == 'x')
-			return hexadecinal;
-		return octal;
-	}
-	return decimal;
-};
+	return numerical_util::get_base(value);
+}

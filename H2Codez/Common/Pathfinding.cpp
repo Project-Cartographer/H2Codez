@@ -6,15 +6,10 @@
 #include <unordered_set>
 #include <functional>
 #include "util/string_util.h"
+#include "util/numerical.h"
 #include "PathfindingConfig.h"
 
 using namespace pathfinding;
-
-template<class T>
-constexpr bool is_between(const T& v, const T& lo, const T& hi)
-{
-	return (v >= lo) && (v <= hi);
-}
 
 /*
 	Helper function for getting blam indices from a map
@@ -65,7 +60,7 @@ bool pathfinding::generate(datum sbsp_tag)
 				auto plane = collision_bsp->get_plane_by_ref(surface->plane);
 				auto normal_angle = plane.normal.get_angle();
 				if (importer.should_force_keep_surface(surface_idx)
-					|| !is_between(normal_angle.roll.as_degree(), 90.0 - surface_range, 90 + surface_range) && !importer.should_remove_surface(surface_idx))
+					|| !numerical_util::is_between(normal_angle.roll.as_degree(), 90.0 - surface_range, 90 + surface_range) && !importer.should_remove_surface(surface_idx))
 				{
 					exporter.keep_surface(surface_idx);
 					surface_sector_mapping[surface_idx] = sector_index;

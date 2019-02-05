@@ -172,6 +172,7 @@
     <ClInclude Include="HaloScript\hs_types.h" />
     <ClInclude Include="util\FileWatcher.h" />
     <ClInclude Include="util\Logs.h" />
+    <ClInclude Include="util\numerical.h" />
     <ClInclude Include="util\Patches.h" />
     <ClInclude Include="Resources\resource.h" />
     <ClInclude Include="util\process.h" />

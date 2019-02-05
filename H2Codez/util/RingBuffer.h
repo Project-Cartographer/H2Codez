@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "numerical.h"
 
 template <typename Type>
 class RingBuffer
@@ -108,16 +109,9 @@ public:
 	}
 
 private:
-
-	inline int util_real_modulo(int a, int b) {
-		if (b < 0) return util_real_modulo(-a, -b);
-		const int result = a % b;
-		return result >= 0 ? result : result + b;
-	}
-
 	size_t relative_offset_to_abs(int rel_offset) noexcept
 	{
-		return util_real_modulo((get_previous_index() + rel_offset), size());
+		return numerical_util::real_modulo<int>((get_previous_index() + rel_offset), size());
 	}
 
 	size_t get_previous_index()

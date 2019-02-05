@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <string>
-#include <algorithm> 
+#include <algorithm>
 
 class SettingError : public std::runtime_error
 {
@@ -65,9 +65,9 @@ public:
 		try {
 			if (std::is_integral<NumericType>::value) {
 				if (std::is_signed<NumericType>::value)
-					return static_cast<NumericType>(std::stoll(value, 0, get_base(value)));
+					return static_cast<NumericType>(std::stoll(value, 0, get_string_base(value)));
 				else
-					return static_cast<NumericType>(std::stoull(value, 0, get_base(value)));
+					return static_cast<NumericType>(std::stoull(value, 0, get_string_base(value)));
 			}
 			else if (std::is_floating_point<NumericType>::value) {
 				return static_cast<NumericType>(std::stold(value));
@@ -111,14 +111,7 @@ public:
 	}
 private:
 
-	enum radix
-	{
-		octal = 8,
-		decimal = 10,
-		hexadecinal = 16
-	};
-	/* returns the base/radix of a number */
-	static radix get_base(const std::string &number);
+	int get_string_base(const std::string &value);
 
 	/* check if the setting name is valid */
 	inline bool validate_setting_name(const std::string &setting)

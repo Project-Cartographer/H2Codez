@@ -111,7 +111,7 @@ public:
 private:
 	size_t relative_offset_to_abs(int rel_offset) noexcept
 	{
-		return numerical_util::real_modulo<int>((get_previous_index() + rel_offset), size());
+		return numerical::real_modulo<int>((get_previous_index() + rel_offset), size());
 	}
 
 	size_t get_previous_index()

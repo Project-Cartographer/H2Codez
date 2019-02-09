@@ -10,7 +10,7 @@ using boost::property_tree::write_xml;
 using boost::property_tree::xml_writer_settings;
 using boost::property_tree::xml_writer_make_settings;
 using namespace TagDefinitions;
-using numerical_util::radix;
+using numerical::radix;
 
 std::map<int, tag_def*> tag_definition_mapping;
 
@@ -85,13 +85,13 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		size_t field_size = get_static_element_size(fields->type);
 
 		field_tree.add("<xmlattr>.name", str_trim(field_name + name_suffix));
-		field_tree.add("<xmlattr>.offset", numerical_util::to_string(element_offset, radix::hexadecimal));
+		field_tree.add("<xmlattr>.offset", numerical::to_string(element_offset, radix::hexadecimal));
 
 		auto add_element = [&](std::string name, std::string element_name, size_t element_size, bool increment_size = true)
 		{
 			ptree &element = parent_tree.add(element_name, "");
 			element.add("<xmlattr>.name", str_trim(name + name_suffix));
-			element.add("<xmlattr>.offset", numerical_util::to_string(element_offset, radix::hexadecimal));
+			element.add("<xmlattr>.offset", numerical::to_string(element_offset, radix::hexadecimal));
 			element.add("<xmlattr>.visible", true);
 			if (increment_size)
 				element_offset += element_size;
@@ -124,7 +124,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			{
 				ptree &enum_option = field_tree.add(element_name, "");
 				enum_option.add("<xmlattr>.name", str_trim(def->names[i].get_string(), " ^)(*#"));
-				enum_option.add("<xmlattr>." + value_att_name, numerical_util::to_string(i, radix::hexadecimal));
+				enum_option.add("<xmlattr>." + value_att_name, numerical::to_string(i, radix::hexadecimal));
 			}
 		};
 
@@ -143,7 +143,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		{
 			element_name = "reflexive";
 			auto entry_size = DumpBlock(field_tree, reinterpret_cast<tag_block_defintions*>(fields->defintion));
-			field_tree.add("<xmlattr>.entrySize", numerical_util::to_string(entry_size, radix::hexadecimal));
+			field_tree.add("<xmlattr>.entrySize", numerical::to_string(entry_size, radix::hexadecimal));
 			break;
 		}
 		case tag_field::struct_:
@@ -175,7 +175,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::string:
 		case tag_field::long_string:
 			element_name = "ascii";
-			field_tree.add("<xmlattr>.length", numerical_util::to_string(field_size, radix::hexadecimal));
+			field_tree.add("<xmlattr>.length", numerical::to_string(field_size, radix::hexadecimal));
 			break;
 		case tag_field::string_id:
 			element_name = "stringId";
@@ -335,7 +335,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			break;
 		case tag_field::vertex_buffer:
 			element_name = "raw";
-			field_tree.add("<xmlattr>.size", numerical_util::to_string(field_size, radix::hexadecimal));
+			field_tree.add("<xmlattr>.size", numerical::to_string(field_size, radix::hexadecimal));
 			break;
 		case tag_field::explanation:
 			if (field_name.empty())
@@ -414,7 +414,7 @@ void DumpPlugin(std::string folder, tag_def *def)
 
 
 	size_t block_size = DumpTag(plugin_tree, def);
-	plugin_tree.add("<xmlattr>.baseSize", numerical_util::to_string(block_size, radix::hexadecimal));
+	plugin_tree.add("<xmlattr>.baseSize", numerical::to_string(block_size, radix::hexadecimal));
 
 	auto sanitize_filename = [](std::string name) -> std::string {
 		constexpr char chars_to_replace[] = { '*', '?', '/', '\\', ':', '"', '|', '>', '<' };

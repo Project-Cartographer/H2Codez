@@ -1,7 +1,10 @@
 #pragma once
 #include "string_util.h"
 
-namespace numerical_util {
+namespace numerical {
+
+#define CHECK_NUMERICAL_TYPE(type)\
+	static_assert(std::is_arithmetic<type>::value, "NumericType must be numeric")
 
 	enum radix
 	{
@@ -24,10 +27,11 @@ namespace numerical_util {
 		return decimal;
 	};
 
+	/* Convert number to string */
 	template <typename NumericType, bool uppercase = true>
 	std::string to_string(NumericType number, radix base = decimal, size_t width = 0)
 	{
-		static_assert(std::is_arithmetic<NumericType>::value, "NumericType must be numeric");
+		CHECK_NUMERICAL_TYPE(NumericType);
 		std::stringstream stream;
 
 		switch (base)
@@ -46,18 +50,32 @@ namespace numerical_util {
 		return stream.str();
 	}
 
+	/* Does real modulo */
 	template <typename NumericType>
 	inline int real_modulo(NumericType a, NumericType b) {
-		static_assert(std::is_arithmetic<NumericType>::value, "NumericType must be numeric");
+		CHECK_NUMERICAL_TYPE(NumericType);
 
 		if (b < 0) return real_modulo(-a, -b);
 		const int result = a % b;
 		return result >= 0 ? result : result + b;
 	}
 
+	/* range limits a value between min and max */
+	template <typename NumericType>
+	inline int range_limit(NumericType value, NumericType min, NumericType max) {
+		CHECK_NUMERICAL_TYPE(NumericType);
+		if (min > max)
+			return range_limit<NumericType>(value, max, min);
+
+		return std::max(min, std::min(value, max));
+	}
+
+	/* returns true if a v is between lo and hi */
 	template<class T>
 	constexpr bool is_between(const T& v, const T& lo, const T& hi)
 	{
 		return (v >= lo) && (v <= hi);
 	}
+
+
 }

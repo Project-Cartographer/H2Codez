@@ -118,5 +118,5 @@ void Settings::setBoolean(const std::string &setting, bool value)
 
 int Settings::get_string_base(const std::string &value)
 {
-	return numerical_util::get_base(value);
+	return numerical::get_base(value);
 }

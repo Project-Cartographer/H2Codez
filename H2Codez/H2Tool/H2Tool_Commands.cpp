@@ -794,51 +794,48 @@ void H2ToolPatches::Initialize()
 void H2ToolPatches::AddExtraCommands()
 {
 	H2PCTool.WriteLog("Adding Extra Commands to H2Tool");
-#pragma region New Function Defination Creation 
-
-	static const BYTE k_number_of_tool_commands = 0xC;
-	static const BYTE k_number_of_tool_commands_new = k_number_of_tool_commands + NUMBEROF(h2tool_extra_commands);
+	constexpr BYTE k_number_of_tool_commands = 0xC;
+	constexpr BYTE k_number_of_tool_commands_new = (k_number_of_tool_commands - 1) + NUMBEROF(h2tool_extra_commands);
 
 	// Tool's original tool commands
-	static const s_tool_command* const* tool_import_classes = CAST_PTR(s_tool_command**, 0x97B6EC);
+	static s_tool_command** tool_import_classes = CAST_PTR(s_tool_command**, 0x97B6EC);
 	// The new tool commands list which is made up of tool's
 	// and [yelo_extra_tool_commands]
 	static s_tool_command* tool_commands[k_number_of_tool_commands_new];
 
 	// copy official tool commands
-	memcpy_s(tool_commands, sizeof(tool_commands),
-		tool_import_classes, sizeof(s_tool_command*) * k_number_of_tool_commands);
+	for (auto i = 0, j = 0; i < k_number_of_tool_commands; i++)
+	{
+		// check if we should skip this command (progress-quest)
+		if (i == 10)
+			continue;
+		tool_commands[j++] = tool_import_classes[i];
+	}
+	
 	// copy yelo tool commands
 	memcpy_s(&tool_commands[k_number_of_tool_commands], sizeof(h2tool_extra_commands),
 		h2tool_extra_commands, sizeof(h2tool_extra_commands));
 
 	// Now I know my ABCs
 	qsort_s(tool_commands, NUMBEROF(tool_commands), sizeof(s_tool_command*), s_tool_command_compare, NULL);
-#pragma endregion
-#pragma region UpdateTool_function References
 
-	DWORD tool_commands_references[] = {
-		 0x410596,
-		 0x41060E,
-		 0x412D86,
-	};
-    DWORD tool_commands_count[] = {
-		 0x4105E5,
-		 0x412D99,
-	};
 
 	// update references to the tool command definitions
+	static constexpr DWORD tool_commands_references[] = {
+		0x410596,
+		0x41060E,
+		0x412D86,
+	};
+
 	for (int x = 0; x < NUMBEROF(tool_commands_references); x++)
 		WriteValue(tool_commands_references[x], tool_commands);
 	
-
-
-#pragma endregion
-#pragma region UpdateTool_functionCount References
 	// update code which contain the tool command definitions count
+	static constexpr DWORD tool_commands_count[] = {
+		0x4105E5,
+		0x412D99,
+	};
 
 	for (int x = 0; x < NUMBEROF(tool_commands_count); x++)
 		WriteValue(tool_commands_count[x], k_number_of_tool_commands_new);
-
-#pragma endregion
 }

@@ -6,7 +6,8 @@
 #include "../Version.h"
 #include "../Tags/ScenarioTag.h"
 #include <regex>
-#include "../util/string_util.h"
+#include "util/string_util.h"
+#include "util/numerical.h"
 
 using namespace HaloScriptCommon;
 
@@ -708,6 +709,38 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	}
 
 	return scenario_write_patch_file_impl(TAG_INDEX, a2);
+}
+
+enum lightmapping_distributed_type : int
+{
+	local,
+	slave,
+	master
+};
+
+static lightmapping_distributed_type global_lightmap_control_distributed_type;
+
+// fix code for distributing light mapping over multiple computers
+void reenable_lightmap_farm()
+{
+	global_lightmap_control_distributed_type =
+		static_cast<lightmapping_distributed_type>(numerical::range_limit(conf.getNumber("global_lightmap_control_distributed_type", 0), 0, 2));
+	WriteValue(0xA73D7C, conf.getNumber("slave_count__maybe", 3));
+
+	constexpr DWORD lightmap_distributed_type_offsets[] = {
+		0x4B314F, 0x4B362D, 0x4BB402, 0x4BD5CF,
+		0x4BD6C1, 0x4BD877, 0x4BD9C1, 0x4E27AF,
+		0x4C7206, 0x4C70D9, 0x4C6FD6, 0x4C6E50,
+		0x4C6DAE, 0x4C6B77, 0x4C6A2F, 0x4C1F5F,
+		0x4C1039, 0x4BFCA9, 0x4BF6FC
+	};
+
+	for (DWORD offset : lightmap_distributed_type_offsets)
+		WritePointer(offset + 2, &global_lightmap_control_distributed_type);
+	WritePointer(0x4C6F40 + 1, &global_lightmap_control_distributed_type);
+	WritePointer(0x4C6E7F + 1, &global_lightmap_control_distributed_type);
+
+	NopFill(0x4C0F21, 6);
 }
 
 void H2ToolPatches::Initialize()

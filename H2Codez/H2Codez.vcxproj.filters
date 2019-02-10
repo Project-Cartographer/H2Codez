@@ -343,6 +343,9 @@
     <ClCompile Include="Common\AssemblyLayoutGenerator.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="H2Tool\HaloScript.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\H2Sapien.rc">

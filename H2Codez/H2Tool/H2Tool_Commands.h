@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "..\Common\BlamBaseTypes.h"
+#include "Common\BlamBaseTypes.h"
 #include "CacheBuilder.h"
 
 enum tool_command_argument_type : long {
@@ -59,39 +59,36 @@ struct s_tool_h2dev_command {
 };
 static_assert(sizeof(s_tool_h2dev_command) == 0x1C, "Invalid struct size for dev_command");
 
-class H2ToolPatches
+namespace H2ToolPatches
 {
-public:
-	static void Initialize();
+	void Initialize();
 
-	static void fix_command_line();
+	void fix_command_line();
 
-	inline static CacheBuilder::cache_builder_state *get_build_cache_file_globals()
+	inline CacheBuilder::cache_builder_state *get_build_cache_file_globals()
 	{
 		return reinterpret_cast<CacheBuilder::cache_builder_state*>(0xC48A68);
 	}
 
-private:
-	static void AddExtraCommands();
+	void AddExtraCommands();
 
-	static void enable_campaign_tags_sharing();
-	static void apply_shared_tag_removal_scheme();
+	void enable_campaign_tags_sharing();
+	void apply_shared_tag_removal_scheme();
 
-	static void unlock_other_scenario_types_compiling();
-	static void render_model_import_unlock();
-	static void remove_bsp_version_check();
+	void unlock_other_scenario_types_compiling();
+	void render_model_import_unlock();
+	void remove_bsp_version_check();
 
-	static void Increase_structure_import_size_Check();
-	static void Increase_structure_bsp_geometry_check();
+	void Increase_structure_import_size_Check();
+	void Increase_structure_bsp_geometry_check();
 
-	static void structure_bsp_geometry_2D_check_increase();
-	static void structure_bsp_geometry_3D_check_increase();
-	static void structure_bsp_geometry_collision_check_increase();
+	void structure_bsp_geometry_2D_check_increase();
+	void structure_bsp_geometry_3D_check_increase();
+	void structure_bsp_geometry_collision_check_increase();
 
-	static void disable_secure_file_locking();
+	void disable_secure_file_locking();
 
-	static void patch_cache_writter();
+	void patch_cache_writter();
+
+	void fix_hs_converters();
 };
-
-
-

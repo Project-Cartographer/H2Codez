@@ -1,6 +1,6 @@
-#include "../stdafx.h"
-#include "../Common/FiloInterface.h"
-#include "../Common/BasicTagTypes.h"
+#include "stdafx.h"
+#include "Common/FiloInterface.h"
+#include "Common/BasicTagTypes.h"
 
 static const char* get_h2tool_version()
 {

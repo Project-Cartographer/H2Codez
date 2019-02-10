@@ -71,8 +71,8 @@ namespace numerical {
 	}
 
 	/* returns true if a v is between lo and hi */
-	template<class T>
-	constexpr bool is_between(const T& v, const T& lo, const T& hi)
+	template<typename T1, typename T2, typename T3>
+	constexpr bool is_between(const T1& v, const T2& lo, const T3& hi)
 	{
 		return (v >= lo) && (v <= hi);
 	}

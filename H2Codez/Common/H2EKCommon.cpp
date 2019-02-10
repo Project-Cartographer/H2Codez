@@ -9,7 +9,6 @@
 #include <cassert>
 #include <Shellapi.h>
 #include <Shlwapi.h>
-#include <Shlobj.h>
 #include <CommDlg.h>
 #include "util/crc32.h"
 

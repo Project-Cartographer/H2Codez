@@ -109,6 +109,9 @@ bool __stdcall on_console_input(WORD keycode)
 	return false;
 }
 
+#pragma warning( push )
+#pragma warning( disable : 4102) // stop MSVC from complaining about an unused label
+
 // hooks a switch statement that handles speical key presses (e.g. enter, tab)
 __declspec(naked) void console_input_jump_hook()
 {
@@ -144,6 +147,7 @@ SKIP :
 		ret
 	}
 }
+#pragma warning( pop ) 
 
 int console_write_return_addr;
 int memcpy_impl = 0x4ADDC0;

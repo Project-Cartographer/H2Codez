@@ -213,7 +213,8 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDE
 
 		ifstream fin;
 		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
-		DWORD sbsp_size = fin.tellg();
+		// sbsp isn't going to be larger than 4 gigs
+		DWORD sbsp_size = static_cast<size_t>(fin.tellg());
 		fin.seekg(0x0, ios::beg);
 
 		if (sbsp_size == 0)
@@ -340,7 +341,7 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 
 				ifstream fin;
 				fin.open(mode_file.c_str(), ios::binary | ios::in | ios::ate);
-				DWORD mode_size = fin.tellg();
+				DWORD mode_size = static_cast<size_t>(fin.tellg());
 				fin.seekg(0x0, ios::beg);
 
 				char* mode_data = new char[mode_size];

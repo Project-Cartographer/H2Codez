@@ -6,6 +6,7 @@
 #include "Common\DiscordInterface.h"
 #include "Util\Debug.h"
 #include "Util\Process.h"
+#include "Util\numerical.h"
 
 char app_directory[256];
 std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
@@ -31,7 +32,8 @@ H2EK H2Toolz::detect_type()
 	// fallback to checking file information in case the file was renamed.
 	// don't bother error handling
 	wchar_t exe_file_path[_MAX_PATH + 1];
-	assert(0 < (process::GetModuleFileNameW(NULL, exe_file_path, ARRAYSIZE(exe_file_path))) <= _MAX_PATH);
+	size_t module_filename_length = process::GetModuleFileNameW(NULL, exe_file_path, ARRAYSIZE(exe_file_path));
+	LOG_CHECK((numerical::is_between<size_t, size_t, size_t>(module_filename_length, 0x0, _MAX_PATH)));
 
 	DWORD version_info_size = GetFileVersionInfoSizeW(exe_file_path, NULL);
 	assert(version_info_size != 0);

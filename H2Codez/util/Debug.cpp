@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include <Dbghelp.h>
 #include <Shlwapi.h>
-#include <Shlobj.h>
 #include "Debug.h"
 #include "Version.h"
 #include "process.h"

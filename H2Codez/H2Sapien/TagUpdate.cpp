@@ -7,7 +7,7 @@
 #include "Common/H2EKCommon.h"
 #include "Common/tag_group_names.h"
 #include "Common/TagInterface.h"
-#include <Shlobj.h>
+#include "stdafx.h"
 #include <shlwapi.h>
 #include <algorithm>
 #include <set>

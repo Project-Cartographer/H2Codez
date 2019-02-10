@@ -25,6 +25,11 @@
 #include <stdarg.h>
 #include <tchar.h>
 #include <filesystem>
+
+#pragma warning( push )
+#pragma warning( disable : 4091) // stop MSVC from complaining
+#include <Shlobj.h>
+#pragma warning( push )
 #pragma endregion
 
 #pragma pack(1)

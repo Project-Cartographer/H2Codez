@@ -203,8 +203,8 @@ void sbsp_mode::Copy_Cluster_BLOCK(char* dest, char* src)
 {
 	*(long*)(dest) = (long)0x0;//padding for geometry classification(4 bytes)
 	memcpy(dest + 0x4, src, 0x2c);//copying global_geometry_section_info_struct_block
-	*(__int16*)(dest + 0x4 + 0x2C) = 0xFFFF;//rigidNode 2bytes
-	*(__int16*)(dest + 0x4 + 0x2C + 0x2) = 0x0;//Flags 2bytes
+	*(unsigned __int16*)(dest + 0x4 + 0x2C) = 0xFFFF;//rigidNode 2bytes
+	*(unsigned __int16*)(dest + 0x4 + 0x2C + 0x2) = 0x0;//Flags 2bytes
 	memcpy(dest + 0x4 + 0x2C + 0x2 + 0x2, src + 0x2C + 0x28, 0xC);//copying cluster_data BLOCK declaration
 	memcpy(dest + 0x4 + 0x2C + 0x2 + 0x2 + 0xC, src + 0x2C, 0x28);//copying BLOCK_info struct
 

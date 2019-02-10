@@ -1,20 +1,28 @@
 #include "process.h"
 #include "H2Sapien\H2Sapien.h"
 
-bool process::newInstance()
+bool process::newInstance(std::wstring command_line, HANDLE *new_process_handle, const wchar_t *current_directory)
 {
-	TCHAR exePath[MAX_PATH];
-	if (!LOG_CHECK(GetModuleFileName(NULL, exePath, MAX_PATH)))
+	WCHAR exePath[MAX_PATH];
+	if (!LOG_CHECK(GetModuleFileNameW(NULL, exePath, MAX_PATH)))
 		return false;
 
-	STARTUPINFO si;
+	STARTUPINFOW si;
 	PROCESS_INFORMATION pi;
 
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 	
-	return LOG_CHECK(CreateProcess(exePath, nullptr, nullptr, nullptr, false, INHERIT_PARENT_AFFINITY, nullptr, nullptr, &si, &pi));
+	// add the exe name to stop C/C++ programs from freaking out
+	command_line = std::wstring(L"\"") + exePath + L"\" " + command_line;
+	// the const_cast is technically non-standard complient but it's fine
+	auto success = LOG_CHECK(CreateProcessW(exePath, const_cast<wchar_t*>(command_line.c_str()), nullptr, nullptr, false, INHERIT_PARENT_AFFINITY | CREATE_NEW_CONSOLE, nullptr, current_directory, &si, &pi));
+
+	if (success && new_process_handle)
+		*new_process_handle = pi.hProcess;
+
+	return success;
 }
 
 std::wstring process::GetExeDirectoryWide()

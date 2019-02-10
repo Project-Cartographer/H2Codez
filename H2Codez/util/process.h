@@ -4,7 +4,7 @@
 
 namespace process
 {
-	bool newInstance();
+	bool newInstance(std::wstring command_line = L"", HANDLE *new_process_handle = nullptr, const wchar_t *current_directory = nullptr);
 	std::wstring GetExeDirectoryWide();
 	std::string GetExeDirectoryNarrow();
 	DWORD GetModuleFileNameA(

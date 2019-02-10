@@ -605,7 +605,7 @@ const s_tool_command_argument lightmap_master_args[] =
 	{ _tool_command_argument_type_0, L"slave count" }
 };
 
-static const s_tool_command lightmap_slave
+static const s_tool_command lightmaps_slave
 {
 	L"lightmaps slave",
 	generate_lightmaps_slave,
@@ -614,10 +614,19 @@ static const s_tool_command lightmap_slave
 	true
 };
 
-static const s_tool_command lightmap_master
+static const s_tool_command lightmaps_master
 {
 	L"lightmaps master",
 	generate_lightmaps_master,
+	lightmap_master_args,
+	ARRAYSIZE(lightmap_master_args),
+	true
+};
+
+static const s_tool_command lightmaps_local_mp
+{
+	L"lightmaps local multi process",
+	generate_lightmaps_local_multi_process,
 	lightmap_master_args,
 	ARRAYSIZE(lightmap_master_args),
 	true

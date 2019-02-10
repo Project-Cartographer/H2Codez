@@ -1,6 +1,7 @@
 #include "H2Tool_Commands.h"
 #include "util/Patches.h"
 #include "util/Numerical.h"
+#include "util/Process.h"
 
 /* setups intial values for all lightmap/lightprobe settings */
 static void lightmap_settings_init(bool setup_bsp_errors)
@@ -52,10 +53,26 @@ static lightmapping_distributed_type global_lightmap_control_distributed_type = 
 
 char lightmap_log_name[0x100] = "lightmap.log";
 
+static bool number_from_string(const wchar_t *count, size_t &number_out)
+{
+	try {
+		number_out = std::stoul(count, 0, numerical::get_base(wstring_to_string.to_bytes(count)));
+		return true;
+	}
+	catch (const std::exception &e)
+	{
+		LOG_FUNC("Exception thrown: %s", e.what());
+		return false;
+	}
+}
+
 static bool set_slave_count(const wchar_t *count)
 {
 	try {
-		WriteValue<DWORD>(0xA73D7C, std::stoul(count, 0, numerical::get_base(wstring_to_string.to_bytes(count))));
+		size_t number;
+		if (!number_from_string(count, number))
+			return false;
+		WriteValue<DWORD>(0xA73D7C, number);
 		return true;
 	}
 	catch (const std::exception &e)
@@ -71,7 +88,7 @@ void __cdecl generate_lightmaps_slave(const wchar_t *argv[])
 	process_lightmap_quality_settings(argv[2]);
 	if (!LOG_CHECK(set_slave_count(argv[3])))
 	{
-		printf("Invalid slave count");
+		printf("Invalid slave count\n");
 		return;
 	}
 	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(wstring_to_string.to_bytes(argv[4])));
@@ -91,7 +108,7 @@ void __cdecl generate_lightmaps_master(const wchar_t *argv[])
 	process_lightmap_quality_settings(argv[2]);
 	if (!LOG_CHECK(set_slave_count(argv[3])))
 	{
-		printf("Invalid slave count");
+		printf("Invalid slave count\n");
 		return;
 	}
 
@@ -99,6 +116,37 @@ void __cdecl generate_lightmaps_master(const wchar_t *argv[])
 	sprintf_s(lightmap_log_name, "lightmap_master.log");
 
 	do_light_calculations(argv[0], argv[1]);
+}
+
+void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
+{
+	size_t slave_count;
+	if (!LOG_CHECK(number_from_string(argv[3], slave_count)))
+	{
+		printf("Failed to get slave count\n");
+		return;
+	}
+	printf("== Starting %d farm processes ==\n", slave_count);
+
+	std::wstring common_command_line = L"lightmaps-slave " + std::wstring(argv[0]) +  L" " + argv[1] + L" " + argv[2] + L" " + argv[3];
+	HANDLE *child_handles = new HANDLE[slave_count];
+	for (size_t i = 0; i < slave_count; i++)
+	{
+		std::wstring command_line = common_command_line + L" " + std::to_wstring(i);
+		if (!process::newInstance(command_line, &child_handles[i]))
+		{
+			printf("Failed to start child process %d\n", i);
+			return;
+		}
+	}
+
+	printf(" == Waiting for child processes to exit ==\n");
+	WaitForMultipleObjects(slave_count, child_handles, TRUE, INFINITE);
+
+	printf("== Starting merge ==\n");
+	flushall(); // flush console output to prevent graphical bugs
+	Sleep(1000); // wait a bit
+	generate_lightmaps_master(argv);
 }
 
 void H2ToolPatches::reenable_lightmap_farming()

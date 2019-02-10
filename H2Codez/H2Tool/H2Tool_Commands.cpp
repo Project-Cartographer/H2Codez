@@ -38,8 +38,9 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&list_extra_commands,
 	&copy_pathfinding,
 	&pathfinding_from_coll,
-	&lightmap_slave,
-	&lightmap_master
+	&lightmaps_slave,
+	&lightmaps_master,
+	&lightmaps_local_mp
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

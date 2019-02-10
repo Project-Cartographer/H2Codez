@@ -20,6 +20,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	// commands in tool not added to the command table
 	CAST_PTR(s_tool_command*, 0x97B4C8), // structure plane debug generate
 	CAST_PTR(s_tool_command*, 0x97B4DC), // structure plane debug
+	CAST_PTR(s_tool_command*, 0x97B56C), // bitmaps with type
 	//
 	&import_model_render,
 	&import_model_collision,
@@ -794,8 +795,9 @@ void H2ToolPatches::Initialize()
 void H2ToolPatches::AddExtraCommands()
 {
 	H2PCTool.WriteLog("Adding Extra Commands to H2Tool");
-	constexpr BYTE k_number_of_tool_commands = 0xC;
-	constexpr BYTE k_number_of_tool_commands_new = (k_number_of_tool_commands - 1) + NUMBEROF(h2tool_extra_commands);
+	constexpr BYTE k_number_of_old_tool_commands = 0xC;
+	constexpr BYTE k_number_of_old_tool_commands_copied = k_number_of_old_tool_commands - 1;
+	constexpr BYTE k_number_of_tool_commands_new = (k_number_of_old_tool_commands_copied) + NUMBEROF(h2tool_extra_commands);
 
 	// Tool's original tool commands
 	static s_tool_command** tool_import_classes = CAST_PTR(s_tool_command**, 0x97B6EC);
@@ -804,7 +806,7 @@ void H2ToolPatches::AddExtraCommands()
 	static s_tool_command* tool_commands[k_number_of_tool_commands_new];
 
 	// copy official tool commands
-	for (auto i = 0, j = 0; i < k_number_of_tool_commands; i++)
+	for (auto i = 0, j = 0; i < k_number_of_old_tool_commands; i++)
 	{
 		// check if we should skip this command (progress-quest)
 		if (i == 10)
@@ -813,7 +815,7 @@ void H2ToolPatches::AddExtraCommands()
 	}
 	
 	// copy yelo tool commands
-	memcpy_s(&tool_commands[k_number_of_tool_commands], sizeof(h2tool_extra_commands),
+	memcpy_s(&tool_commands[k_number_of_old_tool_commands_copied], sizeof(h2tool_extra_commands),
 		h2tool_extra_commands, sizeof(h2tool_extra_commands));
 
 	// Now I know my ABCs

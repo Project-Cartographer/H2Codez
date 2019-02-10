@@ -2,6 +2,7 @@
 #include "util/Patches.h"
 #include "util/Numerical.h"
 #include "util/Process.h"
+#include <sstream>
 
 /* setups intial values for all lightmap/lightprobe settings */
 static void lightmap_settings_init(bool setup_bsp_errors)
@@ -118,8 +119,50 @@ void __cdecl generate_lightmaps_master(const wchar_t *argv[])
 	do_light_calculations(argv[0], argv[1]);
 }
 
+/// taken from a stack overflow post :https://stackoverflow.com/questions/22590821/convert-stdduration-to-human-readable-time/46134506#46134506
+std::string beautify_duration(std::chrono::seconds input_seconds)
+{
+	using namespace std::chrono;
+	typedef duration<int, std::ratio<86400>> days;
+	auto d = duration_cast<days>(input_seconds);
+	input_seconds -= d;
+	auto h = duration_cast<hours>(input_seconds);
+	input_seconds -= h;
+	auto m = duration_cast<minutes>(input_seconds);
+	input_seconds -= m;
+	auto s = duration_cast<seconds>(input_seconds);
+
+	auto dc = d.count();
+	auto hc = h.count();
+	auto mc = m.count();
+	auto sc = s.count();
+
+	std::stringstream ss;
+	ss.fill('0');
+	if (dc) {
+		ss << d.count() << "d";
+	}
+	if (dc || hc) {
+		if (dc) { ss << std::setw(2); } //pad if second set of numbers
+		ss << h.count() << "h";
+	}
+	if (dc || hc || mc) {
+		if (dc || hc) { ss << std::setw(2); }
+		ss << m.count() << "m";
+	}
+	if (dc || hc || mc || sc) {
+		if (dc || hc || mc) { ss << std::setw(2); }
+		ss << s.count() << 's';
+	}
+
+	return ss.str();
+}
+/// end stack overflow code
+
 void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
 {
+	auto start_time = std::chrono::high_resolution_clock::now();
+
 	size_t slave_count;
 	if (!LOG_CHECK(number_from_string(argv[3], slave_count)))
 	{
@@ -147,6 +190,11 @@ void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
 	flushall(); // flush console output to prevent graphical bugs
 	Sleep(1000); // wait a bit
 	generate_lightmaps_master(argv);
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+	std::string time_taken_human = beautify_duration(time_taken);
+	printf("== Time taken: %s ==", time_taken_human.c_str());
 }
 
 void H2ToolPatches::reenable_lightmap_farming()

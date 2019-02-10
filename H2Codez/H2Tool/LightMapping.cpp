@@ -169,6 +169,17 @@ void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
 		printf("Failed to get slave count\n");
 		return;
 	}
+	
+	// enforce some sanity checks in non-debug builds
+	if (!is_debug_build())
+	{
+		if (slave_count <= 1)
+		{
+			printf("At least two slave processes are required for multi process mode.");
+			return;
+		}
+	}
+
 	printf("== Starting %d farm processes ==\n", slave_count);
 
 	std::wstring common_command_line = L"lightmaps-slave " + std::wstring(argv[0]) +  L" " + argv[1] + L" " + argv[2] + L" " + argv[3];

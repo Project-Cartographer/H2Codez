@@ -145,6 +145,7 @@
     <ClInclude Include="H2Sapien\RenderDebug.h" />
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="H2Tool\CacheBuilder.h" />
+    <ClInclude Include="H2Tool\LightMapping.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="H2Tool\CacheBuilder.cpp" />
     <ClCompile Include="H2Tool\HaloScript.cpp" />
+    <ClCompile Include="H2Tool\LightMapping.cpp" />
     <ClCompile Include="util\ClipboardAPI.cpp" />
     <ClCompile Include="util\Debug.cpp" />
     <ClCompile Include="util\Detours\detours.cpp" />

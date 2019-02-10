@@ -236,6 +236,9 @@
     <ClInclude Include="util\numerical.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="H2Tool\LightMapping.h">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -344,6 +347,9 @@
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="H2Tool\HaloScript.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\LightMapping.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>

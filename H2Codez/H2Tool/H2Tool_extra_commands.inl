@@ -1,15 +1,17 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "H2Tool_Commands.h"
 #include "H2ToolLibrary.inl"
 #include "H2Tool_Render_Model.h"
-#include "../Common/FiloInterface.h"
-#include <codecvt>
+#include "LightMapping.h"
+#include "Common/FiloInterface.h"
+#include "Common/TagInterface.h"
+#include "Common/Pathfinding.h"
 #include "util/string_util.h"
 #include "Tags/ScenarioStructureBSP.h"
 #include "util/Patches.h"
 #include <iostream>
-#include "Common/TagInterface.h"
-#include "Common/Pathfinding.h"
+#include <codecvt>
+
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -584,4 +586,39 @@ static const s_tool_command pathfinding_from_coll
 	pathfinding_from_coll_args,
 	ARRAYSIZE(pathfinding_from_coll_args),
 	false
+};
+
+const s_tool_command_argument lightmap_slave_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"scenario", "*.scenario" },
+	{ _tool_command_argument_type_string, L"bsp name" },
+	{ _tool_command_argument_type_radio, L"quality setting", "checkerboard|draft_low|draft_medium|draft_high|draft_super|direct_only|low|medium|high|super" },
+	{ _tool_command_argument_type_0, L"slave count" },
+	{ _tool_command_argument_type_0, L"slave index" }
+};
+
+const s_tool_command_argument lightmap_master_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"scenario", "*.scenario" },
+	{ _tool_command_argument_type_string, L"bsp name" },
+	{ _tool_command_argument_type_radio, L"quality setting", "checkerboard|draft_low|draft_medium|draft_high|draft_super|direct_only|low|medium|high|super" },
+	{ _tool_command_argument_type_0, L"slave count" }
+};
+
+static const s_tool_command lightmap_slave
+{
+	L"lightmaps slave",
+	generate_lightmaps_slave,
+	lightmap_slave_args,
+	ARRAYSIZE(lightmap_slave_args),
+	true
+};
+
+static const s_tool_command lightmap_master
+{
+	L"lightmaps master",
+	generate_lightmaps_master,
+	lightmap_master_args,
+	ARRAYSIZE(lightmap_master_args),
+	true
 };

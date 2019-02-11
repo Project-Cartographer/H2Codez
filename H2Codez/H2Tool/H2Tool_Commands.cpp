@@ -541,7 +541,7 @@ void H2ToolPatches::AddExtraCommands()
 {
 	H2PCTool.WriteLog("Adding Extra Commands to H2Tool");
 	constexpr BYTE k_number_of_old_tool_commands = 0xC;
-	constexpr BYTE k_number_of_old_tool_commands_copied = k_number_of_old_tool_commands - 1;
+	constexpr BYTE k_number_of_old_tool_commands_copied = k_number_of_old_tool_commands - 2;
 	constexpr BYTE k_number_of_tool_commands_new = (k_number_of_old_tool_commands_copied) + NUMBEROF(h2tool_extra_commands);
 
 	// Tool's original tool commands
@@ -553,8 +553,8 @@ void H2ToolPatches::AddExtraCommands()
 	// copy official tool commands
 	for (auto i = 0, j = 0; i < k_number_of_old_tool_commands; i++)
 	{
-		// check if we should skip this command (progress-quest)
-		if (i == 10)
+		// check if we should skip this command (progress-quest, lightmaps_debug)
+		if (i == 10 || i == 4)
 			continue;
 		tool_commands[j++] = tool_import_classes[i];
 	}

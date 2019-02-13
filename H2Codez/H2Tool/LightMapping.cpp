@@ -90,10 +90,11 @@ void __cdecl generate_lightmaps_slave(const wchar_t *argv[])
 	process_lightmap_quality_settings(argv[2]);
 	if (!LOG_CHECK(set_slave_count(argv[3])))
 	{
-		printf("Invalid slave count\n");
+		printf("Invalid instance count\n");
 		return;
 	}
 	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(wstring_to_string.to_bytes(argv[4])));
+	printf(" == Instance id: %d == \n", slave_id);
 	WriteValue<DWORD>(0xA73D78, slave_id);
 
 	sprintf_s(lightmap_log_name, "lightmap_slave_%d.log", slave_id);
@@ -182,7 +183,7 @@ void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
 
 	printf("== Starting %d farm processes ==\n", slave_count);
 
-	std::wstring common_command_line = L"lightmaps-slave " + std::wstring(argv[0]) +  L" " + argv[1] + L" " + argv[2] + L" " + argv[3];
+	std::wstring common_command_line = L"lightmaps-slave \"" + std::wstring(argv[0]) +  L"\" " + argv[1] + L" " + argv[2] + L" " + argv[3];
 	HANDLE *child_handles = new HANDLE[slave_count];
 	for (size_t i = 0; i < slave_count; i++)
 	{

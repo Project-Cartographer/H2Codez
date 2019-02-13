@@ -3,6 +3,7 @@
 
 bool process::newInstance(std::wstring command_line, HANDLE *new_process_handle, const wchar_t *current_directory)
 {
+	LOG_FUNC("Command line: %ws", command_line.c_str());
 	WCHAR exePath[MAX_PATH];
 	if (!LOG_CHECK(GetModuleFileNameW(NULL, exePath, MAX_PATH)))
 		return false;

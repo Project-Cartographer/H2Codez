@@ -110,6 +110,11 @@ namespace tags
 
 	bool save_tag(datum index)
 	{
+		if (!index.is_valid())
+		{
+			LOG_FUNC("Tag is invalid");
+			return false;
+		}
 		typedef char __cdecl TAG_SAVE(int tag_index);
 		auto TAG_UNLOAD_IMPL = reinterpret_cast<TAG_SAVE*>(OS_switch_by_addr(0x4883A0, 0x532F40, 0x4B47C0));
 		return TAG_UNLOAD_IMPL(index.index);

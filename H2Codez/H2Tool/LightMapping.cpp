@@ -1,4 +1,5 @@
 #include "H2Tool_Commands.h"
+#include "Common/TagInterface.h"
 #include "util/Patches.h"
 #include "util/Numerical.h"
 #include "util/Process.h"
@@ -41,10 +42,10 @@ enum lightmapping_distributed_type : int
 
 struct lightmap_control
 {
-	size_t editable_bitmap_group;
-	size_t output_bitmap_group;
-	size_t radiance_bitmap_group;
-	size_t lightmap_group;
+	datum editable_bitmap_group; // main lightmap bitmap
+	datum output_bitmap_group; // used for lightprobes?
+	datum radiance_bitmap_group; // used by slave instances
+	datum lightmap_group; // lightmap tag
 	lightmapping_distributed_type distributed_type;
 };
 
@@ -93,7 +94,6 @@ void __cdecl generate_lightmaps_slave(const wchar_t *argv[])
 		return;
 	}
 	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(wstring_to_string.to_bytes(argv[4])));
-	// lightmap slave id?
 	WriteValue<DWORD>(0xA73D78, slave_id);
 
 	sprintf_s(lightmap_log_name, "lightmap_slave_%d.log", slave_id);
@@ -208,6 +208,15 @@ void _cdecl generate_lightmaps_local_multi_process(const wchar_t *argv[])
 	printf("== Time taken: %s ==", time_taken_human.c_str());
 }
 
+DWORD __cdecl TAG_SAVE_LIGHTMAP_HOOK(int TAG_INDEX)
+{
+	tags::save_tag(global_lightmap_control->editable_bitmap_group);
+	tags::save_tag(global_lightmap_control->output_bitmap_group);
+	if (!global_lightmap_control->editable_bitmap_group.is_valid()) // fix lightprobes crashing
+		global_lightmap_control->editable_bitmap_group = global_lightmap_control->output_bitmap_group;
+	return 1;
+}
+
 void H2ToolPatches::reenable_lightmap_farming()
 {
 	// hook lightmap control to work around some logging getting disabled when not in local mode
@@ -231,4 +240,7 @@ void H2ToolPatches::reenable_lightmap_farming()
 	// patch the log names to allow multiple lightmappers to work on one map
 	WritePointer(0x4C1BBF + 1, lightmap_log_name);
 	WritePointer(0x4C1B76 + 1, lightmap_log_name);
+
+	// disabled as most people have no use for this
+	//PatchCall(0x4C70EB, TAG_SAVE_LIGHTMAP_HOOK);
 }

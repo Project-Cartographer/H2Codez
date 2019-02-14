@@ -5,14 +5,15 @@ fix bugs/crashes, and add new features or re-add removed ones.
 [![status](https://ci.appveyor.com/api/projects/status/github/Project-Cartographer/H2Codez?branch=H2OS_EK&svg=true)](https://ci.appveyor.com/project/num0005/h2codez-0w3n8)
 
 ## Changelog ##
-* Real-time tag editing (experimental)
-* Increased FPS in Sapien (hardware TCL/vertex processing)
-* Unit playtest mode. Spawns a player letting you test how something would work with one/seeing the map from an in-game point of view. (no movement)
-* Some H2tool commands restored. (model-collision, model-physics)
-* Basic render model import method (BSP conversion)
+* Restore tool commands used by bungie to distribute lightmapping over multiple machines.
+* Real-time tag editing.
+* Increased FPS in Sapien (hardware TCL/vertex processing).
+* Unit playtest mode. Spawns a player letting you test how something would work with one/seeing the map from an in-game point of view. (no movement).
+* Some H2tool commands restored. (model-collision, model-physics).
+* Basic render model import method (BSP conversion).
 * Shared tag removal made optional.
-* Restored JMS import function. Can import both CE JMS and JMSv2
-* Tag restrictions removed in Guerilla
+* Restored JMS import function. Can import both CE JMS and JMSv2.
+* Tag restrictions removed in Guerilla.
 * Some hardcoded limits have been increased/removed. (BSP 2D checks, BSP 3D checks, max 3D BSP depth)
 * Open as text has been restored and will open a temp txt file with the source text inside. Buttons labeled as "open as text" have been relabeled as "export as text".
 * Baggage.txt command now usable and no longer causes a crash.
@@ -39,6 +40,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * Use default OS style for file/folder selection dialog.
 * In-game display settings option in Sapien.
 * Custom director speed.
+* Workaround for graphical artifacts on some Nvida cards.
 * Some misc changes and fixes.
 
 ## Installation
@@ -71,11 +73,13 @@ Hope to see you in-game :)
 
 ## Credits ##
 * [Kornman00](https://github.com/KornnerStudios) for his research in this field years ago as part of [OpenSauce](https://bitbucket.org/KornnerStudios/opensauce-release/wiki/Home), which has helped a lot with this project.
-* [General-101](https://github.com/General-101), Dual_Obliteration, Ling Ling, Twinreaper and others, for testing the patches and suggesting new ones.
+* [General-101](https://github.com/General-101), Ling Ling, Twinreaper and others, for testing the patches and suggesting new ones.
+* Authors of all thrid party libraries used. 
 
 ## Acknowledgements ##
 * Cyboryxmen for his modified JMS export script known as Waltzstreet 
 * TheGhost/CtrlAltDestroy for the modified JMS exporter known as JMS_Exporter_v1-0-3
+* [Grimdoomer](https://github.com/grimdoomer), for writing the guerilla layout viewer which was a huge help in understanding the tag defintion format.
 
 ## License ##
 This program is free software: you can redistribute it and/or modify

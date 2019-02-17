@@ -614,6 +614,15 @@ static const s_tool_command lightmaps_slave
 	true
 };
 
+static const s_tool_command lightmaps_slave_fork
+{
+	L"lightmaps slave fork",
+	generate_lightmaps_fork_slave,
+	lightmap_master_args,
+	ARRAYSIZE(lightmap_master_args),
+	true
+};
+
 static const s_tool_command lightmaps_master
 {
 	L"lightmaps master",

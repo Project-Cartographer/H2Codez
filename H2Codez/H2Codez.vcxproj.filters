@@ -239,6 +239,9 @@
     <ClInclude Include="H2Tool\LightMapping.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
+    <ClInclude Include="util\fork.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -351,6 +354,9 @@
     </ClCompile>
     <ClCompile Include="H2Tool\LightMapping.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="util\fork.c">
+      <Filter>Source Files\util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

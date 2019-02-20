@@ -1,17 +1,26 @@
 #pragma once
 #include "..\HaloScript\hs_interface.h"
 
-struct hs_convert_data_store
+struct hs_script_node
 {
-	WORD field_0;
-	WORD hs_constant_type;
-	WORD target_hs_type;
-	WORD field_6;
-	DWORD field_8;
+	WORD datum_header;
+	union {
+		WORD hs_constant_type;
+		WORD hs_script_idx;
+		WORD hs_function_idx;
+	};
+	hs_type value_type;
+	enum _flags : WORD
+	{
+		primitive = 1,
+		user_function = 2,
+
+	} flags;
+	datum next_node;
 	DWORD string_value_offset;
-	DWORD output;
+	DWORD value;
 };
-CHECK_STRUCT_SIZE(hs_convert_data_store, 0x14);
+CHECK_STRUCT_SIZE(hs_script_node, 0x14);
 
 enum wdp_type : signed int
 {

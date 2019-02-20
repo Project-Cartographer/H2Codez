@@ -4,7 +4,7 @@
 namespace HaloScriptCommon
 {
 
-	enum class hs_type {
+	enum class hs_type : WORD {
 		// internal
 		unparsed,
 		special_form,
@@ -83,6 +83,8 @@ namespace HaloScriptCommon
 
 		enum_count
 	};
+
+	CHECK_STRUCT_SIZE(hs_type, 2);
 
 
 	static std::unordered_map <const hs_type, const std::string> hs_type_string

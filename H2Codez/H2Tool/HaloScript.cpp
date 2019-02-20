@@ -3,22 +3,27 @@
 #include "Tags\ScenarioTag.h"
 #include "H2ToolLibrary.inl"
 
-hs_convert_data_store *hs_get_converter_data_store(unsigned __int16 handle)
+/*
+	Fixes the haloscript compiler not generating the correct data for some types.
+*/
+
+static hs_script_node *hs_get_script_node(unsigned __int16 index)
 {
-	typedef void* (__cdecl *get_args)(int a1, unsigned __int16 a2);
-	get_args get_args_impl = reinterpret_cast<get_args>(0x00557E60);
-	return static_cast<hs_convert_data_store*>(get_args_impl(*reinterpret_cast<DWORD*>(0xBCBF4C), handle));
+	void *script_nodes = *reinterpret_cast<DWORD**>(0xBCBF4C);
+	return reinterpret_cast<hs_script_node*>(get_object_at_data_array_index(script_nodes, index));
 }
 
-const char *hs_get_string_data(hs_convert_data_store *data_store)
+// convert get the string from a syntax node
+static const char *hs_get_string_data(hs_script_node *syntax_node)
 {
 	const char *hs_string_data = *reinterpret_cast<const char **>(0x00CDB198);
-	return &hs_string_data[data_store->string_value_offset];
+	return &hs_string_data[syntax_node->string_value_offset];
 }
 
 char hs_error[0x1024];
 
-void hs_converter_error(hs_convert_data_store *data_store, const std::string &error)
+// helper function for reporting an error parsing a syntax element
+static void hs_converter_error(hs_script_node *script_node, const std::string &error)
 {
 	const char **hs_error_string_ptr = reinterpret_cast<const char**>(0x00CDB1AC);
 	DWORD *hs_error_offset_ptr = reinterpret_cast<DWORD*>(0x00CDB1B0);
@@ -26,90 +31,97 @@ void hs_converter_error(hs_convert_data_store *data_store, const std::string &er
 	strncpy(hs_error, error.c_str(), sizeof(hs_error));
 
 	*hs_error_string_ptr = hs_error;
-	*hs_error_offset_ptr = data_store->string_value_offset;
-	data_store->output = NONE;
+	*hs_error_offset_ptr = script_node->string_value_offset;
+	script_node->value = NONE;
 }
 
-scnr_tag *get_global_scenario()
+// returns scenario pointer
+static scnr_tag *get_global_scenario()
 {
 	return *reinterpret_cast<scnr_tag **>(0x00AA00E4);
 }
 
-void hs_convert_string_id_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int hs_converter_id)
+/* 
+	Sets the syntax node's value to the index of the element which contains the string id
+*/
+static void hs_convert_string_id_to_tagblock_index(tag_block_ref *tag_block, int element_size, int block_offset, int script_node_index)
 {
-	auto data_store = hs_get_converter_data_store(hs_converter_id);
-	const char *value_string = hs_get_string_data(data_store);
+	auto script_node = hs_get_script_node(script_node_index);
+	const char *value_string = hs_get_string_data(script_node);
 
-	data_store->output = FIND_TAG_BLOCK_STRING_ID(tag_block, element_size, block_offset, GET_STRING_ID(value_string));
+	script_node->value = FIND_TAG_BLOCK_STRING_ID(tag_block, element_size, block_offset, GET_STRING_ID(value_string));
 
-	if (data_store->output == NONE) {
-		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(data_store->target_hs_type)] + "' name, check tags";
-		hs_converter_error(data_store, error);
+	if (script_node->value == NONE) {
+		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(script_node->value_type)] + "' name, check tags";
+		hs_converter_error(script_node, error);
 	}
 }
 
-void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int hs_converter_id)
+/*
+	Sets the syntax node's value to the index of the element which contains the string
+*/
+static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int script_node_index)
 {
-	auto data_store = hs_get_converter_data_store(hs_converter_id);
-	const char *value_string = hs_get_string_data(data_store);
+	auto script_node = hs_get_script_node(script_node_index);
+	const char *value_string = hs_get_string_data(script_node);
 
-	data_store->output = FIND_TAG_BLOCK_STRING(tag_block, element_size, block_offset, value_string);
+	script_node->value = FIND_TAG_BLOCK_STRING(tag_block, element_size, block_offset, value_string);
 
-	if (data_store->output == NONE) {
-		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(data_store->target_hs_type)] + "' name, check tags";
-		hs_converter_error(data_store, error);
+	if (script_node->value == NONE) {
+		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(script_node->value_type)] + "' name, check tags";
+		hs_converter_error(script_node, error);
 	}
 }
 
-char __cdecl hs_convert_conversation(unsigned __int16 a1)
+static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 128, 0, a1);
+	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 128, 0, script_node_index);
 	return 1;
 }
 
-char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 a1)
+static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
 {
-	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
-	const char *input_string = hs_get_string_data(data_store);
+	hs_script_node *script_node = hs_get_script_node(index);
+	const char *input_string = hs_get_string_data(script_node);
 	if (!_stricmp(input_string, "NONE")) {
-		data_store->output = NONE;
+		script_node->value = NONE;
 		return 1;
 	}
 	try {
-		data_store->output = std::stoi(input_string, nullptr, 0);
+		script_node->value = std::stoi(input_string, nullptr, 0);
 		return 1;
 	}
 	catch (invalid_argument) {
-		hs_converter_error(data_store, "invalid " + get_hs_type_string(data_store->target_hs_type) + " ID");
+		hs_converter_error(script_node, "invalid " + get_hs_type_string(script_node->value_type) + " ID");
 		return 0;
 	}
 	catch (out_of_range)
 	{
-		hs_converter_error(data_store, get_hs_type_string(data_store->target_hs_type) + " ID out of range");
+		hs_converter_error(script_node, get_hs_type_string(script_node->value_type) + " ID out of range");
 		return 0;
 	}
 }
 
-char __cdecl hs_convert_ai_behaviour(unsigned __int16 a1)
+static char __cdecl hs_convert_ai_behaviour(unsigned __int16 script_node_index)
 {
-	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
-	const std::string input = hs_get_string_data(data_store);
+	hs_script_node *script_node = hs_get_script_node(script_node_index);
+	const std::string input = hs_get_string_data(script_node);
 	ai_behaviour out = string_to_ai_behaviour(input);
 	if (out != ai_behaviour::invalid) {
-		data_store->output = static_cast<DWORD>(out);
+		script_node->value = static_cast<DWORD>(out);
 		return 1;
 	}
 	else {
-		hs_converter_error(data_store, "Invalid AI behaviour");
+		hs_converter_error(script_node, "Invalid AI behaviour");
 		return 0;
 	}
 }
 
-char __cdecl hs_convert_ai_orders(unsigned __int16 a1)
+static char __cdecl hs_convert_ai_orders(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_string_to_tagblock_offset(&scenario->orders, 144, 0, a1);
+	hs_convert_string_to_tagblock_offset(&scenario->orders, 144, 0, script_node_index);
 	return 1;
 }
 
@@ -123,11 +135,11 @@ enum ai_id_type
 	none = NONE
 };
 
-char __cdecl hs_convert_ai(unsigned __int16 a1)
+static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
-	std::string input_string = hs_get_string_data(data_store);
+	hs_script_node *script_node = hs_get_script_node(script_node_index);
+	std::string input_string = hs_get_string_data(script_node);
 
 	ai_id_type ai_type = ai_id_type::none;
 
@@ -142,11 +154,11 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 		secondary_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, squad_name);
 		if (secondary_index != NONE)
 		{
-			// can't get the sqaud block struct working so this is a workaround for now
+			// can't get the squad block struct working so this is a workaround for now
 			main_index = strtol(squad_pos.c_str(), nullptr, 0);
 		}
 		else {
-			hs_converter_error(data_store, "No such squad.");
+			hs_converter_error(script_node, "No such squad.");
 			return 0;
 		}
 	}
@@ -156,27 +168,27 @@ char __cdecl hs_convert_ai(unsigned __int16 a1)
 		// attempt to find a squad with that name first
 		main_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
 		if (main_index == NONE) {
-			// if no sqaud with that name exists try the sqaud groups
+			// if no sqaud with that name exists try the squad groups
 			ai_type = ai_id_type::squad_group;
 			main_index = FIND_TAG_BLOCK_STRING(&scenario->squadGroups, 36, 0, input_string);
 		}
 	}
 	if (main_index != NONE) {
 		DWORD id = (ai_type << 30) | (secondary_index << 16) | main_index;
-		data_store->output = id;
+		script_node->value = id;
 		return 1;
 	}
 	else {
 		// fallback to passthrough for backwards compatibility and AI squad starting locations
-		return hs_convert_internal_id_passthrough(a1);
+		return hs_convert_internal_id_passthrough(script_node_index);
 	}
 }
 
-char __cdecl hs_convert_point_ref(unsigned __int16 a1)
+static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_data_store *data_store = hs_get_converter_data_store(a1);
-	std::string input_string = hs_get_string_data(data_store);
+	hs_script_node *script_node = hs_get_script_node(script_node_index);
+	std::string input_string = hs_get_string_data(script_node);
 	auto scripting_data = scenario->scriptingData;
 
 	if (input_string.find('/') != string::npos) {
@@ -197,21 +209,21 @@ char __cdecl hs_convert_point_ref(unsigned __int16 a1)
 
 			if (point_index != NONE)
 			{
-				data_store->output = (point_set_index << 16 | point_index);
+				script_node->value = (point_set_index << 16 | point_index);
 				return 1;
 			}
 			else {
-				hs_converter_error(data_store, "No such point.");
+				hs_converter_error(script_node, "No such point.");
 				return false;
 			}
 		}
 		else {
-			hs_converter_error(data_store, "No such point set.");
+			hs_converter_error(script_node, "No such point set.");
 			return false;
 		}
 	}
 	else {
-		hs_converter_error(data_store, "Invalid format.");
+		hs_converter_error(script_node, "Invalid format.");
 		return false;
 	}
 }

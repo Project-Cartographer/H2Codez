@@ -13,8 +13,12 @@ namespace HaloScriptCommon
 	struct hs_command
 	{
 		hs_type return_type;
+		WORD pad;
 		const char *name;
-		DWORD unk1 = 0;
+		enum _flags : DWORD {
+			none = 0,
+			skip_arg_count_check = 2
+		} flags = none;
 		func_check check_command_args;
 		func_impl command_impl;
 		const char *desc;

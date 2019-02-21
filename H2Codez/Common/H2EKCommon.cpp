@@ -159,6 +159,7 @@ void fix_documents_path_string_type()
 	if (game.process_type == H2Guerilla) {
 		PatchCall(0x00430E76, get_wide_halo_2_documents_path); // working without patches
 		PatchCall(0x00445FDA, get_wide_halo_2_documents_path); // not sure if working or broken, leaving as is for now
+		PatchCall(0x00446928, get_wide_halo_2_documents_path); // breaks with patches
 	}
 }
 
@@ -168,7 +169,7 @@ BOOL WINAPI GetOpenFileNameWHook(LPOPENFILENAMEW info)
 {
 	// check if it's the basic file select dialog
 	if (reinterpret_cast<DWORD>(info->lpfnHook) == SwitchAddessByMode(0, 0x0040c450, 0x0069a0f7))
-		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows style
 	return GetOpenFileNameWOriginal(info);
 }
 
@@ -177,7 +178,7 @@ BOOL WINAPI GetSaveFileNameWHook(LPOPENFILENAMEW info)
 {
 	// check if it's the basic file select dialog
 	if (reinterpret_cast<DWORD>(info->lpfnHook) == SwitchAddessByMode(0, 0x0040c450, 0x0069a0f7))
-		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows syle
+		info->Flags &= ~OFN_ENABLEHOOK; //  disable hook, and use default windows style
 	return GetSaveFileNameWOriginal(info);
 }
 
@@ -233,6 +234,6 @@ void H2CommonPatches::Init()
 	if (is_debug_build())
 	{
 		if (!crc32_unit_test())
-			pLog.WriteLog("crc unit tests failed");
+			pLog.WriteLog("CRC unit tests failed");
 	}
 }

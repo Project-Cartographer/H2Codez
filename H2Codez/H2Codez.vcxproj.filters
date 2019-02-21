@@ -52,6 +52,9 @@
     <Filter Include="Source Files\Interfaces\H2Guerilla">
       <UniqueIdentifier>{27c4116e-6bf6-4fcb-afdf-f62a7f8767f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Interfaces\H2Sapien">
+      <UniqueIdentifier>{76455f52-3788-47ad-ae55-4f082c462298}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -239,7 +242,10 @@
     <ClInclude Include="H2Tool\LightMapping.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
-    <ClInclude Include="util\fork.h">
+    <ClInclude Include="H2Sapien\SapienInterface.h">
+      <Filter>Source Files\Interfaces\H2Sapien</Filter>
+    </ClInclude>
+    <ClInclude Include="util\CriticalSection.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
   </ItemGroup>
@@ -355,8 +361,8 @@
     <ClCompile Include="H2Tool\LightMapping.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
-    <ClCompile Include="util\fork.c">
-      <Filter>Source Files\util</Filter>
+    <ClCompile Include="H2Sapien\SapienInterface.cpp">
+      <Filter>Source Files\Interfaces\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

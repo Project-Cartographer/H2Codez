@@ -1,9 +1,12 @@
 #include "HaloScript.h"
+#include "SapienInterface.h"
 #include "Common/Pathfinding.h"
 #include "Common/H2EKCommon.h"
 #include "Common/TagInterface.h"
 #include "HaloScript/hs_interface.h"
 #include <Shellapi.h>
+
+using namespace SapienInterface;
 
 void status_dump()
 {
@@ -21,11 +24,6 @@ void status_dump()
 	}
 	output.close();
 	ShellExecuteA(NULL, NULL, temp_file_name.c_str(), NULL, NULL, SW_SHOW);
-}
-
-static inline datum get_sbsp_index()
-{
-	return *reinterpret_cast<datum *>(0x9A14B8);
 }
 
 void H2SapienPatches::haloscript_init()

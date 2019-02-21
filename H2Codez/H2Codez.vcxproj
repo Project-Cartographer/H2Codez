@@ -143,6 +143,7 @@
     <ClInclude Include="H2Sapien\HaloScript.h" />
     <ClInclude Include="H2Sapien\Profile.h" />
     <ClInclude Include="H2Sapien\RenderDebug.h" />
+    <ClInclude Include="H2Sapien\SapienInterface.h" />
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="H2Tool\CacheBuilder.h" />
     <ClInclude Include="H2Tool\LightMapping.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Tags\ShaderTag.h" />
     <ClInclude Include="util\ClipboardAPI.h" />
     <ClInclude Include="util\crc32.h" />
+    <ClInclude Include="util\CriticalSection.h" />
     <ClInclude Include="util\Debug.h" />
     <ClInclude Include="util\Detours\detours.h" />
     <ClInclude Include="util\Detours\detver.h" />
@@ -196,6 +198,7 @@
     <ClCompile Include="H2Sapien\HaloScript.cpp" />
     <ClCompile Include="H2Sapien\Profile.cpp" />
     <ClCompile Include="H2Sapien\RenderDebug.cpp" />
+    <ClCompile Include="H2Sapien\SapienInterface.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="H2Tool\CacheBuilder.cpp" />
     <ClCompile Include="H2Tool\HaloScript.cpp" />

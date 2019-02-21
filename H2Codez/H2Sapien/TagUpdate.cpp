@@ -1,4 +1,5 @@
 #include "TagUpdate.h"
+#include "SapienInterface.h"
 #include "util/FileWatcher.h"
 #include "util/string_util.h"
 #include "util/Logs.h"
@@ -15,6 +16,7 @@
 const static int millseconds_in_second = 1000;
 const static float update_frequency = 1;
 const static float max_valid_time = update_frequency * 5;
+using namespace SapienInterface;
 
 std::map<std::string, time_t> tags_being_saved;
 
@@ -25,12 +27,10 @@ public:
 	void handleFileAction(FW::WatchID watchid, const std::string& dir, const std::string& filename,
 		FW::Action action)
 	{
-		void *sbsp_ptr = *reinterpret_cast<void**>(0xA9CA74);
-
 		std::cout << "DIR (" << dir + ") FILE (" + filename + ") has event " << action << std::endl;
 		auto file_ext_pos = filename.find_last_of('.');
 		if (action == FW::Action::Modified && file_ext_pos != string::npos
-			&& file_ext_pos + 1 < filename.size() && sbsp_ptr != NULL)
+			&& file_ext_pos + 1 < filename.size() && get_global_structure_bsp() != NULL)
 		{
 			std::string file_ext = filename.substr(file_ext_pos + 1);
 			std::string tag_name = filename.substr(0, file_ext_pos);
@@ -42,7 +42,7 @@ public:
 			if (last_save != tags_being_saved.end())
 			{
 				if (difftime(time(nullptr), last_save->second) <= max_valid_time) {
-					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modifed by us in the past %F seconds", filename.c_str(), max_valid_time);
+					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modified by us in the past %F seconds", filename.c_str(), max_valid_time);
 					return;
 				} else {
 					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename.c_str(), max_valid_time);
@@ -52,7 +52,17 @@ public:
 			if (tags::is_tag_loaded(tag_group, tag_name.c_str()))
 			{
 				pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
-				tags::reload_tag(tag_group, tag_name.c_str());
+				switch (tag_group)
+				{
+				case 'sbsp':
+				case 'ltmp':
+					// Doesn't work yet.
+					//reload_structure_bsp();
+					//break;
+				default:
+					tags::reload_tag(tag_group, tag_name.c_str());
+					break;
+				}
 			} else {
 				pLog.WriteLog("Ignoring change to tag \"%s\" because it's not loaded", filename.c_str());
 			}

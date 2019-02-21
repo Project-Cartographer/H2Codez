@@ -157,7 +157,7 @@ int WINAPI GetMenuItemCountHook(
 	HMENU hMenu
 )
 {
-	// hide the version element from guerilla.
+	// hide the version element from Guerilla.
 	DWORD hMenuId = reinterpret_cast<DWORD>(hMenu);
 	if (menu_map.find(hMenuId) != menu_map.end())
 		return 5;
@@ -208,7 +208,7 @@ void H2GuerrilaPatches::Init()
 	for (auto &menu : menu_map)
 		menu.second = LoadMenuA(g_hModule, MAKEINTRESOURCEA(GUERILLA_MENU));
 #pragma region Patches
-	// Start patches copied from opensauce
+	// Start patches copied from OpenSauce
 
 	// Allow Base Tag Group Creation
 	NopFill(0x409FE0, 11);
@@ -223,9 +223,9 @@ void H2GuerrilaPatches::Init()
 	BYTE patch_file_extenstion_check[0x4] = { 0xE9, 0xCD, 0x00, 0x00 }; // mov al, 1; retn
 	WriteBytes(0x47FB8D, patch_file_extenstion_check, 0x4);
 
-	// End patches copied from opensauce
+	// End patches copied from OpenSauce
 
-	// Doesn't fix the underlying issue, just removes the error message allowing one more scenerio to be opened
+	// Doesn't fix the underlying issue, just removes the error message allowing one more scenario to be opened
 	BYTE patch_out_of_resources[0x2] = { 0xEB, 0x03 };
 	WriteBytes(0x44CF1F, patch_out_of_resources, 0x2);
 	NopFill(0x44CDD0, 0x5);

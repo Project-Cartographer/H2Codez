@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Common\BlamBaseTypes.h"
+#include "Common\FiloInterface.h"
 #include "CacheBuilder.h"
 
 enum tool_command_argument_type : long {
@@ -35,16 +36,15 @@ struct s_tool_command {
 	bool							dont_initialize_game;
 	unsigned char : 8; unsigned short : 16;
 };
-struct s_h2ek_hs_table_commands
-{
 
-};
+typedef bool __cdecl import_def_translate_path(filo *data_file, filo *tag);
+
 struct s_tool_import_definations_
 {
 	cstring							file_extension;
 	_tool_import__defination_proc   import_proc;
 	DWORD                           unk_1;
-	DWORD                           unk_2;
+	import_def_translate_path*      translate_path;
 };
 
 typedef bool(_cdecl* tool_dev_command_proc)(wchar_t *a1, datum tags);

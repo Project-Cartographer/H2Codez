@@ -94,4 +94,7 @@ namespace H2ToolPatches
 
 	// fix code for distributing light mapping over multiple computers
 	void reenable_lightmap_farming();
+
+	// fix bitmap error messages
+	void fix_bitmap_package();
 };

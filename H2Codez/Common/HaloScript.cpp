@@ -5,7 +5,7 @@
 
 void fix_haloscript_pointers()
 {
-	// Replace pointers to the commmand table
+	// Replace pointers to the command table
 	const static std::vector<DWORD> cmd_table_offsets_tool =
 	{
 		0x005C5365 + 3, 0x005C5530 + 3, 0x005C5554 + 3,

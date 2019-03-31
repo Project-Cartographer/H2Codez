@@ -101,7 +101,7 @@ void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 	DWORD edges_vertices_count = 0xFFFF * TOOL_INCREASE_FACTOR; /// 0x1FFFE0
 	WriteValue(0x5A2D5A + 1, edges_vertices_count);
 
-	///Also Patching in the error_proc method incase we ever hit this Limit :)
+	///Also Patching in the error_proc method in case we ever hit this Limit :)
 /*
 .text:00464C50 118 push    0FFFFh
 .text:00464C55 11C push    eax
@@ -354,7 +354,7 @@ void H2ToolPatches::render_model_import_unlock()
 {
 	//Patches the h2tool to use the custom render_model_generation methods
 
-	///Patch Details::#1 patching the orignal render_model_generate function to call mine
+	///Patch Details::#1 patching the original render_model_generate function to call mine
 	/*
 	.text:0041C7A0 000                 mov     eax, [esp+arguments]
 	.text:0041C7A4 000                 mov     ecx, [eax]
@@ -391,7 +391,7 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 
 void H2ToolPatches::remove_bsp_version_check()
 {
-	// allow tool to work with BSPs compliled by newer versions of tool.
+	// allow tool to work with BSPs complied by newer versions of tool.
 	// downgrades the error you would get to a non-fatal one.
 	BYTE bsp_version_check_return[] = { 0xB0, 0x01 };
 	WriteBytes(0x00545D0F, bsp_version_check_return, sizeof(bsp_version_check_return));
@@ -478,7 +478,7 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	}
 
 	
-	// dump tags for debuging if requested
+	// dump tags for debugging if requested
 	if (conf.getBoolean("dump_tags_packaging", false)) {
 		tag_dump(TAG_INDEX);
 
@@ -487,6 +487,77 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	}
 
 	return scenario_write_patch_file_impl(TAG_INDEX, a2);
+}
+
+static void __stdcall report_bitmap_error(datum tag)
+{
+	auto name = tags::get_name(tag);
+	std::cout << "Bitmap error in tag \"" << name << "\"" << std::endl;
+}
+
+constexpr static size_t add_bitmap_data = 0x720D40;
+static void ASM_FUNC add_bitmap_data_pixels_hook()
+{
+	__asm
+	{
+		// overwritten code
+		call add_bitmap_data
+		add     esp, 0x14
+
+		// test if packaging has failed
+		test    eax, eax
+		jz      REPORT_ERROR
+		cmp     byte ptr[esp + 19], 0
+		jz      REPORT_ERROR
+
+		JMP END
+
+	REPORT_ERROR:
+		mov eax, [esp + 28] // datum of tag being processed
+		push eax
+		call report_bitmap_error
+		mov eax, 0 // needs to be zero for the code to abort
+
+	END:
+		// prologue
+		push 0x583C16
+		ret
+	}
+}
+
+static void ASM_FUNC wdp_compress_hook()
+{
+	__asm
+	{
+		// replaced code
+		add     esp, 0x14
+		mov     ebx, eax
+
+		cmp eax, 0
+		je default_return
+
+		// return early
+
+		mov     eax, ebx
+		pop     ebx
+		pop     edi
+		pop     esi
+		pop     ebp
+		retn
+
+		// continue with function
+		default_return:
+		mov eax, 0x645118
+		jmp eax
+	}
+}
+
+void H2ToolPatches::fix_bitmap_package()
+{
+	NopFill(0x00583C0E, 8);
+	WriteJmp(0x00583C0E, add_bitmap_data_pixels_hook);
+
+	WriteJmp(0x645113, wdp_compress_hook);
 }
 
 void H2ToolPatches::Initialize()
@@ -535,6 +606,7 @@ void H2ToolPatches::Initialize()
 		WritePointer(0x9FCBDC, nullptr);
 	}
 	reenable_lightmap_farming();
+	fix_bitmap_package();
 }
 
 

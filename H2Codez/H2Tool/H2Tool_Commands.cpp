@@ -419,7 +419,7 @@ void H2ToolPatches::fix_command_line()
 	PatchCall(0x00751F83, __crtGetCommandLineW_hook);
 }
 
-void tag_dump(int tag_index)
+static void tag_dump(datum tag_index)
 {
 	std::string old_name = tags::get_name(tag_index);
 
@@ -433,7 +433,7 @@ void tag_dump(int tag_index)
 }
 
 template<typename T>
-void SetScriptIdx(T *element, std::string placement_script, scnr_tag *scenario)
+static inline void SetScriptIdx(T *element, std::string placement_script, scnr_tag *scenario)
 {
 	element->scriptIndex = NONE; // defaults to zero instead of none, so this fixes that
 	str_trim(placement_script);

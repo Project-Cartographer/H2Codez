@@ -1,6 +1,8 @@
 #include "H2Tool_Commands.h"
 #include "Common\H2EKCommon.h"
 #include "Tags\ScenarioTag.h"
+#include "Util\string_util.h"
+#include "Util\numerical.h"
 #include "H2ToolLibrary.inl"
 
 /*
@@ -80,26 +82,39 @@ static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
 	return 1;
 }
 
+template <size_t min = 0, size_t max = MAXSHORT>
 static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
 {
 	hs_script_node *script_node = hs_get_script_node(index);
 	const char *input_string = hs_get_string_data(script_node);
+
+	auto report_out_of_range = [&]() {
+		hs_converter_error(script_node, 
+			get_hs_type_string(script_node->value_type) + " ID out of range [" + std::to_string(min) + "->" + std::to_string(max) + "]");
+	};
+
 	if (!_stricmp(input_string, "NONE")) {
 		script_node->value = NONE;
-		return 1;
+		return true;
 	}
 	try {
-		script_node->value = std::stoi(input_string, nullptr, 0);
-		return 1;
+		size_t as_number = std::stoi(input_string, nullptr, 0);
+		if (numerical::is_between(as_number, min, max))
+		{
+			script_node->value = as_number;
+			return true;
+		}
+		report_out_of_range();
+		return false;
 	}
 	catch (invalid_argument) {
 		hs_converter_error(script_node, "invalid " + get_hs_type_string(script_node->value_type) + " ID");
-		return 0;
+		return false;
 	}
 	catch (out_of_range)
 	{
-		hs_converter_error(script_node, get_hs_type_string(script_node->value_type) + " ID out of range");
-		return 0;
+		report_out_of_range();
+		return false;
 	}
 }
 
@@ -110,11 +125,11 @@ static char __cdecl hs_convert_ai_behaviour(unsigned __int16 script_node_index)
 	ai_behaviour out = string_to_ai_behaviour(input);
 	if (out != ai_behaviour::invalid) {
 		script_node->value = static_cast<DWORD>(out);
-		return 1;
+		return true;
 	}
 	else {
 		hs_converter_error(script_node, "Invalid AI behaviour");
-		return 0;
+		return false;
 	}
 }
 
@@ -122,7 +137,7 @@ static char __cdecl hs_convert_ai_orders(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
 	hs_convert_string_to_tagblock_offset(&scenario->orders, 144, 0, script_node_index);
-	return 1;
+	return true;
 }
 
 enum ai_id_type
@@ -157,7 +172,7 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 			main_index = strtol(squad_pos.c_str(), nullptr, 0);
 		} else {
 			hs_converter_error(script_node, "No such squad.");
-			return 0;
+			return false;
 		}
 	} else {
 		ai_type = ai_id_type::squad;
@@ -172,7 +187,7 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 	if (main_index != NONE) {
 		DWORD id = (ai_type << 30) | (secondary_index << 16) | main_index;
 		script_node->value = id;
-		return 1;
+		return true;
 	}
 	else {
 		// fallback to passthrough for backwards compatibility and AI squad starting locations
@@ -203,7 +218,7 @@ static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 
 			if (point_index != NONE) {
 				script_node->value = (point_set_index << 16 | point_index);
-				return 1;
+				return true;
 			} else {
 				hs_converter_error(script_node, "No such point.");
 				return false;
@@ -220,6 +235,41 @@ static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 	}
 }
 
+static char __cdecl hs_convert_navpoint(unsigned __int16 script_node_index)
+{
+	constexpr static char *way_point_names[]
+	{
+		"default",
+		"ctf_flag",
+		"assault_bomb",
+		"ally",
+		"dead_ally",
+		"oddball_ball",
+		"king_hill",
+		"territories_territory"
+	};
+
+	auto normalize = [](int ch) -> int {
+		if (std::isalnum(ch))
+			return std::tolower(ch);
+		return '_';
+	};
+
+	hs_script_node *script_node = hs_get_script_node(script_node_index);
+	std::string input_string = hs_get_string_data(script_node);
+
+	std::string navpoint_string = transform_string(str_trim(input_string), normalize);
+	for (size_t i = 0; i < ARRAYSIZE(way_point_names); i++)
+	{
+		if (navpoint_string == way_point_names[i])
+		{
+			script_node->value = i;
+			return true;
+		}
+	}
+	return hs_convert_internal_id_passthrough<0, 7>(script_node_index);
+}
+
 #define set_hs_converter(type, func) \
 	hs_convert_lookup_table[static_cast<int>(type)] = func;
 
@@ -231,15 +281,17 @@ void H2ToolPatches::fix_hs_converters()
 	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);
 	set_hs_converter(hs_type::ai, hs_convert_ai);
 	set_hs_converter(hs_type::point_reference, hs_convert_point_ref);
+	set_hs_converter(hs_type::navpoint, hs_convert_navpoint);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {
-		hs_type::style,           hs_type::hud_message,
-		hs_type::navpoint,        hs_type::ai_command_list
+		hs_type::style,
+		hs_type::hud_message,
+		hs_type::ai_command_list
 	};
 
 	for (auto i : passthrough_types)
-		set_hs_converter(i, hs_convert_internal_id_passthrough);
+		set_hs_converter(i, hs_convert_internal_id_passthrough<>);
 }
 
 #undef set_hs_converter

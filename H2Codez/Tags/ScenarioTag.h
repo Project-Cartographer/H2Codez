@@ -437,6 +437,17 @@ struct squads_block
 	BYTE padding110[2];
 };
 CHECK_STRUCT_SIZE(squads_block, 120);
+
+struct squad_groups_block
+{
+	char name[32];
+	// BlockIndex1("squad_groups_block")
+	short parent;
+	// BlockIndex1("orders_block")
+	short initialOrders;
+};
+CHECK_STRUCT_SIZE(squad_groups_block, 36);
+
 #pragma endregion
 
 
@@ -581,7 +592,7 @@ struct scnr_tag
 	tag_block_ref decalsPalette;
 	tag_block_ref detailObjectCollectionPalette;
 	tag_block_ref stylePalette;
-	tag_block_ref squadGroups;
+	tag_block<squad_groups_block> squadGroups;
 	tag_block<squads_block> squads;
 	tag_block_ref zones;
 	tag_block_ref missionScenes;

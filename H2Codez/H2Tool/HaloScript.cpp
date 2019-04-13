@@ -13,7 +13,7 @@ static hs_script_node *hs_get_script_node(unsigned __int16 index)
 	return reinterpret_cast<hs_script_node*>(get_object_at_data_array_index(script_nodes, index));
 }
 
-// convert get the string from a syntax node
+// get the string from a syntax node
 static const char *hs_get_string_data(hs_script_node *syntax_node)
 {
 	const char *hs_string_data = *reinterpret_cast<const char **>(0x00CDB198);
@@ -68,7 +68,7 @@ static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int e
 	script_node->value = FIND_TAG_BLOCK_STRING(tag_block, element_size, block_offset, value_string);
 
 	if (script_node->value == NONE) {
-		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(script_node->value_type)] + "' name, check tags";
+		std::string error = "this is not a valid '" + get_hs_type_string(script_node->value_type) + "' name, check tags";
 		hs_converter_error(script_node, error);
 	}
 }
@@ -151,26 +151,22 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 		std::string squad_name = input_string.substr(0, input_string.find('/'));
 		std::string squad_pos = input_string.substr(input_string.find('/') + 1);
 
-		secondary_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, squad_name);
-		if (secondary_index != NONE)
-		{
+		secondary_index = scenario->squads.find_string_element(0, squad_name);
+		if (secondary_index != NONE) {
 			// can't get the squad block struct working so this is a workaround for now
 			main_index = strtol(squad_pos.c_str(), nullptr, 0);
-		}
-		else {
+		} else {
 			hs_converter_error(script_node, "No such squad.");
 			return 0;
 		}
-	}
-	else {
-
+	} else {
 		ai_type = ai_id_type::squad;
 		// attempt to find a squad with that name first
-		main_index = FIND_TAG_BLOCK_STRING(&scenario->squads, 120, 0, input_string);
+		main_index = scenario->squads.find_string_element(0, input_string);
 		if (main_index == NONE) {
 			// if no sqaud with that name exists try the squad groups
 			ai_type = ai_id_type::squad_group;
-			main_index = FIND_TAG_BLOCK_STRING(&scenario->squadGroups, 36, 0, input_string);
+			main_index = scenario->squadGroups.find_string_element(offsetof(squad_groups_block, name), input_string);
 		}
 	}
 	if (main_index != NONE) {
@@ -189,30 +185,26 @@ static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 	scnr_tag *scenario = get_global_scenario();
 	hs_script_node *script_node = hs_get_script_node(script_node_index);
 	std::string input_string = hs_get_string_data(script_node);
-	auto scripting_data = scenario->scriptingData;
+	auto scripting_data = scenario->scriptingData[0];
+
+	if (!scripting_data) {
+		hs_converter_error(script_node, "Script data missing from scenario.");
+		return false;
+	}
 
 	if (input_string.find('/') != string::npos) {
 		std::string point_set = input_string.substr(0, input_string.find('/'));
 		std::string point = input_string.substr(input_string.find('/') + 1);
 
-		int point_set_index = FIND_TAG_BLOCK_STRING(&scripting_data.data->pointSets,
-			sizeof(cs_point_set_block),
-			offsetof(cs_point_set_block, name),
-			point_set);
-		if (point_set_index != NONE)
-		{
-			cs_point_set_block *points = &scripting_data.data->pointSets.data[point_set_index];
-			int point_index = FIND_TAG_BLOCK_STRING(&points->points,
-				sizeof(cs_point_block),
-				offsetof(cs_point_block, name),
-				point);
+		size_t point_set_index = scripting_data->pointSets.find_string_element(offsetof(cs_point_set_block, name), point_set);
+		if (point_set_index != NONE) {
+			cs_point_set_block *points_set = scripting_data->pointSets[point_set_index];
+			size_t point_index = points_set->points.find_string_element(offsetof(cs_point_block, name), point);
 
-			if (point_index != NONE)
-			{
+			if (point_index != NONE) {
 				script_node->value = (point_set_index << 16 | point_index);
 				return 1;
-			}
-			else {
+			} else {
 				hs_converter_error(script_node, "No such point.");
 				return false;
 			}

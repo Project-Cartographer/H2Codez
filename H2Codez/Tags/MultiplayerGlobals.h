@@ -1,6 +1,6 @@
 #pragma once
 #pragma pack(1)
-#include "../Common/BasicTagTypes.h"
+#include "Common/BasicTagTypes.h"
 
 struct multiplayer_universal_block
 {

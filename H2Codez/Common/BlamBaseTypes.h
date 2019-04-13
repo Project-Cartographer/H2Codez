@@ -235,6 +235,11 @@ struct colour_rgb
 };
 CHECK_STRUCT_SIZE(colour_rgb, 4 * 3);
 
+struct colour_argb
+{
+	size_t data;
+};
+
 struct point2d
 {
 	short x;
@@ -363,4 +368,12 @@ struct tag_enum_def
 {
 	size_t count;
 	editor_string *names;
+};
+
+struct rect2d
+{
+	WORD top;
+	WORD left;
+	WORD bottom;
+	WORD right;
 };

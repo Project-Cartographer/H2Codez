@@ -9,7 +9,7 @@ struct tag_ref
 	int tag_type;
 	void *tag_pointer;
 	int field_8;
-	int tag_index;
+	datum tag_index;
 };
 CHECK_STRUCT_SIZE(tag_ref, 16);
 
@@ -113,4 +113,8 @@ struct byte_ref
 	int stream_offset;
 	void *address;
 	int definition;
+};
+
+struct g_null_block
+{
 };

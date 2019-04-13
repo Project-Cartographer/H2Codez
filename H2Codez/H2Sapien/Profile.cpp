@@ -64,11 +64,11 @@ DWORD *get_multiplayer_globals()
 	return get_multiplayer_globals_impl();
 }
 
-void get_string_from_string_id(int subtitle_tag_index, int string_id, wchar_t *output)
+void get_string_from_string_id(datum subtitle_tag_index, int string_id, wchar_t *output)
 {
 	typedef void (__cdecl *get_string_from_string_id)(int subtitle_tag_index, int string_id, wchar_t *output);
 	auto get_string_from_string_id_impl = reinterpret_cast<get_string_from_string_id>(0x51C1B0);
-	get_string_from_string_id_impl(subtitle_tag_index, string_id, output);
+	get_string_from_string_id_impl(subtitle_tag_index.as_long(), string_id, output);
 }
 
 void __cdecl get_string_id_from_multiplayer_globals(int string_id, wchar_t *Dst, int, int)
@@ -93,7 +93,7 @@ void __cdecl get_string_id_from_multiplayer_globals(int string_id, wchar_t *Dst,
 		return;
 	}
 	auto multi_text = universal->multiplayerText;
-	if (multi_text.tag_index == 0xFFFF)
+	if (!multi_text.tag_index.is_valid())
 	{
 		pLog.WriteLog("No multiplayer text in globals");
 		return;

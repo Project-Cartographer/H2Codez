@@ -248,6 +248,12 @@
     <ClInclude Include="util\CriticalSection.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\Globals.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\HudGlobals.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

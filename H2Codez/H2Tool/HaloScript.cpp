@@ -98,7 +98,7 @@ static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
 		return true;
 	}
 	try {
-		size_t as_number = std::stoi(input_string, nullptr, 0);
+		size_t as_number = std::stoul(input_string, nullptr, 0);
 		if (numerical::is_between(as_number, min, max))
 		{
 			script_node->value = as_number;

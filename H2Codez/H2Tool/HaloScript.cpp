@@ -82,7 +82,7 @@ static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
 	return 1;
 }
 
-template <size_t min = 0, size_t max = MAXSHORT>
+template <size_t min = 0, size_t max = MAXDWORD>
 static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
 {
 	hs_script_node *script_node = hs_get_script_node(index);

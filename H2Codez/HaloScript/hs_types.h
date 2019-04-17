@@ -4,7 +4,7 @@
 namespace HaloScriptCommon
 {
 
-	enum class hs_type : WORD {
+	enum class hs_type : unsigned short {
 		// internal
 		unparsed,
 		special_form,
@@ -95,9 +95,9 @@ namespace HaloScriptCommon
 		{ hs_type::special_form,	"special form"   },
 		{ hs_type::function_name,	"function name"  },
 		{ hs_type::passthrough,	    "passthrough"    },
-		{ hs_type::nothing,	        "void"           },
 
 		// basic
+	    { hs_type::nothing,	   "void"      },
 		{ hs_type::boolean,	   "boolean"   },
 		{ hs_type::real,	   "real"      },
 		{ hs_type::hs_short,   "short"     },

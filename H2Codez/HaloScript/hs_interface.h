@@ -9,6 +9,8 @@
 #include "hs_global_variable.h"
 #include "hs_global_ids.h"
 
+#include "hs_syntax_node.h"
+
 #include <string>
 #include <vector>
 #include <unordered_map>

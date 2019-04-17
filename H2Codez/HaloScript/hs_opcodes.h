@@ -1,7 +1,7 @@
 #pragma once
 
 namespace HaloScriptCommon {
-	enum class hs_opcode : unsigned int {
+	enum class hs_opcode : unsigned short {
 		begin,
 		begin_random,
 		hs_if,
@@ -939,6 +939,7 @@ namespace HaloScriptCommon {
 
 
 		enum_count,
-		invalid = 0xFFFFFFFF
+		invalid = 0xFFFF
 	};
+	static_assert(sizeof(hs_opcode) == 2, "Bad hs_opcode size.");
 }

@@ -1,27 +1,6 @@
 #pragma once
 #include "..\HaloScript\hs_interface.h"
 
-struct hs_script_node
-{
-	WORD datum_header;
-	union {
-		WORD hs_constant_type;
-		WORD hs_script_idx;
-		WORD hs_function_idx;
-	};
-	hs_type value_type;
-	enum _flags : WORD
-	{
-		primitive = 1,
-		user_function = 2,
-
-	} flags;
-	datum next_node;
-	DWORD string_value_offset;
-	DWORD value;
-};
-CHECK_STRUCT_SIZE(hs_script_node, 0x14);
-
 enum wdp_type : signed int
 {
 	_tool = 0,

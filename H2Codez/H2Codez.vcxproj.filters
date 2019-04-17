@@ -254,6 +254,9 @@
     <ClInclude Include="Tags\HudGlobals.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="HaloScript\hs_syntax_node.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

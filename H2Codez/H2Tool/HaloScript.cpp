@@ -5,6 +5,8 @@
 #include "Util\numerical.h"
 #include "H2ToolLibrary.inl"
 
+using namespace HaloScriptCommon;
+
 /*
 	Fixes the haloscript compiler not generating the correct data for some types.
 */

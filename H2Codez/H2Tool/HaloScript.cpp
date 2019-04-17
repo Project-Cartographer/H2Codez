@@ -282,6 +282,8 @@ void H2ToolPatches::fix_hs_converters()
 	set_hs_converter(hs_type::ai, hs_convert_ai);
 	set_hs_converter(hs_type::point_reference, hs_convert_point_ref);
 	set_hs_converter(hs_type::navpoint, hs_convert_navpoint);
+	// set style to use a tag converter
+	set_hs_converter(hs_type::style, hs_convert_lookup_table[static_cast<int>(hs_type::sound)]);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {

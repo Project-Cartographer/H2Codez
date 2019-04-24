@@ -69,7 +69,7 @@ void init_custom_commands()
 {
 #pragma region extensions
 	hs_custom_command enable_custom_script_sync("enable_custom_script_sync", "Allows running scripts on client using wake_sync (extension function).", NULL_HS_FUNC); // does nothing in sapien
-	g_halo_script_interface->RegisterCustomCommand(hs_opcode::enable_custom_script_sync, enable_custom_script_sync);
+	//g_halo_script_interface->RegisterCustomCommand(hs_opcode::enable_custom_script_sync, enable_custom_script_sync);
 
 	struct start_sync_args
 	{
@@ -84,7 +84,7 @@ void init_custom_commands()
 		start_sync_func,
 		{ hs_type::string }
 	);
-	g_halo_script_interface->RegisterCustomCommand(hs_opcode::wake_sync, wake_sync);
+	//g_halo_script_interface->RegisterCustomCommand(hs_opcode::wake_sync, wake_sync);
 #pragma endregion
 
 	struct set_temp_args
@@ -94,7 +94,7 @@ void init_custom_commands()
 	};
 	hs_custom_command set_temp(
 		"set_temp",
-		"Sets temporally setting",
+		"Sets temporary setting",
 		HS_FUNC(
 			auto info = static_cast<set_temp_args*>(args);
 			return conf.setTempSetting(info->setting, info->value);

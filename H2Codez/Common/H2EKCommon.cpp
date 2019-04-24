@@ -201,10 +201,19 @@ bool crc32_unit_test()
 	return LOG_CHECK(crc32::calculate(test_data, sizeof(test_data)) == crc32::calculate(&test_data)) && is_good;
 }
 
+LPTOP_LEVEL_EXCEPTION_FILTER
+WINAPI
+SetUnhandledExceptionFilter_hook(
+	_In_opt_ LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
+)
+{
+	auto old_handler = Debug::get_expection_filter();
+	Debug::set_expection_filter(lpTopLevelExceptionFilter);
+	return old_handler;
+}
+
 void H2CommonPatches::Init()
 {
-	Debug::init();
-
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
@@ -228,6 +237,10 @@ void H2CommonPatches::Init()
 	fix_documents_path_string_type();
 
 	haloscript_init();
+
+	// hook exception setter
+	auto SetUnhandledExceptionFilterOrg = SetUnhandledExceptionFilter;
+	DetourAttach(&(PVOID&)SetUnhandledExceptionFilterOrg, SetUnhandledExceptionFilter_hook);
 
 	DetourTransactionCommit();
 

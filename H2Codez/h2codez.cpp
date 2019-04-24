@@ -67,6 +67,7 @@ void H2Toolz::minimal_init()
 
 bool H2Toolz::Init()
 {
+	Debug::init();
 	GetCurrentDirectory(sizeof(app_directory), app_directory);
 	game.process_type = detect_type();
 	if (game.process_type == H2EK::Invalid) {

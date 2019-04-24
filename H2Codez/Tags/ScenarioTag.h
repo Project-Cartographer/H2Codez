@@ -1,6 +1,7 @@
 #pragma once
 #pragma pack(1)
 #include "Common/BasicTagTypes.h"
+#include "Haloscript/hs_types.h"
 
 struct scenario_structure_bsp_reference_block
 {
@@ -535,6 +536,15 @@ struct hs_scripts_block
 	ReturnType returnType;
 	int rootExpressionIndex;
 };
+
+struct hs_globals_block
+{
+	char name[32];
+	HaloScriptCommon::hs_type type;
+	__int16 field_22;
+	int initializationExpressionIndex;
+};
+CHECK_STRUCT_SIZE(hs_globals_block, 0x28);
 #pragma endregion
 
 struct scnr_tag
@@ -605,7 +615,7 @@ struct scnr_tag
 	byte_ref scriptSyntaxData;
 	byte_ref scriptStringData;
 	tag_block<hs_scripts_block> scripts;
-	tag_block_ref globals;
+	tag_block<hs_globals_block> globals;
 	tag_block_ref references;
 	tag_block_ref sourceFiles;
 	tag_block<cs_script_data_block> scriptingData;

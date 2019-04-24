@@ -10,7 +10,7 @@
 using namespace Debug;
 
 extern bool g_process_crashed = false;
-const char version_data[] = "H2codez version: " version;
+const wchar_t g_version_data[] = L"H2codez version: " version;
 
 LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = nullptr;
 LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionInfo)
@@ -53,9 +53,9 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 	aMiniDumpInfo.ClientPointers = TRUE;
 
 	MINIDUMP_USER_STREAM version_data;
-	version_data.Type = CommentStreamA;
-	version_data.Buffer = &version_data;
-	version_data.BufferSize = sizeof(version_data);
+	version_data.Type = CommentStreamW;
+	version_data.Buffer = (void*)&g_version_data;
+	version_data.BufferSize = sizeof(g_version_data);
 
 	MINIDUMP_USER_STREAM_INFORMATION extra_data;
 	extra_data.UserStreamCount = 1;

@@ -132,7 +132,9 @@
     <ClInclude Include="Common\AssemblyLayoutGenerator.h" />
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\Cache.h" />
+    <ClInclude Include="Common\data\data_array.h" />
     <ClInclude Include="Common\HaloScript.h" />
+    <ClInclude Include="Common\MemoryAllocator.h" />
     <ClInclude Include="Common\Pathfinding.h" />
     <ClInclude Include="Common\PathfindingConfig.h" />
     <ClInclude Include="Common\TagDefinitions.h" />

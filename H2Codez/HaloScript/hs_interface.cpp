@@ -42,30 +42,34 @@ char __cdecl HaloScriptCommon::hs_default_func_check(__int16 opcode, datum threa
 	return hs_default_check_impl(opcode, thread_id);
 }
 
-std::string HaloScriptCommon::get_value_as_string(const void *var_ptr, hs_type type)
+std::string HaloScriptCommon::get_value_as_string(const void *data, hs_type type)
 {
 	const static bool false_hack = false;
 	std::string value_as_string;
-	if (!var_ptr)
-		var_ptr = &false_hack;
+	if (!data)
+		data = &false_hack;
 
 	switch (type) {
 	case hs_type::boolean:
-		value_as_string = (*static_cast<const bool*>(var_ptr)) ? "True" : "False";
+		value_as_string = (*static_cast<const bool*>(data)) ? "True" : "False";
 		return value_as_string;
 	case hs_type::hs_long:
-		value_as_string = std::to_string(*static_cast<const long*>(var_ptr));
+		value_as_string = std::to_string(*static_cast<const long*>(data));
 		return value_as_string;
 	case hs_type::nothing:
 		return "void";;
 	case hs_type::real:
-		value_as_string = std::to_string(*static_cast<const float*>(var_ptr));
+		value_as_string = std::to_string(*static_cast<const float*>(data));
 		return value_as_string;
 	case hs_type::hs_short:
-		value_as_string = std::to_string(*static_cast<const short*>(var_ptr));
+		value_as_string = std::to_string(*static_cast<const short*>(data));
 		return value_as_string;
-	default:
-		throw std::runtime_error("Converting HS data of type '" + hs_type_string[type] + "' to string is not implemented.\n");
+	default: {
+		std::string error_message = "Converting HS data of type '" + hs_type_string[type] + "' to string is not implemented.\n";
+		pLog.WriteLog(error_message.c_str());
+		value_as_string = std::to_string(*static_cast<const long*>(data));
+		return value_as_string;
+	}
 	}
 }
 

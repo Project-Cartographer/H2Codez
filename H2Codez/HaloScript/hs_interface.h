@@ -63,11 +63,11 @@ public:
 
 	void init_custom(hs_command **old_command_table, hs_global_variable **global_table);
 
-	constexpr int get_command_table_size() const {
+	static constexpr size_t get_command_table_count() {
 		return static_cast<int>(hs_opcode::enum_count);
 	}
 
-	constexpr int get_global_table_size() const {
+	static constexpr size_t get_global_table_count() {
 		return static_cast<int>(hs_global_id::enum_count);
 	}
 

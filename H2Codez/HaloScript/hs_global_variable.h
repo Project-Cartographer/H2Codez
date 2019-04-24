@@ -25,4 +25,14 @@ namespace HaloScriptCommon
 		}
 	};
 	static_assert(sizeof(hs_global_variable) == 0xC, "Bad struct size");
+
+	struct s_script_global
+	{
+		// datum header
+		WORD datum_salted_idx;
+		WORD pad;
+
+		DWORD value;
+	};
+	CHECK_STRUCT_SIZE(s_script_global, 0x8);
 }

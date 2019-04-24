@@ -26,7 +26,7 @@ void fix_haloscript_pointers()
 		WritePointer(addr, cmds);
 
 	// patch command table size
-	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_size();
+	const static int hs_cmd_table_size = g_halo_script_interface->get_command_table_count();
 	WriteValue(SwitchByMode(0x008CD59C, 0x008EB118, NULL), hs_cmd_table_size);
 
 	// Replace pointers to the globals table
@@ -54,7 +54,7 @@ void fix_haloscript_pointers()
 		WriteValue(addr + 3, vars);
 
 	// patch globals table size
-	const static int hs_global_table_size = g_halo_script_interface->get_global_table_size();
+	const static int hs_global_table_size = g_halo_script_interface->get_global_table_count();
 	WriteValue(SwitchByMode(0x008D2238, 0x008EFDB4, NULL), hs_global_table_size);
 }
 

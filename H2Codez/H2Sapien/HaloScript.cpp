@@ -16,10 +16,28 @@ void status_dump()
 	output.open(temp_file_name, ios::out);
 	if (output)
 	{
-		for (auto  *current_var : g_halo_script_interface->global_table)
+		auto output_variable = [&](const std::string &name, hs_type type, void *data)
 		{
-			std::string value_as_string = get_value_as_string(current_var->variable_ptr, current_var->type);
-			output << current_var->name << "   :    " << value_as_string << std::endl;
+			std::string value_as_string = get_value_as_string(data, type);
+			output << setw(32) << name << "   :    " << value_as_string << std::endl;
+		};
+
+		output << "=== Built in Globals ===\n" << std::endl;
+		for (auto  *current_var : g_halo_script_interface->global_table)
+			output_variable(current_var->name, current_var->type, current_var->variable_ptr);
+
+		output << "\n=== Script Globals ===\n" << std::endl;
+
+		auto global_scenario = get_global_scenario();
+		auto script_nodes = get_script_node_array();
+		for (size_t index = 0; index < global_scenario->globals.size; index++)
+		{
+			auto global = global_scenario->globals[index];
+			if (!global)
+				break;
+			auto *variable = script_nodes->datum_get<s_script_global>(index + HaloScriptInterface::get_global_table_count());
+
+			output_variable(global->name, global->type, &variable->value);
 		}
 	}
 	output.close();
@@ -40,7 +58,7 @@ void H2SapienPatches::haloscript_init()
 
 	const hs_custom_command pathfinding_cmd(
 		"generate_pathfinding",
-		"Generate pathfinding from collision for current bsp",
+		"Generate pathfinding from collision for current BSP",
 		HS_FUNC(
 			auto bsp = get_sbsp_index();
 			auto bsp_data = tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp);

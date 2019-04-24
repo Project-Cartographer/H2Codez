@@ -2,6 +2,7 @@
 #include "Tags\ScenarioStructureBSP.h"
 #include "Tags\ScenarioTag.h"
 #include "util\CriticalSection.h"
+#include "Common\data\data_array.h"
 
 namespace SapienInterface
 {
@@ -33,6 +34,16 @@ namespace SapienInterface
 	inline WORD get_sbsp_index()
 	{
 		return *get_sbsp_index_pointer();
+	}
+
+	inline s_data_array **get_script_node_array_ptr()
+	{
+		return reinterpret_cast<s_data_array**>(0xA9CC14);
+	}
+
+	inline s_data_array *get_script_node_array()
+	{
+		return *get_script_node_array_ptr();
 	}
 
 	bool load_structure_bsp(int bsp_block_index, bool unload_old = true);

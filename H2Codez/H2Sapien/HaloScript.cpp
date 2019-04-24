@@ -35,7 +35,7 @@ void status_dump()
 			auto global = global_scenario->globals[index];
 			if (!global)
 				break;
-			auto *variable = script_nodes->datum_get<s_script_global>(index + HaloScriptInterface::get_global_table_count());
+			auto *variable = script_nodes->datum_get<s_script_global>(static_cast<WORD>(index + HaloScriptInterface::get_global_table_count()));
 
 			output_variable(global->name, global->type, &variable->value);
 		}

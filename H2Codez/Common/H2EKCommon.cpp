@@ -88,6 +88,16 @@ std::string get_command_usage(const hs_command *cmd)
 		}
 	}
 	usage += ")";
+
+	// mark no-ops in toolkit
+	const static std::vector<DWORD> sapien_nops = { 0x57B700, 0x57DDF0, 0x57E560 };
+	const std::vector<DWORD> &nops = SwitchByMode({}, sapien_nops, {});
+	for (auto addr : nops)
+	{
+		if (addr == reinterpret_cast<DWORD>(cmd->command_impl))
+			usage += " [Game-only]";
+	}
+
 	return usage;
 }
 

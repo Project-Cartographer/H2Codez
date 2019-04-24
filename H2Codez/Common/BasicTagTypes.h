@@ -115,6 +115,7 @@ struct byte_ref
 	int definition;
 };
 
+// special empty struct for empty tag blocks
 struct g_null_block
 {
 };

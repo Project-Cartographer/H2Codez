@@ -19,7 +19,7 @@ void H2SapienConsole::run_hs_command(const std::string &script)
 {
 	if (!history_disable)
 		console_history.push(script);
-	HaloScriptCommon::hs_execute(script.c_str());
+	HaloScriptCommon::hs_runtime_execute(script.c_str());
 }
 
 void update_console_state()

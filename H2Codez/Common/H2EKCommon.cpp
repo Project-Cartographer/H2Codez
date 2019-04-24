@@ -32,6 +32,9 @@ static const wchar_t *map_types[] =
 	L"Single Player Shared"
 };
 
+/*
+	Override strings returned from h2alang to fix broken strings
+*/
 int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int cchBufferMax)
 { 
 	if (GetModuleHandleW(L"H2alang") != hInstance)
@@ -75,7 +78,7 @@ void __stdcall ExitProcess_Hook(UINT exitcode)
 	return ExitProcess_Orginal(exitcode);
 }
 
-std::string get_command_usage(const hs_command *cmd)
+std::string get_hs_command_description(const hs_command *cmd)
 {
 	std::string usage = "(<" + hs_type_string[cmd->return_type] + "> " + cmd->name;
 	if (cmd->usage) {
@@ -122,7 +125,7 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 		fprintf(FilePtr, "== Commands ==\r\n\r\n");
 		for (const hs_command *cmd : g_halo_script_interface->command_table)
 		{
-			fprintf(FilePtr, "%s\r\n", get_command_usage(cmd).c_str());
+			fprintf(FilePtr, "%s\r\n", get_hs_command_description(cmd).c_str());
 			fprintf(FilePtr, "%s\r\n\r\n", cmd->desc);
 		}
 

@@ -54,6 +54,7 @@ void update_ui()
 	CheckItem(ID_EDIT_ADVANCEDSHADERVIEW, conf.getBoolean("disable_templete_view"));
 }
 
+/* Capture menu input */
 int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
 {
 	auto toggle_boolean = [](std::string setting, bool default_value = false)
@@ -90,6 +91,7 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, msg, a3, a4, AFX_CMDHANDLERINFO);
 }
 
+/* Enable custom items */
 void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 {
 	CCmdUI__Enable_Orginal(thisptr, 0, a2);
@@ -100,7 +102,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 	EnableItem(DUMP_XML_DEFINITION, true);
 }
 
-
+/* Override menu loaded by guerilla */
 static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMenuName)
 {
 	DWORD MenuId = reinterpret_cast<DWORD>(lpMenuName);
@@ -130,7 +132,7 @@ char *__cdecl hs_remote_generate_command_hook(char *command_name, void **args, s
 {
 	hs_remote_generate_command_orginal(command_name, args, arg_count, output, output_size);
 	// crashes because the 'scnr' tag isn't loaded.
-	//HaloScriptCommon::hs_execute(output);
+	//HaloScriptCommon::hs_runtime_execute(output);
 	MessageBoxA(NULL, output, "HS Remote Command", 0);
 	return output;
 }
@@ -291,6 +293,7 @@ void H2GuerrilaPatches::Init()
 	CCmdUI__Enable_Orginal = CAST_PTR(CCmdUI__Enable, 0x67F09A);
 	DetourAttach(&(PVOID&)CCmdUI__Enable_Orginal, CCmdUI__Enable_Hook);
 
+	// hook menu input
 	CCmdTarget__OnCmdMsg_Orginal = CAST_PTR(CCmdTarget__OnCmdMsg, 0x67EE0F);
 	DetourAttach(&(PVOID&)CCmdTarget__OnCmdMsg_Orginal, CCmdTarget__OnCmdMsg_hook);
 
@@ -298,6 +301,7 @@ void H2GuerrilaPatches::Init()
 	hs_remote_generate_command_orginal = reinterpret_cast<hs_remote_generate_command>(0x0051DC30);
 	DetourAttach(&(PVOID&)hs_remote_generate_command_orginal, hs_remote_generate_command_hook);
 
+	// move temp files into the standard temp folder
 	void *hook_temp_filo = reinterpret_cast<void*>(0x48C6F0);
 	DetourAttach(&hook_temp_filo, create_temp_filo);
 	DetourTransactionCommit();

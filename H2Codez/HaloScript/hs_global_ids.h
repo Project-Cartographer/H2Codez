@@ -1,6 +1,7 @@
 #pragma once
 namespace HaloScriptCommon
 {
+	/* IDs of built in globals */
 	enum class hs_global_id : unsigned int {
 		debug_no_drawing,
 		debug_force_all_player_views_to_default_player,
@@ -709,7 +710,7 @@ namespace HaloScriptCommon
 		disable_progress_screen,
 		force_crash_uploads,
 
-		// exttension vars
+		// extension vars
 		api_extension_version,
 
 		enum_count,

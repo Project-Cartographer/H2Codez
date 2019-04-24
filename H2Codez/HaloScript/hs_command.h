@@ -7,7 +7,7 @@
 
 namespace HaloScriptCommon
 {
-	typedef char(__cdecl *func_check)(__int16 opcode, datum thread_id);
+	typedef char(__cdecl *func_parse)(__int16 opcode, datum thread_id);
 	typedef void (__cdecl *func_impl)(__int16 opcode, datum thread_id, char user_cmd);
 
 	struct hs_command
@@ -19,7 +19,7 @@ namespace HaloScriptCommon
 			none = 0,
 			skip_arg_count_check = 2
 		} flags = none;
-		func_check check_command_args;
+		func_parse parse_command_args;
 		func_impl command_impl;
 		const char *desc;
 		const char *usage;
@@ -28,13 +28,13 @@ namespace HaloScriptCommon
 
 		hs_command(char *cmd_name,
 			hs_type ret_type,
-			func_check arg_check,
+			func_parse arg_check,
 			func_impl impl,
 			const char *_desc = nullptr,
 			const char *_usage = nullptr) :
 			name(cmd_name),
 			return_type(ret_type),
-			check_command_args(arg_check),
+			parse_command_args(arg_check),
 			command_impl(impl),
 			desc(_desc),
 			usage(_usage)
@@ -46,7 +46,7 @@ namespace HaloScriptCommon
 
 	inline hs_command *NewCommand(const char *cmd_name,
 		hs_type ret_type,
-		func_check arg_check,
+		func_parse arg_check,
 		func_impl impl,
 		const char *_desc = nullptr,
 		const char *_usage = nullptr,
@@ -58,7 +58,7 @@ namespace HaloScriptCommon
 		memset(cmd, 0, cmd_alloc_size);
 		cmd->name = cmd_name;
 		cmd->return_type = ret_type;
-		cmd->check_command_args = arg_check;
+		cmd->parse_command_args = arg_check;
 		cmd->command_impl = impl;
 		cmd->desc = _desc;
 		cmd->usage = _usage;

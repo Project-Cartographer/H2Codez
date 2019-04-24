@@ -5,6 +5,7 @@
 
 namespace HaloScriptCommon
 {
+	/* Built in global variable */
 	struct hs_global_variable {
 		const char *name;
 		hs_type type;
@@ -26,6 +27,7 @@ namespace HaloScriptCommon
 	};
 	static_assert(sizeof(hs_global_variable) == 0xC, "Bad struct size");
 
+	// global variable datum entry
 	struct s_script_global
 	{
 		// datum header

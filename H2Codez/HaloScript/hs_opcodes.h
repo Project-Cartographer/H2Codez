@@ -1,6 +1,8 @@
 #pragma once
 
 namespace HaloScriptCommon {
+
+	/* Built in command IDs */
 	enum class hs_opcode : unsigned short {
 		begin,
 		begin_random,

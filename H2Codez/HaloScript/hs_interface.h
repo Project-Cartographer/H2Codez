@@ -17,19 +17,20 @@
 
 namespace HaloScriptCommon
 {
-	bool hs_execute(const char *script, bool ran_from_console = true);
+	/* Compiles and executes the HaloScript data */
+	bool hs_runtime_execute(const char *script, bool ran_from_console = true);
 
 	/* Used to return data to the scripting engine, marks the end of a script command*/
-	void **epilog(datum thread_id, int return_data);
+	void **hs_return(datum thread_id, unsigned int return_data);
 
 	/* returns the arguments passed to the command */
-	void *prolog(__int16 command_id, datum thread_id, char user_cmd);
+	void *hs_get_args(__int16 command_id, datum thread_id, char user_cmd);
 
-	char __cdecl hs_default_func_check(__int16 opcode, datum thread_id);
+	char __cdecl hs_default_func_parse(__int16 opcode, datum thread_id);
 
 	std::string get_value_as_string(const void *var_ptr, hs_type type);
 
-	typedef int(*custom_hs_func)(void *data);
+	typedef unsigned int(*custom_hs_func)(void *data);
 	struct hs_custom_command
 	{
 		std::string name;
@@ -112,6 +113,6 @@ private:
 	std::unordered_map<hs_opcode, custom_hs_func> custom_funcs;
 };
 
-#define HS_FUNC(exper) [](void *args) ->int { exper }
+#define HS_FUNC(exper) [](void *args) -> unsigned int { exper }
 #define NULL_HS_FUNC HS_FUNC(return 0;)
 extern HaloScriptInterface *g_halo_script_interface;

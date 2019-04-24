@@ -10,6 +10,8 @@ namespace cache
 		shared,
 		singleplayer_shared
 	};
+
+	// header used for halo map or "cache" files
 	struct cache_header
 	{
 		blam_tag magic;

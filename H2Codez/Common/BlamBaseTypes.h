@@ -117,6 +117,7 @@ struct editor_string
 	}
 
 #pragma optimize( "", off )
+	// really nasty code, needed because of some invalid data in tag defs
 	bool is_string_ptr_valid(size_t &size_hack)
 	{
 		if (is_string_id())

@@ -19,7 +19,7 @@ void status_dump()
 		auto output_variable = [&](const std::string &name, hs_type type, void *data)
 		{
 			std::string value_as_string = get_value_as_string(data, type);
-			output << setw(65) << name << ":    " << value_as_string << std::endl;
+			output << setw(60) << name << "    :    " << value_as_string << std::endl;
 		};
 
 		output << "=== Built in Globals ===\n" << std::endl;

@@ -84,7 +84,7 @@ INT_PTR CALLBACK SapienRunCommandProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LP
 	return false;
 }
 
-// TODO: fix MessageBoxA refuseing to work right.
+// TODO: fix MessageBoxA refusing to work right.
 INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -401,7 +401,7 @@ void H2SapienPatches::Init()
 	WriteValue(0x00738FF3 + 1, _SH_DENYWR);
 
 	// fixes debug_tags command messing up string formating
-	// and getting a werid path directly in program files
+	// and getting a weird path directly in program files
 	const char *tag_debug_format = "%S//%s_tag_dump.txt";
 	WriteValue(0x004B5F33 + 1, tag_debug_format);
 

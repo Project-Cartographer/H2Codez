@@ -3,7 +3,7 @@
 
 namespace HaloScriptCommon
 {
-
+	/* List of types in HS */
 	enum class hs_type : unsigned short {
 		// internal
 		unparsed,

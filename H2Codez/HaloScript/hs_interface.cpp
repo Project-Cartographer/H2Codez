@@ -4,7 +4,7 @@
 HaloScriptInterface script_interface;
 HaloScriptInterface *g_halo_script_interface = &script_interface;
 
-bool HaloScriptCommon::hs_execute(const char *script, bool ran_from_console)
+bool HaloScriptCommon::hs_runtime_execute(const char *script, bool ran_from_console)
 {
 	typedef char (__cdecl *c_hs_execute)(const char *script, int ran_from_console);
 
@@ -15,16 +15,16 @@ bool HaloScriptCommon::hs_execute(const char *script, bool ran_from_console)
 	return c_hs_execute_impl(script, ran_from_console);
 }
 
-void **HaloScriptCommon::epilog(datum thread_id, int return_data)
+void **HaloScriptCommon::hs_return(datum thread_id, unsigned int return_data)
 {
-	typedef void **(__cdecl *hs_epilog)(datum thread_id, int return_data);
+	typedef void **(__cdecl *hs_epilog)(datum thread_id, unsigned int return_data);
 	hs_epilog hs_epilog_impl = reinterpret_cast<hs_epilog>(SwitchAddessByMode(0, 0x52CC70, 0));
 	CHECK_FUNCTION_SUPPORT(hs_epilog_impl);
 
 	return hs_epilog_impl(thread_id, return_data);
 }
 
-void *HaloScriptCommon::prolog(__int16 command_id, datum thread_id, char user_cmd)
+void *HaloScriptCommon::hs_get_args(__int16 command_id, datum thread_id, char user_cmd)
 {
 	typedef void *(__cdecl *hs_prolog)(__int16 a1, datum thread_id, char a3);
 	hs_prolog hs_prolog_impl = reinterpret_cast<hs_prolog>(SwitchAddessByMode(0, 0x52D3E0,0 ));
@@ -33,12 +33,12 @@ void *HaloScriptCommon::prolog(__int16 command_id, datum thread_id, char user_cm
 	return hs_prolog_impl(command_id, thread_id, user_cmd);
 }
 
-char __cdecl HaloScriptCommon::hs_default_func_check(__int16 opcode, datum thread_id)
+char __cdecl HaloScriptCommon::hs_default_func_parse(__int16 opcode, datum thread_id)
 {
 	int hs_default_check = SwitchAddessByMode(0x65F090, 0x581EB0, 0x56E910);
 	CHECK_FUNCTION_SUPPORT(hs_default_check);
 
-	func_check hs_default_check_impl = reinterpret_cast<func_check>(hs_default_check);
+	func_parse hs_default_check_impl = reinterpret_cast<func_parse>(hs_default_check);
 	return hs_default_check_impl(opcode, thread_id);
 }
 
@@ -103,13 +103,13 @@ void __cdecl custom_func_wrapper(__int16 opcode, datum thread_id, char user_cmd)
 		auto cmd = g_halo_script_interface->command_table[opcode];
 		void *args = nullptr;
 		if (cmd->arg_count > 0)
-			args = HaloScriptCommon::prolog(opcode, thread_id, user_cmd);
+			args = HaloScriptCommon::hs_get_args(opcode, thread_id, user_cmd);
 		if (args || cmd->arg_count == 0)
 		{
-			HaloScriptCommon::epilog(thread_id, custom_func(args));
+			HaloScriptCommon::hs_return(thread_id, custom_func(args));
 		}
 	} else {
-		HaloScriptCommon::epilog(thread_id, 0);
+		HaloScriptCommon::hs_return(thread_id, 0);
 	}
 }
 
@@ -132,7 +132,7 @@ void HaloScriptInterface::RegisterCustomCommand(hs_opcode id, const hs_custom_co
 	hs_command *command = NewCommand(
 		cmd_string(custom_cmd.name),
 		custom_cmd.return_type,
-		(func_check)SwitchAddessByMode(0x65F090, 0x581EB0, 0x56E910),
+		(func_parse)SwitchAddessByMode(0x65F090, 0x581EB0, 0x56E910),
 		custom_func_wrapper,
 		cmd_string(custom_cmd.description),
 		cmd_string(custom_cmd.custom_usage),

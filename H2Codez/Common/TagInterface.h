@@ -1,10 +1,70 @@
 #pragma once
 #include "BasicTagTypes.h"
+#include "common/data/data_array.h"
+#include "TagDefinitions.h"
+#include "FiloInterface.h"
 
 namespace tags
 {
+	inline s_data_array *get_tag_instances()
+	{
+		return *reinterpret_cast<s_data_array**>(SwitchAddessByMode(0xA801A0, 0xA75488, 0x9B7E20));
+	}
+
+	struct s_tag_instance
+	{
+		__int16 datum_header;
+		__int16 flags;
+		const char *name;
+		int group_tag;
+		int parent_group;
+		int grandparent_group;
+		char field_14;
+		char read_only;
+		char field_16;
+		char field_17;
+		char loading_finished__maybe;
+		char field_19;
+		char sub_4AEC40;
+		char field_1B;
+		int salt;
+		tag_block_ref data;
+		int next__maybe;
+	};
+	CHECK_STRUCT_SIZE(s_tag_instance, 0x30);
+
+
+	struct s_tag_ilterator
+	{
+		void *next_tag_instance;
+		s_data_array::s_ilterator ilterator;
+		blam_tag tag_group;
+		s_tag_ilterator(blam_tag tag = blam_tag::null()) :
+			ilterator(get_tag_instances()),
+			tag_group(tag)
+		{
+		};
+
+		datum next()
+		{
+			typedef signed int __cdecl tag_next(s_tag_ilterator *a1);
+			auto tag_next_impl = reinterpret_cast<tag_next*>(SwitchAddessByMode(0x52DD30, 0x4AF700, 0x4836D0));
+			return tag_next_impl(this);
+		}
+	};
+	CHECK_STRUCT_SIZE(s_tag_ilterator, 0x18);
+
+	/* Get tag_def for tag_group */
+	tag_def *get_group_definition(int tag_group);
+
 	/* Get tag group of tag */
 	int get_group_tag(datum tag);
+
+	/* Get tag_def for tag_group */
+	inline tag_def *get_group_definition(datum tag)
+	{
+		return get_group_definition(get_group_tag(tag));
+	}
 
 	/* Get main tag block from tag */
 	tag_block_ref *get_root_block(datum tag);
@@ -91,4 +151,13 @@ namespace tags
 		return resize_block(block->get_ref(), size);
 	}
 	bool resize_block(tag_block_ref *block, size_t size);
+
+	/* Get filo for tag */
+	bool get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path);
+	inline bool get_tag_filo(filo *file_ref, datum tag)
+	{
+		std::string name = get_name(tag);
+		int tag_group = get_group_tag(tag);
+		return get_tag_filo(file_ref, tag_group, name.c_str());
+	}
 };

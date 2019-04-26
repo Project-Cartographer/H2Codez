@@ -1,42 +1,45 @@
 #include "TagInterface.h"
 #include "H2EKCommon.h"
 #include "util/Patches.h"
-#include "FiloInterface.h"
-
-inline int *get_tag_instance_ptr()
-{
-	return ReadFromAddress<int*>(SwitchAddessByMode(0xA801A0, 0xA75488, 0));
-}
 
 inline DWORD OS_switch_by_addr(DWORD guerilla, DWORD tool, DWORD sapien)
 {
 	return SwitchAddessByMode(tool, sapien, guerilla);
 }
 
-char get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path)
-{
-	typedef char __cdecl _get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path);
-	auto _get_tag_filo_impl = reinterpret_cast<_get_tag_filo*>(SwitchAddessByMode(0, 0x4B8A10, 0));
-	if (_get_tag_filo_impl)
-		return _get_tag_filo_impl(file_ref, tag_group, tag_path);
-	return false;
-}
-
 namespace tags
 {
+	bool get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path)
+	{
+		typedef char __cdecl _get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path);
+		auto _get_tag_filo_impl = reinterpret_cast<_get_tag_filo*>(SwitchAddessByMode(0, 0x4B8A10, 0));
+		if (_get_tag_filo_impl)
+			return _get_tag_filo_impl(file_ref, tag_group, tag_path);
+		return false;
+	}
+
+	tag_def *get_group_definition(int tag_group)
+	{
+		typedef tag_def *__cdecl tag__get_group_definition(int tag_group);
+		auto tag__get_group_definition_impl = reinterpret_cast<tag__get_group_definition*>(SwitchAddessByMode(0, 0x4B0030, 0));
+		CHECK_FUNCTION_SUPPORT(tag__get_group_definition_impl);
+		return tag__get_group_definition_impl(tag_group);
+	}
+
 	int get_group_tag(datum tag)
 	{
-		return get_object_at_data_array_index(get_tag_instance_ptr(), tag.index)[2];
+		return get_tag_instances()->datum_get<s_tag_instance>(tag.index)->group_tag;
 	}
 
 	tag_block_ref *get_root_block(datum tag)
 	{
-		return (tag_block_ref *)(get_object_at_data_array_index(get_tag_instance_ptr(), tag.index) + 8);
+		return &get_tag_instances()->datum_get<s_tag_instance>(tag.index)->data;
 	}
 
 	std::string get_name(datum tag)
 	{
-		return (const char *)get_object_at_data_array_index(get_tag_instance_ptr(), tag.index)[1];
+		auto name = get_tag_instances()->datum_get<s_tag_instance>(tag.index)->name;
+		return name ? name : "";
 	}
 
 	bool tag_exists(int group, std::string path)
@@ -49,7 +52,7 @@ namespace tags
 
 	bool is_read_only(datum tag)
 	{
-		return *((BYTE *)get_object_at_data_array_index(get_tag_instance_ptr(), tag.index) + 21);
+		return get_tag_instances()->datum_get<s_tag_instance>(tag.index)->read_only;
 	}
 
 	void set_reference(tag_ref *reference, int group_tag, cstring name)

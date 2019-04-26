@@ -1,5 +1,6 @@
 #pragma once
 #include "Common\MemoryAllocator.h"
+#include "common/BlamBaseTypes.h"
 
 struct s_data_array
 {
@@ -21,7 +22,27 @@ struct s_data_array
 	template<typename T = void>
 	inline T *datum_get(unsigned short index)
 	{
-		return reinterpret_cast<T*>(&active_indices_bit_vector[datum_size * index]);
+		return reinterpret_cast<T*>(&data[datum_size * index]);
 	}
+
+	struct s_ilterator {
+		s_data_array *_array;
+		size_t _datum_index = NONE;
+		size_t _absolute_index = NONE;
+		int _salt;
+
+		s_ilterator(s_data_array *array) :
+			_array(array)
+		{
+			_salt = reinterpret_cast<int>(array) ^ 'iter';
+		}
+
+		void *next()
+		{
+			// todo
+			return nullptr;
+		}
+	};
+	CHECK_STRUCT_SIZE(s_ilterator, 0x10);
 };
 static_assert(sizeof(s_data_array) == 0x4C, "bad s_data_array size");

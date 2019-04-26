@@ -1,5 +1,6 @@
 #include "H2Tool_Commands.h"
 #include "Common\H2EKCommon.h"
+#include "Common\data\data_array.h"
 #include "Tags\ScenarioTag.h"
 #include "Util\string_util.h"
 #include "Util\numerical.h"
@@ -13,8 +14,8 @@ using namespace HaloScriptCommon;
 
 static hs_script_node *hs_get_script_node(unsigned __int16 index)
 {
-	void *script_nodes = *reinterpret_cast<DWORD**>(0xBCBF4C);
-	return reinterpret_cast<hs_script_node*>(get_object_at_data_array_index(script_nodes, index));
+	s_data_array *script_nodes = *reinterpret_cast<s_data_array**>(0xBCBF4C);
+	return script_nodes->datum_get<hs_script_node>(index);
 }
 
 // get the string from a syntax node

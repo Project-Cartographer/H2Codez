@@ -159,7 +159,9 @@ void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
 			std::wstring new_dir = folder + L"\\";
 			new_dir += tag_path.substr(0, tag_path.find_last_of(L"/\\"));
 
-			CreateDirectoryW(new_dir.c_str(), NULL);
+			int error_code = SHCreateDirectoryExW(NULL, new_dir.c_str(), NULL);
+			if (!LOG_CHECK(error_code == ERROR_SUCCESS || error_code == ERROR_ALREADY_EXISTS))
+				LOG_FUNC("dir_error: %d", error_code);
 			CopyFileW(old_path.c_str(), new_path.c_str(), true);
 		}
 	}
@@ -226,7 +228,7 @@ void fix_documents_path_string_type()
 	WriteJmp(SwitchAddessByMode(0x00589D10, 0x004BA7C0, 0x0048A050), get_narrow_halo_2_documents_path);
 
 	// The only two functions that weren't broken before
-	PatchCall(SwitchAddessByMode(0x006708E6, 0x005061A5, 0x005AEFF6), get_wide_halo_2_documents_path); // wrl export
+	PatchCall(SwitchAddessByMode(0x006708E6, 0x005061A5, 0x005AEFF6), get_wide_halo_2_documents_path); // WRL export
 	PatchCall(SwitchAddessByMode(0x00670B05, 0x005061C2, 0x005AF215), get_wide_halo_2_documents_path); // comments export
 	if (game.process_type == H2Guerilla) {
 		PatchCall(0x00430E76, get_wide_halo_2_documents_path); // working without patches

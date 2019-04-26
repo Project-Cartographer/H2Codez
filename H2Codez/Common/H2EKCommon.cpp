@@ -155,6 +155,16 @@ void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
 
 			std::wstring old_path =  process::GetExeDirectoryWide() + std::wstring(L"\\")
 				+  wstring_to_string.from_bytes(tag_data.path);
+
+			HANDLE file_handle = CreateFileW(old_path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			FILETIME modified_time;
+			GetFileTime(file_handle, NULL, NULL, &modified_time);
+			CloseHandle(file_handle);
+
+			constexpr FILETIME last_bungie_time { 0xd8c82b00, 0x1c78bca }; // h2sapien.exe modification time
+			if (CompareFileTime(&modified_time, &last_bungie_time) == -1)
+				continue;
+
 			std::wstring new_path = folder + std::wstring(L"\\") + tag_name_path;
 			std::wstring new_dir = folder + L"\\";
 			new_dir += tag_path.substr(0, tag_path.find_last_of(L"/\\"));

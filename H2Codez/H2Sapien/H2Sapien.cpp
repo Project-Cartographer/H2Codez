@@ -170,6 +170,9 @@ int __fastcall main_window_input_hook(void *thisptr, BYTE _, int a2, UINT uMsg, 
 			case DUMP_XML_DEFINITION:
 				TagDefinitions::dump_as_xml();
 				return true;
+			case DUMP_LOADED_TAGS_TO:
+				H2CommonPatches::dump_loaded_tags();
+				return true;
 		}
 	}
 	return main_window_input_orginal(thisptr, a2, uMsg, wParam, lParam, subfunction_out, handled);

@@ -3,6 +3,7 @@
 #include "util/Patches.h"
 #include "Psapi.h"
 #include "DiscordInterface.h"
+#include "TagInterface.h"
 #include "util/Debug.h"
 #include "HaloScript.h"
 #include <cwchar>
@@ -11,6 +12,7 @@
 #include <Shlwapi.h>
 #include <CommDlg.h>
 #include "util/crc32.h"
+#include "util/process.h"
 
 using namespace H2CommonPatches;
 
@@ -138,6 +140,63 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 	}
 	ShellExecuteA(NULL, NULL, file_name.c_str(), NULL, NULL, SW_SHOW);
 }
+
+void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
+{
+	tags::s_tag_ilterator ilterator;
+	for (datum tag = ilterator.next(); tag != datum::null(); tag = ilterator.next())
+	{
+		filo tag_data;
+		if (LOG_CHECK(tags::get_tag_filo(&tag_data, tag)))
+		{
+			std::wstring tag_path = wstring_to_string.from_bytes(tags::get_name(tag));
+			std::wstring tag_name_path = tag_path + std::wstring(L".")
+				+ wstring_to_string.from_bytes(tags::get_group_definition(tag)->name);
+
+			std::wstring old_path =  process::GetExeDirectoryWide() + std::wstring(L"\\")
+				+  wstring_to_string.from_bytes(tag_data.path);
+			std::wstring new_path = folder + std::wstring(L"\\") + tag_name_path;
+			std::wstring new_dir = folder + L"\\";
+			new_dir += tag_path.substr(0, tag_path.find_last_of(L"/\\"));
+
+			CreateDirectoryW(new_dir.c_str(), NULL);
+			CopyFileW(old_path.c_str(), new_path.c_str(), true);
+		}
+	}
+}
+
+#define SUCCEEDED_LOG(expr) LOG_CHECK(SUCCEEDED(expr))
+
+void H2CommonPatches::dump_loaded_tags()
+{
+	IFileDialog *pfd;
+	if (SUCCEEDED_LOG(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd))))
+	{
+		DWORD dwOptions;
+		if (SUCCEEDED_LOG(pfd->GetOptions(&dwOptions)))
+		{
+			pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+		}
+		if (SUCCEEDED_LOG(pfd->Show(NULL)))
+		{
+			IShellItem *psi;
+			if (SUCCEEDED_LOG(pfd->GetResult(&psi)))
+			{
+				wchar_t *path = nullptr;
+				if (!SUCCEEDED_LOG(psi->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &path)))
+				{
+					LOG_FUNC("Failed to get path");
+				} else {
+					dump_loaded_tags(path);
+					CoTaskMemFree(path);
+				}
+				psi->Release();
+			}
+		}
+		pfd->Release();
+	}
+}
+
 
 char narrow_path[0x200];
 // The toolkit seems to misuse this function so much that it's easier to replace it,

@@ -8,20 +8,18 @@ enum wdp_type : signed int
 	_game = 2
 };
 
-inline int *get_object_at_data_array_index(void *array, unsigned __int16 id)
-{
-	int _array = reinterpret_cast<int>(array);
-	int data = (*(DWORD *)(_array + 68)) + ((*(DWORD *)(_array + 36)) * id);
-	return reinterpret_cast<int*>(data);
-}
-
 namespace H2CommonPatches {
 	void Init();
+
 	/* Returns a filename that can be used for a temp file */
 	std::string get_temp_name(const std::string &name_suffix = "");
+
 	/* 
 		Generates the documentation for HaloScript, saves it to filename then opens it
 	*/
 	void generate_script_doc(const char *filename = nullptr);
+
+	void dump_loaded_tags();
+	void dump_loaded_tags(std::wstring folder);
 };
 

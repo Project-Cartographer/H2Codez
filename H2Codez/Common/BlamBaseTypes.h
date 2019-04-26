@@ -5,21 +5,44 @@
 
 struct datum
 {
-	short index;
-	short salt;
+	short index = NONE;
+	short salt = NONE;
+
 	datum(size_t info)
 	{
 		index = LOWORD(info);
 		salt = HIWORD(info);
 	}
+
+	constexpr datum(short _index, short _salt):
+		index(_index),
+		salt(_salt)
+	{
+	}
+
 	constexpr bool is_valid() const
 	{
 		return (index != NONE) && (salt != NONE);
 	}
 
-	inline long as_long() const
+	constexpr long as_long() const
 	{
-		return *reinterpret_cast<const long*>(this);
+		return MAKELONG(index, salt);
+	}
+
+	constexpr static datum null()
+	{
+		return datum(NONE, NONE);
+	}
+
+	constexpr bool operator==(const datum &other) const
+	{
+		return this->as_long() == other.as_long();
+	}
+
+	constexpr bool operator!=(const datum &other) const
+	{
+		return !operator==(other);
 	}
 };
 CHECK_STRUCT_SIZE(datum, 4);

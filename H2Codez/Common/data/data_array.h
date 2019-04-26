@@ -27,7 +27,7 @@ struct s_data_array
 
 	struct s_ilterator {
 		s_data_array *_array;
-		size_t _datum_index = NONE;
+		datum _datum_index = NONE;
 		size_t _absolute_index = NONE;
 		int _salt;
 
@@ -37,10 +37,21 @@ struct s_data_array
 			_salt = reinterpret_cast<int>(array) ^ 'iter';
 		}
 
-		void *next()
+		template<typename T = void>
+		T *next()
 		{
-			// todo
-			return nullptr;
+			int iterator_next = SwitchByMode(0x558030, 0x4BE930, 0x4A87E0);
+			void *return_data = nullptr;
+			__asm {
+				push ebx
+				mov ebx, 0xFFFFFFFF
+				push this
+				call iterator_next
+				mov return_data, eax
+				add esp, 4
+				pop ebx
+			}
+			return return_data;
 		}
 	};
 	CHECK_STRUCT_SIZE(s_ilterator, 0x10);

@@ -53,6 +53,10 @@ namespace FiloInterface
 		DWORD func_offset = SwitchAddessByMode(0x5291B0, 0x4BD5A0, 0x48D7E0);
 		auto filo__open_impl = reinterpret_cast<filo__open>(func_offset);
 
+		DWORD _error_code;
+		if (!error_code)
+			error_code = &_error_code;
+
 		return filo__open_impl(data, mode, error_code);
 	}
 

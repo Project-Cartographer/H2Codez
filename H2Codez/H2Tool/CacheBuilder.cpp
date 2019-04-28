@@ -160,6 +160,10 @@ char __stdcall build_cache_file_write_header_and_compress(cache::cache_header *h
 
 void H2ToolPatches::patch_cache_writter()
 {
+	// disable compression buffer allocation as it remains unused
+	NopFill(0x587F79, 5); // debug_malloc call for compression buffer
+	NopFill(0x589454, 5); // debug_free call for compression buffer
+
 	if (conf.getBoolean("enable_cache_writer_patches", false)) {
 		WriteJmp(0x607BB0, cache_writer_write_data);
 		PatchCall(0x589279, build_cache_file_write_header_and_compress_wrapper);

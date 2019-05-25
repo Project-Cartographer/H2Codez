@@ -37,7 +37,7 @@ static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMe
 }
 typedef HACCEL (__stdcall *LoadAcceleratorsW_T)(HINSTANCE hInstance, LPCWSTR lpTableName);
 LoadAcceleratorsW_T LoadAcceleratorsWOrg;
-HACCEL __stdcall LoadAcceleratorsWHook(HINSTANCE hInstance, LPCWSTR lpTableName)
+static HACCEL __stdcall LoadAcceleratorsWHook(HINSTANCE hInstance, LPCWSTR lpTableName)
 {
 	if (hInstance == GetModuleHandle(NULL)) {
 		return LoadAcceleratorsWOrg(g_hModule, lpTableName);
@@ -56,14 +56,14 @@ inline static void CheckItem(UINT item, bool enable)
 video_settings halo2_video_settings;
 video_settings sapien_defaults;
 
-void apply_video_settings()
+static void apply_video_settings()
 {
 	CheckItem(SAPIEN_IN_GAME_LOD, using_in_game_settings);
 
 	WriteValue(0x00A5D134, using_in_game_settings ? halo2_video_settings : sapien_defaults);
 }
 
-video_settings *read_game_video_settings()
+static video_settings *read_game_video_settings()
 {
 	return reinterpret_cast<video_settings*>(0x00A5D134);
 }
@@ -328,6 +328,27 @@ DWORD WINAPI GetModuleFileNameW_hook(
 	return GetModuleFileNameW_org(hModule, lpFilename, nSize);
 }
 
+// do major stuff like changing the BSP here
+static void __stdcall main_loop__sync_major_change()
+{
+	H2SapienPatches::ProcessTagsToReload();
+}
+
+static void ASM_FUNC main_loop__sync_major_change_hook()
+{
+	__asm {
+		SAVE_REGISTERS
+		call main_loop__sync_major_change
+		RESTORE_REGISTERS
+
+		// replaced code
+		cmp esi, ebp
+		lea eax, [edi - 1]
+
+		ret
+	}
+}
+
 void H2SapienPatches::Init()
 {
 	// apply in-game console patches
@@ -369,7 +390,7 @@ void H2SapienPatches::Init()
 	int SystemMemory = static_cast<int>(statex.ullAvailPhys / (1024 * 1024));
 	if (SystemMemory < 1200)
 	{
-		MessageBoxA(NULL, "At least 1200 megabytes of free memory is recommanded when running sapien.", "Warning : Low memory", MB_OK);
+		MessageBoxA(NULL, "At least 1200 megabytes of free memory is recommended when running sapien.", "Warning : Low memory", MB_OK);
 	}
 	int VideoMemory = conf.getNumber("VideoMemory", 100) * 1024 * 1024; // megabytes --> bytes
 	int use_hardware_vertexprocessing = conf.getBoolean("use_hardware_vertexprocessing", true);
@@ -384,7 +405,7 @@ void H2SapienPatches::Init()
 	// Stop sapien from getting a mutex on the main directory
 	NopFill(0x409D3D, 0xD);
 
-	// replace bultin IO since it seems to crash
+	// replace bult in IO since it seems to crash
 	PatchCall(0x00477AE8, fopen_s_baggage_hook);
 	PatchCall(0x00477D4F, fclose_baggage_hook);
 
@@ -474,6 +495,8 @@ void H2SapienPatches::Init()
 	{
 		PatchCall(addr, is_render_enabled);
 	}
+
+	WriteCall(0x4D75A4, main_loop__sync_major_change_hook); // codecave part of main_loop_body
 
 
 #pragma endregion

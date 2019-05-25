@@ -11,7 +11,13 @@
 #include "stdafx.h"
 #include <shlwapi.h>
 #include <algorithm>
-#include <set>
+#include <mutex>
+#include <queue>
+
+static struct tag_info {
+	int group;
+	std::string tag_name;
+};
 
 const static int millseconds_in_second = 1000;
 const static float update_frequency = 1;
@@ -19,6 +25,8 @@ const static float max_valid_time = update_frequency * 5;
 using namespace SapienInterface;
 
 std::map<std::string, time_t> tags_being_saved;
+std::queue<tag_info> tags_to_reload;
+std::mutex tag_lock;
 
 class UpdateListener : public FW::FileWatchListener
 {
@@ -38,34 +46,21 @@ public:
 			auto tag_group = string_to_tag_group(file_ext);
 			if (tag_group == NONE) // not a tag
 				return;
+
+			std::unique_lock<std::mutex> tag_lock(tag_lock);
 			auto last_save = tags_being_saved.find(tolower(filename));
 			if (last_save != tags_being_saved.end())
 			{
 				if (difftime(time(nullptr), last_save->second) <= max_valid_time) {
 					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modified by us in the past %F seconds", filename.c_str(), max_valid_time);
 					return;
-				} else {
+				}
+				else {
 					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename.c_str(), max_valid_time);
 					tags_being_saved.erase(last_save);
 				}
 			}
-			if (tags::is_tag_loaded(tag_group, tag_name.c_str()))
-			{
-				pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_name.c_str(), file_ext.c_str());
-				switch (tag_group)
-				{
-				case 'sbsp':
-				case 'ltmp':
-					// Doesn't work yet.
-					//reload_structure_bsp();
-					//break;
-				default:
-					tags::reload_tag(tag_group, tag_name.c_str());
-					break;
-				}
-			} else {
-				pLog.WriteLog("Ignoring change to tag \"%s\" because it's not loaded", filename.c_str());
-			}
+			tags_to_reload.push({ tag_group, tag_name });
 		}
 	}
 };
@@ -88,6 +83,7 @@ DWORD WINAPI TagSyncUpdate(
 		fileWatcher.update();
 		Sleep(static_cast<DWORD>(update_frequency * millseconds_in_second));
 
+		std::unique_lock<std::mutex> tag_lock(tag_lock);
 		for (auto it = tags_being_saved.begin(), ite = tags_being_saved.end(); it != ite;)
 		{
 			if (difftime(time(nullptr), it->second) > max_valid_time) {
@@ -114,8 +110,10 @@ char __cdecl TAG_SAVE_HOOK(int tag_index)
 
 	std::string tag_file_name = tag_name + "." + tag_group_names.at(tag_group);
 
+	std::unique_lock<std::mutex> tag_lock(tag_lock);
 	tags_being_saved[tag_file_name] = time(nullptr);
 	pLog.WriteLog("Marked tag \"%s\" as being_saved", tag_file_name.c_str());
+	tag_lock.unlock();
 
 	return TAG_SAVE_ORG(tag_index);
 }
@@ -131,5 +129,36 @@ void H2SapienPatches::StartTagSync()
 
 		DetourTransactionCommit();
 		CreateThread(NULL, 0, TagSyncUpdate, nullptr, 0, NULL);
+	}
+}
+
+void H2SapienPatches::ProcessTagsToReload()
+{
+	std::unique_lock<std::mutex> tag_lock(tag_lock);
+
+	while (tags_to_reload.size() > 0)
+	{
+		auto tag_info = tags_to_reload.front();
+		auto tag_ext = tag_group_names.at(tag_info.group).c_str();
+
+		if (tags::is_tag_loaded(tag_info.group, tag_info.tag_name))
+		{
+			pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_info.tag_name.c_str(), tag_ext);
+			switch (tag_info.group)
+			{
+			case 'sbsp':
+			case 'ltmp':
+				// Doesn't work yet.
+				//reload_structure_bsp();
+				//break;
+			default:
+				tags::reload_tag(tag_info.group, tag_info.tag_name);
+				break;
+			}
+		}
+		else {
+			pLog.WriteLog("Ignoring change to tag: \"%s\" : type: \"%s\" because it's not loaded", tag_info.tag_name.c_str(), tag_ext);
+		}
+		tags_to_reload.pop();
 	}
 }

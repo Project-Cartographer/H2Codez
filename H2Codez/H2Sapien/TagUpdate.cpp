@@ -60,7 +60,11 @@ public:
 					tags_being_saved.erase(last_save);
 				}
 			}
-			tags_to_reload.push({ tag_group, tag_name });
+			auto most_recent_tag = tags_to_reload.back();
+			if (most_recent_tag.group != tag_group || most_recent_tag.tag_name != tag_name) // hacky workaround for an event being issued twice
+				tags_to_reload.push({ tag_group, tag_name });
+			else
+				pLog.WriteLog("Not pushing tag for reloading (duplicated event)");
 		}
 	}
 };

@@ -136,7 +136,7 @@ namespace HaloScriptCommon
 			}
 		);
 		if (i == tag_group_names.end()) {
-			return 0xFFFF;
+			return NONE;
 		}
 		else {
 			return i->first;

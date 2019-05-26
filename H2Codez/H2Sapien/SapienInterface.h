@@ -46,21 +46,17 @@ namespace SapienInterface
 		return *get_script_node_array_ptr();
 	}
 
+	// only call on main thread
 	bool load_structure_bsp(int bsp_block_index, bool unload_old = true);
 
-	// broken, fix before using
+	// only call on main thread
 	inline bool reload_structure_bsp()
 	{
-		static CriticalSection critical_section;
-		bool success = false;
-		if (critical_section.try_enter())
-		{
-			// save old sbsp index
-			auto sbsp_index = get_sbsp_index();
-			success = LOG_CHECK(load_structure_bsp(NONE)); // unload bsp
-			success = LOG_CHECK(load_structure_bsp(sbsp_index)) && success; // reload bsp
-			critical_section.leave();
-		}
+
+		// save old sbsp index
+		auto sbsp_index = get_sbsp_index();
+		bool success = LOG_CHECK(load_structure_bsp(NONE)); // unload bsp
+		success = LOG_CHECK(load_structure_bsp(sbsp_index)) && success; // reload bsp
 		return success;
 	}
 };

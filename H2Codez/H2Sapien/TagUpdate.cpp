@@ -26,7 +26,7 @@ using namespace SapienInterface;
 
 std::map<std::string, time_t> tags_being_saved;
 std::queue<tag_info> tags_to_reload;
-std::mutex tag_lock;
+std::recursive_mutex tag_mutex;
 
 class UpdateListener : public FW::FileWatchListener
 {
@@ -47,7 +47,7 @@ public:
 			if (tag_group == NONE) // not a tag
 				return;
 
-			std::unique_lock<std::mutex> tag_lock(tag_lock);
+			std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
 			auto last_save = tags_being_saved.find(tolower(filename));
 			if (last_save != tags_being_saved.end())
 			{
@@ -60,8 +60,10 @@ public:
 					tags_being_saved.erase(last_save);
 				}
 			}
-			auto most_recent_tag = tags_to_reload.back();
-			if (most_recent_tag.group != tag_group || most_recent_tag.tag_name != tag_name) // hacky workaround for an event being issued twice
+
+			// hacky workaround for an event being issued twice
+			if (tags_to_reload.empty() ||
+					tags_to_reload.back().group != tag_group || tags_to_reload.back().tag_name != tag_name)
 				tags_to_reload.push({ tag_group, tag_name });
 			else
 				pLog.WriteLog("Not pushing tag for reloading (duplicated event)");
@@ -87,7 +89,7 @@ DWORD WINAPI TagSyncUpdate(
 		fileWatcher.update();
 		Sleep(static_cast<DWORD>(update_frequency * millseconds_in_second));
 
-		std::unique_lock<std::mutex> tag_lock(tag_lock);
+		std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
 		for (auto it = tags_being_saved.begin(), ite = tags_being_saved.end(); it != ite;)
 		{
 			if (difftime(time(nullptr), it->second) > max_valid_time) {
@@ -114,7 +116,7 @@ char __cdecl TAG_SAVE_HOOK(int tag_index)
 
 	std::string tag_file_name = tag_name + "." + tag_group_names.at(tag_group);
 
-	std::unique_lock<std::mutex> tag_lock(tag_lock);
+	std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
 	tags_being_saved[tag_file_name] = time(nullptr);
 	pLog.WriteLog("Marked tag \"%s\" as being_saved", tag_file_name.c_str());
 	tag_lock.unlock();
@@ -138,7 +140,7 @@ void H2SapienPatches::StartTagSync()
 
 void H2SapienPatches::ProcessTagsToReload()
 {
-	std::unique_lock<std::mutex> tag_lock(tag_lock);
+	std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
 
 	while (tags_to_reload.size() > 0)
 	{
@@ -152,9 +154,8 @@ void H2SapienPatches::ProcessTagsToReload()
 			{
 			case 'sbsp':
 			case 'ltmp':
-				// Doesn't work yet.
-				//reload_structure_bsp();
-				//break;
+				reload_structure_bsp();
+				break;
 			default:
 				tags::reload_tag(tag_info.group, tag_info.tag_name);
 				break;

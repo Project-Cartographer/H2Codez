@@ -52,11 +52,9 @@ namespace SapienInterface
 	// only call on main thread
 	inline bool reload_structure_bsp()
 	{
-
 		// save old sbsp index
 		auto sbsp_index = get_sbsp_index();
-		bool success = LOG_CHECK(load_structure_bsp(NONE)); // unload bsp
-		success = LOG_CHECK(load_structure_bsp(sbsp_index)) && success; // reload bsp
-		return success;
+		*get_sbsp_index_pointer() = NONE;
+		return LOG_CHECK(load_structure_bsp(sbsp_index)); // reload bsp
 	}
 };

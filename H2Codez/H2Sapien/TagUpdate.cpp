@@ -141,6 +141,7 @@ void H2SapienPatches::StartTagSync()
 void H2SapienPatches::ProcessTagsToReload()
 {
 	std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
+	bool reload_sbsp = false;
 
 	while (tags_to_reload.size() > 0)
 	{
@@ -154,8 +155,8 @@ void H2SapienPatches::ProcessTagsToReload()
 			{
 			case 'sbsp':
 			case 'ltmp':
-				reload_structure_bsp();
-				break;
+			case 'scnr':
+				reload_sbsp = true;
 			default:
 				tags::reload_tag(tag_info.group, tag_info.tag_name);
 				break;
@@ -165,5 +166,10 @@ void H2SapienPatches::ProcessTagsToReload()
 			pLog.WriteLog("Ignoring change to tag: \"%s\" : type: \"%s\" because it's not loaded", tag_info.tag_name.c_str(), tag_ext);
 		}
 		tags_to_reload.pop();
+	}
+	if (reload_sbsp)
+	{
+		LOG_FUNC("Reloading sbsp");
+		reload_structure_bsp();
 	}
 }

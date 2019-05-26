@@ -30,6 +30,7 @@ hs_remote_generate_command hs_remote_generate_command_orginal;
 
 static std::unordered_map<DWORD, HMENU> menu_map
 {
+	{ 11,   INVALID_HMENU_VALUE },
 	{ 14,   INVALID_HMENU_VALUE },
 	{ 6014, INVALID_HMENU_VALUE },
 	{ 1000, INVALID_HMENU_VALUE },

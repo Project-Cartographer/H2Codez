@@ -22,6 +22,9 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	CAST_PTR(s_tool_command*, 0x97B4C8), // structure plane debug generate
 	CAST_PTR(s_tool_command*, 0x97B4DC), // structure plane debug
 	CAST_PTR(s_tool_command*, 0x97B580), // bitmaps debug
+	&import_model_animations,
+	&import_sound,
+	&copy_pathfinding,
 #endif
 	CAST_PTR(s_tool_command*, 0x97B56C), // bitmaps with type
 	//
@@ -29,14 +32,11 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&import_model_collision,
 	&import_model_physics,
 	&import_model,
-	&import_model_animations,
 	import_class_monitor_structures,
 	import_class_monitor_bitmaps,
-	&import_sound,
 	&tool_build_structure_from_jms,
 	&h2dev_extra_commands_defination,
 	&list_extra_commands,
-	&copy_pathfinding,
 	&pathfinding_from_coll,
 	&lightmaps_slave,
 	&lightmaps_master,

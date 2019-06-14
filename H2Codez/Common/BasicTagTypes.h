@@ -111,9 +111,21 @@ struct byte_ref
 	int size;
 	int stream_flags;
 	int stream_offset;
-	void *address;
+	union {
+		void *address;
+		int data;
+	};
 	int definition;
+
+	void *operator[](size_t index)
+	{
+		if (this->data == NONE || size < (int)index)
+			return nullptr;
+		char *data = reinterpret_cast<char*>(this->address);
+		return &data[index];
+	}
 };
+CHECK_STRUCT_SIZE(byte_ref, 20);
 
 // special empty struct for empty tag blocks
 struct g_null_block

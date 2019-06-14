@@ -337,9 +337,18 @@ static void __stdcall main_loop__sync_major_change()
 static void ASM_FUNC main_loop__sync_major_change_hook()
 {
 	__asm {
-		SAVE_REGISTERS
+		
+		/* save registers */
+		push eax
+		push ecx
+		push edx
+
 		call main_loop__sync_major_change
-		RESTORE_REGISTERS
+
+		/* Restore registers */
+		pop edx
+		pop ecx
+		pop eax
 
 		// replaced code
 		cmp esi, ebp

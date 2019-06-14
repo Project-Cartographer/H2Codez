@@ -3,11 +3,11 @@
 #include <assert.h> 
 
 
-// Constant '\0' terminated ascii string
+// Constant '\0' terminated ASCII string
 typedef const char* cstring;
-// '\0\0' terminated unicode string
+// '\0\0' terminated Unicode string
 typedef wchar_t* wstring;
-// Constant '\0\0' terminated unicode string
+// Constant '\0\0' terminated Unicode string
 typedef const wchar_t* wcstring;
 typedef void(_cdecl* _tool_command_proc)(const wchar_t *argv[]);
 typedef void(_cdecl* _tool_import__defination_proc)(void* FILE_REFERENCE, void* ref_ptr);
@@ -29,15 +29,6 @@ typedef char long_string[255 + 1];
 #define CHECK_STRUCT_SIZE(struct_name, size)\
 	static_assert(sizeof(struct_name) == size, #struct_name " size is invalid" )
 #define ASM_FUNC __declspec(naked)
-#define SAVE_REGISTERS \
-	push eax; \
-	push ecx; \
-	push edx;
-
-#define RESTORE_REGISTERS \
-	pop edx; \
-	pop ecx; \
-	pop eax;
 
 bool constexpr is_debug_build()
 {

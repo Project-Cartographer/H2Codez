@@ -153,6 +153,7 @@
     <ClInclude Include="Common\BasicTagTypes.h" />
     <ClInclude Include="HaloScript\hs_syntax_node.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
+    <ClInclude Include="Tags\Bitmap.h" />
     <ClInclude Include="Tags\Globals.h" />
     <ClInclude Include="Tags\HudGlobals.h" />
     <ClInclude Include="Tags\MultiplayerGlobals.h" />

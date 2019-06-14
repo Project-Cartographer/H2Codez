@@ -266,6 +266,9 @@
     <ClInclude Include="Common\MemoryAllocator.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\Bitmap.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -20,7 +20,7 @@ static LoadMenuTypedef LoadMenuOrginal;
 typedef void(__fastcall *CCmdUI__Enable)(void *thisptr, BYTE _, int a2);
 CCmdUI__Enable CCmdUI__Enable_Orginal;
 
-typedef int (__fastcall *CCmdTarget__OnCmdMsg)(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO);
+typedef int (__fastcall *CCmdTarget__OnCmdMsg)(void *thisptr, BYTE _, unsigned int nID, int nCode, void *pExtra, void *AFX_CMDHANDLERINFO);
 CCmdTarget__OnCmdMsg CCmdTarget__OnCmdMsg_Orginal;
 
 typedef char *(__cdecl *hs_remote_generate_command)(char *command_name, void **args, signed int arg_count, char *output, rsize_t output_size);
@@ -56,15 +56,15 @@ void update_ui()
 }
 
 /* Capture menu input */
-int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg, void *a3, void *a4, void *AFX_CMDHANDLERINFO)
+int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int nID, int nCode, void *pExtra, void *AFX_CMDHANDLERINFO)
 {
 	auto toggle_boolean = [](std::string setting, bool default_value = false)
 	{
 		conf.setBoolean(setting, !conf.getBoolean(setting, default_value));
 	};
 
-	if (!AFX_CMDHANDLERINFO && !a3 && !a4) {
-		switch (msg) {
+	if (!AFX_CMDHANDLERINFO && !nCode && !pExtra) {
+		switch (nID) {
 		case ID_EDIT_ADVANCEDSHADERVIEW:
 			toggle_boolean("disable_templete_view", false);
 			update_ui();
@@ -89,7 +89,7 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int msg
 			return true;
 		}
 	}
-	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, msg, a3, a4, AFX_CMDHANDLERINFO);
+	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, nID, nCode, pExtra, AFX_CMDHANDLERINFO);
 }
 
 /* Enable custom items */

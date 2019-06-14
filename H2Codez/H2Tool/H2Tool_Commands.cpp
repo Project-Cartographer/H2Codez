@@ -1,6 +1,7 @@
 #include "ToolCommandDefinitions.inl"
 #include "H2Tool_extra_commands.inl"
 #include "Tags\ScenarioTag.h"
+#include "Tags\Bitmap.h"
 #include "Common\H2EKCommon.h"
 #include "util\Patches.h"
 #include "util\string_util.h"
@@ -384,7 +385,7 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 	//single_player_shared sharing
 	
 	//.text:005883DE                 call    BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED ; STR: "tag sharing: loading tag names from shared.map", "tag sharing: 
-	PatchCall(BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather orignal
+	PatchCall(BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather original
 
 	H2PCTool.WriteLog("Single Player tag_sharing enabled");
 }
@@ -495,13 +496,41 @@ static void __stdcall report_bitmap_error(datum tag)
 	std::cout << "Bitmap error in tag \"" << name << "\"" << std::endl;
 }
 
+static bool fixed_bitmap_tag = false;
+static void __stdcall bitmap_fix_pointers(datum bitmap, bitmap_block *bitmap_group, bitmap_data_block *bitmap_data_block)
+{
+	static bool enable_bitmap_fixup = conf.getBoolean("fixup_extracted_bitmaps", false);
+
+	fixed_bitmap_tag = false;
+	//  extracted tags currently don't have this data setup correctly, resulting in crashes when packaging
+	if (enable_bitmap_fixup && !bitmap_data_block->bitmap_data)
+	{
+		fixed_bitmap_tag = true;
+		bitmap_data_block->bitmap_data = bitmap_group->processedPixelData[bitmap_data_block->pixelsOffset];
+		bitmap_data_block->owner_tag = bitmap;
+	}
+}
+
+static void report_fix_up()
+{
+	if (fixed_bitmap_tag)
+		std::cout << "Bitmap partially fixed up" << std::endl;
+}
+
 constexpr static size_t add_bitmap_data = 0x720D40;
 static void ASM_FUNC add_bitmap_data_pixels_hook()
 {
 	__asm
 	{
+		// pass args
+		push	esi // bitmap data block (sub-part being processed right now)
+		push	ebp // bitmap group (main part of the tag)
+		push	DWORD ptr[esp + 0x38] // tag index
+		call	bitmap_fix_pointers
+
+
 		// overwritten code
-		call add_bitmap_data
+		call	add_bitmap_data
 		add     esp, 0x14
 
 		// test if packaging has failed
@@ -509,14 +538,15 @@ static void ASM_FUNC add_bitmap_data_pixels_hook()
 		jz      REPORT_ERROR
 		cmp     byte ptr[esp + 19], 0
 		jz      REPORT_ERROR
-
-		JMP END
+		
+		call	report_fix_up
+		JMP		END
 
 	REPORT_ERROR:
-		mov eax, [esp + 28] // datum of tag being processed
-		push eax
-		call report_bitmap_error
-		mov eax, 0 // needs to be zero for the code to abort
+		mov		eax, [esp + 28] // datum of tag being processed
+		push	eax
+		call	report_bitmap_error
+		mov		eax, 0 // needs to be zero for the code to abort
 
 	END:
 		// prologue
@@ -562,7 +592,7 @@ void H2ToolPatches::fix_bitmap_package()
 
 void H2ToolPatches::Initialize()
 {
-	H2PCTool.WriteLog("Dll Successfully Injected to H2Tool");
+	H2PCTool.WriteLog("DLL Successfully Injected to H2Tool");
 	wcout << "H2Toolz version: " << version << std::endl
 		 << "Built on " __DATE__ " at " __TIME__ << std::endl;
 

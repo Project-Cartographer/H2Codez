@@ -74,6 +74,7 @@ std::string HaloScriptCommon::get_value_as_string(const void *data, hs_type type
 	}
 }
 
+// starts with Unit separator to avoid it showing up on auto-complete
 constexpr static hs_global_variable fake_var{ "\x1fpad", hs_type::nothing,  nullptr };
 
 /*

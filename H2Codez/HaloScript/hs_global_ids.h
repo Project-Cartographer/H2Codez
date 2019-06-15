@@ -742,6 +742,34 @@ namespace HaloScriptCommon
 		// start of unknown region
 		end_api_extension,
 
+		ai_num1 = 795,
+		ai_num2 = 796,
+
+		// possibly related to ai_movement_mode and ai_combat_status 
+		num_a_0 = 803,
+		num_a_1 = 804,
+		num_a_2 = 805,
+		num_a_3 = 806,
+		num_a_4 = 807,
+		num_a_5 = 808,
+		num_a_6 = 809,
+		num_a_7 = 810,
+		num_a_8 = 811,
+		num_a_9 = 812,
+
+		num_b_0 = 813,
+		num_b_1 = 814,
+		num_b_2 = 815,
+		num_b_3 = 816,
+		num_b_4 = 817,
+		num_b_5 = 818,
+		num_b_6 = 819,
+
+		unk_bool = 983,
+		unk_bool_hud = 1010,
+		unk_bool_2 = 1038,
+
+
 		enum_count = 1042,
 		invalid = 0xFFFFFFFF
 	};

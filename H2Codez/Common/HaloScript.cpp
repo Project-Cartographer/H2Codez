@@ -130,6 +130,9 @@ void init_custom_variables()
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 }
 
+static short numbers_a[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+static short numbers_b[] = { 0, 1, 2, 3, 4, 5, 6 };
+
 void H2CommonPatches::haloscript_init()
 {
 	// init tables
@@ -139,6 +142,33 @@ void H2CommonPatches::haloscript_init()
 
 	static constexpr hs_global_variable radar_global{ "some_radar_thing", hs_type::boolean };
 	g_halo_script_interface->set_global(hs_global_id::some_radar_thing, &radar_global);
+
+	static constexpr hs_global_variable ai_global{ "ai_number_1", hs_type::ai };
+	g_halo_script_interface->set_global(hs_global_id::ai_num1, &ai_global);
+	static constexpr hs_global_variable ai2_global{ "ai_number_2", hs_type::ai };
+	g_halo_script_interface->set_global(hs_global_id::ai_num2, &ai2_global);
+
+	// this is ugly but it will have to do
+	for (size_t i = 0; i < ARRAYSIZE(numbers_a); i++)
+	{
+		std::string *name = new std::string("numa_" + std::to_string(i));
+		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &numbers_a[i]);
+		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::num_a_0) + i] = var;
+	}
+	
+	for (size_t i = 0; i < ARRAYSIZE(numbers_b); i++)
+	{
+		std::string *name = new std::string("numb_" + std::to_string(i));
+		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &numbers_a[i]);
+		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::num_b_0) + i] = var;
+	}
+
+	static constexpr hs_global_variable unk_bool{ "unk_bool", hs_type::boolean };
+	g_halo_script_interface->set_global(hs_global_id::unk_bool, &unk_bool);
+	static constexpr hs_global_variable unk_bool2{ "unk_bool_2", hs_type::boolean };
+	g_halo_script_interface->set_global(hs_global_id::unk_bool_2, &unk_bool2);
+	static constexpr hs_global_variable unk_bool_hud{ "unk_bool_hud", hs_type::boolean };
+	g_halo_script_interface->set_global(hs_global_id::unk_bool_hud, &unk_bool_hud);
 
 	// unknown extra commands in the game binary
 #pragma region unknown nops

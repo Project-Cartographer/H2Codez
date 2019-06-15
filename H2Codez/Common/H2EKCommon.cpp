@@ -5,6 +5,7 @@
 #include "DiscordInterface.h"
 #include "TagInterface.h"
 #include "util/Debug.h"
+#include "util/array.h"
 #include "HaloScript.h"
 #include <cwchar>
 #include <cassert>
@@ -106,6 +107,44 @@ std::string get_hs_command_description(const hs_command *cmd)
 	return usage;
 }
 
+std::string get_hs_global_description(WORD id)
+{
+	static constexpr WORD globals_in_game[] = {
+		17,  314, 315,
+		321, 322, 331,
+		338, 341, 342,
+		343, 344, 345,
+		346, 347, 348,
+		349, 350, 351,
+		352, 353, 354,
+		355, 356, 357,
+		442, 550, 628,
+		629, 795, 796,
+		803, 804, 805,
+		806, 807, 808,
+		809, 810, 811,
+		812, 813, 814,
+		815, 816, 817,
+		818, 819, 983,
+		1010,    1038
+	};
+
+	auto *current_var = g_halo_script_interface->global_table[id];
+	std::string desc = "(";
+	desc += current_var->name;
+	desc += " <" + hs_type_string[current_var->type] + ">";
+	desc += ")";
+
+	bool is_usable_in_game = array_util::contains(globals_in_game, id);
+	bool is_usable_in_toolkit = current_var->variable_ptr != nullptr;
+
+	if (!is_usable_in_game && !is_usable_in_toolkit)
+		desc += " [non-functional]";
+	if (is_usable_in_game)
+		desc += " [game]";
+	return desc;
+}
+
 std::string H2CommonPatches::get_temp_name(const std::string &name_suffix)
 {
 	std::string name = std::tmpnam(nullptr);
@@ -132,12 +171,14 @@ void H2CommonPatches::generate_script_doc(const char *filename)
 		}
 
 		fprintf(FilePtr, "== Script Globals ==\r\n\r\n");
-		for (const hs_global_variable *current_var : g_halo_script_interface->global_table)
+		for (WORD i = 0; i < g_halo_script_interface->get_global_table_count(); i++)
 		{
-			if (current_var->type == hs_type::nothing) // used for padding, don't actual do anything
+			// used for padding, don't actual do anything
+			if (g_halo_script_interface->global_table[i]->type == hs_type::nothing)
 				continue;
-			fprintf(FilePtr, "(%s <%s>)\r\n", current_var->name, hs_type_string[current_var->type].c_str());
+			fprintf(FilePtr, "%s\r\n", get_hs_global_description(i).c_str());
 		}
+
 		fclose(FilePtr);
 	}
 	ShellExecuteA(NULL, NULL, file_name.c_str(), NULL, NULL, SW_SHOW);

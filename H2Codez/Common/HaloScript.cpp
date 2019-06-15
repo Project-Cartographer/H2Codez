@@ -140,8 +140,8 @@ void H2CommonPatches::haloscript_init()
 	hs_global_variable **global_table = reinterpret_cast<hs_global_variable **>(SwitchByMode(0x009EFF78, 0x9ECE28, 0x95EF08));
 	g_halo_script_interface->init_custom(command_table, global_table);
 
-	static constexpr hs_global_variable radar_global{ "some_radar_thing", hs_type::boolean };
-	g_halo_script_interface->set_global(hs_global_id::some_radar_thing, &radar_global);
+	static constexpr hs_global_variable debug_disable_radar_fade{ "debug_disable_radar_fade", hs_type::boolean };
+	g_halo_script_interface->set_global(hs_global_id::debug_disable_radar_fade, &debug_disable_radar_fade);
 
 	static constexpr hs_global_variable ai_current_squad{ "ai_current_squad", hs_type::ai };
 	g_halo_script_interface->set_global(hs_global_id::ai_current_squad, &ai_current_squad);

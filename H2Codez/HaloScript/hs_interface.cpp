@@ -107,7 +107,7 @@ void HaloScriptInterface::init_custom(hs_command **old_command_table, hs_global_
 			global_table[new_table_offset++] = &fake_var;
 			continue;
 		}
-		if (new_table_offset == static_cast<int>(hs_global_id::some_radar_thing))
+		if (new_table_offset == static_cast<int>(hs_global_id::debug_disable_radar_fade))
 			new_table_offset++;
 		global_table[new_table_offset++] = old_global_table[old_table_offset++];
 	}

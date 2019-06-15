@@ -561,7 +561,7 @@ namespace HaloScriptCommon
 		debug_point_physics,
 
 		// game global missing from h2ek
-		some_radar_thing,
+		debug_disable_radar_fade,
 
 		collision_debug,
 		collision_debug_spray,

@@ -1,5 +1,6 @@
 #include "hs_interface.h"
 #include "../h2codez.h"
+#include "util/array.h"
 
 HaloScriptInterface script_interface;
 HaloScriptInterface *g_halo_script_interface = &script_interface;
@@ -73,24 +74,41 @@ std::string HaloScriptCommon::get_value_as_string(const void *data, hs_type type
 	}
 }
 
+constexpr static hs_global_variable fake_var{ "pad", hs_type::nothing,  nullptr };
 
+/*
+	op_codes and global_ids are different in h2ek and the game, h2codez fixes that.
+	This function needs to translate the ids used in the built-in table to the ones that h2codez and game use.
+*/
+
+hs_global_id fake_ids[] = {
+		hs_global_id::fake_310, hs_global_id::fake_311, hs_global_id::fake_312, hs_global_id::fake_313,
+		hs_global_id::fake_598, hs_global_id::fake_599, hs_global_id::fake_600, hs_global_id::fake_601, hs_global_id::fake_602, hs_global_id::fake_603, hs_global_id::fake_604, hs_global_id::fake_605, hs_global_id::fake_606
+};
 void HaloScriptInterface::init_custom(hs_command **old_command_table, hs_global_variable **old_global_table)
 {
 
-	int old_table_offset = 0;
-	int new_table_offset = 0;
+	size_t old_table_offset = 0;
+	size_t new_table_offset = 0;
 	while (new_table_offset <= static_cast<int>(hs_opcode::disable_render_light_suppressor)) {
 		if (old_table_offset == 905) // extra command in old table (clan_data_cache_flush)
 			old_table_offset++;
 		if (new_table_offset == static_cast<int>(hs_opcode::hs_unk_1))
 			new_table_offset += 4;
-		command_table[new_table_offset] = old_command_table[old_table_offset];
-		old_table_offset++;
-		new_table_offset++;
+		command_table[new_table_offset++] = old_command_table[old_table_offset++];
 	}
 
-	for (unsigned int i = 0; i <= static_cast<int>(hs_global_id::force_crash_uploads); i++) {
-		global_table[i] = old_global_table[i];
+	old_table_offset = 0;
+	new_table_offset = 0;
+	while (new_table_offset <= static_cast<int>(hs_global_id::force_crash_uploads)) {
+		if (array_util::contains(fake_ids, static_cast<hs_global_id>(new_table_offset)))
+		{
+			global_table[new_table_offset++] = &fake_var;
+			continue;
+		}
+		if (new_table_offset == static_cast<int>(hs_global_id::some_radar_thing))
+			new_table_offset++;
+		global_table[new_table_offset++] = old_global_table[old_table_offset++];
 	}
 }
 

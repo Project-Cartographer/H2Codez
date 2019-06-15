@@ -328,9 +328,23 @@ void H2CommonPatches::Init()
 
 	DetourTransactionCommit();
 
+	// misc dev stuff
 	if (is_debug_build())
 	{
 		if (!crc32_unit_test())
 			pLog.WriteLog("CRC unit tests failed");
+
+		FILE *FilePtr;
+		std::string file_name = get_temp_name("hs_dump.txt");
+
+		if (!fopen_s(&FilePtr, file_name.c_str(), "w"))
+		{
+			for (size_t i = 0; i < g_halo_script_interface->get_global_table_count(); i++)
+			{
+				const hs_global_variable *current_var = g_halo_script_interface->global_table[i];
+				fprintf(FilePtr, "[%d : %d] %s\r\n", i, current_var->type, current_var->name);
+			}
+			fclose(FilePtr);
+		}
 	}
 }

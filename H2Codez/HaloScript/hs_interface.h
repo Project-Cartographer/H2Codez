@@ -104,6 +104,26 @@ public:
 		return nullptr;
 	}
 
+	inline const hs_command *get_command(hs_type id)
+	{
+		return command_table[static_cast<int>(id)];
+	}
+
+	inline void set_command(hs_type id, const hs_command *cmd)
+	{
+		command_table[static_cast<int>(id)] = cmd;
+	}
+
+	inline const hs_global_variable *get_global(hs_global_id id)
+	{
+		return global_table[static_cast<int>(id)];
+	}
+
+	inline void set_global(hs_global_id id, const hs_global_variable *global)
+	{
+		global_table[static_cast<int>(id)] = global;
+	}
+
 	const hs_command *command_table[static_cast<int>(hs_opcode::enum_count)];
 
 	const hs_global_variable *global_table[static_cast<int>(hs_global_id::enum_count)];

@@ -313,6 +313,16 @@ namespace HaloScriptCommon
 		cheat_omnipotent,
 		cheat_controller,
 		cheat_chevy,
+
+		/* 
+			Added so that global IDs match up between tool and game
+			Missing globals aren't actually located here, but it doesn't matter since only no-ops are mismatched now
+		*/
+		fake_310,
+		fake_311,
+		fake_312,
+		fake_313,
+
 		debug_simulate_gamepad,
 		effects_corpse_nonviolent,
 		debug_effects_nonviolent,
@@ -549,6 +559,10 @@ namespace HaloScriptCommon
 		debug_scripting,
 		debug_trigger_volumes,
 		debug_point_physics,
+
+		// game global missing from h2ek
+		some_radar_thing,
+
 		collision_debug,
 		collision_debug_spray,
 		collision_debug_features,
@@ -596,6 +610,18 @@ namespace HaloScriptCommon
 		collision_debug_ignore_object_index,
 		enable_pathfinding_generation_xbox,
 		debug_camera,
+
+
+		fake_598,
+		fake_599,
+		fake_600,
+		fake_601,
+		fake_602,
+		fake_603,
+		fake_604,
+		fake_605,
+		fake_606,
+
 		debug_tangent_space,
 		debug_player,
 		debug_structure,

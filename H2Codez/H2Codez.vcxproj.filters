@@ -242,9 +242,6 @@
     <ClInclude Include="util\numerical.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
-    <ClInclude Include="H2Tool\LightMapping.h">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClInclude>
     <ClInclude Include="H2Sapien\SapienInterface.h">
       <Filter>Source Files\Interfaces\H2Sapien</Filter>
     </ClInclude>
@@ -268,6 +265,12 @@
     </ClInclude>
     <ClInclude Include="Tags\Bitmap.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Tool\LightMapping.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\array.h">
+      <Filter>Source Files\util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

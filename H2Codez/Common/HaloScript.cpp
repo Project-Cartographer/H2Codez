@@ -145,8 +145,8 @@ void H2CommonPatches::haloscript_init()
 
 	static constexpr hs_global_variable ai_global{ "ai_number_1", hs_type::ai };
 	g_halo_script_interface->set_global(hs_global_id::ai_num1, &ai_global);
-	static constexpr hs_global_variable ai2_global{ "ai_number_2", hs_type::ai };
-	g_halo_script_interface->set_global(hs_global_id::ai_num2, &ai2_global);
+	static constexpr hs_global_variable ai_current_actor{ "ai_current_actor", hs_type::ai };
+	g_halo_script_interface->set_global(hs_global_id::ai_current_actor, &ai_current_actor);
 
 	// this is ugly but it will have to do
 	for (size_t i = 0; i < ARRAYSIZE(numbers_a); i++)

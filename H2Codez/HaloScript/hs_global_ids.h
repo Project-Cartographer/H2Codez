@@ -743,7 +743,7 @@ namespace HaloScriptCommon
 		end_api_extension,
 
 		ai_num1 = 795,
-		ai_num2 = 796,
+		ai_current_actor = 796,
 
 		// possibly related to ai_movement_mode and ai_combat_status 
 		num_a_0 = 803,

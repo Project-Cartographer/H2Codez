@@ -739,7 +739,10 @@ namespace HaloScriptCommon
 		// extension vars
 		api_extension_version,
 
-		enum_count,
+		// start of unknown region
+		end_api_extension,
+
+		enum_count = 1042,
 		invalid = 0xFFFFFFFF
 	};
 }

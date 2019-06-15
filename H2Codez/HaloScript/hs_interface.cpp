@@ -74,7 +74,7 @@ std::string HaloScriptCommon::get_value_as_string(const void *data, hs_type type
 	}
 }
 
-constexpr static hs_global_variable fake_var{ "pad", hs_type::nothing,  nullptr };
+constexpr static hs_global_variable fake_var{ "\x1fpad", hs_type::nothing,  nullptr };
 
 /*
 	op_codes and global_ids are different in h2ek and the game, h2codez fixes that.
@@ -109,6 +109,12 @@ void HaloScriptInterface::init_custom(hs_command **old_command_table, hs_global_
 		if (new_table_offset == static_cast<int>(hs_global_id::some_radar_thing))
 			new_table_offset++;
 		global_table[new_table_offset++] = old_global_table[old_table_offset++];
+	}
+
+	//  init the rest of the table
+	for (size_t i = static_cast<size_t>(hs_global_id::end_api_extension); i < static_cast<size_t>(hs_global_id::enum_count); i++)
+	{
+		global_table[i] = &fake_var;
 	}
 }
 

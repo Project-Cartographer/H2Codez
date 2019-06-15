@@ -143,8 +143,8 @@ void H2CommonPatches::haloscript_init()
 	static constexpr hs_global_variable radar_global{ "some_radar_thing", hs_type::boolean };
 	g_halo_script_interface->set_global(hs_global_id::some_radar_thing, &radar_global);
 
-	static constexpr hs_global_variable ai_global{ "ai_number_1", hs_type::ai };
-	g_halo_script_interface->set_global(hs_global_id::ai_num1, &ai_global);
+	static constexpr hs_global_variable ai_current_squad{ "ai_current_squad", hs_type::ai };
+	g_halo_script_interface->set_global(hs_global_id::ai_current_squad, &ai_current_squad);
 	static constexpr hs_global_variable ai_current_actor{ "ai_current_actor", hs_type::ai };
 	g_halo_script_interface->set_global(hs_global_id::ai_current_actor, &ai_current_actor);
 

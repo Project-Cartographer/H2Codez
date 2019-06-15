@@ -742,7 +742,8 @@ namespace HaloScriptCommon
 		// start of unknown region
 		end_api_extension,
 
-		ai_num1 = 795,
+		// used in command scripts
+		ai_current_squad = 795,
 		ai_current_actor = 796,
 
 		// possibly related to ai_movement_mode and ai_combat_status 

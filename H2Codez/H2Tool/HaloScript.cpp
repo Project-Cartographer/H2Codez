@@ -233,8 +233,14 @@ static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 		}
 	}
 	else {
-		hs_converter_error(script_node, "Invalid format.");
-		return false;
+		size_t point_set_index = scripting_data->pointSets.find_string_element(offsetof(cs_point_set_block, name), input_string);
+		if (point_set_index != NONE) {
+			script_node->value = (0xFFFF << 16 | point_set_index);
+			return true;
+		} else {
+			hs_converter_error(script_node, "No such point set.");
+			return false;
+		}
 	}
 }
 

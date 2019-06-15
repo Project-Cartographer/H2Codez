@@ -1,5 +1,7 @@
 #include "HaloScript.h"
 #include "HaloScript/hs_interface.h"
+#include "HaloScript/ai_movement_types.h"
+#include "HaloScript/ai_combat_status.h"
 #include "util/Patches.h"
 #include "H2EKCommon.h"
 
@@ -130,8 +132,8 @@ void init_custom_variables()
 	g_halo_script_interface->RegisterGlobal(hs_global_id::api_extension_version, &api_extension_version);
 }
 
-static short numbers_a[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-static short numbers_b[] = { 0, 1, 2, 3, 4, 5, 6 };
+static short ai_combat_status_values[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+static short ai_movement_type_values[] = { 0, 1, 2, 3, 4, 5, 6 };
 
 void H2CommonPatches::haloscript_init()
 {
@@ -149,18 +151,18 @@ void H2CommonPatches::haloscript_init()
 	g_halo_script_interface->set_global(hs_global_id::ai_current_actor, &ai_current_actor);
 
 	// this is ugly but it will have to do
-	for (size_t i = 0; i < ARRAYSIZE(numbers_a); i++)
+	for (size_t i = 0; i < ARRAYSIZE(ai_combat_status_values); i++)
 	{
-		std::string *name = new std::string("numa_" + std::to_string(i));
-		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &numbers_a[i]);
-		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::num_a_0) + i] = var;
+		std::string *name = new std::string("ai_combat_status_" + ai_combat_statuses_names[i]);
+		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &ai_combat_status_values[i]);
+		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::ai_combat_status_certain) + i] = var;
 	}
 	
-	for (size_t i = 0; i < ARRAYSIZE(numbers_b); i++)
+	for (size_t i = 0; i < ARRAYSIZE(ai_movement_type_values); i++)
 	{
-		std::string *name = new std::string("numb_" + std::to_string(i));
-		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &numbers_a[i]);
-		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::num_b_0) + i] = var;
+		std::string *name = new std::string("ai_movement_" + ai_movment_types_names[i]);
+		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &ai_movement_type_values[i]);
+		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::ai_movement_patrol) + i] = var;
 	}
 
 	static constexpr hs_global_variable unk_bool{ "unk_bool", hs_type::boolean };

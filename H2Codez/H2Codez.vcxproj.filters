@@ -272,6 +272,12 @@
     <ClInclude Include="H2Tool\LightMapping.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
+    <ClInclude Include="HaloScript\ai_movement_types.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
+    <ClInclude Include="HaloScript\ai_combat_status.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -23,8 +23,12 @@ void status_dump()
 		};
 
 		output << "=== Built in Globals ===\n" << std::endl;
-		for (auto  *current_var : g_halo_script_interface->global_table)
+		for (auto *current_var : g_halo_script_interface->global_table)
+		{
+			if (current_var->type == hs_type::nothing) // used for padding, don't actual do anything
+				continue;
 			output_variable(current_var->name, current_var->type, current_var->variable_ptr);
+		}
 
 		output << "\n=== Script Globals ===\n" << std::endl;
 

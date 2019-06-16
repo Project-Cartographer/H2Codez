@@ -278,6 +278,9 @@
     <ClInclude Include="HaloScript\ai_combat_status.h">
       <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClInclude>
+    <ClInclude Include="HaloScript\hs_global_descriptions.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

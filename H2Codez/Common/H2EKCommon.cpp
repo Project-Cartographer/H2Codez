@@ -7,6 +7,7 @@
 #include "util/Debug.h"
 #include "util/array.h"
 #include "HaloScript.h"
+#include "HaloScript/hs_global_descriptions.h"
 #include <cwchar>
 #include <cassert>
 #include <Shellapi.h>
@@ -142,6 +143,10 @@ std::string get_hs_global_description(WORD id)
 		desc += " [non-functional]";
 	if (is_usable_in_game)
 		desc += " [game]";
+	if (hs_descriptions.count(static_cast<hs_global_id>(id))) {
+		desc += "\n\t";
+		desc += hs_descriptions[static_cast<hs_global_id>(id)];
+	}
 	return desc;
 }
 

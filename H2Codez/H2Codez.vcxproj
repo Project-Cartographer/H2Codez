@@ -153,6 +153,7 @@
     <ClInclude Include="HaloScript\ai_movement_types.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
+    <ClInclude Include="HaloScript\hs_global_descriptions.h" />
     <ClInclude Include="HaloScript\hs_syntax_node.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
     <ClInclude Include="Tags\Bitmap.h" />

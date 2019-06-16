@@ -760,8 +760,8 @@ namespace HaloScriptCommon
 
 		ai_movement_patrol = 813,
 		ai_movement_sleep = 814,
-		ai_movment_combat = 815,
-		ai_movment_flee = 816,
+		ai_movement_combat = 815,
+		ai_movement_flee = 816,
 		ai_movement_panic = 817,
 		ai_movement_t_pose = 818,
 		ai_movement_flee_b = 819,

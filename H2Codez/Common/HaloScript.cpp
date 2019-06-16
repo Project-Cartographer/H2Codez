@@ -105,7 +105,7 @@ void init_custom_commands()
 		hs_type::boolean,
 		"<string:setting> <string:value>"
 	);
-	// already a nop in both game and sapien so safe to reuse.
+	// already a nop in both game and Sapien so safe to reuse.
 	g_halo_script_interface->RegisterCustomCommand(hs_opcode::test_network_storage_simulate, set_temp);
 
 	const hs_custom_command script_doc_cmd(
@@ -160,7 +160,7 @@ void H2CommonPatches::haloscript_init()
 	
 	for (size_t i = 0; i < ARRAYSIZE(ai_movement_type_values); i++)
 	{
-		std::string *name = new std::string("ai_movement_" + ai_movment_types_names[i]);
+		std::string *name = new std::string("ai_movement_" + ai_movement_types_names[i]);
 		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &ai_movement_type_values[i]);
 		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::ai_movement_patrol) + i] = var;
 	}

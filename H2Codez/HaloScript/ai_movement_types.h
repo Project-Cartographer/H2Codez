@@ -11,7 +11,7 @@ enum ai_movment_types
 	flee_b
 };
 
-const static std::string ai_movment_types_names[] = {
+const static std::string ai_movement_types_names[] = {
 	"patrol",
 	"sleep",
 	"combat",

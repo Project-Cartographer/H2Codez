@@ -25,7 +25,6 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	CAST_PTR(s_tool_command*, 0x97B580), // bitmaps debug
 	&import_model_animations,
 	&import_sound,
-	&copy_pathfinding,
 #endif
 	CAST_PTR(s_tool_command*, 0x97B56C), // bitmaps with type
 	//

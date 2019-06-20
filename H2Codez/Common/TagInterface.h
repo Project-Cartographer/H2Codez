@@ -78,8 +78,8 @@ namespace tags
 	/* Is the tag file read-only */
 	bool is_read_only(datum tag);
 
-	void set_reference(tag_ref *reference, int group_tag, cstring name);
-	void copy_reference(tag_ref *src, tag_ref *dest);
+	void set_reference(tag_reference *reference, int group_tag, cstring name);
+	void copy_reference(tag_reference *src, tag_reference *dest);
 
 	/* Return the data for a tag */
 	template<typename T = void>

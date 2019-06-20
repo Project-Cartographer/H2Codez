@@ -55,16 +55,16 @@ namespace tags
 		return get_tag_instances()->datum_get<s_tag_instance>(tag.index)->read_only;
 	}
 
-	void set_reference(tag_ref *reference, int group_tag, cstring name)
+	void set_reference(tag_reference *reference, int group_tag, cstring name)
 	{
-		typedef void __cdecl tag_set_reference(tag_ref *reference, int group_tag, cstring name);
+		typedef void __cdecl tag_set_reference(tag_reference *reference, int group_tag, cstring name);
 		auto tag_set_reference_impl = reinterpret_cast<tag_set_reference*>(OS_switch_by_addr(0x482C40, 0x52D290, 0x4AEC60));
 		tag_set_reference_impl(reference, group_tag, name);
 	}
 
-	void copy_reference(tag_ref *src, tag_ref *dest)
+	void copy_reference(tag_reference *src, tag_reference *dest)
 	{
-		typedef void __cdecl copy_reference(tag_ref *src, tag_ref *dest);
+		typedef void __cdecl copy_reference(tag_reference *src, tag_reference *dest);
 		auto copy_reference_impl = reinterpret_cast<copy_reference*>(OS_switch_by_addr(0x482C80, 0x52D2D0, 0x4AECA0));
 		copy_reference_impl(src, dest);
 	}

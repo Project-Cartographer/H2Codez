@@ -60,7 +60,7 @@ struct global_shader_parameter_block
 	Type type;
 	BYTE padding131[2];
 	// TagReference("bitm")
-	tag_ref bitmap;
+	tag_reference bitmap;
 	float constValue;
 	colour_rgb constColor;
 	tag_block<shader_animation_property_block> animationProperties;
@@ -71,23 +71,23 @@ CHECK_STRUCT_SIZE(global_shader_parameter_block, 52);
 struct shader_block
 {
 	// TagReference("stem")
-	tag_ref _template;
+	tag_reference _template;
 	string_id materialName;
 	struct shader_properties_block
 	{
 		// TagReference("bitm")
-		tag_ref diffuseMap;
+		tag_reference diffuseMap;
 		// TagReference("bitm")
-		tag_ref lightmapEmissiveMap;
+		tag_reference lightmapEmissiveMap;
 		colour_rgb lightmapEmissiveColor;
 		float lightmapEmissivePower;
 		float lightmapResolutionScale;
 		float lightmapHalfLife;
 		float lightmapDiffuseScale;
 		// TagReference("bitm")
-		tag_ref alphaTestMap;
+		tag_reference alphaTestMap;
 		// TagReference("bitm")
-		tag_ref translucentMap;
+		tag_reference translucentMap;
 		colour_rgb lightmapTransparentColor;
 		float lightmapTransparentAlpha;
 		float lightmapFoliageScale;
@@ -132,7 +132,7 @@ struct shader_block
 	tag_block<predicted_resource_block> predictedResources;
 
 	// TagReference("slit")
-	tag_ref lightResponse;
+	tag_reference lightResponse;
 
 	enum ShaderLODBias : short
 	{

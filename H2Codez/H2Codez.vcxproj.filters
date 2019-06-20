@@ -281,6 +281,12 @@
     <ClInclude Include="HaloScript\hs_global_descriptions.h">
       <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\ScenarioStructureLightmap.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\GlobalGeometry.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

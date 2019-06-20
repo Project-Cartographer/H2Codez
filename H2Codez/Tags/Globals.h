@@ -4,44 +4,44 @@
 
 struct interface_tag_references
 {
-	// tag_ref("bitm")
-	tag_ref obsolete1;
-	// tag_ref("bitm")
-	tag_ref obsolete2;
-	// tag_ref("colo")
-	tag_ref screenColorTable;
-	// tag_ref("colo")
-	tag_ref hudColorTable;
-	// tag_ref("colo")
-	tag_ref editorColorTable;
-	// tag_ref("colo")
-	tag_ref dialogColorTable;
-	// tag_ref("hudg")
-	tag_ref hudGlobals;
-	// tag_ref("bitm")
-	tag_ref motionSensorSweepBitmap;
-	// tag_ref("bitm")
-	tag_ref motionSensorSweepBitmapMask;
-	// tag_ref("bitm")
-	tag_ref multiplayerHudBitmap;
-	// tag_ref("")
-	tag_ref noNameField0;
-	// tag_ref("hud#")
-	tag_ref hudDigitsDefinition;
-	// tag_ref("bitm")
-	tag_ref motionSensorBlipBitmap;
-	// tag_ref("bitm")
-	tag_ref interfaceGooMap1;
-	// tag_ref("bitm")
-	tag_ref interfaceGooMap2;
-	// tag_ref("bitm")
-	tag_ref interfaceGooMap3;
-	// tag_ref("wgtz")
-	tag_ref mainmenuUiGlobals;
-	// tag_ref("wgtz")
-	tag_ref singleplayerUiGlobals;
-	// tag_ref("wgtz")
-	tag_ref multiplayerUiGlobals;
+	// tag_reference("bitm")
+	tag_reference obsolete1;
+	// tag_reference("bitm")
+	tag_reference obsolete2;
+	// tag_reference("colo")
+	tag_reference screenColorTable;
+	// tag_reference("colo")
+	tag_reference hudColorTable;
+	// tag_reference("colo")
+	tag_reference editorColorTable;
+	// tag_reference("colo")
+	tag_reference dialogColorTable;
+	// tag_reference("hudg")
+	tag_reference hudGlobals;
+	// tag_reference("bitm")
+	tag_reference motionSensorSweepBitmap;
+	// tag_reference("bitm")
+	tag_reference motionSensorSweepBitmapMask;
+	// tag_reference("bitm")
+	tag_reference multiplayerHudBitmap;
+	// tag_reference("")
+	tag_reference noNameField0;
+	// tag_reference("hud#")
+	tag_reference hudDigitsDefinition;
+	// tag_reference("bitm")
+	tag_reference motionSensorBlipBitmap;
+	// tag_reference("bitm")
+	tag_reference interfaceGooMap1;
+	// tag_reference("bitm")
+	tag_reference interfaceGooMap2;
+	// tag_reference("bitm")
+	tag_reference interfaceGooMap3;
+	// tag_reference("wgtz")
+	tag_reference mainmenuUiGlobals;
+	// tag_reference("wgtz")
+	tag_reference singleplayerUiGlobals;
+	// tag_reference("wgtz")
+	tag_reference multiplayerUiGlobals;
 };
 CHECK_STRUCT_SIZE(interface_tag_references, 304);
 
@@ -60,8 +60,8 @@ struct ai_globals_block
 	float dangerBodyDamage;
 	float dangerExtendedBodyDamage;
 	BYTE padding14[48];
-	// tag_ref("adlg")
-	tag_ref globalDialogueTag;
+	// tag_reference("adlg")
+	tag_reference globalDialogueTag;
 	string_id defaultMissionDialogueSoundEffect;
 	BYTE padding15[20];
 	float jumpDownWutick;
@@ -165,15 +165,15 @@ struct globals_block
 
 	tag_block_ref profileColors;
 
-	// tag_ref("mulg")
-	tag_ref multiplayerGlobals;
+	// tag_reference("mulg")
+	tag_reference multiplayerGlobals;
 	tag_block_ref runtimeLevelData;
 
 	tag_block_ref uiLevelData;
 
 	// Explaination("Default global lighting", "")
-	// tag_ref("gldf")
-	tag_ref defaultGlobalLighting;
+	// tag_reference("gldf")
+	tag_reference defaultGlobalLighting;
 	BYTE padding7[252];
 };
 CHECK_STRUCT_SIZE(globals_block, 760);

@@ -4,14 +4,14 @@
 #include "BlamBaseTypes.h"
 #include <functional>
 
-struct tag_ref
+struct tag_reference
 {
 	int tag_type;
-	void *tag_pointer;
+	const char *tag_name;
 	int field_8;
 	datum tag_index;
 };
-CHECK_STRUCT_SIZE(tag_ref, 16);
+CHECK_STRUCT_SIZE(tag_reference, 16);
 
 
 template<typename T>
@@ -42,7 +42,7 @@ struct tag_block
 
 		if (index == NONE || reinterpret_cast<size_t>(this->data) == NONE)
 			return nullptr;
-		if (index >= this->size)
+		if (LOG_CHECK(index >= this->size))
 			return nullptr;
 		if (LOG_CHECK(this->data))
 			return &this->data[index];

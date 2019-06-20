@@ -7,9 +7,9 @@ struct scenario_structure_bsp_reference_block
 {
 	BYTE padding26[16];
 	// TagReference("sbsp")
-	tag_ref structureBSP;
+	tag_reference structureBSP;
 	// TagReference("ltmp")
-	tag_ref structureLightmap;
+	tag_reference structureLightmap;
 	BYTE padding27[4];
 	float uNUSEDRadianceEstSearchDistance;
 	BYTE padding28[4];
@@ -549,7 +549,7 @@ CHECK_STRUCT_SIZE(hs_globals_block, 0x28);
 
 struct scnr_tag
 {
-	tag_ref unused_sbsp;
+	tag_reference unused_sbsp;
 	tag_block_ref skies;
 	enum Type : short
 	{
@@ -622,9 +622,9 @@ struct scnr_tag
 	tag_block_ref cutsceneFlags;
 	tag_block_ref cutsceneCameraPoints;
 	tag_block_ref cutsceneTitles;
-	tag_ref customObjectNames;
-	tag_ref chapterTitleText;
-	tag_ref hUDMessages;
+	tag_reference customObjectNames;
+	tag_reference chapterTitleText;
+	tag_reference hUDMessages;
 	tag_block<scenario_structure_bsp_reference_block> structureBSPs;
 	tag_block_ref scenarioResources;
 	tag_block_ref scenarioResources_unused;
@@ -644,14 +644,14 @@ struct scnr_tag
 	tag_block_ref scenarioClusterData;
 	int s_objectsalts[32];
 	tag_block_ref spawnData;
-	tag_ref soundEffectCollection;
+	tag_reference soundEffectCollection;
 	tag_block_ref crates;
 	tag_block_ref cratesPalette;
-	tag_ref globalLighting;
+	tag_reference globalLighting;
 	tag_block_ref atmosphericFogPalette;
 	tag_block_ref planarFogPalette;
 	tag_block_ref flocks;
-	tag_ref subtitles;
+	tag_reference subtitles;
 	tag_block_ref decorators;
 	tag_block_ref creatures;
 	tag_block_ref creaturesPalette;
@@ -660,10 +660,10 @@ struct scnr_tag
 	tag_block_ref structureBSPLighting;
 	tag_block_ref EditorFolders;
 	tag_block_ref levelData;
-	tag_ref territoryLocationNames;
+	tag_reference territoryLocationNames;
 	char padding[8];
 	tag_block_ref missionDialogue;
-	tag_ref objectives;
+	tag_reference objectives;
 	tag_block_ref interpolators;
 	tag_block_ref sharedReferences;
 	tag_block_ref screenEffectReferences;

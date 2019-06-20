@@ -4,47 +4,47 @@
 
 struct global_new_hud_globals_constants_struct_block
 {
-	// tag_ref("")
-	tag_ref primaryMessageSound;
-	// tag_ref("")
-	tag_ref secondaryMessageSound;
+	// tag_reference("")
+	tag_reference primaryMessageSound;
+	// tag_reference("")
+	tag_reference secondaryMessageSound;
 	string_id bootGrieferString;
 	string_id cannotBootGrieferString;
-	// tag_ref("shad")
-	tag_ref trainingShader;
-	// tag_ref("bitm")
-	tag_ref humanTrainingTopRight;
-	// tag_ref("bitm")
-	tag_ref humanTrainingTopCenter;
-	// tag_ref("bitm")
-	tag_ref humanTrainingTopLeft;
-	// tag_ref("bitm")
-	tag_ref humanTrainingMiddle;
-	// tag_ref("bitm")
-	tag_ref eliteTrainingTopRight;
-	// tag_ref("bitm")
-	tag_ref eliteTrainingTopCenter;
-	// tag_ref("bitm")
-	tag_ref eliteTrainingTopLeft;
-	// tag_ref("bitm")
-	tag_ref eliteTrainingMiddle;
+	// tag_reference("shad")
+	tag_reference trainingShader;
+	// tag_reference("bitm")
+	tag_reference humanTrainingTopRight;
+	// tag_reference("bitm")
+	tag_reference humanTrainingTopCenter;
+	// tag_reference("bitm")
+	tag_reference humanTrainingTopLeft;
+	// tag_reference("bitm")
+	tag_reference humanTrainingMiddle;
+	// tag_reference("bitm")
+	tag_reference eliteTrainingTopRight;
+	// tag_reference("bitm")
+	tag_reference eliteTrainingTopCenter;
+	// tag_reference("bitm")
+	tag_reference eliteTrainingTopLeft;
+	// tag_reference("bitm")
+	tag_reference eliteTrainingMiddle;
 };
 CHECK_STRUCT_SIZE(global_new_hud_globals_constants_struct_block, 184);
 
 struct global_new_hud_globals_struct_block
 {
-	// tag_ref("unic")
-	tag_ref hudText;
+	// tag_reference("unic")
+	tag_reference hudText;
 	tag_block_ref dashlights;
 
 	tag_block_ref waypointArrows;
 
 	struct hud_waypoint_block
 	{
-		// tag_ref("bitm")
-		tag_ref bitmap;
-		// tag_ref("shad")
-		tag_ref shader;
+		// tag_reference("bitm")
+		tag_reference bitmap;
+		// tag_reference("shad")
+		tag_reference shader;
 		short onscreenSequenceIndex;
 		short occludedSequenceIndex;
 		short offscreenSequenceIndex;
@@ -90,21 +90,21 @@ struct hud_globals_block
 	ScalingFlags scalingFlags;
 	BYTE padding172[2];
 	BYTE padding173[20];
-	// tag_ref("bitm")
-	tag_ref obsolete1;
-	// tag_ref("bitm")
-	tag_ref obsolete2;
+	// tag_reference("bitm")
+	tag_reference obsolete1;
+	// tag_reference("bitm")
+	tag_reference obsolete2;
 	float upTime;
 	float fadeTime;
 	colour_rgba iconColor;
 	colour_rgba textColor;
 	float textSpacing;
-	// tag_ref("unic")
-	tag_ref itemMessageText;
-	// tag_ref("bitm")
-	tag_ref iconBitmap;
-	// tag_ref("unic")
-	tag_ref alternateIconText;
+	// tag_reference("unic")
+	tag_reference itemMessageText;
+	// tag_reference("bitm")
+	tag_reference iconBitmap;
+	// tag_reference("unic")
+	tag_reference alternateIconText;
 	tag_block<hud_button_icon_block> buttonIcons;
 
 	// Explaination("HUD HELP TEXT COLOR", "")
@@ -125,8 +125,8 @@ struct hud_globals_block
 	colour_argb disabledColor;
 	BYTE padding174[4];
 	// Explaination("Other hud messaging data", "")
-	// tag_ref("hmt ")
-	tag_ref hudMessages;
+	// tag_reference("hmt ")
+	tag_reference hudMessages;
 	// Explaination("Objective colors", "")
 	colour_argb defaultColor;
 	colour_argb flashingColor;
@@ -151,8 +151,8 @@ struct hud_globals_block
 	float leftOffset;
 	float rightOffset;
 	BYTE padding175[32];
-	// tag_ref("bitm")
-	tag_ref arrowBitmap;
+	// tag_reference("bitm")
+	tag_reference arrowBitmap;
 	tag_block_ref waypointArrows;
 
 	BYTE padding176[80];
@@ -173,8 +173,8 @@ struct hud_globals_block
 	short leftOffset;
 	short rightOffset;
 	BYTE padding180[32];
-	// tag_ref("bitm")
-	tag_ref indicatorBitmap;
+	// tag_reference("bitm")
+	tag_reference indicatorBitmap;
 	short sequenceIndex;
 	short multiplayerSequenceIndex;
 	colour_argb color;
@@ -215,15 +215,15 @@ struct hud_globals_block
 	colour_argb disabledColor;
 	BYTE padding183[4];
 	BYTE padding184[40];
-	// tag_ref("bitm")
-	tag_ref carnageReportBitmap;
+	// tag_reference("bitm")
+	tag_reference carnageReportBitmap;
 	// Explaination("Hud crap that wouldn't fit anywhere else", "")
 	short loadingBeginText;
 	short loadingEndText;
 	short checkpointBeginText;
 	short checkpointEndText;
-	// tag_ref("snd!")
-	tag_ref checkpointSound;
+	// tag_reference("snd!")
+	tag_reference checkpointSound;
 	BYTE padding185[96];
 	global_new_hud_globals_struct_block newGlobals;
 

@@ -1,6 +1,7 @@
 #pragma once
 #pragma pack(1)
 #include "Common/BasicTagTypes.h"
+#include "GlobalGeometry.h"
 
 struct global_collision_bsp_block
 {
@@ -156,6 +157,63 @@ struct global_structure_physics_struct_block
 };
 CHECK_STRUCT_SIZE(global_structure_physics_struct_block, 80);
 
+struct structure_bsp_cluster_block
+{
+    global_geometry_section_info_struct_block sectionInfo;
+    
+    global_geometry_block_info_struct_block geometryBlockInfo;
+    
+    tag_block<global_geometry_section_struct_block> clusterData;
+    
+    // Explaination("CLUSTER INFO", "EMPTY STRING")
+    real_vector2d boundsX;
+	real_vector2d boundsY;
+	real_vector2d boundsZ;
+    BYTE scenarioSkyIndex;
+    BYTE mediaIndex;
+    BYTE scenarioVisibleSkyIndex;
+    BYTE scenarioAtmosphericFogIndex;
+    BYTE planarFogDesignator;
+    BYTE visibleFogPlaneIndex;
+    // BlockIndex1("structure_bsp_background_sound_palette_block")
+    short backgroundSound;
+    // BlockIndex1("structure_bsp_sound_environment_palette_block")
+    short soundEnvironment;
+    // BlockIndex1("structure_bsp_weather_palette_block")
+    short weather;
+    short transitionStructureBSP;
+    BYTE padding63[2];
+    BYTE padding64[4];
+    
+    enum Flags : short
+    {
+        OneWayPortal = 0x1,
+        DoorPortal = 0x2,
+        PostprocessedGeometry = 0x4,
+        IsTheSky = 0x8,
+    };
+    Flags flags;
+    BYTE padding65[2];
+    tag_block<> predictedResources;
+    
+    tag_block<> portals;
+    
+    int checksumFromStructure;
+    tag_block<> instancedGeometryIndices;
+    
+    tag_block<> indexReorderTable;
+    
+    /****************************************
+    * definition_name: cluster_mopp_code_data
+    * flags: 0
+    * alignment_bit: 16
+    * byteswap_proc: 0x00531b20
+    ****************************************/
+    // DataSize(1048576)
+    byte_ref collisionMoppCode;
+};
+CHECK_STRUCT_SIZE(structure_bsp_cluster_block, 216);
+
 struct scenario_structure_bsp_block
 {
 	struct global_tag_import_info_block
@@ -199,12 +257,12 @@ struct scenario_structure_bsp_block
 	struct structure_collision_materials_block
 	{
 		// TagReference("shad")
-		tag_ref oldShader;
+		tag_reference oldShader;
 		BYTE padding231[2];
 		// BlockIndex1("structure_bsp_conveyor_surface_block")
 		short conveyorSurfaceIndex;
 		// TagReference("shad")
-		tag_ref newShader;
+		tag_reference newShader;
 	};
 	CHECK_STRUCT_SIZE(structure_collision_materials_block, 36);
 
@@ -263,7 +321,7 @@ struct scenario_structure_bsp_block
 
 	tag_block_ref detailObjects;
 
-	tag_block_ref clusters;
+	tag_block<structure_bsp_cluster_block> clusters;
 
 	tag_block_ref materials;
 
@@ -512,7 +570,54 @@ struct scenario_structure_bsp_block
 
 	tag_block_ref precomputedLighting;
 
-	tag_block_ref instancedGeometriesDefinitions;
+	struct structure_bsp_instanced_geometry_definition_block
+	{
+		struct structure_instanced_geometry_render_info_struct_block
+		{
+			global_geometry_section_info_struct_block sectionInfo;
+
+			global_geometry_block_info_struct_block geometryBlockInfo;
+
+			tag_block<global_geometry_section_struct_block> renderData;
+
+			tag_block<> indexReorderTable;
+
+		};
+		structure_instanced_geometry_render_info_struct_block renderInfo;
+
+		int checksum;
+		real_point3d boundingSphereCenter;
+		float boundingSphereRadius;
+		struct global_collision_bsp_struct_block
+		{
+			tag_block<> bSP3DNodes;
+
+			tag_block<> planes;
+
+			tag_block<> leaves;
+
+			tag_block<> bSP2DReferences;
+
+			tag_block<> bSP2DNodes;
+
+			tag_block<> surfaces;
+
+			tag_block<> edges;
+
+			tag_block<> vertices;
+
+		};
+		global_collision_bsp_struct_block collisionInfo;
+
+		tag_block<> bspphysics;
+
+		tag_block<structure_bsp_leaf_block> renderLeaves;
+
+		tag_block<structure_bsp_surface_reference_block> surfaceReferences;
+
+	};
+	CHECK_STRUCT_SIZE(structure_bsp_instanced_geometry_definition_block, 260);
+	tag_block<structure_bsp_instanced_geometry_definition_block> instancedGeometriesDefinitions;
 
 	tag_block_ref instancedGeometryInstances;
 
@@ -530,7 +635,7 @@ struct scenario_structure_bsp_block
 	tag_block_ref debugInfo;
 
 	// TagReference("DECP")
-	tag_ref decorators_tag;
+	tag_reference decorators_tag;
 	global_structure_physics_struct_block structurephysics;
 
 	tag_block_ref waterDefinitions;

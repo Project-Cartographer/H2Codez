@@ -5,9 +5,9 @@
 struct multiplayer_universal_block
 {
 	// TagReference("unic")
-	tag_ref randomPlayerNames;
+	tag_reference randomPlayerNames;
 	// TagReference("unic")
-	tag_ref teamNames;
+	tag_reference teamNames;
 
 	struct multiplayer_color_block
 	{
@@ -17,7 +17,7 @@ struct multiplayer_universal_block
 	tag_block<multiplayer_color_block> teamColors;
 
 	// TagReference("unic")
-	tag_ref multiplayerText;
+	tag_reference multiplayerText;
 };
 CHECK_STRUCT_SIZE(multiplayer_universal_block, 60);
 

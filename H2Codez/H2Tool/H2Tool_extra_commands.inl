@@ -8,6 +8,8 @@
 #include "Common/Pathfinding.h"
 #include "util/string_util.h"
 #include "Tags/ScenarioStructureBSP.h"
+#include "Tags/ScenarioStructureLightmap.h"
+#include "Tags/ScenarioTag.h"
 #include "util/Patches.h"
 #include <iostream>
 #include <codecvt>
@@ -590,5 +592,74 @@ static const s_tool_command lightmaps_local_mp
 	generate_lightmaps_local_multi_process,
 	lightmap_master_args,
 	ARRAYSIZE(lightmap_master_args),
+	true
+};
+
+void _cdecl fix_extracted_lightmaps(const wchar_t *argv[])
+{
+	std::string scnr_path = filesystem_path_to_tag_path(argv[0]);
+	printf_s("scnr :'%s'\n", scnr_path.c_str());
+
+	datum scenario = tags::load_tag('scnr', scnr_path.c_str(), 7);
+
+	if (!scenario.is_valid())
+	{
+		printf("Unable to load tag %s\n", scnr_path.c_str());
+		return;
+	}
+
+	auto scenario_data = tags::get_tag<scnr_tag>('scnr', scenario);
+	for (const auto &bsp_ref : scenario_data->structureBSPs)
+	{
+		printf(" == bsp: %s ==\n", bsp_ref.structureBSP.tag_name);
+		datum bsp_tag = tags::load_tag('sbsp', bsp_ref.structureBSP.tag_name, 7);
+		datum lightmap_tag = tags::load_tag('ltmp', bsp_ref.structureLightmap.tag_name, 7);
+
+		auto bsp = tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp_tag);
+		auto lightmap = tags::get_tag<scenario_structure_lightmap_block>('ltmp', lightmap_tag);
+
+		if (LOG_CHECK(lightmap->lightmapGroups.size > 0))
+		{
+			auto *lightmap_group = lightmap->lightmapGroups[0];
+			printf("Copying cluster data...");
+			for (size_t i = 0; i < lightmap_group->clusters.size; i++)
+			{
+				auto *lightmap_cluster = lightmap_group->clusters[i];
+				auto *bsp_cluster = bsp->clusters[i];
+				tags::block_delete_all(&lightmap_cluster->cacheData);
+				tags::copy_block(&bsp_cluster->clusterData, &lightmap_cluster->cacheData);
+			}
+			printf("done\n");
+
+			printf("Copying instance geo data...");
+			for (size_t i = 0; i < lightmap_group->poopDefinitions.size; i++)
+			{
+				auto *instance_geo_lightmap = lightmap_group->poopDefinitions[i];
+				auto *bsp_instance_geo = bsp->instancedGeometriesDefinitions[i];
+				tags::block_delete_all(&instance_geo_lightmap->cacheData);
+				tags::copy_block(&bsp_instance_geo->renderInfo.renderData, &instance_geo_lightmap->cacheData);
+			}
+			printf("done\n");
+			
+		}
+		tags::save_tag(lightmap_tag);
+		tags::unload_tag(bsp_tag);
+		tags::unload_tag(lightmap_tag);
+	}
+
+	printf("=== Stage 1 complete ===\n");
+}
+
+const s_tool_command_argument lightmaps_fix_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"scenario", "*.scenario" }
+};
+
+static const s_tool_command fix_extraced_lightmap
+{
+	L"fix extracted lightmaps",
+	fix_extracted_lightmaps,
+	lightmaps_fix_args,
+	ARRAYSIZE(lightmaps_fix_args),
 	true
 };

@@ -157,10 +157,12 @@
     <ClInclude Include="HaloScript\hs_syntax_node.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
     <ClInclude Include="Tags\Bitmap.h" />
+    <ClInclude Include="Tags\GlobalGeometry.h" />
     <ClInclude Include="Tags\Globals.h" />
     <ClInclude Include="Tags\HudGlobals.h" />
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
+    <ClInclude Include="Tags\ScenarioStructureLightmap.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
     <ClInclude Include="util\array.h" />
     <ClInclude Include="util\ClipboardAPI.h" />

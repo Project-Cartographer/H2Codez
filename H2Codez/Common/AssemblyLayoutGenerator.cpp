@@ -17,7 +17,7 @@ std::map<int, tag_def*> tag_definition_mapping;
 int field_sizes[tag_field::count];
 bool fields_without_zero_size[tag_field::count];
 
-size_t get_static_element_size(tag_field::field_type type)
+static size_t get_static_element_size(tag_field::field_type type)
 {
 	switch (type)
 	{
@@ -415,13 +415,6 @@ void DumpPlugin(std::string folder, tag_def *def)
 
 	size_t block_size = DumpTag(plugin_tree, def);
 	plugin_tree.add("<xmlattr>.baseSize", numerical::to_string(block_size, radix::hexadecimal));
-
-	auto sanitize_filename = [](std::string name) -> std::string {
-		constexpr char chars_to_replace[] = { '*', '?', '/', '\\', ':', '"', '|', '>', '<' };
-		for (char replace : chars_to_replace)
-			std::replace(name.begin(), name.end(), replace, '_');
-		return name;
-	};
 
 	write_xml(
 		folder + str_trim(sanitize_filename(def->group_tag.as_string())) + ".xml",

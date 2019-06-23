@@ -6,14 +6,17 @@
 #include "Common/FiloInterface.h"
 #include "Common/TagInterface.h"
 #include "Common/Pathfinding.h"
+#include "Common/tag_group_names.h"
+#include "Common/TagDumper.h"
 #include "util/string_util.h"
 #include "Tags/ScenarioStructureBSP.h"
 #include "Tags/ScenarioStructureLightmap.h"
 #include "Tags/ScenarioTag.h"
 #include "util/Patches.h"
+#include "util/process.h"
 #include <iostream>
 #include <codecvt>
-
+#include <direct.h>
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -451,15 +454,27 @@ static const s_tool_command list_extra_commands = {
 	true
 };
 
-std::string filesystem_path_to_tag_path(const wchar_t *fs_path)
+std::string filesystem_path_to_tag_path(const wchar_t *fs_path, blam_tag *tag_type = nullptr)
 {
 	std::string narrow_fs_path = tolower(wstring_to_string.to_bytes(fs_path));
 	auto tags_offset = narrow_fs_path.find("tags\\");
-	if (tags_offset != std::string::npos && narrow_fs_path.size() > tags_offset + 5)
-	{
-		return narrow_fs_path.substr(tags_offset + 5);
+	std::string path;
+	if (tags_offset != std::string::npos && narrow_fs_path.size() > tags_offset + 5) {
+		path = narrow_fs_path.substr(tags_offset + 5);
 	} else {
-		return narrow_fs_path;
+		path = narrow_fs_path;
+	}
+
+	auto cut_point = path.find_last_of('.');
+	if (cut_point == std::string::npos || cut_point == path.size()) {
+		if (tag_type)
+			*tag_type = NONE;
+		return path;
+	} else {
+		std::string extension = path.substr(cut_point + 1);
+		if (tag_type)
+			*tag_type = H2CommonPatches::string_to_tag_group(extension);
+		return path.substr(0, cut_point);
 	}
 }
 
@@ -661,5 +676,35 @@ static const s_tool_command fix_extraced_lightmap
 	fix_extracted_lightmaps,
 	lightmaps_fix_args,
 	ARRAYSIZE(lightmaps_fix_args),
+	true
+};
+
+static void _cdecl dump_tag_as_xml_proc(const wchar_t *argv[])
+{
+	blam_tag tag_type;
+	std::string tag_path = filesystem_path_to_tag_path(argv[0], &tag_type);
+	printf("%s : %s", tag_path.c_str(), tag_type.as_string().c_str());
+	datum tag = tags::load_tag(tag_type, tag_path, 7);
+
+	std::string dump_file_name = process::GetExeDirectoryNarrow() + "\\xml_tags\\" + tag_path;
+	std::string dump_file_path = dump_file_name.substr(0, dump_file_name.find_last_of("\\"));
+
+	int error_code = SHCreateDirectoryExA(NULL, dump_file_path.c_str(), NULL);
+	ASSERT_CHECK(error_code == ERROR_SUCCESS || error_code == ERROR_ALREADY_EXISTS || error_code == ERROR_FILE_EXISTS);
+
+	TagDumper::dump_as_xml(tag, dump_file_name);
+}
+
+const s_tool_command_argument dump_as_xml_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"tag" }
+};
+
+static const s_tool_command dump_as_xml
+{
+	L"dump as xml",
+	dump_tag_as_xml_proc,
+	dump_as_xml_args,
+	ARRAYSIZE(dump_as_xml_args),
 	true
 };

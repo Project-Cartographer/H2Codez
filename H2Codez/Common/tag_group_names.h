@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-namespace HaloScriptCommon
+namespace H2CommonPatches
 {
 	static const std::unordered_map <int, std::string> tag_group_names
 	{
@@ -127,7 +127,7 @@ namespace HaloScriptCommon
 		{ 'wphi', "weapon_hud_interface" },
 	};
 
-	const int string_to_tag_group(const std::string &contents)
+	inline const int string_to_tag_group(const std::string &contents)
 	{
 		auto i = std::find_if(tag_group_names.begin(), tag_group_names.end(),
 			[contents](std::pair<const int, const std::string> i) -> bool

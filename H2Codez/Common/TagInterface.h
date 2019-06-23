@@ -83,13 +83,13 @@ namespace tags
 
 	/* Return the data for a tag */
 	template<typename T = void>
-	inline T *get_tag(int tag_group, datum index)
+	inline T *get_tag(blam_tag tag_group, datum index)
 	{
 		return reinterpret_cast<T*>(get_tag<void>(tag_group, index));
 	}
 
 	template<>
-	void *get_tag<void>(int tag_group, datum index);
+	void *get_tag<void>(blam_tag tag_group, datum index);
 
 	/* Unload a tag */
 	void unload_tag(datum index);
@@ -101,7 +101,7 @@ namespace tags
 	datum new_tag(int group, const std::string name);
 
 	/* Loads a tag from file system */
-	datum load_tag(int group, const std::string name, int flags);
+	datum load_tag(blam_tag group, const std::string name, int flags);
 
 	/* Reloads tag data from file system if possible */
 	size_t reload_tag(blam_tag group, const std::string name);

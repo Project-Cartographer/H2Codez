@@ -287,6 +287,9 @@
     <ClInclude Include="Tags\GlobalGeometry.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="Common\TagDumper.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -402,6 +405,9 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\SapienInterface.cpp">
       <Filter>Source Files\Interfaces\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TagDumper.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

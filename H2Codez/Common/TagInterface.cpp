@@ -69,11 +69,11 @@ namespace tags
 		copy_reference_impl(src, dest);
 	}
 
-	template<> void *get_tag<void>(int tag_group, datum index)
+	template<> void *get_tag<void>(blam_tag tag_group, datum index)
 	{
 		typedef void* __cdecl TAG_GET(datum tag_group, datum tag_datum);
 		auto TAG_GET_IMPL = reinterpret_cast<TAG_GET*>(OS_switch_by_addr(0x484A00, 0x52F150, 0x4B0B20));
-		return TAG_GET_IMPL(tag_group, index);
+		return TAG_GET_IMPL(tag_group.as_int(), index);
 	}
 
 	bool block_delete_all(tag_block_ref *block)
@@ -122,11 +122,11 @@ namespace tags
 		auto TAG_UNLOAD_IMPL = reinterpret_cast<TAG_SAVE*>(OS_switch_by_addr(0x4883A0, 0x532F40, 0x4B47C0));
 		return TAG_UNLOAD_IMPL(index.index);
 	}
-	datum load_tag(int group, const std::string name, int flags)
+	datum load_tag(blam_tag group, const std::string name, int flags)
 	{
 		typedef int __cdecl TAG_LOAD(int tag_group, const char *tag_name, int flags);
 		auto TAG_LOAD_IMPL = reinterpret_cast<TAG_LOAD*>(OS_switch_by_addr(0x488D90, 0x533930, 0x4B51B0));
-		return TAG_LOAD_IMPL(group, name.c_str(), flags);
+		return TAG_LOAD_IMPL(group.as_int(), name.c_str(), flags);
 	}
 
 	unsigned int add_block_element(tag_block_ref *block)

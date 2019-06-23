@@ -138,6 +138,7 @@
     <ClInclude Include="Common\Pathfinding.h" />
     <ClInclude Include="Common\PathfindingConfig.h" />
     <ClInclude Include="Common\TagDefinitions.h" />
+    <ClInclude Include="Common\TagDumper.h" />
     <ClInclude Include="Common\TagInterface.h" />
     <ClInclude Include="Common\tag_group_names.h" />
     <ClInclude Include="H2Guerilla\template_defintions.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="Common\HaloScript.cpp" />
     <ClCompile Include="Common\Pathfinding.cpp" />
     <ClCompile Include="Common\TagDefinitions.cpp" />
+    <ClCompile Include="Common\TagDumper.cpp" />
     <ClCompile Include="Common\TagInterface.cpp" />
     <ClCompile Include="H2Sapien\Console.cpp" />
     <ClCompile Include="H2Sapien\HaloScript.cpp" />

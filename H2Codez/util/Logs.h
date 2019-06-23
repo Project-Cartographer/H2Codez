@@ -42,13 +42,17 @@ inline void log_verify_output(const char *expression, const char *func_name, con
 }
 
 template <typename T>
-FORCEINLINE T verify_output(T output, const char *expression, const char *func_name, const char* file, const int line)
+FORCEINLINE T verify_output(T output, const char *expression, const char *func_name, const char* file, const int line, bool fatal)
 {
 	if (!output) {
 		log_verify_output(expression, func_name, file, line);
+		if (fatal)
+			exit(-1);
 	}
 	return output;
 }
 #define LOG_CHECK(expression) \
-	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__)
+	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__, false)
 #define LOG_FUNC(msg, ...)  pLog.WriteLog(__FUNCTION__  "(): " ## msg, __VA_ARGS__)
+#define ASSERT_CHECK(expression) \
+	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__, true)

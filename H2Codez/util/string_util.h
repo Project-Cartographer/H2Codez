@@ -34,6 +34,14 @@ inline std::string &str_trim(std::string &str, const std::string &trim_char = " 
 	return str;
 }
 
+inline std::string sanitize_filename(std::string name) {
+	constexpr char chars_to_replace[] = { '*', '?', '/', '\\', ':', '"', '|', '>', '<' };
+	for (char replace : chars_to_replace)
+		std::replace(name.begin(), name.end(), replace, '_');
+	return name;
+};
+
+
 inline bool string_to_colour_rgb(std::string str, colour_rgb &colour_out)
 {
 	str_trim(str, "# ");

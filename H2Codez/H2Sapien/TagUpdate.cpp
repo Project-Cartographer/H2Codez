@@ -23,6 +23,7 @@ const static int millseconds_in_second = 1000;
 const static float update_frequency = 1;
 const static float max_valid_time = update_frequency * 5;
 using namespace SapienInterface;
+using namespace H2CommonPatches;
 
 std::map<std::string, time_t> tags_being_saved;
 std::queue<tag_info> tags_to_reload;

@@ -361,12 +361,29 @@ struct real_plane3d
 };
 CHECK_STRUCT_SIZE(real_plane3d, sizeof(real_vector3d) + 4);
 
+struct real_quaternion
+{
+	real_vector3d vector;
+	float w;
+};
+
 struct real_bounds
 {
 	float lower;
 	float upper;
 };
 
+struct short_bounds
+{
+	short lower;
+	short upper;
+};
+
+struct angle_bounds
+{
+	angle lower;
+	angle upper;
+};
 
 struct string_id
 {

@@ -34,6 +34,19 @@ inline std::string &str_trim(std::string &str, const std::string &trim_char = " 
 	return str;
 }
 
+template<typename T>
+inline std::string as_hex_string(const T *element_array, size_t element_count)
+{
+	const char *data = reinterpret_cast<const char*>(element_array);
+	std::stringstream ss;
+	ss << std::setfill('0') << std::hex;
+	for (size_t i = 0; i < element_count * sizeof(T); i++)
+	{
+		ss << std::setw(2) << static_cast<int>(data[i]);
+	}
+	return ss.str();
+}
+
 inline std::string sanitize_filename(std::string name) {
 	constexpr char chars_to_replace[] = { '*', '?', '/', '\\', ':', '"', '|', '>', '<' };
 	for (char replace : chars_to_replace)

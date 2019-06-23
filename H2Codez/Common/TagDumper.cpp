@@ -46,6 +46,7 @@ static size_t get_static_element_size(tag_field::field_type type)
 		case tag_field::long_string:
 			return 0x100 * sizeof(char);
 		case tag_field::string_id:
+		case tag_field::old_string_id:
 		case tag_field::long_integer:
 		case tag_field::long_enum:
 		case tag_field::long_flags:
@@ -86,23 +87,13 @@ static size_t get_static_element_size(tag_field::field_type type)
 			return sizeof(real_plane3d);
 		case tag_field::angle_bounds:
 			return sizeof(angle_bounds);
-
 		case tag_field::real_bounds:
 		case tag_field::real_fraction_bounds:
 			return sizeof(real_bounds);
-
 		case tag_field::short_bounds:
 			return sizeof(short_bounds);
 
-		case tag_field::explanation:
-		case tag_field::custom:
-		case tag_field::pad:
-		case tag_field::skip:
-		case tag_field::useless_pad:
-		case tag_field::array_start:
-			return 0;
 		default:
-			LOG_FUNC("%s", tag_field_type_names[type]);
 			return 0;
 	}
 }
@@ -157,22 +148,102 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 	}
 	else {
 		std::string value;
-		ptree &field_tree = tree.add("field", "");
-		field_tree.add("<xmlattr>.name", name);
-		field_tree.add("<xmlattr>.type", tag_field_type_names[fields->type]);
+		auto write_bounds = [&](const std::string &lower, const std::string upper)
+		{
+			value = "[" + lower + ":" + upper + "]";
+		};
 		switch (fields->type)
 		{
+			case tag_field::angle:
+			{
+				angle *angle_data = reinterpret_cast<angle*>(data);
+				value = std::to_string(angle_data->as_degree());
+				break;
+			}
+			case tag_field::angle_bounds:
+			{
+				angle_bounds *bounds = reinterpret_cast<angle_bounds*>(data);
+				write_bounds(std::to_string(bounds->lower.as_degree()), std::to_string(bounds->upper.as_degree()));
+				break;
+			}
+			case tag_field::real_bounds:
+			case tag_field::real_fraction_bounds:
+			{
+				real_bounds *bounds = reinterpret_cast<real_bounds*>(data);
+				write_bounds(std::to_string(bounds->lower), std::to_string(bounds->upper));
+				break;
+			}
+			case tag_field::short_bounds:
+			{
+				short_bounds *bounds = reinterpret_cast<short_bounds*>(data);
+				write_bounds(std::to_string(bounds->lower), std::to_string(bounds->upper));
+				break;
+			}
+			case tag_field::string_id:
+			case tag_field::old_string_id:
+			case tag_field::long_integer:
+			case tag_field::long_enum:
+			case tag_field::long_flags:
+			case tag_field::long_block_index1:
+			case tag_field::long_block_index2: // unused
+			case tag_field::long_block_flags: // unused
+			case tag_field::rgb_color:
+			case tag_field::argb_color:
+			{
+				int *int_data = reinterpret_cast<int*>(data);
+				value = std::to_string(*int_data);
+				break;
+			}
+			case tag_field::word_flags:
+			case tag_field::word_block_flags:
+			case tag_field::short_integer:
+			case tag_field::short_block_index1:
+			case tag_field::short_block_index2:
+			case tag_field::generic_enum:
+			{
+				WORD *int_data = reinterpret_cast<WORD*>(data);
+				value = std::to_string(*int_data);
+				break;
+			}
+
+			case tag_field::byte_block_flags:
+			case tag_field::byte_flags:
+			case tag_field::char_block_index1:
+			case tag_field::char_block_index2: // unused
+			case tag_field::char_integer:
+			case tag_field::char_enum:
+			{
+				BYTE *int_data = reinterpret_cast<BYTE*>(data);
+				value = std::to_string(*int_data);
+				break;
+			}
+			case tag_field::tag:
+			{
+				blam_tag *tag = reinterpret_cast<blam_tag*>(data);
+				value = tag->as_string();
+			}
+			case tag_field::real:
+			case tag_field::real_fraction:
+			{
+				float *float_data = reinterpret_cast<float*>(data);
+				value = std::to_string(*float_data);
+				break;
+			}
 			case tag_field::pad:
 			case tag_field::skip:
-			case tag_field::useless_pad:
 			{
 				size_change = reinterpret_cast<size_t>(fields->defintion);
+				value = as_hex_string(data, size_change);
 				break;
 			}
 			case tag_field::explanation:
 			case tag_field::custom:
+			case tag_field::useless_pad:
 				return 0;
 		}
+		ptree &field_tree = tree.add("field", value);
+		field_tree.add("<xmlattr>.name", name);
+		field_tree.add("<xmlattr>.type", tag_field_type_names[fields->type]);
 	}
 	return size_change;
 }
@@ -213,7 +284,7 @@ bool TagDumper::dump_as_xml(datum tag, const std::string &xml_dump_name)
 	ptree &tag_tree = tree.add("tag", "");
 	dump_tag_block(tags::get_root_block(tag), tag_tree);
 
-	printf("Saving to %s", xml_dump_name.c_str());
+	printf("Saving to %s\n", xml_dump_name.c_str());
 
 	write_xml(
 		xml_dump_name + ".xml",

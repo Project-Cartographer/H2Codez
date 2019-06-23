@@ -25,7 +25,6 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	CAST_PTR(s_tool_command*, 0x97B580), // bitmaps debug
 	&import_model_animations,
 	&import_sound,
-	&dump_as_xml,
 #endif
 	CAST_PTR(s_tool_command*, 0x97B56C), // bitmaps with type
 	//
@@ -43,7 +42,8 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&lightmaps_master,
 	&lightmaps_local_mp,
 	&lightmaps_slave_fork,
-	&fix_extraced_lightmap
+	&fix_extraced_lightmap,
+	&dump_as_xml,
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

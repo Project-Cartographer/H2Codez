@@ -8,15 +8,61 @@
 #include "Common/Pathfinding.h"
 #include "Common/tag_group_names.h"
 #include "Common/TagDumper.h"
+#include "Common/H2EKCommon.h"
 #include "util/string_util.h"
 #include "Tags/ScenarioStructureBSP.h"
 #include "Tags/ScenarioStructureLightmap.h"
 #include "Tags/ScenarioTag.h"
+#include "Tags/Bitmap.h"
 #include "util/Patches.h"
 #include "util/process.h"
 #include <iostream>
+#include <sstream>
 #include <codecvt>
+#include <unordered_set>
 #include <direct.h>
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
+/// taken from a stack overflow post :https://stackoverflow.com/questions/22590821/convert-stdduration-to-human-readable-time/46134506#46134506
+static std::string beautify_duration(std::chrono::seconds input_seconds)
+{
+	using namespace std::chrono;
+	typedef duration<int, std::ratio<86400>> days;
+	auto d = duration_cast<days>(input_seconds);
+	input_seconds -= d;
+	auto h = duration_cast<hours>(input_seconds);
+	input_seconds -= h;
+	auto m = duration_cast<minutes>(input_seconds);
+	input_seconds -= m;
+	auto s = duration_cast<seconds>(input_seconds);
+
+	auto dc = d.count();
+	auto hc = h.count();
+	auto mc = m.count();
+	auto sc = s.count();
+
+	std::stringstream ss;
+	ss.fill('0');
+	if (dc) {
+		ss << d.count() << "d";
+	}
+	if (dc || hc) {
+		if (dc) { ss << std::setw(2); } //pad if second set of numbers
+		ss << h.count() << "h";
+	}
+	if (dc || hc || mc) {
+		if (dc || hc) { ss << std::setw(2); }
+		ss << m.count() << "m";
+	}
+	if (dc || hc || mc || sc) {
+		if (dc || hc || mc) { ss << std::setw(2); }
+		ss << s.count() << 's';
+	}
+
+	return ss.str();
+}
+/// end stack overflow code
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -711,5 +757,82 @@ static const s_tool_command dump_as_xml
 	dump_tag_as_xml_proc,
 	dump_as_xml_args,
 	ARRAYSIZE(dump_as_xml_args),
+	true
+};
+
+static bool fixed_invalid;
+static void __cdecl fixed_invalid_fields_hook()
+{
+	fixed_invalid = true;
+}
+
+static void _cdecl fix_extracted_bitmaps(const wchar_t *argv[])
+{
+	PatchCall(0x0531EF2, fixed_invalid_fields_hook);
+	auto start_time = std::chrono::high_resolution_clock::now();
+	std::cout << "Scanning for bitmaps in tag folders" << std::endl;
+	std::unordered_set<std::string> bitmaps;
+
+	auto scan_tag_folder = [&](const std::string &path)
+	{
+		std::cout << path << std::endl;
+		for (auto& p : fs::recursive_directory_iterator(path + "\\tags\\"))
+		{
+			std::string ext = p.path().extension().string();
+			if (ext == ".bitmap")
+			{
+				std::string bitmap_path = p.path().parent_path().generic_string() + "\\" + p.path().stem().generic_string();
+				std::replace(bitmap_path.begin(), bitmap_path.end(), '/', '\\');
+				bitmaps.insert(bitmap_path);
+			}
+		}
+	};
+	scan_tag_folder(H2CommonPatches::get_h2ek_documents_dir());
+	scan_tag_folder(process::GetExeDirectoryNarrow());
+
+	std::cout << bitmaps.size() << " tag(s) found" << std::endl
+		<< "Please wait this may take a while" << std::endl;
+
+	std::vector<std::string> tags_fixed;
+	for (const std::string &bitmap_path : bitmaps)
+	{
+		fixed_invalid = false;
+		datum tag = tags::load_tag('bitm', bitmap_path, 7);
+		if (!tag.is_valid())
+			continue;
+		auto bitmap = tags::get_tag<bitmap_block>('bitm', tag);
+		if (bitmap->bitmaps.size < 1)
+		{
+			std::cout << "wtf: bitmap tag has no bitmaps in it!" << std::endl 
+				<< "tag path:" << bitmap_path;
+			continue;
+		}
+
+		if (fixed_invalid)
+		{
+			tags_fixed.push_back(bitmap_path);
+			tags::save_tag(tag);
+		}
+		tags::unload_tag(tag);
+	}
+	std::cout << tags_fixed.size() << " tags fixed" << std::endl;
+	
+	std::ofstream fixed_bitmaps("bitmaps_fixed.txt");
+	for (const std::string &tag : tags_fixed)
+		fixed_bitmaps << tag << std::endl;
+	std::cout << "File list saved to bitmaps_fixed.txt" << std::endl;
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+	std::string time_taken_human = beautify_duration(time_taken);
+	printf("== Time taken: %s ==", time_taken_human.c_str());
+}
+
+static const s_tool_command fix_extracted_bitmap_tags
+{
+	L"fix extracted bitmaps",
+	fix_extracted_bitmaps,
+	nullptr,
+	0,
 	true
 };

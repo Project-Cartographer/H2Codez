@@ -257,7 +257,7 @@ void __cdecl generate_lightmaps_master(const wchar_t *argv[])
 }
 
 /// taken from a stack overflow post :https://stackoverflow.com/questions/22590821/convert-stdduration-to-human-readable-time/46134506#46134506
-std::string beautify_duration(std::chrono::seconds input_seconds)
+static std::string beautify_duration(std::chrono::seconds input_seconds)
 {
 	using namespace std::chrono;
 	typedef duration<int, std::ratio<86400>> days;

@@ -44,6 +44,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&lightmaps_slave_fork,
 	&fix_extraced_lightmap,
 	&dump_as_xml,
+	&fix_extracted_bitmap_tags,
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

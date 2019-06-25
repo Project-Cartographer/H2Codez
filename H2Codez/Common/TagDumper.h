@@ -4,5 +4,5 @@
 
 namespace TagDumper
 {
-	bool dump_as_xml(datum tag, const std::string &xml_dump_name);
+	bool dump_as_xml(datum tag, std::string xml_dump_name);
 }

@@ -276,18 +276,18 @@ static void dump_tag_block(tag_block_ref *block, ptree &tree)
 	}
 }
 
-bool TagDumper::dump_as_xml(datum tag, const std::string &xml_dump_name)
+bool TagDumper::dump_as_xml(datum tag, std::string xml_dump_name)
 {
-	for (size_t i = 0; i < 60; i++)
-		get_static_element_size((tag_field::field_type)i);
 	ptree tree;
 	ptree &tag_tree = tree.add("tag", "");
 	dump_tag_block(tags::get_root_block(tag), tag_tree);
 
+	xml_dump_name += ".xml";
+
 	printf("Saving to %s\n", xml_dump_name.c_str());
 
 	write_xml(
-		xml_dump_name + ".xml",
+		xml_dump_name,
 		tree,
 		std::locale(),
 		xml_writer_settings<std::string>('\t', 1)

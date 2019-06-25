@@ -79,12 +79,8 @@ DWORD WINAPI TagSyncUpdate(
 	UpdateListener listener;
 	FW::FileWatcher fileWatcher;
 
-	char h2_docs_folder[0x200];
-	SHGetFolderPathA(0, CSIDL_PERSONAL, 0, 0, h2_docs_folder);// get user documents folder
-	PathAppendA(h2_docs_folder, "Halo 2\\Tags");
-
-	fileWatcher.addWatch(process::GetExeDirectoryNarrow() + "\\tags", &listener, true);
-	fileWatcher.addWatch(h2_docs_folder, &listener, true);
+	fileWatcher.addWatch(process::GetExeDirectoryNarrow()          + "\\tags", &listener, true);
+	fileWatcher.addWatch(H2CommonPatches::get_h2ek_documents_dir() + "\\tags", &listener, true);
 	while (true)
 	{
 		fileWatcher.update();

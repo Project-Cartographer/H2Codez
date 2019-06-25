@@ -225,6 +225,14 @@ void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
 	}
 }
 
+std::string H2CommonPatches::get_h2ek_documents_dir()
+{
+	char h2_docs_folder[0x200];
+	SHGetFolderPathA(0, CSIDL_PERSONAL, 0, 0, h2_docs_folder);// get user documents folder
+	PathAppendA(h2_docs_folder, "Halo 2");
+	return h2_docs_folder;
+}
+
 #define SUCCEEDED_LOG(expr) LOG_CHECK(SUCCEEDED(expr))
 
 void H2CommonPatches::dump_loaded_tags()

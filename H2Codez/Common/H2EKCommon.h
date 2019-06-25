@@ -21,5 +21,6 @@ namespace H2CommonPatches {
 
 	void dump_loaded_tags();
 	void dump_loaded_tags(std::wstring folder);
-};
 
+	std::string get_h2ek_documents_dir();
+};

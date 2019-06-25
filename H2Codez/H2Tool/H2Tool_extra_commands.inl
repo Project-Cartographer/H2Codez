@@ -502,14 +502,7 @@ static const s_tool_command list_extra_commands = {
 
 std::string filesystem_path_to_tag_path(const wchar_t *fs_path, blam_tag *tag_type = nullptr)
 {
-	std::string narrow_fs_path = tolower(wstring_to_string.to_bytes(fs_path));
-	auto tags_offset = narrow_fs_path.find("tags\\");
-	std::string path;
-	if (tags_offset != std::string::npos && narrow_fs_path.size() > tags_offset + 5) {
-		path = narrow_fs_path.substr(tags_offset + 5);
-	} else {
-		path = narrow_fs_path;
-	}
+	std::string path = tolower(wstring_to_string.to_bytes(fs_path));
 
 	auto cut_point = path.find_last_of('.');
 	if (cut_point == std::string::npos || cut_point == path.size()) {
@@ -737,7 +730,7 @@ static void _cdecl dump_tag_as_xml_proc(const wchar_t *argv[])
 	printf("%s : %s\n", tag_path.c_str(), tag_type.as_string().c_str());
 	datum tag = tags::load_tag(tag_type, tag_path, 7);
 
-	std::string dump_file_name = process::GetExeDirectoryNarrow() + "\\xml_tags\\" + tag_path + "." + H2CommonPatches::tag_group_names.at(tag_type.as_int());
+	std::string dump_file_name = process::GetExeDirectoryNarrow() + "\\xml_tags\\" + tags::get_name(tag) + "." + H2CommonPatches::tag_group_names.at(tag_type.as_int());
 	std::string dump_file_path = dump_file_name.substr(0, dump_file_name.find_last_of("\\"));
 
 	int error_code = SHCreateDirectoryExA(NULL, dump_file_path.c_str(), NULL);

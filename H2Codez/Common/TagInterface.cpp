@@ -122,7 +122,7 @@ namespace tags
 		auto TAG_UNLOAD_IMPL = reinterpret_cast<TAG_SAVE*>(OS_switch_by_addr(0x4883A0, 0x532F40, 0x4B47C0));
 		return TAG_UNLOAD_IMPL(index.index);
 	}
-	datum load_tag(blam_tag group, const std::string name, int flags)
+	datum load_tag(blam_tag group, const std::string &name, loading_flags flags)
 	{
 		typedef int __cdecl TAG_LOAD(int tag_group, const char *tag_name, int flags);
 		auto TAG_LOAD_IMPL = reinterpret_cast<TAG_LOAD*>(OS_switch_by_addr(0x488D90, 0x533930, 0x4B51B0));

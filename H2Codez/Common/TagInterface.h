@@ -100,8 +100,26 @@ namespace tags
 	/* Create new tag with group and name */
 	datum new_tag(int group, const std::string name);
 
+	enum loading_flags : int
+	{
+		for_editor               = 1 << 0,
+		no_log                   = 1 << 1,
+		unk                      = 1 << 2,
+		dont_load_existing       = 1 << 3,
+		no_block_postprocess     = 1 << 4, // not sure
+		byte_swap                = 1 << 5, // not sure
+		skip_post_process        = 1 << 6,
+		dont_call_handle_invalid = 1 << 7, // only works with loading_flags::for_editor
+	};
+
 	/* Loads a tag from file system */
-	datum load_tag(blam_tag group, const std::string name, int flags);
+	datum load_tag(blam_tag group, const std::string &name, loading_flags flags);
+
+	/* Loads a tag from file system */
+	inline datum load_tag(blam_tag group, const std::string &name, int flags)
+	{
+		return load_tag(group, name, static_cast<loading_flags>(flags));
+	}
 
 	/* Reloads tag data from file system if possible */
 	size_t reload_tag(blam_tag group, const std::string name);

@@ -1,29 +1,28 @@
 #pragma once
-#include <string>
 
 enum ai_combat_statuses
 {
-	certain,
+	unk_0,
 	idle,
-	unk_2,
+	alert,
 	active,
 	uninspected,
-	unk_5,
-	unk_6,
+	definite,
+	certain,
 	unk_7,
 	clear_los,
-	unk_9
+	dangerous
 };
 
-const static std::string ai_combat_statuses_names[] = {
-	"certain",
+constexpr static char *ai_combat_statuses_names[] = {
+	"unk_0",
 	"idle",
-	"unk_2",
+	"alert",
 	"active",
 	"uninspected",
-	"unk_5",
-	"unk_6",
+	"definite",
+	"certain",
 	"unk_7",
 	"clear_los",
-	"unk_9"
+	"dangerous"
 };

@@ -1,4 +1,6 @@
 #pragma once
+#include "ai_combat_status.h"
+
 namespace HaloScriptCommon
 {
 	/* IDs of built in globals */
@@ -746,17 +748,18 @@ namespace HaloScriptCommon
 		ai_current_squad = 795,
 		ai_current_actor = 796,
 
-		// possibly related to ai_movement_mode and ai_combat_status 
-		ai_combat_status_certain = 803,
-		ai_combat_status_idle = 804,
-		ai_combat_status_unk_2 = 805,
-		ai_combat_status_active = 806,
-		ai_combat_status_uninspected = 807,
-		ai_combat_status_unk_5 = 808,
-		ai_combat_status_unk_6 = 809,
-		ai_combat_status_unk_7 = 810,
-		ai_combat_status_clear_los = 811,
-		ai_combat_status_unk_9 = 812,
+		ai_combat_status_base = 803,
+
+		ai_combat_status_unk_0       = (ai_combat_status_base + ai_combat_statuses::unk_0),
+		ai_combat_status_idle        = (ai_combat_status_base + ai_combat_statuses::idle),
+		ai_combat_status_alert       = (ai_combat_status_base + ai_combat_statuses::alert),
+		ai_combat_status_active      = (ai_combat_status_base + ai_combat_statuses::active),
+		ai_combat_status_uninspected = (ai_combat_status_base + ai_combat_statuses::uninspected),
+		ai_combat_status_definite    = (ai_combat_status_base + ai_combat_statuses::definite),
+		ai_combat_status_certain     = (ai_combat_status_base + ai_combat_statuses::certain),
+		ai_combat_status_unk_7       = (ai_combat_status_base + ai_combat_statuses::unk_7),
+		ai_combat_status_clear_los   = (ai_combat_status_base + ai_combat_statuses::clear_los),
+		ai_combat_status_dangerous   = (ai_combat_status_base + ai_combat_statuses::dangerous),
 
 		ai_movement_patrol = 813,
 		ai_movement_sleep = 814,

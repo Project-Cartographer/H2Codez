@@ -153,9 +153,9 @@ void H2CommonPatches::haloscript_init()
 	// this is ugly but it will have to do
 	for (size_t i = 0; i < ARRAYSIZE(ai_combat_status_values); i++)
 	{
-		std::string *name = new std::string("ai_combat_status_" + ai_combat_statuses_names[i]);
+		std::string *name = new std::string("ai_combat_status_" + std::string(ai_combat_statuses_names[i]));
 		hs_global_variable *var = new hs_global_variable(name->c_str(), hs_type::hs_short, &ai_combat_status_values[i]);
-		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::ai_combat_status_certain) + i] = var;
+		g_halo_script_interface->global_table[static_cast<size_t>(hs_global_id::ai_combat_status_base) + i] = var;
 	}
 	
 	for (size_t i = 0; i < ARRAYSIZE(ai_movement_type_values); i++)

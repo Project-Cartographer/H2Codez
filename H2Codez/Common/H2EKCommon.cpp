@@ -352,6 +352,13 @@ SetUnhandledExceptionFilter_hook(
 	return old_handler;
 }
 
+typedef char __cdecl tags__fix_corrupt_fields(tag_block_defintions *def, tag_block_ref *data, int should_log);
+tags__fix_corrupt_fields *tags__fix_corrupt_fields_org;
+char __cdecl tags__fix_corrupt_fields___hook(tag_block_defintions *def, tag_block_ref *data, int should_log)
+{
+	return tags__fix_corrupt_fields_org(def, data, 1);
+}
+
 void H2CommonPatches::Init()
 {
 	DetourTransactionBegin();
@@ -373,6 +380,11 @@ void H2CommonPatches::Init()
 
 	GetSaveFileNameWOriginal = GetSaveFileNameW;
 	DetourAttach(&(PVOID&)GetSaveFileNameWOriginal, GetSaveFileNameWHook);
+
+	if (game.process_type != H2Tool) {
+		tags__fix_corrupt_fields_org = reinterpret_cast<tags__fix_corrupt_fields*>(SwitchAddessByMode(0x52FEC0, 0x4B18E0, 0x485590));
+		DetourAttach(&(PVOID&)tags__fix_corrupt_fields_org, tags__fix_corrupt_fields___hook);
+	}
 
 	fix_documents_path_string_type();
 

@@ -730,6 +730,12 @@ static void _cdecl dump_tag_as_xml_proc(const wchar_t *argv[])
 	printf("%s : %s\n", tag_path.c_str(), tag_type.as_string().c_str());
 	datum tag = tags::load_tag(tag_type, tag_path, 7);
 
+	if (!tag.is_valid())
+	{
+		printf("Can't load tag!\n");
+		return;
+	}
+
 	std::string dump_file_name = process::GetExeDirectoryNarrow() + "\\xml_tags\\" + tags::get_name(tag) + "." + H2CommonPatches::tag_group_names.at(tag_type.as_int());
 	std::string dump_file_path = dump_file_name.substr(0, dump_file_name.find_last_of("\\"));
 

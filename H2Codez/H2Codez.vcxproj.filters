@@ -86,9 +86,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H2Tool\H2Tool_Commands.h">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClInclude>
     <ClInclude Include="h2codez.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -290,6 +287,12 @@
     <ClInclude Include="Common\TagDumper.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="util\SmartHandle.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Tool\H2Tool.h">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -345,9 +348,6 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\H2Sapien.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
-    </ClCompile>
-    <ClCompile Include="H2Tool\H2Tool_Commands.cpp">
-      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
     <ClCompile Include="H2Guerilla\H2Guerilla.cpp">
       <Filter>Source Files\Patches\H2Guerilla</Filter>
@@ -411,6 +411,9 @@
     </ClCompile>
     <ClCompile Include="util\string_util.cpp">
       <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\H2Tool.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

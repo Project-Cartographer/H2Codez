@@ -1,4 +1,4 @@
-#include "H2Tool_Commands.h"
+#include "H2Tool.h"
 #include "Common\H2EKCommon.h"
 #include "Common\data\data_array.h"
 #include "Tags\ScenarioTag.h"

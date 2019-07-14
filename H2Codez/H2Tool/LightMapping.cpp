@@ -1,4 +1,4 @@
-#include "H2Tool_Commands.h"
+#include "H2Tool.h"
 #include "Common/TagInterface.h"
 #include "Common/DiscordInterface.h"
 #include "util/Patches.h"

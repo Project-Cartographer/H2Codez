@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "H2Tool_Commands.h"
+#include "H2tool.h"
 #include "H2ToolLibrary.inl"
 #include "H2Tool_Render_Model.h"
 #include "LightMapping.h"

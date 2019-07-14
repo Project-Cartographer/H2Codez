@@ -1,4 +1,4 @@
-#include "H2Tool_Commands.h"
+#include "H2Tool.h"
 #include "util\Patches.h"
 #include "util\crc32.h"
 #include "util\Logs.h"

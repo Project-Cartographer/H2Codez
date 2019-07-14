@@ -87,3 +87,28 @@ inline bool string_to_colour_rgb(std::string str, colour_rgb &colour_out)
 	}
 	return false;
 }
+
+struct file_info {
+	bool has_entension;
+	std::string file_path;
+	std::string extension = "";
+};
+
+inline file_info get_file_path_info(const std::string &path)
+{
+	file_info info;
+	auto cut_point = path.find_last_of('.');
+	if (cut_point == std::string::npos || (cut_point + 1) > path.size()) {
+		info.has_entension = false;
+		info.file_path = path;
+	} else {
+		info.has_entension = true;
+		info.file_path = path.substr(0, cut_point);
+		info.extension = path.substr(cut_point + 1);
+	}
+
+	return info;
+}
+
+// get full path to a tag path
+std::string get_full_tag_path(const std::string &tag_path);

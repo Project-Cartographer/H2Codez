@@ -409,6 +409,9 @@
     <ClCompile Include="Common\TagDumper.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="util\string_util.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\H2Sapien.rc">

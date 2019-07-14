@@ -251,6 +251,7 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="util\string_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\H2Guerilla.rc" />

@@ -625,11 +625,6 @@ void H2ToolPatches::Initialize()
 		wcscpy_s(reinterpret_cast<wchar_t*>(0xA77DE4), 0x40, L"halo");
 	}
 
-	if (conf.getBoolean("disable_debug_tag_names", false))
-	{
-		NopFill(0x589031, 5); // remove call to build_cache_file_add_debug_tag_names
-	}
-
 	patch_cache_writter();
 
 	// stops it from clearing sound references based on scenario type

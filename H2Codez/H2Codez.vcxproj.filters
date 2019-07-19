@@ -293,6 +293,9 @@
     <ClInclude Include="H2Tool\H2Tool.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
+    <ClInclude Include="Common\data\memory_dynamic_array.h">
+      <Filter>Source Files\Common Interfaces\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

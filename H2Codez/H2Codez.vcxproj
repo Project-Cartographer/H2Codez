@@ -70,7 +70,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <AssemblerListingLocation>$(IntDir)/%(RelativeDir)/</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,6 +135,7 @@
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\Cache.h" />
     <ClInclude Include="Common\data\data_array.h" />
+    <ClInclude Include="Common\data\memory_dynamic_array.h" />
     <ClInclude Include="Common\HaloScript.h" />
     <ClInclude Include="Common\MemoryAllocator.h" />
     <ClInclude Include="Common\Pathfinding.h" />

@@ -3,6 +3,8 @@
 #include "util\crc32.h"
 #include "util\Logs.h"
 #include "Common\H2EKCommon.h"
+#include "Common\TagInterface.h"
+#include "Tags\ScenarioTag.h"
 
 using namespace CacheBuilder;
 
@@ -157,6 +159,21 @@ char __stdcall build_cache_file_write_header_and_compress(cache::cache_header *h
 		 retn
 	 }
 }
+
+ // returns scenario pointer
+ static scnr_tag *get_global_scenario()
+ {
+	 return *reinterpret_cast<scnr_tag **>(0x00AA00E4);
+ }
+
+
+bool build_cache_file_cull_tags()
+ {
+	 tags::block_delete_all(&get_global_scenario()->sourceFiles);
+	 tags::block_delete_all(&get_global_scenario()->comments);
+	 tags::block_delete_all(&get_global_scenario()->decorators);
+	 return 1;
+ }
 
 void H2ToolPatches::patch_cache_writter()
 {

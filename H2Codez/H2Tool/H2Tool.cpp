@@ -675,6 +675,8 @@ void H2ToolPatches::Initialize()
 	}
 	reenable_lightmap_farming();
 	fix_bitmap_package();
+
+	NopFill(0x415D69, 6); // patch JMH version check
 }
 
 

@@ -14,6 +14,10 @@ struct datum
 		salt = HIWORD(info);
 	}
 
+	constexpr datum()
+	{
+	}
+
 	constexpr datum(short _index, short _salt):
 		index(_index),
 		salt(_salt)

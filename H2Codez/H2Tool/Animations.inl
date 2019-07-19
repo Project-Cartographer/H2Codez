@@ -21,6 +21,11 @@ jmw		- world animation
 */
 #include "../stdafx.h"
 #include "../Common/FiloInterface.h"
+#include "util/patches.h"
+#include "Common/data/memory_dynamic_array.h"
+#include "Common/TagInterface.h"
+#include <type_traits>
+
 static void import_model_animations_proc_impl(filo& reference)
 {
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
@@ -110,6 +115,72 @@ unknown_bytes[0x110] // enough space for a s_file_reference...
 
 0x20588 - dword, looks like a count
 */
+
+#define KILOBYTE 0x400
+#define MEGABYTE KILOBYTE * KILOBYTE
+
+struct s_animation_compiler
+{
+	char field_0[1024];
+	int user_flags;
+	char field_404[272];
+	char message_buffer[131072];
+	DWORD error_caterorgy_count[3];
+
+	struct jmad_entry {
+		datum tag;
+		enum _flags : int
+		{
+			is_valid = 1 << 0,
+			has_tag = 1 << 1
+		} flags = _flags::is_valid;
+
+		void operator=(datum _tag)
+		{
+			tag = _tag;
+			if (tag.is_valid())
+				flags = static_cast<_flags>(flags | has_tag);
+			else
+				flags = static_cast<_flags>(flags & ~has_tag);
+
+		}
+	};
+	CHECK_STRUCT_SIZE(jmad_entry, 8);
+
+	jmad_entry source;
+	jmad_entry target;
+	int field_20530;
+	memory_dynamic_array field_20534;
+	float field_20540;
+	memory_dynamic_array field_20544;
+	int field_20550;
+	int field_20554;
+	int field_20558;
+	int field_2055C;
+	int field_20560;
+	int field_20564;
+	int field_20568;
+	int field_2056C;
+	int field_20570;
+	int field_20574;
+	int field_20578;
+	int field_2057C;
+	int field_20580;
+	int field_20584;
+	int field_20588;
+
+	
+	byte pad[KILOBYTE];
+};
+CHECK_STRUCT_SIZE(s_animation_compiler, 0x2058C + KILOBYTE);
+
+s_animation_compiler animation_compiler;
+
+static void invalid_parameter()
+{
+	printf("you broke strtok_s, congrates?\n");
+}
+
 static void _cdecl import_model_animations_proc(wcstring* arguments)
 {
 	typedef bool (_cdecl*_tool_build_paths)(wcstring directory,
@@ -122,14 +193,21 @@ static void _cdecl import_model_animations_proc(wcstring* arguments)
 
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 
+	PatchCall(0x74EEEC, invalid_parameter); // till someone figures out filenames
+	NopFill(0x496B3B, 2); // patch version check for now
 
 	filo reference;
 	//import_model_animations_proc_impl(reference);
 	
+	//animation_compiler.source = tags::new_tag('jmad', "jmad_target");
+	animation_compiler.target = tags::load_tag('jmad', "objects\\weapons\\melee\\gravity_hammer\\gravity_hammer", 0);
+	animation_compiler.field_20534._element_size = 0x88;
+	animation_compiler.field_20544._element_size = 0x88;
+
 	static wchar_t out_path[256];
 	if(tool_build_paths(arguments[0], "animations", reference, out_path, NULL))
 	{
-		use_import_definitions(animation_import_definitions, 8, reference, NULL, NULL);
+		use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL);
 	}
 
 }

@@ -592,11 +592,40 @@ void H2ToolPatches::fix_bitmap_package()
 	WriteJmp(0x645113, wdp_compress_hook);
 }
 
+static char * __cdecl id_to_lang_name_narrow(int id)
+{
+
+	switch (id)
+	{
+		case 0:
+			return "english";
+		case 1:
+			return "japanese";
+		case 2:
+			return "german";
+		case 3:
+			return "french";
+		case 4:
+			return "spanish";
+		case 5:
+			return "italian";
+		case 6:
+			return "korean";
+		case 7:
+			return "chinese";
+		case 8:
+			return "portuguese";
+		default:
+			LOG_FUNC("Unknown lang id %d", id);
+			return "";
+	}
+}
+
 void H2ToolPatches::Initialize()
 {
 	H2PCTool.WriteLog("DLL Successfully Injected to H2Tool");
-	wcout << "H2Toolz version: " << version << std::endl
-		 << "Built on " __DATE__ " at " __TIME__ << std::endl;
+	wcout << L"H2Toolz version: " << version << std::endl
+		 << L"Built on " __DATE__ " at " __TIME__ << std::endl;
 
 	Increase_structure_import_size_Check();
 	Increase_structure_bsp_geometry_check();
@@ -624,6 +653,18 @@ void H2ToolPatches::Initialize()
 		WritePointer(0xA77DE0, DefWindowProcW);
 		wcscpy_s(reinterpret_cast<wchar_t*>(0xA77DE4), 0x40, L"halo");
 	}
+
+	// yet another string width issue....
+	// also happens in other h2ek tools
+	PatchCall(0x40B9CE, id_to_lang_name_narrow);
+	PatchCall(0x4E4DFE, id_to_lang_name_narrow);
+	PatchCall(0x4E5061, id_to_lang_name_narrow);
+	PatchCall(0x4E63E7, id_to_lang_name_narrow);
+	PatchCall(0x4E653C, id_to_lang_name_narrow);
+	PatchCall(0x55F44D, id_to_lang_name_narrow);
+	PatchCall(0x5821FB, id_to_lang_name_narrow);
+	PatchCall(0x58816B, id_to_lang_name_narrow);
+	PatchCall(0x58816B, id_to_lang_name_narrow);
 
 	patch_cache_writter();
 

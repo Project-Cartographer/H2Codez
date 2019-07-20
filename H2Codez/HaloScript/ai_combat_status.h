@@ -9,7 +9,7 @@ enum ai_combat_statuses
 	uninspected,
 	definite,
 	certain,
-	unk_7,
+	visible,
 	clear_los,
 	dangerous
 };
@@ -22,7 +22,7 @@ constexpr static char *ai_combat_statuses_names[] = {
 	"uninspected",
 	"definite",
 	"certain",
-	"unk_7",
+	"visible",
 	"clear_los",
 	"dangerous"
 };

@@ -757,7 +757,7 @@ namespace HaloScriptCommon
 		ai_combat_status_uninspected = (ai_combat_status_base + ai_combat_statuses::uninspected),
 		ai_combat_status_definite    = (ai_combat_status_base + ai_combat_statuses::definite),
 		ai_combat_status_certain     = (ai_combat_status_base + ai_combat_statuses::certain),
-		ai_combat_status_unk_7       = (ai_combat_status_base + ai_combat_statuses::unk_7),
+		ai_combat_status_visible     = (ai_combat_status_base + ai_combat_statuses::visible),
 		ai_combat_status_clear_los   = (ai_combat_status_base + ai_combat_statuses::clear_los),
 		ai_combat_status_dangerous   = (ai_combat_status_base + ai_combat_statuses::dangerous),
 

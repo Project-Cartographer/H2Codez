@@ -148,6 +148,10 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 	}
 	else {
 		std::string value;
+		std::map<std::string, std::string> attributes;
+		attributes["type"] = tag_field_type_names[fields->type];
+		attributes["name"] = name;
+
 		auto write_bounds = [&](const std::string &lower, const std::string upper)
 		{
 			value = "[" + lower + ":" + upper + "]";
@@ -221,6 +225,7 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			{
 				blam_tag *tag = reinterpret_cast<blam_tag*>(data);
 				value = tag->as_string();
+				break;
 			}
 			case tag_field::real:
 			case tag_field::real_fraction:
@@ -236,14 +241,23 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 				value = as_hex_string(data, size_change);
 				break;
 			}
+			case tag_field::data:
+			{
+				byte_ref *data_ref = reinterpret_cast<byte_ref*>(data);
+				attributes["size"] = std::to_string(data_ref->size);
+				if (!data_ref->is_empty())
+					value = as_hex_string(data_ref->address, data_ref->size);
+				break;
+			}
 			case tag_field::explanation:
 			case tag_field::custom:
 			case tag_field::useless_pad:
 				return 0;
 		}
 		ptree &field_tree = tree.add("field", value);
-		field_tree.add("<xmlattr>.name", name);
-		field_tree.add("<xmlattr>.type", tag_field_type_names[fields->type]);
+
+		for (auto attribute : attributes)
+			field_tree.add("<xmlattr>." + attribute.first, attribute.second);
 	}
 	return size_change;
 }

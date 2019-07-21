@@ -142,9 +142,14 @@ struct byte_ref
 	};
 	int definition;
 
-	void *operator[](size_t index)
+	inline bool is_empty() const
 	{
-		if (this->data == NONE || size < (int)index)
+		return this->data == NONE || this->size == 0;
+	}
+
+	inline void *operator[](size_t index)
+	{
+		if (this->is_empty() || this->size < (int)index)
 			return nullptr;
 		char *data = reinterpret_cast<char*>(this->address);
 		return &data[index];

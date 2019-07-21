@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <cctype>
+#include <sstream>
 #include "Common/BlamBaseTypes.h"
 
 inline std::string transform_string(const std::string &str, int(*transform)(int ch))
@@ -45,6 +46,12 @@ inline std::string as_hex_string(const T *element_array, size_t element_count)
 		ss << std::setw(2) << static_cast<int>(data[i]);
 	}
 	return ss.str();
+}
+
+template<>
+inline std::string as_hex_string(const void *element_array, size_t element_count)
+{
+	return as_hex_string(reinterpret_cast<const char*>(element_array), element_count);
 }
 
 inline std::string sanitize_filename(std::string name) {

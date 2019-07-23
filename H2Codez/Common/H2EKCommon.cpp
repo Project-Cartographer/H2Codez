@@ -43,24 +43,28 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 { 
 	if (GetModuleHandleW(L"H2alang") != hInstance)
 		return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
-	if (310 <= uID && uID <= 318) {
-		wcsncpy_s(lpBuffer, cchBufferMax, map_types[uID / 2 - 155], cchBufferMax);
-		return std::wcslen(lpBuffer);
-	}
-	if (uID == 26) // org: open as text
+
+	auto set_string = [&](const wchar_t *string) -> int
 	{
-		wcscpy_s(lpBuffer, cchBufferMax, L"Export as text");
+		wcscpy_s(lpBuffer, cchBufferMax, string);
 		return std::wcslen(lpBuffer);
-	}
-	if (uID == 0x1018)
+	};
+
+	if (310 <= uID && uID <= 318)
+		return set_string(map_types[uID / 2 - 155]);
+
+	switch (uID)
 	{
-		wcscpy_s(lpBuffer, cchBufferMax, L"%s.%hs saved");
-		return std::wcslen(lpBuffer);
-	}
-	if (uID == 0x12AE)
-	{
-		wcscpy_s(lpBuffer, cchBufferMax, L"Unit Playtest");
-		return std::wcslen(lpBuffer);
+		case 26: // org: open as text
+			return set_string(L"Export as text");
+		case 0x1018:
+			return set_string(L"%s.%hs saved");
+		case 0x12AE:
+			return set_string(L"Unit Playtest");
+		case 0xF3Cu:
+			return set_string(L"%.0d--- importing %s.%hs ---\n"); // used to be "%*s--- importing %s.%s ---" but the printf was broke (it pushed too few args)
+		case 0xF3Bu:
+			return set_string(L"%.0d %s pitch range '%hs\n'");
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }

@@ -95,7 +95,7 @@ static const s_tool_command import_model_animations = {
 
 
 //////////////////////////////////////////////////////////////////////////
-// LostToolCommands_Sounds.inl
+// Sound.inl
 
 static const s_tool_command_argument import_sound_arguments[] = {
 	_tool_command_argument_type_data_file,
@@ -103,9 +103,9 @@ static const s_tool_command_argument import_sound_arguments[] = {
 	""
 	"",
 };
-static const s_tool_command import_sound = {
+static const s_tool_command import_sound_command = {
 	L"import sound",
-	CAST_PTR(_tool_command_proc,reimport_sound_proc),
+	CAST_PTR(_tool_command_proc,import_sound_proc),
 	import_sound_arguments,	NUMBEROF(import_sound_arguments),
 	false
 };

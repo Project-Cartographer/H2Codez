@@ -32,6 +32,13 @@ namespace  FiloInterface
 {
 	void init_filo(filo *data, std::string path, bool mode);
 
+	inline filo new_filo(std::string path, bool mode)
+	{
+		filo file;
+		init_filo(&file, path, mode);
+		return file;
+	}
+
 	/* Returns true if it is read-only */
 	bool is_read_only(filo *data);
 

@@ -151,6 +151,7 @@ inline void append_name_to_path(char *path, const char *append)
 
 inline void remove_last_part_of_path(char *path)
 {
+	ASSERT_CHECK(path);
 	for (size_t string_offset = strnlen_s(path, file_refernece_max_path_len) - 1;
 		string_offset >= 0; string_offset--)
 	{
@@ -159,4 +160,45 @@ inline void remove_last_part_of_path(char *path)
 		if (current_char == '\\')
 			break;
 	}
+}
+
+inline size_t strrchr_offset(const char *string, int c)
+{
+	ASSERT_CHECK(string);
+	const char *offset_string = strrchr(string, c);
+	if (offset_string == nullptr)
+		return NONE;
+	else
+		return (offset_string - string);
+}
+
+inline std::string duplicate_last_path_element(std::string path)
+{
+	auto offset = path.find_last_of('\\');
+	if (offset == std::string::npos)
+		return path + "\\" + path;
+	if (offset == path.size() - 1) // this is nasty...
+		return duplicate_last_path_element(path.substr(0, offset));
+	std::string last_element = path.substr(offset);
+	return path + last_element;
+}
+
+inline std::string tag_path_from_import_path(const std::string &import_path)
+{
+	std::string path_lowercase = tolower(import_path);
+	static constexpr char data[] = "data\\";
+	const char *path_start = strstr(path_lowercase.c_str(), data);
+	if (path_start) {
+		path_start += strlen(data);
+	} else {
+		path_start = path_lowercase.c_str();
+	}
+
+	size_t ext_offset = strrchr_offset(path_start, '.');
+	std::string output_path;
+	if (ext_offset == NONE)
+		output_path = std::string(path_start);
+	else
+		output_path = std::string(path_start, ext_offset);
+	return duplicate_last_path_element(output_path);
 }

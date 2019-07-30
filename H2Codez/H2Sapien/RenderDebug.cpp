@@ -61,7 +61,7 @@ pathfinding::render_info lines_to_render;
 
 void __cdecl render_debug_info_game_in_progress()
 {
-	if (conf.getBoolean("render_pathfinding_debug", false) || is_debug_build())
+	if (conf.getBoolean("render_pathfinding_debug", false))
 	{
 		auto bsp = get_sbsp();
 		if (bsp)

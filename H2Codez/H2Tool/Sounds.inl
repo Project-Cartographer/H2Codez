@@ -28,7 +28,7 @@ static void __cdecl filo_internal__get_absolute_path(__int16 location, char *pat
 
 
 template <size_t indent = 0>
-static void import_sound(filo *file, datum old_index = datum::null())
+static void import_sound(file_reference *file, datum old_index = datum::null())
 {
 	NopFill(0x4E6B10, 5); // someone manually freed a tag....
 	NopFill(0x4E691F, 5); // someone manually freed a tag again....
@@ -83,7 +83,9 @@ static void _cdecl import_sound_proc(wcstring* arguments)
 'data_pt'  - portuguese
 */
 
-	filo file = FiloInterface::new_filo(wstring_to_string.to_bytes(arguments[0]), 0);
+	file_reference file(0);
+	file.add_directory("data");
+	file.add_directory(wstring_to_string.to_bytes(arguments[0]));
 	import_sound(&file);
 	printf("Import Error: %s\n", import_info->error);
 }

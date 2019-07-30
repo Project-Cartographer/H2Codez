@@ -119,3 +119,44 @@ inline file_info get_file_path_info(const std::string &path)
 
 // get full path to a tag path
 std::string get_full_tag_path(const std::string &tag_path);
+
+// file reference support code
+constexpr size_t file_refernece_max_path_len = 0x100;
+inline void append_name_to_path(char *path, const char *append)
+{
+	if (!LOG_CHECK(append) || *append == '\0')
+		return;
+	
+	size_t path_len = strnlen_s(path, file_refernece_max_path_len);
+	size_t append_len = strnlen_s(append, file_refernece_max_path_len);
+	bool is_terminated_correctly = path[path_len] == '\\' || path_len == 0;
+
+	size_t size_required = append_len + 1; // size to append + null terminator
+	// if we need to add the path separator that will require an additional character
+	if (is_terminated_correctly)
+		size_required += path_len;
+	else
+		size_required += path_len + 1;
+
+	ASSERT_CHECK(size_required <= file_refernece_max_path_len);
+
+	if (!is_terminated_correctly)
+	{
+		path[path_len++] = '\\';
+		path[path_len] = '\0';
+	}
+
+	strncat_s(path, sizeof(char) * file_refernece_max_path_len, append, append_len);
+}
+
+inline void remove_last_part_of_path(char *path)
+{
+	for (size_t string_offset = strnlen_s(path, file_refernece_max_path_len) - 1;
+		string_offset >= 0; string_offset--)
+	{
+		char current_char = path[string_offset];
+		path[string_offset] = '\0';
+		if (current_char == '\\')
+			break;
+	}
+}

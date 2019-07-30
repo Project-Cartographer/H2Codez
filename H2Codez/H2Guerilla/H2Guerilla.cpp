@@ -123,9 +123,10 @@ int __fastcall toggle_expert_mode_hook(int thisptr, int __unused)
 	return return_value;
 }
 
-bool __cdecl create_temp_filo(filo *data, LPCSTR location)
+bool __cdecl create_temp_filo(file_reference *data, LPCSTR location)
 {
-	FiloInterface::init_filo(data, H2CommonPatches::get_temp_name(), false);
+	file_reference temp_filo(H2CommonPatches::get_temp_name(), false);
+	*data = temp_filo;
 	return true;
 }
 

@@ -3,6 +3,7 @@
 
 namespace array_util
 {
+	// does the array contain a key?
 	template <typename T, size_t size> bool contains(const T(&array)[size], T item)
 	{
 		for (T element : array)
@@ -11,6 +12,23 @@ namespace array_util
 				return true;
 		}
 		return false;
+	}
+
+	// index of the largest value?
+	template <typename T, size_t size> size_t get_index_of_largest(const T(&_array)[size])
+	{
+		size_t largest_idx = 0;
+		auto *largest_value = &_array[0];
+
+		for (size_t idx = 0; idx < size; idx++)
+		{
+			if (_array[idx] > *largest_value)
+			{
+				largest_value = &_array[idx];
+				largest_idx = idx;
+			}
+		}
+		return largest_idx;
 	}
 }
 

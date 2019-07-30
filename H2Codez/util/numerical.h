@@ -77,5 +77,29 @@ namespace numerical {
 		return (v >= lo) && (v <= hi);
 	}
 
+	template <typename NumericType>
+	inline NumericType div(NumericType a, NumericType num) {
+		CHECK_NUMERICAL_TYPE(NumericType);
+		return a / num;
+	}
 
+	template <typename NumericType>
+	inline NumericType mul(NumericType a, NumericType b) {
+		CHECK_NUMERICAL_TYPE(NumericType);
+		return a * b;
+	}
+
+	template <typename NumericType>
+	inline NumericType sub(NumericType a, NumericType num) {
+		CHECK_NUMERICAL_TYPE(NumericType);
+		return a - num;
+	}
+
+	template <typename NumericType>
+	inline NumericType add(NumericType a, NumericType b) {
+		CHECK_NUMERICAL_TYPE(NumericType);
+		return a + b;
+	}
+
+#undef CHECK_NUMERICAL_TYPE
 }

@@ -9,9 +9,9 @@ inline DWORD OS_switch_by_addr(DWORD guerilla, DWORD tool, DWORD sapien)
 
 namespace tags
 {
-	bool get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path)
+	bool get_tag_filo(file_reference *file_ref, int tag_group, LPCSTR tag_path)
 	{
-		typedef char __cdecl _get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path);
+		typedef char __cdecl _get_tag_filo(file_reference *file_ref, int tag_group, LPCSTR tag_path);
 		auto _get_tag_filo_impl = reinterpret_cast<_get_tag_filo*>(SwitchAddessByMode(0, 0x4B8A10, 0));
 		if (_get_tag_filo_impl)
 			return _get_tag_filo_impl(file_ref, tag_group, tag_path);
@@ -44,7 +44,7 @@ namespace tags
 
 	bool tag_exists(int group, std::string path)
 	{
-		filo tag_ref;
+		file_reference tag_ref;
 		if (get_tag_filo(&tag_ref, group, path.c_str()) && FiloInterface::check_access(&tag_ref))
 			return true;
 		return false;

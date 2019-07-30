@@ -232,7 +232,7 @@ std::string target_folder;// a String that holds the containing_folder of the cu
 static int global_geometry_imported_count = 0;
 tag_data_struct** global_sbsp_data_list;
 
-static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(filo *sFILE_REF, char* _TAG_INDEX_)
+static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *sFILE_REF, char* _TAG_INDEX_)
 {
 	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
 	DWORD MODE_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
@@ -346,7 +346,7 @@ static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 };
 
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
-static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
+static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, file_reference& FILE_REF)
 {
 
 	DWORD mode_tag_file = (DWORD)tags::get_tag('mode', TAG_INDEX);
@@ -426,14 +426,14 @@ static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, filo& FILE_REF)
 static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 {
 
-	filo filo;
+	file_reference file_reference;
 
 	WCHAR wide_path[256];
 	std::string path;
 	bool b_render_imported = true;
 
 
-	if (tool_build_paths(arguments[0], "render", filo, out_path, wide_path))
+	if (tool_build_paths(arguments[0], "render", file_reference, out_path, wide_path))
 	{
 		path = wstring_to_string.to_bytes(wide_path);
 		datum TAG_INDEX = tags::load_tag('mode', path.c_str(), 7);
@@ -442,14 +442,14 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 			DWORD RENDER_MODEL_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
 			DWORD import_info_field = RENDER_MODEL_TAG + 0xC;
 
-			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, filo))
+			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, file_reference))
 				b_render_imported = false;
 
 			tags::unload_tag(TAG_INDEX);
 			if (!b_render_imported)
 				return b_render_imported;
 		}
-		auto dir_name = FiloInterface::get_path_info(&filo, PATH_FLAGS::CONTAINING_DIRECTORY_NAME);
+		auto dir_name = FiloInterface::get_path_info(&file_reference, PATH_FLAGS::CONTAINING_DIRECTORY_NAME);
 		printf("        ### creating new render model file with name '%s' \n ", dir_name.c_str());
 		TAG_INDEX = tags::new_tag('mode', path);
 
@@ -457,7 +457,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 		{
 			if (TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX.as_long(), false))
 			{
-				if (h2pc_generate_render_model_(TAG_INDEX.as_long(), filo))
+				if (h2pc_generate_render_model_(TAG_INDEX.as_long(), file_reference))
 				{
 					b_render_imported = true;
 					//TAG_SAVE(TAG_INDEX);				

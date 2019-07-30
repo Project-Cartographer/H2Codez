@@ -37,7 +37,7 @@ struct s_tool_command {
 	unsigned char : 8; unsigned short : 16;
 };
 
-typedef bool __cdecl import_def_translate_path(filo *data_file, filo *tag);
+typedef bool __cdecl import_def_translate_path(file_reference *data_file, file_reference *tag);
 
 struct s_tool_import_definations_
 {

@@ -17,9 +17,9 @@ static bool __cdecl TAG_ADD_IMPORT_INFO_BLOCK(void* IMPORT_INFO_OFFSET)
 
 	return _TAG_ADD_IMPORT_INFO_BLOCK(IMPORT_INFO_OFFSET);
 }
-static bool __cdecl TAG_ADD_IMPORT_INFO_ADD_DATA_(void* IMPORT_INFO_OFFSET, filo *FILE_REF)
+static bool __cdecl TAG_ADD_IMPORT_INFO_ADD_DATA_(void* IMPORT_INFO_OFFSET, file_reference *FILE_REF)
 {
-	typedef bool(_cdecl* TAG_ADD_IMPORT_INFO_ADD_DATA_)(void*, filo*);
+	typedef bool(_cdecl* TAG_ADD_IMPORT_INFO_ADD_DATA_)(void*, file_reference*);
 	static TAG_ADD_IMPORT_INFO_ADD_DATA_ _TAG_ADD_IMPORT_INFO_ADD_DATA_ = CAST_PTR(TAG_ADD_IMPORT_INFO_ADD_DATA_, 0x545E90);
 
 	return _TAG_ADD_IMPORT_INFO_ADD_DATA_(IMPORT_INFO_OFFSET, FILE_REF);
@@ -108,22 +108,22 @@ static unsigned int FIND_TAG_BLOCK_STRING(tag_block_ref *tag_block, size_t eleme
 	return FIND_TAG_BLOCK_STRING(tag_block, element_size, offset, string.c_str());
 }
 
-static char __cdecl load_model_object_definations_(DWORD IMPORT_INFO_OFFSET_, void *proc_definations_, __int16 proc_count, filo& FILE_REF_)
+static char __cdecl load_model_object_definations_(DWORD IMPORT_INFO_OFFSET_, void *proc_definations_, __int16 proc_count, file_reference& FILE_REF_)
 {
-	typedef char(_cdecl* _load_model_object_definations_)(DWORD, void *, __int16, filo&);
+	typedef char(_cdecl* _load_model_object_definations_)(DWORD, void *, __int16, file_reference&);
 	static _load_model_object_definations_ load_model_object_definations_ = CAST_PTR(_load_model_object_definations_, 0x412E00);
 
 	return load_model_object_definations_(IMPORT_INFO_OFFSET_, proc_definations_, proc_count, FILE_REF_);
 }
-static bool _cdecl tool_build_paths(wcstring directory, const char* Subfolder, filo& out_reference, wchar_t out_path[256], void* arg_10)
+static bool _cdecl tool_build_paths(wcstring directory, const char* Subfolder, file_reference& out_reference, wchar_t out_path[256], void* arg_10)
 {
-	typedef bool(_cdecl*_tool_build_paths)(wcstring, const char*, filo&, wchar_t[256], void*);
+	typedef bool(_cdecl*_tool_build_paths)(wcstring, const char*, file_reference&, wchar_t[256], void*);
 	static const _tool_build_paths tool_build_paths = CAST_PTR(_tool_build_paths, 0x4119B0);
 	return tool_build_paths(directory, Subfolder, out_reference, out_path, arg_10);
 }
-static void _cdecl use_import_definitions(const void* definitions, int count, filo& reference, void* context_data, void* unk)
+static void _cdecl use_import_definitions(const void* definitions, int count, file_reference& reference, void* context_data, void* unk)
 {
-	typedef void(_cdecl* _use_import_definitions)(const void*, int, filo&, void*, void*);
+	typedef void(_cdecl* _use_import_definitions)(const void*, int, file_reference&, void*, void*);
 	static const _use_import_definitions use_import_definitions = CAST_PTR(_use_import_definitions, 0x412100);
 	use_import_definitions(definitions, count, reference, context_data, unk);
 }

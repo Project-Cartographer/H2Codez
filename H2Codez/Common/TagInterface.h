@@ -170,9 +170,9 @@ namespace tags
 	}
 	bool resize_block(tag_block_ref *block, size_t size);
 
-	/* Get filo for tag */
-	bool get_tag_filo(filo *file_ref, int tag_group, LPCSTR tag_path);
-	inline bool get_tag_filo(filo *file_ref, datum tag)
+	/* Get file_reference for tag */
+	bool get_tag_filo(file_reference *file_ref, int tag_group, LPCSTR tag_path);
+	inline bool get_tag_filo(file_reference *file_ref, datum tag)
 	{
 		std::string name = get_name(tag);
 		int tag_group = get_group_tag(tag);

@@ -47,9 +47,9 @@ BOOL WINAPI CryptUnprotectDataHook(
 	return TRUE;
 }
 
-char filo__write_encrypted_hook(filo *file_ptr, DWORD nNumberOfBytesToWrite, LPVOID lpBuffer)
+char filo__write_encrypted_hook(file_reference *file_ptr, DWORD nNumberOfBytesToWrite, LPVOID lpBuffer)
 {
-	pLog.WriteLog("filo__write_encrypted_hook: filo->path %s", file_ptr->path);
+	pLog.WriteLog("filo__write_encrypted_hook: file_reference->path %s", file_ptr->path);
 	DWORD file_size = GetFileSize(file_ptr->handle, NULL);
 
 	if (file_size > nNumberOfBytesToWrite) // clear the file as unencrypted data is shorter then encrypted data.

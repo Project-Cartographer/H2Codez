@@ -198,7 +198,7 @@ void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
 	tags::s_tag_ilterator ilterator;
 	for (datum tag = ilterator.next(); tag != datum::null(); tag = ilterator.next())
 	{
-		filo tag_data;
+		file_reference tag_data;
 		if (LOG_CHECK(tags::get_tag_filo(&tag_data, tag)))
 		{
 			std::wstring tag_path = wstring_to_string.from_bytes(tags::get_name(tag));

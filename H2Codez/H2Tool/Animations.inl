@@ -155,11 +155,6 @@ CHECK_STRUCT_SIZE(s_animation_compiler, 0x2058C + KILOBYTE);
 
 s_animation_compiler animation_compiler;
 
-static void invalid_parameter()
-{
-	printf("you broke strtok_s, congrates?\n");
-}
-
 static std::string get_jmad_path(const wchar_t *import_path)
 {
 	std::string import_path_utf8 = wstring_to_string.to_bytes(import_path);
@@ -195,7 +190,7 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 
-	PatchCall(0x74EEEC, invalid_parameter); // till someone figures out filenames
+	NopFill(0x49296A, 8); // fix strtok_s breaking up
 	NopFill(0x496B3B, 2); // patch version check for now
 	//enable_compression_printf();
 
@@ -204,7 +199,7 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	std::string jmad_path = get_jmad_path(import_path);
 	std::cout << "model_animation_graph : " << jmad_path << std::endl;
 
-	datum tag = tags::load_tag('jmad', jmad_path, 0);
+	datum tag = tags::load_tag('jmad', jmad_path, tags::loading_flags::skip_post_process);
 	if (!tag.is_valid()) {
 		std::cout << "Unable to find tag: " << jmad_path << ".model_animation_graph" << std::endl;
 		return;

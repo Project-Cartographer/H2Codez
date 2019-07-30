@@ -19,6 +19,8 @@ jmrx	- replacement extended
 jmz		- 3d animation
 jmw		- world animation
 */
+
+#include "H2ToolLibrary.inl"
 #include "Common/FiloInterface.h"
 #include "Common/data/memory_dynamic_array.h"
 #include "Common/TagInterface.h"
@@ -176,24 +178,17 @@ static void enable_compression_printf()
 		PatchCall(addr, printf);
 }
 
-static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
+static void fix_import_animations()
 {
-	auto start_time = std::chrono::high_resolution_clock::now();
-
-	typedef bool (_cdecl*_tool_build_paths)(wcstring directory,
-		const char* Subfolder, file_reference& out_reference, wchar_t out_path[256], void* arg_10);
-	static const _tool_build_paths tool_build_paths = CAST_PTR(_tool_build_paths, 0x4119B0);
-
-	typedef void (_cdecl* _use_import_definitions)(const void* definitions, int count, 
-		file_reference& reference, void* context_data, void*);
-	static const _use_import_definitions use_import_definitions = CAST_PTR(_use_import_definitions, 0x412100);
-
-	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
-
 	NopFill(0x49296A, 8); // fix strtok_s breaking up
 	NopFill(0x496B3B, 2); // patch version check for now
 	//enable_compression_printf();
+}
 
+static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
+{
+	auto start_time = std::chrono::high_resolution_clock::now();
+	fix_import_animations();
 
 	const wchar_t *import_path = arguments[0];
 	std::string jmad_path = get_jmad_path(import_path);
@@ -213,9 +208,10 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	static wchar_t out_path[256];
 	file_reference reference;
 	std::cout << "=== finding files... ===" << std::endl;
-	if(tool_build_paths(arguments[0], "animations", reference, out_path, NULL))
+	if (tool_build_paths(arguments[0], "animations", reference, out_path, NULL))
 	{
-		std::cout << "=== 0importing! ===" << std::endl;
+		std::cout << "=== importing! ===" << std::endl;
+		static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 		use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL);
 	}
 	std::cout << "=== saving tag! ===" << std::endl;

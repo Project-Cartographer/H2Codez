@@ -17,7 +17,7 @@ bool process::newInstance(std::wstring command_line, HANDLE *new_process_handle,
 	
 	// add the exe name to stop C/C++ programs from freaking out
 	command_line = std::wstring(L"\"") + exePath + L"\" " + command_line;
-	// the const_cast is technically non-standard complient but it's fine
+	// the const_cast is technically non-standard compliant but it's fine
 	auto success = LOG_CHECK(CreateProcessW(exePath, const_cast<wchar_t*>(command_line.c_str()), nullptr, nullptr, false, INHERIT_PARENT_AFFINITY | CREATE_NEW_CONSOLE, nullptr, current_directory, &si, &pi));
 
 	if (success && new_process_handle)

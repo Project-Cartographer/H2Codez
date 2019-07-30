@@ -4,6 +4,7 @@
 #include "util/Patches.h"
 #include "util/Numerical.h"
 #include "util/Process.h"
+#include "util/Time.h"
 #include <sstream>
 
 #pragma region h2tool_functions
@@ -255,46 +256,6 @@ void __cdecl generate_lightmaps_master(const wchar_t *argv[])
 
 	do_light_calculations(argv[0], argv[1]);
 }
-
-/// taken from a stack overflow post :https://stackoverflow.com/questions/22590821/convert-stdduration-to-human-readable-time/46134506#46134506
-static std::string beautify_duration(std::chrono::seconds input_seconds)
-{
-	using namespace std::chrono;
-	typedef duration<int, std::ratio<86400>> days;
-	auto d = duration_cast<days>(input_seconds);
-	input_seconds -= d;
-	auto h = duration_cast<hours>(input_seconds);
-	input_seconds -= h;
-	auto m = duration_cast<minutes>(input_seconds);
-	input_seconds -= m;
-	auto s = duration_cast<seconds>(input_seconds);
-
-	auto dc = d.count();
-	auto hc = h.count();
-	auto mc = m.count();
-	auto sc = s.count();
-
-	std::stringstream ss;
-	ss.fill('0');
-	if (dc) {
-		ss << d.count() << "d";
-	}
-	if (dc || hc) {
-		if (dc) { ss << std::setw(2); } //pad if second set of numbers
-		ss << h.count() << "h";
-	}
-	if (dc || hc || mc) {
-		if (dc || hc) { ss << std::setw(2); }
-		ss << m.count() << "m";
-	}
-	if (dc || hc || mc || sc) {
-		if (dc || hc || mc) { ss << std::setw(2); }
-		ss << s.count() << 's';
-	}
-
-	return ss.str();
-}
-/// end stack overflow code
 
 /*
 	Starts muiltiple lightmappers so you can't have to

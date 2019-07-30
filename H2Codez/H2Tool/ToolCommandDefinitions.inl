@@ -79,16 +79,16 @@ static const s_tool_command import_model = {
 //////////////////////////////////////////////////////////////////////////
 // LostToolCommands_Animations.inl
 
-static const s_tool_command_argument import_model_animations_arguments[] = {
+static const s_tool_command_argument append_animations_arguments[] = {
 	_tool_command_argument_type_data_file,
 	L"source-directory",
 	NULL,
 	"Directory containing the JMA files you wish to import",
 };
-static const s_tool_command import_model_animations = {
-	L"model animations",
-	CAST_PTR(_tool_command_proc,import_model_animations_proc),
-	import_model_animations_arguments,	NUMBEROF(import_model_animations_arguments),
+static const s_tool_command append_animations = {
+	L"append animations",
+	CAST_PTR(_tool_command_proc,import_extra_model_animations_proc),
+	append_animations_arguments,	NUMBEROF(append_animations_arguments),
 	false
 };
 

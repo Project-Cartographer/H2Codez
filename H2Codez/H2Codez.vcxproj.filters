@@ -296,6 +296,9 @@
     <ClInclude Include="Common\data\memory_dynamic_array.h">
       <Filter>Source Files\Common Interfaces\Data</Filter>
     </ClInclude>
+    <ClInclude Include="util\Time.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

@@ -19,38 +19,13 @@ jmrx	- replacement extended
 jmz		- 3d animation
 jmw		- world animation
 */
-#include "../stdafx.h"
-#include "../Common/FiloInterface.h"
-#include "util/patches.h"
+#include "Common/FiloInterface.h"
 #include "Common/data/memory_dynamic_array.h"
 #include "Common/TagInterface.h"
+#include "util/patches.h"
+#include "util/string_util.h"
+#include "util/time.h"
 #include <type_traits>
-
-static void import_model_animations_proc_impl(filo& reference)
-{
-	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
-	static cstring data_directory = "data";
-	static const unsigned int sub_52A540 = 0x52A540;
-	static const unsigned int sub_412430 = 0x412430;
-
-	
-	_asm {
-		    push	1
-			push	data_directory
-			push	reference
-			call	sub_52A540
-			add		esp, 4 * 3
-
-			push	0
-			push	reference
-			push	8
-			push	animation_import_definitions
-			call	sub_412430
-			add		esp, 4 * 4
-	}
-
-
-}
 
 /* s_intermediate_animation, 0x21C
 0x0000 - char[256]
@@ -142,7 +117,11 @@ struct s_animation_compiler
 				flags = static_cast<_flags>(flags | has_tag);
 			else
 				flags = static_cast<_flags>(flags & ~has_tag);
+		}
 
+		bool save()
+		{
+			return tags::save_tag(tag);
 		}
 	};
 	CHECK_STRUCT_SIZE(jmad_entry, 8);
@@ -181,33 +160,74 @@ static void invalid_parameter()
 	printf("you broke strtok_s, congrates?\n");
 }
 
-static void _cdecl import_model_animations_proc(wcstring* arguments)
+static std::string get_jmad_path(const wchar_t *import_path)
 {
+	std::string import_path_utf8 = wstring_to_string.to_bytes(import_path);
+	return tag_path_from_import_path(import_path_utf8);
+}
+
+static void enable_compression_printf()
+{
+	DWORD codec_compression_printf[] = {
+		0x5AEEE5,
+		0x5AEEFC,
+		0x5AEF16,
+		0x5AEF2E,
+		0x5AEF38,
+		0x5AF010
+	};
+
+	for (DWORD addr : codec_compression_printf)
+		PatchCall(addr, printf);
+}
+
+static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
+{
+	auto start_time = std::chrono::high_resolution_clock::now();
+
 	typedef bool (_cdecl*_tool_build_paths)(wcstring directory,
-		const char* Subfolder, filo& out_reference, wchar_t out_path[256], void* arg_10);
+		const char* Subfolder, file_reference& out_reference, wchar_t out_path[256], void* arg_10);
 	static const _tool_build_paths tool_build_paths = CAST_PTR(_tool_build_paths, 0x4119B0);
 
 	typedef void (_cdecl* _use_import_definitions)(const void* definitions, int count, 
-		filo& reference, void* context_data, void*);
+		file_reference& reference, void* context_data, void*);
 	static const _use_import_definitions use_import_definitions = CAST_PTR(_use_import_definitions, 0x412100);
 
 	static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
 
 	PatchCall(0x74EEEC, invalid_parameter); // till someone figures out filenames
 	NopFill(0x496B3B, 2); // patch version check for now
+	//enable_compression_printf();
 
-	filo reference;
-	//import_model_animations_proc_impl(reference);
+
+	const wchar_t *import_path = arguments[0];
+	std::string jmad_path = get_jmad_path(import_path);
+	std::cout << "model_animation_graph : " << jmad_path << std::endl;
+
+	datum tag = tags::load_tag('jmad', jmad_path, 0);
+	if (!tag.is_valid()) {
+		std::cout << "Unable to find tag: " << jmad_path << ".model_animation_graph" << std::endl;
+		return;
+	}
 	
 	//animation_compiler.source = tags::new_tag('jmad', "jmad_target");
-	animation_compiler.target = tags::load_tag('jmad', "objects\\weapons\\melee\\gravity_hammer\\gravity_hammer", 0);
+	animation_compiler.target = tag;
 	animation_compiler.field_20534._element_size = 0x88;
 	animation_compiler.field_20544._element_size = 0x88;
 
 	static wchar_t out_path[256];
+	file_reference reference;
+	std::cout << "=== finding files... ===" << std::endl;
 	if(tool_build_paths(arguments[0], "animations", reference, out_path, NULL))
 	{
+		std::cout << "=== 0importing! ===" << std::endl;
 		use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL);
 	}
+	std::cout << "=== saving tag! ===" << std::endl;
+	animation_compiler.target.save();
 
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+	std::string time_taken_human = beautify_duration(time_taken);
+	std::cout << "time taken: " << time_taken_human << std::endl;
 }

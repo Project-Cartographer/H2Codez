@@ -202,6 +202,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="util\SmartHandle.h" />
     <ClInclude Include="util\string_util.h" />
+    <ClInclude Include="util\Time.h" />
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>

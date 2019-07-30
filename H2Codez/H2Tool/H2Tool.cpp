@@ -23,7 +23,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	CAST_PTR(s_tool_command*, 0x97B4C8), // structure plane debug generate
 	CAST_PTR(s_tool_command*, 0x97B4DC), // structure plane debug
 	CAST_PTR(s_tool_command*, 0x97B580), // bitmaps debug
-	&import_model_animations,
+	&import_sound_command,
 #endif
 	CAST_PTR(s_tool_command*, 0x97B56C), // bitmaps with type
 	//
@@ -44,7 +44,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&fix_extraced_lightmap,
 	&dump_as_xml,
 	&fix_extracted_bitmap_tags,
-	&import_sound_command,
+	&append_animations,
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

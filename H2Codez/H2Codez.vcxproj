@@ -201,6 +201,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="util\SmartHandle.h" />
+    <ClInclude Include="util\StringEncodingDetector.h" />
+    <ClInclude Include="util\StringEndianess.h" />
     <ClInclude Include="util\string_util.h" />
     <ClInclude Include="util\Time.h" />
     <ClInclude Include="Version.h" />

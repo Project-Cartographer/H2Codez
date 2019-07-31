@@ -299,6 +299,12 @@
     <ClInclude Include="util\Time.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="util\StringEncodingDetector.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\StringEndianess.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

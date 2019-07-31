@@ -85,6 +85,20 @@ inline PATH_FLAGS operator|(PATH_FLAGS a, PATH_FLAGS b)
 	return static_cast<PATH_FLAGS>(static_cast<int>(a) | static_cast<int>(b));
 }
 
+enum FILO_OPEN_OPTIONS : __int16
+{
+	FILO_OPEN_READ = 0x1,
+	FILO_RANDOM_ACCESS = 0x1,
+	filo_open_mode_2 = 0x2,
+	filo_open_mode_4 = 0x4,
+	filo_open_mode_8 = 0x8,
+	FILO_HIDE_ERRORS = 0x10,
+	FILO_TEMPORARY = 0x20,
+	FILO_DELETE_ON_CLOSE = 0x40,
+	FILO_SEQUENTIAL_SCAN = 0x100,
+};
+
+
 namespace  FiloInterface
 {
 	/* Returns true if it is read-only */
@@ -103,7 +117,7 @@ namespace  FiloInterface
 	bool check_access(file_reference *data);
 
 	/* Returns success */
-	bool open(file_reference *data, __int16 mode, DWORD *error_code);
+	bool open(file_reference *data, FILO_OPEN_OPTIONS mode, DWORD *error_code = nullptr);
 
 	/* Returns success */
 	bool close(file_reference *data);
@@ -149,4 +163,28 @@ namespace  FiloInterface
 	}
 
 	std::string get_path_info(file_reference *data, PATH_FLAGS flags);
+
+	/* reads a file into memory, free with delete[] */
+	inline void *read_into_memory(file_reference *file, DWORD &size)
+	{
+		if (!open(file, FILO_OPEN_READ))
+		{
+			size = NONE;
+			return nullptr;
+		}
+
+		void *output = nullptr;
+		size = get_eof(file);
+		if (size && LOG_CHECK(size != INVALID_FILE_SIZE))
+		{
+			output = new char[size];
+			if (!LOG_CHECK(read(file, output, size, 0)))
+			{
+				delete[] output;
+				output = nullptr;
+			}
+		}
+		close(file);
+		return output;
+	}
 };

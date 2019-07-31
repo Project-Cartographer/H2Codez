@@ -38,7 +38,7 @@ namespace FiloInterface
 		return filo__check_access_impl(data);
 	}
 
-	bool open(file_reference *data, __int16 mode, DWORD *error_code)
+	bool open(file_reference *data, FILO_OPEN_OPTIONS mode, DWORD *error_code)
 	{
 		typedef bool(__cdecl *filo__open)(file_reference *file_reference, __int16 mode, DWORD *error_code);
 		DWORD func_offset = SwitchAddessByMode(0x5291B0, 0x4BD5A0, 0x48D7E0);
@@ -71,7 +71,7 @@ namespace FiloInterface
 
 	DWORD get_eof(file_reference *data)
 	{
-		typedef char(__cdecl *filo__close)(file_reference *a1);
+		typedef DWORD(__cdecl *filo__close)(file_reference *a1);
 		DWORD func_offset = SwitchAddessByMode(0x5297B0, 0x4BDBA0, 0x48DDE0);
 		auto filo__close_impl = reinterpret_cast<filo__close>(func_offset);
 

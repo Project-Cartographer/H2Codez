@@ -81,7 +81,7 @@ void DiscordInterface::setAppType(H2EK type)
 		icon_key = "h2toolicon";
 		break;
 	case H2Sapien:
-		tool_in_use = "Editing scenerio.";
+		tool_in_use = "Editing scenario.";
 		image_hover = "H2Sapien";
 		screenshot_key = "h2sapienscreenshot";
 		icon_key = "h2sapienicon";

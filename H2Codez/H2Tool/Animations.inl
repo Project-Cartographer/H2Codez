@@ -276,10 +276,12 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	{
 		std::cout << "=== importing! ===" << std::endl;
 		static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
-		use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL);
+		if (use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL))
+		{
+			std::cout << "=== saving tag! ===" << std::endl;
+			animation_compiler.target.save();
+		}
 	}
-	std::cout << "=== saving tag! ===" << std::endl;
-	animation_compiler.target.save();
 
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);

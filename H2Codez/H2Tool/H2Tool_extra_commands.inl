@@ -394,7 +394,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 	bool b_render_imported = true;
 
 
-	if (tool_build_paths(arguments[0], "render", file_reference, out_path, wide_path))
+	if (tool_build_paths(arguments[0], "render", file_reference, out_path, &wide_path))
 	{
 		path = wstring_to_string.to_bytes(wide_path);
 		datum TAG_INDEX = tags::load_tag('mode', path.c_str(), 7);

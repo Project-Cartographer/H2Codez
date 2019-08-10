@@ -78,9 +78,22 @@ DWORD WINAPI TagSyncUpdate(
 {
 	UpdateListener listener;
 	FW::FileWatcher fileWatcher;
+	uint16_t watcher_count = 0;
 
-	fileWatcher.addWatch(process::GetExeDirectoryNarrow()          + "\\tags", &listener, true);
-	fileWatcher.addWatch(H2CommonPatches::get_h2ek_documents_dir() + "\\tags", &listener, true);
+	auto try_add_watcher = [&](const std::string &base_path) {
+		try {
+			fileWatcher.addWatch(base_path + "\\tags", &listener, true);
+			watcher_count++;
+		} catch (const std::exception &ex) {
+			LOG_FUNC("exception: %s", ex.what());
+		}
+	};
+
+	try_add_watcher(process::GetExeDirectoryNarrow());
+	try_add_watcher(H2CommonPatches::get_h2ek_documents_dir());
+
+	ASSERT_CHECK(watcher_count > 0); // if you have no tag folders you have a bigger issue
+
 	while (true)
 	{
 		fileWatcher.update();

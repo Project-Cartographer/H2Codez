@@ -363,7 +363,7 @@ char __cdecl tags__fix_corrupt_fields___hook(tag_block_defintions *def, tag_bloc
 	return tags__fix_corrupt_fields_org(def, data, 1);
 }
 
-static void set_tag_data_max_size(size_t limit)
+ void set_tag_data_max_size(size_t limit)
 {
 	// error message, check, set to
 	std::array<size_t, 3> offsets_tool     = { 0x5DDD72, 0x5DDEAB, 0x5DDEB6 };
@@ -407,6 +407,12 @@ void H2CommonPatches::Init()
 	haloscript_init();
 
 	set_tag_data_max_size(0x3000000);
+
+	if (conf.getBoolean("remove_data_size_limit", true))
+	{
+		set_tag_data_max_size(INT_MAX);
+	}
+
 
 	// hook exception setter
 	auto SetUnhandledExceptionFilterOrg = SetUnhandledExceptionFilter;

@@ -363,6 +363,18 @@ char __cdecl tags__fix_corrupt_fields___hook(tag_block_defintions *def, tag_bloc
 	return tags__fix_corrupt_fields_org(def, data, 1);
 }
 
+static void set_tag_data_max_size(size_t limit)
+{
+	// error message, check, set to
+	std::array<size_t, 3> offsets_tool     = { 0x5DDD72, 0x5DDEAB, 0x5DDEB6 };
+	std::array<size_t, 3> offsets_sapien   = { 0x551B02, 0x551C3B, 0x551C46 };
+	std::array<size_t, 3> offsets_guerilla = { 0x5180E2, 0x51821B, 0x518226 };
+
+	auto offsets = SwitchByMode(offsets_tool, offsets_sapien, offsets_guerilla);
+	for (auto offset : offsets)
+		WriteValue(offset + 1, limit);
+}
+
 void H2CommonPatches::Init()
 {
 	DetourTransactionBegin();
@@ -393,6 +405,8 @@ void H2CommonPatches::Init()
 	fix_documents_path_string_type();
 
 	haloscript_init();
+
+	set_tag_data_max_size(0x3000000);
 
 	// hook exception setter
 	auto SetUnhandledExceptionFilterOrg = SetUnhandledExceptionFilter;

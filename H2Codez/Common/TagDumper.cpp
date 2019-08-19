@@ -156,6 +156,45 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 		{
 			value = "[" + lower + ":" + upper + "]";
 		};
+
+		struct _2_floats
+		{
+			float f1;
+			float f2;
+		};
+
+		struct _3_floats
+		{
+			float f1;
+			float f2;
+			float f3;
+		};
+
+		struct _4_floats
+		{
+			float f1;
+			float f2;
+			float f3;
+			float f4;
+		};
+
+		auto write_2_floats = [&](_2_floats *data)
+		{
+			ASSERT_CHECK(data != nullptr);
+			value = "{ " + std::to_string(data->f1) + ", " + std::to_string(data->f2) + " }";
+		};
+
+		auto write_3_floats = [&](_3_floats *data)
+		{
+			ASSERT_CHECK(data != nullptr);
+			value = "{ " + std::to_string(data->f1) + ", " + std::to_string(data->f2) + ", " + std::to_string(data->f3) + " }";
+		};
+
+		auto write_4_floats = [&](_4_floats *data)
+		{
+			ASSERT_CHECK(data != nullptr);
+			value = "{ " + std::to_string(data->f1) + ", " + std::to_string(data->f2) + ", " + std::to_string(data->f3) + ", " + std::to_string(data->f4) + " }";
+		};
 		switch (fields->type)
 		{
 			case tag_field::angle:
@@ -191,11 +230,22 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			case tag_field::long_block_index1:
 			case tag_field::long_block_index2: // unused
 			case tag_field::long_block_flags: // unused
-			case tag_field::rgb_color:
-			case tag_field::argb_color:
 			{
 				int *int_data = reinterpret_cast<int*>(data);
 				value = std::to_string(*int_data);
+				break;
+			}
+			case tag_field::rgb_color:
+			case tag_field::argb_color:
+			{
+				std::stringstream ss;
+
+				int color = *reinterpret_cast<int*>(data);
+
+				ss << std::setfill('0') << "#";
+				ss << std::hex << std::setw(8) << color;
+
+				value = ss.str();
 				break;
 			}
 			case tag_field::word_flags:
@@ -249,10 +299,64 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 					value = as_hex_string(data_ref->address, data_ref->size);
 				break;
 			}
+			case tag_field::vertex_buffer:
+				value = as_hex_string(data, 0x20);
+				break;
+			case tag_field::string:
+			case tag_field::long_string:
+				value = std::string(data, strnlen_s(data, size_change));
+				break;
+			case tag_field::real_rgb_color:
+			case tag_field::real_vector_3d:
+			case tag_field::real_point_3d:
+			case tag_field::real_plane_2d:
+			case tag_field::real_hsv_color:
+			{
+				write_3_floats(reinterpret_cast<_3_floats*>(data));
+				break;
+			}
+
+			case tag_field::real_argb_color:
+			case tag_field::real_ahsv_color:
+			case tag_field::real_quaternion:
+			case tag_field::real_plane_3d:
+			{
+				write_4_floats(reinterpret_cast<_4_floats*>(data));
+				break;
+			}
+			case tag_field::rectangle_2d:
+			{
+				rect2d *rect = reinterpret_cast<rect2d*>(data);
+				value = "top: " + std::to_string(rect->top) + " left: " + std::to_string(rect->left) +
+					" bottom: " + std::to_string(rect->bottom) + " right: " + std::to_string(rect->right);
+				break;
+			}
+
+			case tag_field::real_euler_angles_2d:
+			{
+				real_euler_angles2d *angle = reinterpret_cast<real_euler_angles2d*>(data);
+				value = "yaw: " + std::to_string(angle->yaw.as_degree()) + 
+					" pitch: " + std::to_string(angle->pitch.as_degree());
+				break;
+			}
+
+			case tag_field::real_euler_angles_3d:
+			{
+				real_euler_angles3d *angle = reinterpret_cast<real_euler_angles3d*>(data);
+				value = "yaw: " + std::to_string(angle->yaw.as_degree()) +
+					" pitch: " + std::to_string(angle->yaw.as_degree()) + 
+					" roll: " + std::to_string(angle->roll.as_degree());
+				break;
+			}
+
 			case tag_field::explanation:
 			case tag_field::custom:
 			case tag_field::useless_pad:
 				return 0;
+			default:
+				/* Unreachable (hopefully) */
+				LOG_FUNC("handling for %s is missing", tag_field_type_names[fields->type]);
+				break;
 		}
 		ptree &field_tree = tree.add("field", value);
 

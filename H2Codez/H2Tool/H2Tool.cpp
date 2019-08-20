@@ -513,7 +513,7 @@ static void __stdcall bitmap_fix_pointers(datum bitmap, bitmap_block *bitmap_gro
 	}
 }
 
-static void __stdcall report_fix_up()
+static void report_fix_up()
 {
 	if (fixed_bitmap_tag)
 		std::cout << "Bitmap partially fixed up" << std::endl;
@@ -528,11 +528,7 @@ static void ASM_FUNC add_bitmap_data_pixels_hook()
 		push	esi // bitmap data block (sub-part being processed right now)
 		push	ebp // bitmap group (main part of the tag)
 		push	DWORD ptr[esp + 0x38] // tag index
-		push	ecx
-		push	edx
 		call	bitmap_fix_pointers
-		pop		edx
-		pop		ecx
 
 
 		// overwritten code
@@ -546,7 +542,6 @@ static void ASM_FUNC add_bitmap_data_pixels_hook()
 		jz      REPORT_ERROR
 		
 		call	report_fix_up
-		mov		eax, 1
 		JMP		END
 
 	REPORT_ERROR:

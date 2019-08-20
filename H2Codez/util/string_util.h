@@ -23,6 +23,20 @@ inline std::string toupper(const std::string &str)
 	return transform_string(str, std::toupper);
 };
 
+/*
+	Returns true if a string is a decimal number
+*/
+inline bool is_string_numerical(const std::string &str)
+{
+	if (str.size() == 0)
+		return false;
+	for (unsigned char elem : str) {
+		if (!isdigit(elem))
+			return false;
+	}
+	return true;
+}
+
 inline std::string &str_trim(std::string &str, const std::string &trim_char = " ")
 {
 	if (str.empty())

@@ -75,7 +75,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> Winmm.lib;Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <ResourceCompile>
@@ -111,7 +111,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> Winmm.lib;Crypt32.lib;version.lib;Comdlg32.lib;Shlwapi.lib;Dbghelp.lib;Precompiled\discord-rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SetChecksum>true</SetChecksum>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <LargeAddressAware>true</LargeAddressAware>
@@ -157,6 +157,7 @@
     <ClInclude Include="HaloScript\ai_movement_types.h" />
     <ClInclude Include="HaloScript\hs_ai_behaviour.h" />
     <ClInclude Include="Common\BasicTagTypes.h" />
+    <ClInclude Include="HaloScript\hs_ai_type.h" />
     <ClInclude Include="HaloScript\hs_global_descriptions.h" />
     <ClInclude Include="HaloScript\hs_syntax_node.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />

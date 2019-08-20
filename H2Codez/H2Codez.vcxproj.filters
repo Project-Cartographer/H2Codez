@@ -305,6 +305,9 @@
     <ClInclude Include="util\StringEndianess.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="HaloScript\hs_ai_type.h">
+      <Filter>Source Files\Common Interfaces\HaloScript</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

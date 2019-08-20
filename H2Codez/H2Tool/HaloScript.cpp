@@ -1,6 +1,7 @@
 #include "H2Tool.h"
 #include "Common\H2EKCommon.h"
 #include "Common\data\data_array.h"
+#include "HaloScript\hs_ai_type.h"
 #include "Tags\ScenarioTag.h"
 #include "Util\string_util.h"
 #include "Util\numerical.h"
@@ -49,12 +50,12 @@ static scnr_tag *get_global_scenario()
 /* 
 	Sets the syntax node's value to the index of the element which contains the string id
 */
-static void hs_convert_string_id_to_tagblock_index(tag_block_ref *tag_block, int element_size, int block_offset, int script_node_index)
+static void hs_convert_string_id_to_tagblock_index(tag_block_ref *tag_block, int block_offset, int script_node_index)
 {
 	auto script_node = hs_get_script_node(script_node_index);
 	const char *value_string = hs_get_string_data(script_node);
 
-	script_node->value = FIND_TAG_BLOCK_STRING_ID(tag_block, element_size, block_offset, GET_STRING_ID(value_string));
+	script_node->value = FIND_TAG_BLOCK_STRING_ID(tag_block, block_offset, GET_STRING_ID(value_string));
 
 	if (script_node->value == NONE) {
 		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(script_node->value_type)] + "' name, check tags";
@@ -65,12 +66,12 @@ static void hs_convert_string_id_to_tagblock_index(tag_block_ref *tag_block, int
 /*
 	Sets the syntax node's value to the index of the element which contains the string
 */
-static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int element_size, int block_offset, int script_node_index)
+static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int block_offset, int script_node_index)
 {
 	auto script_node = hs_get_script_node(script_node_index);
 	const char *value_string = hs_get_string_data(script_node);
 
-	script_node->value = FIND_TAG_BLOCK_STRING(tag_block, element_size, block_offset, value_string);
+	script_node->value = FIND_TAG_BLOCK_STRING(tag_block, block_offset, value_string);
 
 	if (script_node->value == NONE) {
 		std::string error = "this is not a valid '" + get_hs_type_string(script_node->value_type) + "' name, check tags";
@@ -81,7 +82,7 @@ static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int e
 static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 128, 0, script_node_index);
+	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 0, script_node_index);
 	return 1;
 }
 
@@ -139,19 +140,9 @@ static char __cdecl hs_convert_ai_behaviour(unsigned __int16 script_node_index)
 static char __cdecl hs_convert_ai_orders(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = get_global_scenario();
-	hs_convert_string_to_tagblock_offset(&scenario->orders, 144, 0, script_node_index);
+	hs_convert_string_to_tagblock_offset(&scenario->orders, 0, script_node_index);
 	return true;
 }
-
-enum ai_id_type
-{
-	squad,
-	squad_group,
-	unknown,
-	starting_location,
-
-	none = NONE
-};
 
 static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 {
@@ -159,43 +150,49 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 	hs_script_node *script_node = hs_get_script_node(script_node_index);
 	std::string input_string = hs_get_string_data(script_node);
 
-	ai_id_type ai_type = ai_id_type::none;
-
-	DWORD main_index = NONE;
-	DWORD secondary_index = 0;
+	hs_ai_type ai{};
 
 	if (input_string.find('/') != string::npos) {
-		ai_type = ai_id_type::starting_location;
 		std::string squad_name = input_string.substr(0, input_string.find('/'));
 		std::string squad_pos = input_string.substr(input_string.find('/') + 1);
 
-		secondary_index = scenario->squads.find_string_element(0, squad_name);
-		if (secondary_index != NONE) {
-			// can't get the squad block struct working so this is a workaround for now
-			main_index = strtol(squad_pos.c_str(), nullptr, 0);
+		size_t squads_index = scenario->squads.find_string_element(offsetof(squads_block, name), squad_name);
+		if (squads_index != NONE) {
+			auto *squad = ASSERT_CHECK(scenario->squads[squads_index]);
+
+			uint32_t location_idx = FIND_TAG_BLOCK_STRING_ID(&squad->startingLocations, 0, squad_pos);
+			if (location_idx != NONE) {
+				ai.set_starting_location(squads_index, location_idx);
+			} else if (is_string_numerical(squad_pos)) { // temp hack to support old style HS code
+				ai.set_starting_location(squads_index, static_cast<uint32_t>(strtol(squad_pos.c_str(), nullptr, 0)));
+			} else {
+				hs_converter_error(script_node, "No such starting location.");
+				return false;
+			}
 		} else {
 			hs_converter_error(script_node, "No such squad.");
 			return false;
 		}
 	} else {
-		ai_type = ai_id_type::squad;
-		// attempt to find a squad with that name first
-		main_index = scenario->squads.find_string_element(0, input_string);
-		if (main_index == NONE) {
-			// if no sqaud with that name exists try the squad groups
-			ai_type = ai_id_type::squad_group;
-			main_index = scenario->squadGroups.find_string_element(offsetof(squad_groups_block, name), input_string);
-		}
+		size_t squads_index = scenario->squads.find_string_element(offsetof(squads_block, name), input_string);
+		size_t squads_group_index = scenario->squadGroups.find_string_element(offsetof(squad_groups_block, name), input_string);
+
+		// attempt to find a squad with that name first before trying squads groups
+		if (squads_index != NONE)
+			ai.set_squad(squads_index);
+		else if (squads_group_index != NONE) 
+			ai.set_squad_group(squads_group_index);
 	}
-	if (main_index != NONE) {
-		DWORD id = (ai_type << 30) | (secondary_index << 16) | main_index;
-		script_node->value = id;
-		return true;
+
+	if (!ai.is_type_set())
+	{
+		hs_converter_error(script_node, "Failed to parse AI.");
+		return false;
 	}
-	else {
-		// fallback to passthrough for backwards compatibility and AI squad starting locations
-		return hs_convert_internal_id_passthrough(script_node_index);
-	}
+		
+	script_node->value = ai.get_packed();
+
+	return true;
 }
 
 static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)

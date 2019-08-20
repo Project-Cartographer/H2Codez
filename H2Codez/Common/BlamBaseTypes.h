@@ -391,13 +391,38 @@ struct angle_bounds
 
 struct string_id
 {
-	DWORD id;
-};
+	constexpr string_id(uint32_t _value) :
+		value(_value)
+	{};
 
-struct old_string_id
-{
-	DWORD id;
+	constexpr string_id(uint32_t id, uint8_t length) :
+		value(id | (length << 24))
+	{
+	};
+
+	static constexpr uint32_t data_mask = ~(0xffu << 24);
+
+	constexpr uint8_t get_length() const
+	{
+		return (value >> 24) & 0xFFu;
+	}
+
+	constexpr uint32_t get_id() const
+	{
+		return value & data_mask;
+	}
+
+	constexpr uint32_t get_packed() const
+	{
+		return value;
+	}
+
+private:
+	uint32_t value;
 };
+CHECK_STRUCT_SIZE(string_id, 4);
+
+typedef string_id old_string_id;
 
 struct tag_enum_map_element
 {

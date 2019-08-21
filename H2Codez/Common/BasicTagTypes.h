@@ -7,7 +7,7 @@
 
 struct tag_reference
 {
-	int tag_type;
+	blam_tag tag_type;
 	const char *tag_name;
 	int field_8;
 	datum tag_index;

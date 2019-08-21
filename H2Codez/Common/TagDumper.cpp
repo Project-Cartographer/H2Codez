@@ -145,6 +145,7 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 		std::string tag_path = tag_ref->tag_name ? tag_ref->tag_name : "NONE";
 		ptree &ref_tree = tree.add("tag_reference", tag_path);
 		ref_tree.add("<xmlattr>.name", name);
+		ref_tree.add("<xmlattr>.type", tag_ref->tag_type.as_string());
 	}
 	else {
 		std::string value;
@@ -389,6 +390,7 @@ static void dump_tag_block(tag_block_ref *block, ptree &tree)
 	for (size_t idx = 0; idx < block->size; idx++)
 	{
 		ptree &element_tree = tree.add("element", "");
+		element_tree.add("<xmlattr>.index", idx);
 		char *element = reinterpret_cast<char*>(block->get_element(idx));
 		dump_tag_element(fields, element, element_tree);
 	}

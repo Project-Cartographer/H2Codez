@@ -94,23 +94,38 @@ struct tag_block
 
 	// search functions
 
-	size_t find_string_element(size_t offset, const std::string &string)
+	size_t find_string_element(size_t offset, const char *string)
 	{
 		const auto find_string = [&](const T *element) -> bool {
 			const char *data = reinterpret_cast<const char*>(element);
-			return !_stricmp(&data[offset], string.c_str());
+			return !_stricmp(&data[offset], string);
 		};
 		return find_element(find_string);
+	}
+
+	inline size_t find_string_element(size_t offset, const std::string &string)
+	{
+		return find_string_element(offset, string.c_str());
 	}
 
 	size_t find_string_id_element(size_t offset, string_id string)
 	{
 		auto find_string = [&](const T *element) -> bool {
-			const char *data = reinterpret_cast<const char*>(element);
-			const DWORD *string_id = static_cast<const DWORD*>(&data[offset]);
-			return *string_id == offset.id;
+			const uint8_t *data = reinterpret_cast<const uint8_t*>(element);
+			const uint32_t *string_id = reinterpret_cast<const uint32_t*>(&data[offset]);
+			return *string_id == string.get_packed();
 		};
 		return find_element(find_string);
+	}
+
+	inline size_t find_string_id_element(size_t offset, const char *string)
+	{
+		return find_string_id_element(offset, string_id::find_by_name(string));
+	}
+
+	inline size_t find_string_id_element(size_t offset, const std::string &string)
+	{
+		return find_string_id_element(offset, string.c_str());
 	}
 
 private:
@@ -124,8 +139,8 @@ private:
 	inline void *get_element_internal(size_t idx)
 	{
 		size_t element_size = defination->latest->size;
-		char *data_char = reinterpret_cast<char*>(this->data);
-		return reinterpret_cast<void*>(&data_char[element_size * idx]);
+		uint8_t *data_char = reinterpret_cast<uint8_t*>(this->data);
+		return &data_char[element_size * idx];
 	}
 };
 CHECK_STRUCT_SIZE(tag_block<void>, 12);

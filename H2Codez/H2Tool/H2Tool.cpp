@@ -513,7 +513,7 @@ static void __stdcall bitmap_fix_pointers(datum bitmap, bitmap_block *bitmap_gro
 	}
 }
 
-static void report_fix_up()
+static void __stdcall report_fix_up()
 {
 	if (fixed_bitmap_tag)
 		std::cout << "Bitmap partially fixed up" << std::endl;
@@ -542,6 +542,7 @@ static void ASM_FUNC add_bitmap_data_pixels_hook()
 		jz      REPORT_ERROR
 		
 		call	report_fix_up
+		mov		eax, 1 // make sure eax isn't messed up
 		JMP		END
 
 	REPORT_ERROR:
@@ -559,18 +560,20 @@ static void ASM_FUNC add_bitmap_data_pixels_hook()
 
 static void ASM_FUNC wdp_compress_hook()
 {
+	/*
+		eax = util_compress return value / error code
+		ebx = where wdp_compress stores the return value
+	*/
 	__asm
 	{
 		// replaced code
 		add     esp, 0x14
-		mov     ebx, eax
 
 		cmp eax, 0
 		je default_return
 
 		// return early
 
-		mov     eax, ebx
 		pop     ebx
 		pop     edi
 		pop     esi
@@ -579,6 +582,8 @@ static void ASM_FUNC wdp_compress_hook()
 
 		// continue with function
 		default_return:
+
+		mov ebx, eax
 		mov eax, 0x645118
 		jmp eax
 	}

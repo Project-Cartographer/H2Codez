@@ -188,4 +188,7 @@ void H2CommonPatches::haloscript_init()
 	fix_haloscript_pointers();
 	init_custom_commands();
 	init_custom_variables();
+
+	if (game.process_type != H2Guerilla)
+		fix_hs_converters();
 };

@@ -225,7 +225,7 @@
     <ClCompile Include="H2Sapien\SapienInterface.cpp" />
     <ClCompile Include="H2Sapien\TagUpdate.cpp" />
     <ClCompile Include="H2Tool\CacheBuilder.cpp" />
-    <ClCompile Include="H2Tool\HaloScript.cpp" />
+    <ClCompile Include="Common\HaloScriptTypeParser.cpp" />
     <ClCompile Include="H2Tool\LightMapping.cpp" />
     <ClCompile Include="util\ClipboardAPI.cpp" />
     <ClCompile Include="util\Debug.cpp" />

@@ -90,8 +90,6 @@ namespace H2ToolPatches
 
 	void patch_cache_writter();
 
-	void fix_hs_converters();
-
 	// fix code for distributing light mapping over multiple computers
 	void reenable_lightmap_farming();
 

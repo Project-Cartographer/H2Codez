@@ -1,4 +1,4 @@
-#include "H2Tool.h"
+#include "HaloScript.h"
 #include "Common\H2EKCommon.h"
 #include "Common\data\data_array.h"
 #include "Common\HaloScriptInterface.h"
@@ -7,13 +7,12 @@
 #include "Tags\ScenarioTag.h"
 #include "Util\string_util.h"
 #include "Util\numerical.h"
-//#include "H2ToolLibrary.inl"
-
-using namespace HaloScriptCommon;
 
 /*
 	Fixes the haloscript compiler not generating the correct data for some types.
 */
+
+using namespace HaloScriptCommon;
 
 /* 
 	Sets the syntax node's value to the index of the element which contains the string id
@@ -247,9 +246,10 @@ static char __cdecl hs_convert_navpoint(unsigned __int16 script_node_index)
 #define set_hs_converter(type, func) \
 	hs_convert_lookup_table[static_cast<int>(type)] = func;
 
-void H2ToolPatches::fix_hs_converters()
+void H2CommonPatches::fix_hs_converters()
 {
-	void **hs_convert_lookup_table = reinterpret_cast<void**>(0x009F0C88);
+	void **hs_convert_lookup_table = hs_get_type_parser_table();
+	CHECK_FUNCTION_SUPPORT(hs_convert_lookup_table);
 	set_hs_converter(hs_type::ai_behavior, hs_convert_ai_behaviour);
 	set_hs_converter(hs_type::conversation, hs_convert_conversation);
 	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);

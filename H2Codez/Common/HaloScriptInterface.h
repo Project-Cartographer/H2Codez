@@ -7,7 +7,7 @@ namespace HaloScriptCommon
 {
 	inline s_data_array *hs_get_script_nodes()
 	{
-		auto script_nodes = reinterpret_cast<s_data_array**>(SwitchAddessByMode(0xBCBF4C, 0, 0));
+		auto script_nodes = reinterpret_cast<s_data_array**>(SwitchAddessByMode(0x00BCBF4C, 0x00A9CC14, 0));
 		CHECK_FUNCTION_SUPPORT(script_nodes);
 		return *script_nodes;
 	}
@@ -22,7 +22,7 @@ namespace HaloScriptCommon
 	*/
 	inline const char *hs_get_string_data()
 	{
-		auto hs_string_data = reinterpret_cast<const char **>(SwitchAddessByMode(0x00CDB198, 0, 0));
+		auto hs_string_data = reinterpret_cast<const char **>(SwitchAddessByMode(0x00CDB198, 0x00B21BF8, 0));
 		CHECK_FUNCTION_SUPPORT(hs_string_data);
 		return *hs_string_data;
 	}
@@ -52,7 +52,7 @@ namespace HaloScriptCommon
 
 	inline hs_error_info *get_hs_error_info()
 	{
-		return reinterpret_cast<hs_error_info*>(SwitchAddessByMode(0x00CDB1AC, 0, 0));
+		return reinterpret_cast<hs_error_info*>(SwitchAddessByMode(0x00CDB1AC, 0x00B21C0C, 0));
 	}
 
 	// helper function for reporting an error parsing a syntax element
@@ -73,5 +73,10 @@ namespace HaloScriptCommon
 	inline void hs_parser_error(hs_script_node *script_node, const std::string &error)
 	{
 		hs_parser_error(script_node, error.c_str());
+	}
+
+	inline void **hs_get_type_parser_table()
+	{
+		return reinterpret_cast<void**>(SwitchAddessByMode(0x009F0C88, 0x009EDB38, 0));
 	}
 }

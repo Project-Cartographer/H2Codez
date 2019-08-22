@@ -418,9 +418,6 @@
     <ClCompile Include="Common\AssemblyLayoutGenerator.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="H2Tool\HaloScript.cpp">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClCompile>
     <ClCompile Include="H2Tool\LightMapping.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
@@ -435,6 +432,9 @@
     </ClCompile>
     <ClCompile Include="H2Tool\H2Tool.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\HaloScriptTypeParser.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

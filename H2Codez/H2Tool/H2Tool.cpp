@@ -639,7 +639,6 @@ void H2ToolPatches::Initialize()
 	render_model_import_unlock();
 	remove_bsp_version_check();
 	disable_secure_file_locking();
-	fix_hs_converters();
 	fix_command_line();
 	//enable_campaign_tags_sharing(); // Still crashes might need tag changes.
 

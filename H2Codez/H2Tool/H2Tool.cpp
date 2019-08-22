@@ -442,11 +442,11 @@ static inline void SetScriptIdx(T *element, std::string placement_script, scnr_t
 	str_trim(placement_script);
 	if (!placement_script.empty())
 	{
-		auto script_idx = FIND_TAG_BLOCK_STRING(&scenario->scripts, offsetof(hs_scripts_block, name), placement_script);
+		auto script_idx = scenario->scripts.find_string_element(offsetof(hs_scripts_block, name), placement_script);
 		if (script_idx == NONE)
 			printf("[%s] Can't find script \"%s\"\n", typeid(T).name(), placement_script.c_str());
 		else
-			element->scriptIndex = script_idx;
+			element->scriptIndex = static_cast<WORD>(script_idx);
 	}
 }
 

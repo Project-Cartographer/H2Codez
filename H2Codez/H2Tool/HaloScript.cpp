@@ -7,7 +7,7 @@
 #include "Tags\ScenarioTag.h"
 #include "Util\string_util.h"
 #include "Util\numerical.h"
-#include "H2ToolLibrary.inl"
+//#include "H2ToolLibrary.inl"
 
 using namespace HaloScriptCommon;
 
@@ -23,7 +23,7 @@ static void hs_convert_string_id_to_tagblock_index(tag_block_ref *tag_block, int
 	auto script_node = hs_get_script_node(script_node_index);
 	const char *value_string = hs_get_string_data(script_node);
 
-	script_node->value = FIND_TAG_BLOCK_STRING_ID(tag_block, block_offset, GET_STRING_ID(value_string));
+	script_node->value = tag_block->find_string_id_element(block_offset, string_id::find_by_name(value_string));
 
 	if (script_node->value == NONE) {
 		std::string error = "this is not a valid '" + hs_type_string[static_cast<hs_type>(script_node->value_type)] + "' name, check tags";
@@ -39,7 +39,7 @@ static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int b
 	auto script_node = hs_get_script_node(script_node_index);
 	const char *value_string = hs_get_string_data(script_node);
 
-	script_node->value = FIND_TAG_BLOCK_STRING(tag_block, block_offset, value_string);
+	script_node->value = tag_block->find_string_element(block_offset, value_string);
 
 	if (script_node->value == NONE) {
 		std::string error = "this is not a valid '" + get_hs_type_string(script_node->value_type) + "' name, check tags";
@@ -128,7 +128,7 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 		if (squads_index != NONE) {
 			auto *squad = ASSERT_CHECK(scenario->squads[squads_index]);
 
-			uint32_t location_idx = FIND_TAG_BLOCK_STRING_ID(&squad->startingLocations, 0, squad_pos);
+			uint32_t location_idx = squad->startingLocations.find_string_id_element(offsetof(actor_starting_locations_block, name), squad_pos);
 			if (location_idx != NONE) {
 				ai.set_starting_location(squads_index, location_idx);
 			} else if (is_string_numerical(squad_pos)) { // temp hack to support old style HS code

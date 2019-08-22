@@ -308,6 +308,12 @@
     <ClInclude Include="HaloScript\hs_ai_type.h">
       <Filter>Source Files\Common Interfaces\HaloScript</Filter>
     </ClInclude>
+    <ClInclude Include="Common\GlobalTags.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\HaloScriptInterface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

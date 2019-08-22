@@ -6,16 +6,6 @@
 
 namespace SapienInterface
 {
-	inline scnr_tag **get_global_scenario_ptr()
-	{
-		return reinterpret_cast<scnr_tag**>(0xA9CA7C);
-	}
-
-	inline scnr_tag *get_global_scenario()
-	{
-		return *get_global_scenario_ptr();
-	}
-
 	inline scenario_structure_bsp_block **get_global_structure_bsp_ptr()
 	{
 		return reinterpret_cast<scenario_structure_bsp_block**>(0xA9CA74);

@@ -3,6 +3,7 @@
 #include "Common/Pathfinding.h"
 #include "Common/H2EKCommon.h"
 #include "Common/TagInterface.h"
+#include "Common/GlobalTags.h"
 #include "HaloScript/hs_interface.h"
 #include <Shellapi.h>
 
@@ -32,7 +33,7 @@ void status_dump()
 
 		output << "\n=== Script Globals ===\n" << std::endl;
 
-		auto global_scenario = get_global_scenario();
+		auto global_scenario = GlobalTags::get_scenario();
 		auto script_nodes = get_script_node_array();
 		for (size_t index = 0; index < global_scenario->globals.size; index++)
 		{

@@ -417,6 +417,27 @@ struct string_id
 		return value;
 	}
 
+	constexpr bool is_valid() const
+	{
+		return get_packed() != 0;
+	}
+
+	/* Attempts to find a string with that name in the hash table */
+	static inline string_id find_by_name(const char *string)
+	{
+		typedef uint32_t(__cdecl *get_string_id)(const char *string);
+		get_string_id get_string_id_impl = reinterpret_cast<get_string_id>(SwitchAddessByMode(0x0052E830, 0x004B0200, 0));
+		CHECK_FUNCTION_SUPPORT(get_string_id_impl);
+
+		return get_string_id_impl(string);
+	}
+
+	/* Attempts to find a string with that name in the hash table */
+	static inline string_id find_by_name(const std::string &string)
+	{
+		return find_by_name(string.c_str());
+	}
+
 private:
 	uint32_t value;
 };

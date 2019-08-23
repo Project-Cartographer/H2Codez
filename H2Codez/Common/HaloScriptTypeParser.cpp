@@ -7,6 +7,7 @@
 #include "Tags\ScenarioTag.h"
 #include "Util\string_util.h"
 #include "Util\numerical.h"
+#include "Util\array.h"
 
 /*
 	Fixes the haloscript compiler not generating the correct data for some types.
@@ -46,7 +47,7 @@ static void hs_convert_string_to_tagblock_offset(tag_block_ref *tag_block, int b
 	}
 }
 
-static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_conversation(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = GlobalTags::get_scenario();
 	hs_convert_string_to_tagblock_offset(&scenario->aIConversations, 0, script_node_index);
@@ -54,7 +55,7 @@ static char __cdecl hs_convert_conversation(unsigned __int16 script_node_index)
 }
 
 template <size_t min = 0, size_t max = MAXDWORD>
-static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
+static char __cdecl hs_raw_id_passthrough(unsigned __int16 index)
 {
 	hs_script_node *script_node = hs_get_script_node(index);
 	const char *input_string = hs_get_string_data(script_node);
@@ -89,7 +90,7 @@ static char __cdecl hs_convert_internal_id_passthrough(unsigned __int16 index)
 	}
 }
 
-static char __cdecl hs_convert_ai_behaviour(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_ai_behaviour(unsigned __int16 script_node_index)
 {
 	hs_script_node *script_node = hs_get_script_node(script_node_index);
 	const std::string input = hs_get_string_data(script_node);
@@ -104,14 +105,14 @@ static char __cdecl hs_convert_ai_behaviour(unsigned __int16 script_node_index)
 	}
 }
 
-static char __cdecl hs_convert_ai_orders(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_ai_orders(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = GlobalTags::get_scenario();
 	hs_convert_string_to_tagblock_offset(&scenario->orders, 0, script_node_index);
 	return true;
 }
 
-static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_ai(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = GlobalTags::get_scenario();
 	hs_script_node *script_node = hs_get_script_node(script_node_index);
@@ -162,7 +163,7 @@ static char __cdecl hs_convert_ai(unsigned __int16 script_node_index)
 	return true;
 }
 
-static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_point_ref(unsigned __int16 script_node_index)
 {
 	scnr_tag *scenario = GlobalTags::get_scenario();
 	hs_script_node *script_node = hs_get_script_node(script_node_index);
@@ -208,7 +209,7 @@ static char __cdecl hs_convert_point_ref(unsigned __int16 script_node_index)
 	}
 }
 
-static char __cdecl hs_convert_navpoint(unsigned __int16 script_node_index)
+static char __cdecl hs_parse_navpoint(unsigned __int16 script_node_index)
 {
 	constexpr static char *way_point_names[]
 	{
@@ -240,34 +241,131 @@ static char __cdecl hs_convert_navpoint(unsigned __int16 script_node_index)
 			return true;
 		}
 	}
-	return hs_convert_internal_id_passthrough<0, 7>(script_node_index);
+	return hs_raw_id_passthrough<0, 7>(script_node_index);
+}
+
+struct hs_parser_enum_info
+{
+	size_t count;
+	const char *const*values;
+};
+
+#define entry(enum, enum_values) \
+	std::pair<hs_type, hs_parser_enum_info>{enum,  hs_parser_enum_info{ARRAYSIZE(enum_values), enum_values} }
+
+constexpr const static char *game_difficulty_enum_values[]{ "easy", "normal", "heroic", "legendary" };
+constexpr const static char *team_enum_values[]
+{
+	"default", "player", "human", "covenant", "flood", "sentinel", "heretic", "prophet",
+	"unused8", "unused9", "unused10", "unused11", "unused12", "unused13", "unused14", "unused15"
+};
+constexpr const static char *actor_type_enum_values[]
+{
+	"elite",
+	"jackal",
+	"grunt",
+	"hunter",
+	"engineer",
+	"assassin",
+	"player",
+	"marine",
+	"crew",
+	"combat_form",
+	"infection_form",
+	"carrier_form",
+	"monitor",
+	"sentinel",
+	"none",
+	"mounted_weapon",
+	"brute",
+	"prophet",
+	"bugger"
+};
+
+constexpr const static char *hud_corner_enum_values[]{ "top_left", "top_right", "top_right", "bottom_right", "center" };
+constexpr const static char *model_state_enum_values[]{ "standard", "minor damage", "medium damage", "major damage", "destroyed" };
+constexpr const static char *network_event_enum_values[]{ "verbose", "status", "message", "warning", "error", "critical" };
+
+
+static static_map<6, hs_type, hs_parser_enum_info> hs_enum_values
+{
+	entry(hs_type::game_difficulty, game_difficulty_enum_values),
+	entry(hs_type::team, team_enum_values),
+	entry(hs_type::actor_type, actor_type_enum_values),
+	entry(hs_type::hud_corner, hud_corner_enum_values),
+	entry(hs_type::model_state, model_state_enum_values),
+	entry(hs_type::network_event, model_state_enum_values)
+};
+
+#undef entry
+
+static char __cdecl hs_parse_enum(unsigned __int16 script_node_index)
+{
+	hs_script_node *script_node = hs_get_script_node(script_node_index);
+	if (script_node->value_type < hs_type::game_difficulty || script_node->value_type > hs_type::network_event &&
+		script_node->value_type != script_node->constant_type)
+	{
+		hs_parser_errorf(script_node, "corrupt enum expression(type %d constant - type % d)", script_node->value_type, script_node->constant_type);
+		return false;
+	}
+
+	const char *enum_string = hs_get_string_data(script_node);
+	try {
+		const auto &enum_values = hs_enum_values[script_node->value_type];
+		for (size_t idx = 0; idx < enum_values.count; idx++)
+		{
+			if (_strcmpi(enum_values.values[idx], enum_string) == 0)
+			{
+				script_node->value = idx;
+				return true;
+			}
+		}
+
+		std::stringstream ss;
+		ss << get_hs_type_string(script_node->value_type) << " must be ";
+		if (enum_values.count > 1)
+		{
+			for (size_t idx = 0; idx < enum_values.count - 1; idx++)
+				ss << "\"" << enum_values.values[idx] << "\", ";
+			ss << "or ";
+		}
+		ss << "\"" << enum_values.values[enum_values.count] << "\".";
+		hs_parser_error(script_node, ss.str());
+		return false;
+	} catch (const std::exception &ex) {
+		hs_parser_error(script_node, "Internal error");
+		LOG_FUNC("exception::what = %", ex.what());
+		return false;
+	}
 }
 
 #define set_hs_converter(type, func) \
-	hs_convert_lookup_table[static_cast<int>(type)] = func;
+	hs_parser_lookup_table[static_cast<int>(type)] = func;
 
 void H2CommonPatches::fix_hs_converters()
 {
-	void **hs_convert_lookup_table = hs_get_type_parser_table();
-	CHECK_FUNCTION_SUPPORT(hs_convert_lookup_table);
-	set_hs_converter(hs_type::ai_behavior, hs_convert_ai_behaviour);
-	set_hs_converter(hs_type::conversation, hs_convert_conversation);
-	set_hs_converter(hs_type::ai_orders, hs_convert_ai_orders);
-	set_hs_converter(hs_type::ai, hs_convert_ai);
-	set_hs_converter(hs_type::point_reference, hs_convert_point_ref);
-	set_hs_converter(hs_type::navpoint, hs_convert_navpoint);
+	void **hs_parser_lookup_table = hs_get_type_parser_table();
+	CHECK_FUNCTION_SUPPORT(hs_parser_lookup_table);
+	set_hs_converter(hs_type::ai_behavior, hs_parse_ai_behaviour);
+	set_hs_converter(hs_type::conversation, hs_parse_conversation);
+	set_hs_converter(hs_type::ai_orders, hs_parse_ai_orders);
+	set_hs_converter(hs_type::ai, hs_parse_ai);
+	set_hs_converter(hs_type::point_reference, hs_parse_point_ref);
+	set_hs_converter(hs_type::navpoint, hs_parse_navpoint);
 	// set style to use a tag converter
-	set_hs_converter(hs_type::style, hs_convert_lookup_table[static_cast<int>(hs_type::sound)]);
+	set_hs_converter(hs_type::style, hs_parser_lookup_table[static_cast<int>(hs_type::sound)]);
 
 	// hacky workaround, lets the user directly input the ID it's meant to generate.
 	hs_type passthrough_types[] = {
-		hs_type::style,
 		hs_type::hud_message,
 		hs_type::ai_command_list
 	};
 
 	for (auto i : passthrough_types)
-		set_hs_converter(i, hs_convert_internal_id_passthrough<>);
+		set_hs_converter(i, hs_raw_id_passthrough<>);
+
+	for (int type = static_cast<int>(hs_type::game_difficulty); type < static_cast<int>(hs_type::network_event); type++)
+		set_hs_converter(type, hs_parse_enum);
 }
 
 #undef set_hs_converter

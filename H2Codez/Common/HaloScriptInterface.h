@@ -75,6 +75,19 @@ namespace HaloScriptCommon
 		hs_parser_error(script_node, error.c_str());
 	}
 
+	inline void hs_parser_errorf(hs_script_node *script_node, const char *format, ...)
+	{
+		char hs_error[0x1024];
+		va_list argptr;
+
+		va_start(argptr, format);
+
+		vsprintf_s(hs_error, format, argptr);
+		hs_parser_error(script_node, hs_error);
+
+		va_end(argptr);
+	}
+
 	inline void **hs_get_type_parser_table()
 	{
 		return reinterpret_cast<void**>(SwitchAddessByMode(0x009F0C88, 0x009EDB38, 0));

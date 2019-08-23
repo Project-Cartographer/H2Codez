@@ -13,6 +13,7 @@ namespace HaloScriptCommon
 			WORD hs_constant_type;
 			WORD hs_script_idx;
 			hs_opcode hs_function_idx;
+			hs_type constant_type;
 		};
 		hs_type value_type;
 		enum _flags : WORD

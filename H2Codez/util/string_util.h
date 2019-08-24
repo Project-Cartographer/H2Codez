@@ -52,12 +52,12 @@ inline std::string &str_trim(std::string &str, const std::string &trim_char = " 
 template<typename T>
 inline std::string as_hex_string(const T *element_array, size_t element_count)
 {
-	const char *data = reinterpret_cast<const char*>(element_array);
+	const unsigned char *data = reinterpret_cast<const unsigned char*>(element_array);
 	std::stringstream ss;
 	ss << std::setfill('0') << std::hex;
 	for (size_t i = 0; i < element_count * sizeof(T); i++)
 	{
-		ss << std::setw(2) << static_cast<int>(data[i]);
+		ss << std::setw(2) << static_cast<unsigned int>(data[i]);
 	}
 	return ss.str();
 }

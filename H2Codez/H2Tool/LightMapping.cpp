@@ -319,6 +319,16 @@ DWORD __cdecl TAG_SAVE_LIGHTMAP_HOOK(int TAG_INDEX)
 	return 1;
 }
 
+int __cdecl merge_slave_bitmaps_hook(char *scenario_path, char *structure_path, int slave_count)
+{
+	typedef int __cdecl merge_slave_bitmaps(char *scenario_path, char *structure_path, int slave_count);
+	auto merge_slave_bitmaps_impl = reinterpret_cast<merge_slave_bitmaps*>(0x4C8A80);
+	auto tag = merge_slave_bitmaps_impl(scenario_path, structure_path, slave_count);
+	tags::save_tag(tag);
+	std::cout << "merged bitmap: " << tags::get_name(tag) << std::endl;
+	return tag;
+}
+
 void H2ToolPatches::reenable_lightmap_farming()
 {
 	// hook lightmap control to work around some logging getting disabled when not in local mode
@@ -345,4 +355,8 @@ void H2ToolPatches::reenable_lightmap_farming()
 
 	// disabled as most people have no use for this
 	//PatchCall(0x4C70EB, TAG_SAVE_LIGHTMAP_HOOK);
+
+	// dumps merged bitmaps 
+	if (conf.getBoolean("dump_intermediate_lightmaps", false))
+		PatchCall(0x4C6C0E, merge_slave_bitmaps_hook);
 }

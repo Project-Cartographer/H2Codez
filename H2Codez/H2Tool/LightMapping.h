@@ -4,7 +4,7 @@
 struct lightmap_quality_setting
 {
 	const wchar_t *name;
-	uint32_t unk1;
+	uint32_t secondary_monte_carlo_setting;
 	uint32_t main_monte_carlo_setting;
 	uint32_t is_draft;
 	uint32_t proton_count;

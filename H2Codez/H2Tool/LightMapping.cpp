@@ -334,7 +334,7 @@ Settings custom_lightmap("custom_lightmap_quality.conf");
 
 static lightmap_quality_setting custom{
 	L"custom",
-	custom_lightmap.getNumber("unk1", 4u),
+	custom_lightmap.getNumber("secondary_monte_carlo_setting", 4u),
 	custom_lightmap.getNumber("main_monte_carlo_setting", 8u),
 	custom_lightmap.getBoolean("is_draft", false),
 	custom_lightmap.getNumber("proton_count", 20000000u),
@@ -357,7 +357,7 @@ void H2ToolPatches::reenable_lightmap_farming()
 	WritePointer(0x4C2BAF + 2, &custom_quality_settings[0].proton_count);
 	WritePointer(0x4C2BB5 + 4, &custom_quality_settings[0].unk7);
 	WritePointer(0x4C2BC5 + 2, &custom_quality_settings[0].is_checkboard);
-	WritePointer(0x4C2BD1 + 2, &custom_quality_settings[0].unk1);
+	WritePointer(0x4C2BD1 + 2, &custom_quality_settings[0].secondary_monte_carlo_setting);
 	WritePointer(0x4C2BDD + 2, &custom_quality_settings[0].is_draft);
 
 	WriteValue<BYTE>(0x4C29FD + 2, ARRAYSIZE(custom_quality_settings));

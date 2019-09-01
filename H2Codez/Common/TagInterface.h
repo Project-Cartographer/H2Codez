@@ -104,7 +104,7 @@ namespace tags
 	{
 		for_editor                = 1 << 0,
 		no_log                    = 1 << 1,
-		unk                       = 1 << 2,
+		skip_child_tag_load       = 1 << 2,
 		ignore_invalid_field_data = 1 << 3,
 		skip_block_postprocess    = 1 << 4, // not sure
 		byte_swap                 = 1 << 5, // not sure

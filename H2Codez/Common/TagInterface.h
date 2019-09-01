@@ -102,14 +102,14 @@ namespace tags
 
 	enum loading_flags : int
 	{
-		for_editor               = 1 << 0,
-		no_log                   = 1 << 1,
-		unk                      = 1 << 2,
-		dont_load_existing       = 1 << 3,
-		no_block_postprocess     = 1 << 4, // not sure
-		byte_swap                = 1 << 5, // not sure
-		skip_post_process        = 1 << 6,
-		dont_call_handle_invalid = 1 << 7, // only works with loading_flags::for_editor
+		for_editor                = 1 << 0,
+		no_log                    = 1 << 1,
+		unk                       = 1 << 2,
+		ignore_invalid_field_data = 1 << 3,
+		skip_block_postprocess    = 1 << 4, // not sure
+		byte_swap                 = 1 << 5, // not sure
+		skip_tag_postprocess      = 1 << 6,
+		dont_call_handle_invalid  = 1 << 7, // only works with loading_flags::for_editor
 	};
 
 	/* Loads a tag from file system */

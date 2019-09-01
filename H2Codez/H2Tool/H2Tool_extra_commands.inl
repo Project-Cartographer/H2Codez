@@ -688,7 +688,7 @@ static void _cdecl dump_tag_as_xml_proc(const wchar_t *argv[])
 		return;
 	}
 	printf("%s : %s\n", tag_path.c_str(), tag_type.as_string().c_str());
-	datum tag = tags::load_tag(tag_type, tag_path, 7);
+	datum tag = tags::load_tag(tag_type, tag_path, tags::skip_tag_postprocess | tags::skip_block_postprocess);
 
 	if (!tag.is_valid())
 	{

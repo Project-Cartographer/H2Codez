@@ -258,7 +258,7 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	std::string jmad_path = get_jmad_path(import_path);
 	std::cout << "model_animation_graph : " << jmad_path << std::endl;
 
-	datum tag = tags::load_tag('jmad', jmad_path, tags::loading_flags::skip_post_process);
+	datum tag = tags::load_tag('jmad', jmad_path, tags::loading_flags::skip_tag_postprocess);
 	if (!tag.is_valid()) {
 		std::cout << "Unable to find tag: " << jmad_path << ".model_animation_graph" << std::endl;
 		return;

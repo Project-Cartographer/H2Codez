@@ -1,3 +1,4 @@
+#include "LightMapping.h"
 #include "H2Tool.h"
 #include "Common/TagInterface.h"
 #include "Common/DiscordInterface.h"
@@ -329,8 +330,40 @@ int __cdecl merge_slave_bitmaps_hook(char *scenario_path, char *structure_path, 
 	return tag;
 }
 
+Settings custom_lightmap("custom_lightmap_quality.conf");
+
+static lightmap_quality_setting custom{
+	L"custom",
+	custom_lightmap.getNumber("unk1", 4u),
+	custom_lightmap.getNumber("main_monte_carlo_setting", 8u),
+	custom_lightmap.getBoolean("is_draft", false),
+	custom_lightmap.getNumber("proton_count", 20000000u),
+	custom_lightmap.getBoolean("is_direct_only", false),
+	custom_lightmap.getNumber("unk7", 4.0f),
+	custom_lightmap.getBoolean("is_checkboard", false)
+};
+
+static lightmap_quality_setting custom_quality_settings[11];
+
 void H2ToolPatches::reenable_lightmap_farming()
 {
+	lightmap_quality_setting *org_settings = reinterpret_cast<lightmap_quality_setting*>(0x97E138);
+	memcpy(custom_quality_settings, org_settings, sizeof(lightmap_quality_setting) * 10);
+	custom_quality_settings[10] = custom;
+
+	WritePointer(0x4C29BF + 1, &custom_quality_settings);
+	WritePointer(0x4C2A50 + 2, &custom_quality_settings);
+	WritePointer(0x4C2BA9 + 2, &custom_quality_settings[0].main_monte_carlo_setting);
+	WritePointer(0x4C2BAF + 2, &custom_quality_settings[0].proton_count);
+	WritePointer(0x4C2BB5 + 4, &custom_quality_settings[0].unk7);
+	WritePointer(0x4C2BC5 + 2, &custom_quality_settings[0].is_checkboard);
+	WritePointer(0x4C2BD1 + 2, &custom_quality_settings[0].unk1);
+	WritePointer(0x4C2BDD + 2, &custom_quality_settings[0].is_draft);
+
+	WriteValue<BYTE>(0x4C29FD + 2, ARRAYSIZE(custom_quality_settings));
+	WriteValue<BYTE>(0x4C2A02 + 2, ARRAYSIZE(custom_quality_settings));
+	WriteValue<DWORD>(0x4C2B91 + 2, sizeof(custom_quality_settings));
+
 	// hook lightmap control to work around some logging getting disabled when not in local mode
 	constexpr DWORD lightmap_distributed_type_offsets[] = {
 		0x4B314F, 0x4B362D, 0x4BB402, 0x4BD5CF,

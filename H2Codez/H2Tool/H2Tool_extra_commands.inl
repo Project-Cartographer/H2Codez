@@ -98,7 +98,7 @@ void _cdecl list_all_extra_commands_proc(wcstring* arguments)
 	for (int i = 0; i <= extra_commands_count; i++) {
 		s_tool_h2dev_command *current_cmd = (command_table + i);
 		printf("\n  %s : %s", current_cmd->command_name, current_cmd->command_description);
-		H2PCTool.WriteLog(current_cmd->command_name);//Store It in log
+		pLog.WriteLog(current_cmd->command_name);//Store It in log
 	}
 }
 
@@ -151,7 +151,7 @@ static void _cdecl h2dev_extra_commands_proc(wchar_t ** arguments)
 		else
 		{
 			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
-			H2PCTool.WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
+			pLog.WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
 			datum tag = tags::load_tag(cmd->tag_type, f_parameter.c_str(), 7);
 
 			if (cmd->command_impl(nullptr, tag))// call Function via address			

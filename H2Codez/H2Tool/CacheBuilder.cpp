@@ -5,6 +5,8 @@
 #include "Common\H2EKCommon.h"
 #include "Common\TagInterface.h"
 #include "Tags\ScenarioTag.h"
+#include <timeapi.h>
+
 
 using namespace CacheBuilder;
 
@@ -120,7 +122,7 @@ bool CacheBuilder::write(LPCVOID data, size_t size, size_t *start)
 
 	if (is_debug_build() && size == 0)
 	{
-		LOG_FUNC("Rezero length data written to cache");
+		LOG_FUNC("zero length data written to cache");
 	}
 	return LOG_CHECK(CacheBuilder::write_unaligned(data, size, start)) &&
 		(padding_size == 0 || LOG_CHECK(CacheBuilder::write_unaligned(padding, get_next_aligned() - size)));
@@ -173,7 +175,32 @@ bool build_cache_file_cull_tags()
 	 tags::block_delete_all(&get_global_scenario()->comments);
 	 tags::block_delete_all(&get_global_scenario()->decorators);
 	 return 1;
- }
+}
+
+static constexpr double internal_in_seconds(int milliseconds_start, int milliseconds_end)
+{
+	return (milliseconds_end - milliseconds_start) / 1000.0;
+}
+
+static void package_map_log(const char *format, ...)
+{
+	va_list ArgList;
+	va_start(ArgList, format);
+	vprintf_s(format, ArgList); // todo: log to filo
+}
+
+#define time_code(name, ...) \
+	operation_time = timeGetTime(); \
+	(__VA_ARGS__); \
+	package_map_log(name " %f seconds %d bytes\n", internal_in_seconds(operation_time, timeGetTime()), CacheBuilder::get_size());
+	
+
+bool build_cache_file(const char *scenario, int minor_version = 0, bool something = true)
+{
+	int operation_time;
+	int start_time = timeGetTime();
+	return true;
+}
 
 void H2ToolPatches::patch_cache_writter()
 {

@@ -19,7 +19,6 @@ namespace Debug
 	void Start_Console();///AllocConsole		
 };
 extern Logs pLog;
-extern Logs H2PCTool;
 
 
 inline void log_verify_output(const char *expression, const char *func_name, const char* file, const int line)
@@ -46,8 +45,11 @@ FORCEINLINE T verify_output(T output, const char *expression, const char *func_n
 {
 	if (!output) {
 		log_verify_output(expression, func_name, file, line);
-		if (fatal)
+		if (fatal) {
+			if (IsDebuggerPresent())
+				__debugbreak();
 			exit(-1);
+		}
 	}
 	return output;
 }

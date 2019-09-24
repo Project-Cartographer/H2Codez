@@ -100,7 +100,6 @@ HMODULE g_hModule;
 H2EK_Globals game;
 
 Logs pLog("H2Codez.log");
-Logs H2PCTool("H2PCTool.log");
 Settings conf("H2Codez.conf");
 
 BOOL EnableDbgConsole;

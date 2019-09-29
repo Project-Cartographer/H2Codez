@@ -5,7 +5,7 @@
 /*
 	Writes `numBytes` bytes from `patch` to `destAddress`
 */
-inline void WriteBytes(void* destAddress, void *patch, DWORD numBytes)
+inline void WriteBytes(void* destAddress, const void *patch, DWORD numBytes)
 {
 	if (destAddress && patch && numBytes > 0)
 	{
@@ -25,7 +25,7 @@ inline void WriteBytes(void* destAddress, void *patch, DWORD numBytes)
 /*
 	Writes `numBytes` bytes from `patch` to `destAddress`
 */
-inline void WriteBytes(DWORD destAddress, void *patch, DWORD numBytes)
+inline void WriteBytes(DWORD destAddress, const void *patch, DWORD numBytes)
 {
 	WriteBytes(reinterpret_cast<void*>(destAddress), patch, numBytes);
 }
@@ -33,7 +33,20 @@ inline void WriteBytes(DWORD destAddress, void *patch, DWORD numBytes)
 /*
 	Writes an array into memory
 */
-#define WriteArray(dest, patch) WriteBytes(dest, patch, sizeof(patch))
+template<typename t, size_t size>
+inline void  WriteArray(DWORD address, t(*data)[size])
+{
+	WriteBytes(address, data, sizeof(t) * size);
+}
+
+/*
+	Writes an array into memory
+*/
+template<typename t, size_t size>
+inline void  WriteArray(void *address, t(*data)[size])
+{
+	WriteBytes(address, data, sizeof(t) * size);
+}
 
 /*
 	Writes data to memory at address

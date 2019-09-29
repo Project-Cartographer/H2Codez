@@ -49,7 +49,7 @@ static void import_sound(file_reference *file, datum old_index = datum::null())
 		add esp, 8
 	}
 
-	WriteArray(filo_impl_get_absolute_path, old_code); // restore old filo code
+	WriteArray(filo_impl_get_absolute_path, &old_code); // restore old filo code
 }
 
 struct sound_import_info

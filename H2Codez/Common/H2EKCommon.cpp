@@ -418,7 +418,7 @@ void H2CommonPatches::Init()
 	if (is_debug_build())
 	{
 		if (!crc32_unit_test())
-			pLog.WriteLog("CRC unit tests failed");
+			getLogger().WriteLog("CRC unit tests failed");
 
 		FILE *FilePtr;
 		std::string file_name = get_temp_name("hs_dump.txt");

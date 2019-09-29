@@ -108,7 +108,7 @@ static HMENU WINAPI LoadMenuHook(_In_opt_ HINSTANCE hInstance, _In_ LPCWSTR lpMe
 {
 	DWORD MenuId = reinterpret_cast<DWORD>(lpMenuName);
 	if (hInstance == GetModuleHandle(NULL)) {
-		pLog.WriteLog("LoadMenuHook: %d", lpMenuName);
+		getLogger().WriteLog("LoadMenuHook: %d", lpMenuName);
 		if (LOG_CHECK(menu_map.find(MenuId) != menu_map.end()))
 			return menu_map[MenuId];
 	}

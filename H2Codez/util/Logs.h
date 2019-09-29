@@ -18,12 +18,13 @@ namespace Debug
 {
 	void Start_Console();///AllocConsole		
 };
-extern Logs pLog;
+
+Logs &getLogger();
 
 
 inline void log_verify_output(const char *expression, const char *func_name, const char* file, const int line)
 {
-	pLog.WriteLog("'%s' failed in '%s' at '%s:%d'!", expression, func_name, file, line);
+	getLogger().WriteLog("'%s' failed in '%s' at '%s:%d'!", expression, func_name, file, line);
 	DWORD last_error = GetLastError();
 	if (last_error)
 	{
@@ -31,10 +32,10 @@ inline void log_verify_output(const char *expression, const char *func_name, con
 		size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
 		if (size) {
-			pLog.WriteLog("Last error: '%ws'", messageBuffer);
+			getLogger().WriteLog("Last error: '%ws'", messageBuffer);
 			LocalFree(messageBuffer);
 		} else {
-			pLog.WriteLog("Converting error %d to string failed!", last_error);
+			getLogger().WriteLog("Converting error %d to string failed!", last_error);
 		}
 		SetLastError(0);
 	}
@@ -55,6 +56,6 @@ FORCEINLINE T verify_output(T output, const char *expression, const char *func_n
 }
 #define LOG_CHECK(expression) \
 	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__, false)
-#define LOG_FUNC(msg, ...)  pLog.WriteLog(__FUNCTION__  "(): " ## msg, __VA_ARGS__)
+#define LOG_FUNC(msg, ...)  getLogger().WriteLog(__FUNCTION__  "(): " ## msg, __VA_ARGS__)
 #define ASSERT_CHECK(expression) \
 	verify_output(expression, #expression, __FUNCTION__, __FILE__, __LINE__, true)

@@ -67,7 +67,7 @@ std::string HaloScriptCommon::get_value_as_string(const void *data, hs_type type
 		return value_as_string;
 	default: {
 		std::string error_message = "Converting HS data of type '" + hs_type_string[type] + "' to string is not implemented.\n";
-		pLog.WriteLog(error_message.c_str());
+		getLogger().WriteLog(error_message.c_str());
 		value_as_string = std::to_string(*static_cast<const long*>(data));
 		return value_as_string;
 	}

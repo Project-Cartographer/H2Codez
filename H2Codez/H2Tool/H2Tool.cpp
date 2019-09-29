@@ -180,7 +180,7 @@ void structure_bsp_depth_check_increase()
 
 void H2ToolPatches::Increase_structure_bsp_geometry_check()
 {
-	pLog.WriteLog("Increasing structure_bsp_geometry checks");
+	getLogger().WriteLog("Increasing structure_bsp_geometry checks");
 	structure_bsp_geometry_2D_check_increase();
 	structure_bsp_geometry_3D_check_increase();
 	structure_bsp_geometry_collision_check_increase();
@@ -346,7 +346,7 @@ static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(voi
 		for (int i = 0; i < ARRAYSIZE(load_sharing_log_offsets); i++)
 			WritePointer(load_sharing_log_offsets[i] + 1, load_sharing_log_messages[i]);
 	}
-	pLog.WriteLog("loading....tag_sharing method");
+	getLogger().WriteLog("loading....tag_sharing method");
 
 
 	DWORD TAG_SHARING_LOAD_MULTIPLAYER_SHARED = 0x5813C0;
@@ -389,7 +389,7 @@ void H2ToolPatches::enable_campaign_tags_sharing()
 	//.text:005883DE                 call    BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED ; STR: "tag sharing: loading tag names from shared.map", "tag sharing: 
 	PatchCall(BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather original
 
-	pLog.WriteLog("Single Player tag_sharing enabled");
+	getLogger().WriteLog("Single Player tag_sharing enabled");
 }
 
 void H2ToolPatches::remove_bsp_version_check()
@@ -628,7 +628,7 @@ static char * __cdecl id_to_lang_name_narrow(int id)
 
 void H2ToolPatches::Initialize()
 {
-	pLog.WriteLog("DLL Successfully Injected to H2Tool");
+	getLogger().WriteLog("DLL Successfully Injected to H2Tool");
 	wcout << L"H2Toolz version: " << version << std::endl
 		 << L"Built on " __DATE__ " at " __TIME__ << std::endl;
 
@@ -686,7 +686,7 @@ void H2ToolPatches::Initialize()
 
 void H2ToolPatches::AddExtraCommands()
 {
-	pLog.WriteLog("Adding Extra Commands to H2Tool");
+	getLogger().WriteLog("Adding Extra Commands to H2Tool");
 	constexpr BYTE k_number_of_old_tool_commands = 0xC;
 	constexpr BYTE k_number_of_old_tool_commands_copied = k_number_of_old_tool_commands - 2;
 	constexpr BYTE k_number_of_tool_commands_new = (k_number_of_old_tool_commands_copied) + NUMBEROF(h2tool_extra_commands);

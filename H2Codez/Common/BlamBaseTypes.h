@@ -182,7 +182,7 @@ struct editor_string
 		char data[0x1000];
 		if (!LOG_CHECK(LoadStringA(get_h2alang(), id, data, ARRAYSIZE(data))))
 		{
-			pLog.WriteLog("Failed to get string %d", id);
+			getLogger().WriteLog("Failed to get string %d", id);
 			return "";
 		}
 		return data;

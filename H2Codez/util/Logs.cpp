@@ -60,5 +60,8 @@ void Debug::Start_Console()
 	freopen_s(&pCin, "CONIN$", "r", stdin);
 }
 
-
-
+Logs& getLogger()
+{
+	static Logs logger("H2Codez.log");
+	return logger;
+}

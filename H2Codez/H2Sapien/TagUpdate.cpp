@@ -53,11 +53,11 @@ public:
 			if (last_save != tags_being_saved.end())
 			{
 				if (difftime(time(nullptr), last_save->second) <= max_valid_time) {
-					pLog.WriteLog("Ignoring change to tag \"%s\" because it was modified by us in the past %F seconds", filename.c_str(), max_valid_time);
+					getLogger().WriteLog("Ignoring change to tag \"%s\" because it was modified by us in the past %F seconds", filename.c_str(), max_valid_time);
 					return;
 				}
 				else {
-					pLog.WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename.c_str(), max_valid_time);
+					getLogger().WriteLog("Ignoring being_saved state for \"%s\" as last update time is more than %F seconds ago ", filename.c_str(), max_valid_time);
 					tags_being_saved.erase(last_save);
 				}
 			}
@@ -67,7 +67,7 @@ public:
 					tags_to_reload.back().group != tag_group || tags_to_reload.back().tag_name != tag_name)
 				tags_to_reload.push({ tag_group, tag_name });
 			else
-				pLog.WriteLog("Not pushing tag for reloading (duplicated event)");
+				getLogger().WriteLog("Not pushing tag for reloading (duplicated event)");
 		}
 	}
 };
@@ -103,7 +103,7 @@ DWORD WINAPI TagSyncUpdate(
 		for (auto it = tags_being_saved.begin(), ite = tags_being_saved.end(); it != ite;)
 		{
 			if (difftime(time(nullptr), it->second) > max_valid_time) {
-				pLog.WriteLog("Unmarked tag \"%s\" as being_saved", it->first.c_str());
+				getLogger().WriteLog("Unmarked tag \"%s\" as being_saved", it->first.c_str());
 				it = tags_being_saved.erase(it);
 			} else {
 				++it;
@@ -128,7 +128,7 @@ char __cdecl TAG_SAVE_HOOK(int tag_index)
 
 	std::unique_lock<std::recursive_mutex> tag_lock(tag_mutex);
 	tags_being_saved[tag_file_name] = time(nullptr);
-	pLog.WriteLog("Marked tag \"%s\" as being_saved", tag_file_name.c_str());
+	getLogger().WriteLog("Marked tag \"%s\" as being_saved", tag_file_name.c_str());
 	tag_lock.unlock();
 
 	return TAG_SAVE_ORG(tag_index);
@@ -160,7 +160,7 @@ void H2SapienPatches::ProcessTagsToReload()
 
 		if (tags::is_tag_loaded(tag_info.group, tag_info.tag_name))
 		{
-			pLog.WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_info.tag_name.c_str(), tag_ext);
+			getLogger().WriteLog("Reloading tag: \"%s\" : type: \"%s\"", tag_info.tag_name.c_str(), tag_ext);
 			switch (tag_info.group)
 			{
 			case 'sbsp':
@@ -173,7 +173,7 @@ void H2SapienPatches::ProcessTagsToReload()
 			}
 		}
 		else {
-			pLog.WriteLog("Ignoring change to tag: \"%s\" : type: \"%s\" because it's not loaded", tag_info.tag_name.c_str(), tag_ext);
+			getLogger().WriteLog("Ignoring change to tag: \"%s\" : type: \"%s\" because it's not loaded", tag_info.tag_name.c_str(), tag_ext);
 		}
 		tags_to_reload.pop();
 	}

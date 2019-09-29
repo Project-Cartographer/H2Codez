@@ -1,7 +1,6 @@
 #pragma once
 #include "stdafx.h"
-class Logs;
-extern Logs pLog;
+#include "Logs.h"
 
 /*
 	Writes `numBytes` bytes from `patch` to `destAddress`
@@ -19,7 +18,7 @@ inline void WriteBytes(void* destAddress, void *patch, DWORD numBytes)
 		FlushInstructionCache(GetCurrentProcess(), destAddress, numBytes);
 	} else if (is_debug_build() && (!patch || numBytes == 0))
 	{
-		pLog.WriteLog("Invalid arguments supplied to WriteBytes patch: %x numBytes: %d", patch, numBytes);
+		getLogger().WriteLog("Invalid arguments supplied to WriteBytes patch: %x numBytes: %d", patch, numBytes);
 	}
 }
 

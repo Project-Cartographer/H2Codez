@@ -40,7 +40,7 @@ BOOL WINAPI CryptUnprotectDataHook(
 )
 {
 	if (CryptUnprotectDataOrg(pDataIn, ppszDataDescr, pOptionalEntropy, pvReserved, pPromptStruct, dwFlags, pDataOut) == FALSE) {
-		pLog.WriteLog("Data not encrypted");
+		getLogger().WriteLog("Data not encrypted");
 		DuplicateDataBlob(pDataIn, pDataOut); // if decrypting the data fails just assume it's unencrypted
 	}
 
@@ -49,7 +49,7 @@ BOOL WINAPI CryptUnprotectDataHook(
 
 char filo__write_encrypted_hook(file_reference *file_ptr, DWORD nNumberOfBytesToWrite, LPVOID lpBuffer)
 {
-	pLog.WriteLog("filo__write_encrypted_hook: file_reference->path %s", file_ptr->path);
+	getLogger().WriteLog("filo__write_encrypted_hook: file_reference->path %s", file_ptr->path);
 	DWORD file_size = GetFileSize(file_ptr->handle, NULL);
 
 	if (file_size > nNumberOfBytesToWrite) // clear the file as unencrypted data is shorter then encrypted data.
@@ -76,30 +76,30 @@ void __cdecl get_string_id_from_multiplayer_globals(int string_id, wchar_t *Dst,
 	DWORD *globals = get_multiplayer_globals();
 	if (globals)
 	{
-		pLog.WriteLog("WTF no mutliplayer globals exist");
+		getLogger().WriteLog("WTF no mutliplayer globals exist");
 	}
 
 	datum *mulg_datum = (datum*)&globals[116];
 	if (mulg_datum->index == 0xFFFF)
 	{
-		pLog.WriteLog("No multiplayer globals tag");
+		getLogger().WriteLog("No multiplayer globals tag");
 		return;
 	}
 	multiplayer_globals_block *global_tag = tags::get_tag<multiplayer_globals_block>('mulg', *mulg_datum);
 	multiplayer_universal_block *universal = global_tag->universal[0];
 	if (!universal)
 	{
-		pLog.WriteLog("mutliplayer globals missing universal");
+		getLogger().WriteLog("mutliplayer globals missing universal");
 		return;
 	}
 	auto multi_text = universal->multiplayerText;
 	if (!multi_text.tag_index.is_valid())
 	{
-		pLog.WriteLog("No multiplayer text in globals");
+		getLogger().WriteLog("No multiplayer text in globals");
 		return;
 	}
 	get_string_from_string_id(multi_text.tag_index, string_id, Dst);
-	pLog.WriteLog("string_id: %d Dst: %S", string_id, Dst);
+	getLogger().WriteLog("string_id: %d Dst: %S", string_id, Dst);
 }
 
 void H2SapienPatches::fix_game_save()

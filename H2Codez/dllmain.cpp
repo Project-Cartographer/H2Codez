@@ -98,8 +98,6 @@ DWORD g_threadID;
 HMODULE g_hModule;
 
 H2EK_Globals game;
-
-Logs pLog("H2Codez.log");
 Settings conf("H2Codez.conf");
 
 BOOL EnableDbgConsole;

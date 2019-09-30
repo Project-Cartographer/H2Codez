@@ -312,7 +312,10 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Common\HaloScriptInterface.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\RenderModel.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

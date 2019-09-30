@@ -168,6 +168,7 @@
     <ClInclude Include="Tags\Globals.h" />
     <ClInclude Include="Tags\HudGlobals.h" />
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
+    <ClInclude Include="Tags\RenderModel.h" />
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ScenarioStructureLightmap.h" />
     <ClInclude Include="Tags\ShaderTag.h" />

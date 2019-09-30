@@ -400,8 +400,6 @@ struct string_id
 	{
 	};
 
-	static constexpr uint32_t data_mask = ~(0xffu << 24);
-
 	constexpr uint8_t get_length() const
 	{
 		return (value >> 24) & 0xFFu;
@@ -409,7 +407,7 @@ struct string_id
 
 	constexpr uint32_t get_id() const
 	{
-		return value & data_mask;
+		return value & ~(0xffu << 24);
 	}
 
 	constexpr uint32_t get_packed() const
@@ -420,6 +418,14 @@ struct string_id
 	constexpr bool is_valid() const
 	{
 		return get_packed() != 0;
+	}
+
+	const char* get_name() const
+	{
+		auto name = get_string_name_table()[get_id()];
+		if (is_debug_build())
+			LOG_CHECK(strnlen_s(name, 0x60000) == get_length());
+		return name;
 	}
 
 	/* Attempts to find a string with that name in the hash table */
@@ -436,6 +442,34 @@ struct string_id
 	static inline string_id find_by_name(const std::string &string)
 	{
 		return find_by_name(string.c_str());
+	}
+
+	struct string_id_globals
+	{
+		struct {
+			char* allocation;
+			size_t next_offset;
+		} name_memory;
+		const char** names_table;
+		long count;
+		void* hashtable;
+	};
+
+	static inline string_id_globals* get_string_id_globals()
+	{
+		auto* globals = reinterpret_cast<string_id_globals*>(SwitchAddessByMode(0xA801E0, 0xA754C8, 0x9B7E60));
+		CHECK_FUNCTION_SUPPORT(globals);
+		return globals;
+	}
+
+	static inline long get_string_id_count()
+	{
+		return get_string_id_globals()->count;
+	}
+
+	static inline const char** get_string_name_table()
+	{
+		return get_string_id_globals()->names_table;
 	}
 
 private:
@@ -468,3 +502,13 @@ struct rect2d
 	WORD bottom;
 	WORD right;
 };
+
+struct real_matrix4x3
+{
+	float scale;
+	real_vector3d forward;
+	real_vector3d left;
+	real_vector3d up;
+	real_point3d position;
+};
+

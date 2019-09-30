@@ -45,6 +45,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&dump_as_xml,
 	&fix_extracted_bitmap_tags,
 	&append_animations,
+	&dump_mode_node_equations
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

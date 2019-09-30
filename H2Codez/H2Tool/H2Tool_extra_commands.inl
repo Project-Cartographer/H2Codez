@@ -15,6 +15,7 @@
 #include "Tags/ScenarioStructureLightmap.h"
 #include "Tags/ScenarioTag.h"
 #include "Tags/Bitmap.h"
+#include "Tags/RenderModel.h"
 #include "util/Patches.h"
 #include "util/process.h"
 #include <iostream>
@@ -793,5 +794,50 @@ static const s_tool_command fix_extracted_bitmap_tags
 	fix_extracted_bitmaps,
 	nullptr,
 	0,
+	true
+};
+static void _cdecl dump_mode_node_equations_proc(const wchar_t* argv[])
+{
+	auto start_time = std::chrono::high_resolution_clock::now();
+
+	std::string render_model_path = filesystem_path_to_tag_path(argv[0]);
+	datum mode_tag = tags::load_tag('mode', render_model_path, tags::no_post_processing);
+	auto render_model = tags::get_tag<render_model_block>('mode', mode_tag);
+
+	std::cout << "=== dumping node equations === " << std::endl;
+
+	for (const auto& node : render_model->nodes)
+	{
+		std::cout  << "== " << node.name.get_name() << " ==" << std::endl;
+
+		auto& matrix = node.inverseMatrix;
+		auto dump_equation = [&](float lhs, float cx, float cy, float cz)
+		{
+			std::cout << lhs << " = " << -cx << "x + " << -cy << "y + " << -cz << "z," << std::endl;
+		};
+		dump_equation(matrix.position.x, matrix.forward.i, matrix.left.i, matrix.up.i);
+		dump_equation(matrix.position.y, matrix.forward.j, matrix.left.j, matrix.up.j);
+		dump_equation(matrix.position.z, matrix.forward.k, matrix.left.k, matrix.up.k);
+	}
+	
+	tags::unload_tag(mode_tag);
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+	std::string time_taken_human = beautify_duration(time_taken);
+	printf("== Time taken: %s ==", time_taken_human.c_str());
+}
+
+const s_tool_command_argument dump_mode_node_equations_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"render_model", "*.render_model" }
+};
+
+static const s_tool_command dump_mode_node_equations
+{
+	L"dump mode node equations",
+	dump_mode_node_equations_proc,
+	dump_mode_node_equations_args,
+	1,
 	true
 };

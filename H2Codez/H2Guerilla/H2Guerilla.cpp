@@ -279,12 +279,12 @@ void H2GuerrilaPatches::Init()
 
 	WritePointer(0x98412C, widget_tags);
 
-	static const tag_field inverse_matrix4x3_fieldset[] = {
-		{ tag_field::real, "inverse scale*"},
-		{ tag_field::real_vector_3d, "inverse forward*"},
-		{ tag_field::real_vector_3d, "inverse left*"},
-		{ tag_field::real_vector_3d, "inverse up*"},
-		{ tag_field::real_point_3d, "inverse position*"},
+	const tag_field inverse_matrix4x3_fieldset[] = {
+		{ tag_field::real, "inverse scale*"             },
+		{ tag_field::real_vector_3d, "inverse forward*" },
+		{ tag_field::real_vector_3d, "inverse left*"    },
+		{ tag_field::real_vector_3d, "inverse up*"      },
+		{ tag_field::real_point_3d, "inverse position*" },
 	};
 
 	// Someone at bungie messed up this def, technically wrong in all the tools but it only matters in guerilla

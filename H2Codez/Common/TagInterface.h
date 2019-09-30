@@ -110,6 +110,11 @@ namespace tags
 		byte_swap                 = 1 << 5, // not sure
 		skip_tag_postprocess      = 1 << 6,
 		dont_call_handle_invalid  = 1 << 7, // only works with loading_flags::for_editor
+
+		no_post_processing = loading_flags::for_editor |	
+			loading_flags::skip_child_tag_load | 
+			loading_flags::skip_tag_postprocess | 
+			loading_flags::skip_block_postprocess,
 	};
 
 	/* Loads a tag from file system */

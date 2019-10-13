@@ -49,8 +49,8 @@ struct s_tool_import_definations_
 
 typedef bool(_cdecl* tool_dev_command_proc)(const char *name, datum tag);
 struct s_tool_h2dev_command {
-	cstring command_name;
-	cstring command_description;
+	cstring name;
+	cstring description;
 	blam_tag tag_type;
 	// not used in any working commands
 	blam_tag convert_from;

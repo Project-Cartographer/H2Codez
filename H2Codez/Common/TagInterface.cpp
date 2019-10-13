@@ -39,7 +39,7 @@ namespace tags
 	std::string get_name(datum tag)
 	{
 		auto name = get_tag_instances()->datum_get<s_tag_instance>(tag.index)->name;
-		return name ? name : "";
+		return LOG_CHECK(name) ? name : "";
 	}
 
 	bool tag_exists(int group, std::string path)

@@ -35,6 +35,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	import_class_monitor_bitmaps,
 	&tool_build_structure_from_jms,
 	&h2dev_extra_commands_defination,
+	&h2dev_extra_iterate_commands_defination,
 	&list_extra_commands,
 	&pathfinding_from_coll,
 	&lightmaps_slave,

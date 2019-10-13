@@ -18,6 +18,7 @@
 #include "Tags/RenderModel.h"
 #include "util/Patches.h"
 #include "util/process.h"
+#include "util/FileSystem.h"
 #include <iostream>
 #include <sstream>
 #include <codecvt>
@@ -32,7 +33,7 @@ namespace fs = std::experimental::filesystem;
 */
 inline static bool prompt_user(const std::string& message, bool default = false)
 {
-	std::cout << message << " (Y/N)" << std::endl;
+	std::cout << message << " (Y/N) [Default:" << (default ? "Y" : "N") << "]" << std::endl;
 	
 	std::string input;
 	std::cin >> input;
@@ -133,11 +134,13 @@ static const s_tool_command tool_build_structure_from_jms = {
 //Finally Sorted out :)
 #pragma endregion 
 
-inline static s_tool_h2dev_command *get_dev_command_table()
+/* Returns a pointer to the utility command table */
+inline static s_tool_h2dev_command *get_tag_utility_command_table()
 {
 	return reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
 }
 
+/* Should we hide the ulitiy command from the end user because it doesn't work */
 static bool should_filter_command(size_t id)
 {
 	// black-listed proc offsets
@@ -149,19 +152,19 @@ static bool should_filter_command(size_t id)
 		0x401BC0, // devcmd_find_old_objects
 		0x403390, // devcmd_remove_huds
 	};
-	auto command = get_dev_command_table()[id];
+	auto command = get_tag_utility_command_table()[id];
 	if (array_util::contains(bad_command_impl, reinterpret_cast<DWORD>(command.command_impl)))
 		return true;
 	return false;
 }
 
-static s_tool_h2dev_command *get_dev_command_by_name(wcstring W_function_name)
+static s_tool_h2dev_command *get_tag_utility_command_by_name(wcstring W_function_name)
 {
 	std::string function_name = tolower(wstring_to_string.to_bytes(W_function_name));
-	s_tool_h2dev_command* command_table = get_dev_command_table();
+	s_tool_h2dev_command *command_table = get_tag_utility_command_table();
 	for (int i = 0; i <= extra_commands_count; i++) {
 		s_tool_h2dev_command *current_cmd = &command_table[i];
-		if (function_name == current_cmd->command_name)
+		if (function_name == current_cmd->name)
 			return current_cmd;
 	}
 	return nullptr;
@@ -169,22 +172,22 @@ static s_tool_h2dev_command *get_dev_command_by_name(wcstring W_function_name)
 
 void _cdecl list_all_extra_commands_proc(wcstring* arguments)
 {
-	s_tool_h2dev_command* command_table = get_dev_command_table();
+	s_tool_h2dev_command *command_table = get_tag_utility_command_table();
 	printf("\n  help : " help_desc);
 	printf("\n  list all : " list_all_desc);
 	for (int i = 0; i <= extra_commands_count; i++) {
 		if (!is_debug_build() && should_filter_command(i))
 			continue;
 		s_tool_h2dev_command *current_cmd = (command_table + i);
-		printf("\n  %s <%s> : %s", current_cmd->command_name, H2CommonPatches::tag_group_names.at(current_cmd->tag_type.as_int()).c_str(), current_cmd->command_description);
+		printf("\n  %s <%s> : %s", current_cmd->name, H2CommonPatches::tag_group_names.at(current_cmd->tag_type.as_int()).c_str(), current_cmd->description);
 	}
 }
 
 inline static void extra_commands_help(const wchar_t* command)
 {
-	s_tool_h2dev_command* cmd = get_dev_command_by_name(command);
+	s_tool_h2dev_command *cmd = get_tag_utility_command_by_name(command);
 	if (cmd) {
-		printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
+		printf("\n  usage : %s\n  Description : %s\n", cmd->name, cmd->description);
 	}
 	else {
 		if (_wcsicmp(command, L"help") == 0) {
@@ -200,6 +203,44 @@ inline static void extra_commands_help(const wchar_t* command)
 	}
 }
 
+enum save_settings
+{
+	prompt,
+	silent_save,
+	nosave
+};
+
+/*
+	Executes a utility command, returns success, errors are logged to log or console
+	Set save_settings to control tag save behaviour
+*/
+static bool execute_utility_command(s_tool_h2dev_command *command, const std::string &tag_name, save_settings save_setting = prompt)
+{
+	std::cout << "Tag: \"" << tag_name << "\"" << std::endl;
+	datum tag = tags::load_tag(command->tag_type, tag_name.c_str(), tags::skip_child_tag_load);
+
+	if (!tag.is_valid() && !is_debug_build())
+	{
+		printf("\n Error unable to find tag \"%s\"!", tag_name.c_str());
+		return false;
+	}
+	LOG_FUNC("%s : %s : %s : %s", command->name, tag_name.c_str(), command->tag_type.as_string().c_str(), tags::get_name(tag));
+	flushall(); // flush the console incase the command crashes
+	if (command->command_impl(tag_name.c_str(), tag))
+	{
+		if (save_setting == silent_save ||
+				save_setting != nosave && prompt_user_wait("Do you want to save the tag (\"" + tag_name + "\")?"))
+			tags::save_tag(tag);
+	}
+	else {
+		LOG_FUNC("skipping saving (command proc returned false)");
+	}
+
+	if (tag.is_valid())
+		tags::unload_tag(tag);
+	return true;
+}
+
 static void _cdecl h2dev_extra_commands_proc(const wchar_t ** arguments)
 {
 	const wchar_t *command_name = arguments[0];
@@ -207,41 +248,59 @@ static void _cdecl h2dev_extra_commands_proc(const wchar_t ** arguments)
 
 	if (_wcsicmp(command_name, L"list") == 0) {
 		list_all_extra_commands_proc(nullptr);
-		return;
 	} else if (_wcsicmp(command_name, L"help") == 0) {
 		extra_commands_help(command_parameter);
-	}
-	else
-	{
-		s_tool_h2dev_command *cmd = get_dev_command_by_name(command_name);
-		if (!cmd)
-		{
+	} else {
+		s_tool_h2dev_command *cmd = get_tag_utility_command_by_name(command_name);
+		if (!cmd) {
 			printf("\n  No such command present.");
-			printf("\n  use : extra-commands help <command_name>");
-		}
-		else
-		{
-			std::string tag_name = wstring_to_string.to_bytes(command_parameter);
-			datum tag = tags::load_tag(cmd->tag_type, tag_name.c_str(), tags::skip_child_tag_load);
-
-			if (!tag.is_valid() && !is_debug_build())
-			{
-				printf("\n Error unable to find tag \"%s\"!", tag_name.c_str());
-				return;
-			}
+			printf("\n  See extra-commands-list");
+		} else {
 			printf("\nRunning command %ws\n", command_name);
-			LOG_FUNC("%ws : %ws : %hs : %hs", command_name, command_parameter, cmd->tag_type.as_string().c_str(), tag_name.c_str());
-			flushall(); // flush the console incase the command crashes
-			if (cmd->command_impl(tag_name.c_str(), tag))
-			{
-				if (prompt_user_wait("Do you want to save the tag?"))
-					tags::save_tag(tag);
-			} else {
-				LOG_FUNC("skipping saving (command proc returned false)");
-			}
+			std::string tag_name = wstring_to_string.to_bytes(command_parameter);
+			execute_utility_command(cmd, tag_name);
+		}
+	}
+}
 
-			if (tag.is_valid())
-				tags::unload_tag(tag);
+static void _cdecl h2dev_extra_iterate_command_proc(const wchar_t** arguments)
+{
+	const wchar_t* command_name = arguments[0];
+
+	if (_wcsicmp(command_name, L"list") == 0 || _wcsicmp(command_name, L"help") == 0) {
+		list_all_extra_commands_proc(nullptr);
+	} else {
+		s_tool_h2dev_command* cmd = get_tag_utility_command_by_name(command_name);
+		if (!cmd) {
+			printf("\n  No such command present.");
+			printf("\n  See extra-commands-list");
+		}
+		else {
+			
+			std::unordered_set<std::string> tag_paths;
+			auto ext = H2CommonPatches::tag_group_names.at(cmd->tag_type.as_int());
+			auto scan_tag_folder = [&](const std::string& path)
+			{
+				find_all_files_with_extension(tag_paths, path + "\\tags\\", ext);
+			};
+
+			scan_tag_folder(H2CommonPatches::get_h2ek_documents_dir());
+			scan_tag_folder(process::GetExeDirectoryNarrow());
+
+			std::cout << tag_paths.size() << " tag(s) found" << std::endl;
+
+			save_settings save_mode = save_settings::prompt;
+			if (!prompt_user("Show tag save prompt for all tags?", true))
+				save_mode = (prompt_user("Save tags?") ? save_settings::silent_save : save_settings::nosave);
+
+			std::cout << "Command: " << cmd->name << "\t" "Tag type: " << ext << "\t" "Count: " << tag_paths.size()
+				<< std::endl << "Autosave modified tag?: " << (save_mode == save_settings::silent_save ? "ENABLED!" : "Disabled") << std::endl;
+
+			if (prompt_user_wait("About to run on a command on " + std::to_string(tag_paths.size()) + " tag(s). Do you wish to continue?"))
+			{
+				for (const auto &tag: tag_paths)
+					LOG_CHECK(execute_utility_command(cmd, tag, save_mode));
+			}
 		}
 	}
 }
@@ -261,6 +320,20 @@ static const s_tool_command h2dev_extra_commands_defination = {
 	L"extra commands",
 	h2dev_extra_commands_proc,
 	h2dev_extra_commands_arguments,	NUMBEROF(h2dev_extra_commands_arguments),
+	false
+};
+
+static const s_tool_command_argument h2dev_extra_iterate_command[] = {
+	{
+		_tool_command_argument_type_string,
+		L"command name",
+	}
+};
+
+static const s_tool_command h2dev_extra_iterate_commands_defination = {
+	L"extra commands iterate",
+	h2dev_extra_iterate_command_proc,
+	h2dev_extra_iterate_command,	NUMBEROF(h2dev_extra_iterate_command),
 	false
 };
 
@@ -538,7 +611,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 
 static const s_tool_command list_extra_commands = {
 	L"extra commands list",
-	CAST_PTR(_tool_command_proc,list_all_extra_commands_proc),
+	list_all_extra_commands_proc,
 	nullptr, 0,
 	true
 };
@@ -802,17 +875,9 @@ static void _cdecl fix_extracted_bitmaps(const wchar_t *argv[])
 	auto scan_tag_folder = [&](const std::string &path)
 	{
 		std::cout << path << std::endl;
-		for (auto& p : fs::recursive_directory_iterator(path + "\\tags\\"))
-		{
-			std::string ext = p.path().extension().string();
-			if (ext == ".bitmap")
-			{
-				std::string bitmap_path = p.path().parent_path().generic_string() + "\\" + p.path().stem().generic_string();
-				std::replace(bitmap_path.begin(), bitmap_path.end(), '/', '\\');
-				bitmaps.insert(bitmap_path);
-			}
-		}
+		find_all_files_with_extension(bitmaps, path + "\\tags\\", "bitmaps");
 	};
+
 	scan_tag_folder(H2CommonPatches::get_h2ek_documents_dir());
 	scan_tag_folder(process::GetExeDirectoryNarrow());
 

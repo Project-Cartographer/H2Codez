@@ -193,6 +193,7 @@
     <ClInclude Include="HaloScript\hs_global_variable.h" />
     <ClInclude Include="HaloScript\hs_opcodes.h" />
     <ClInclude Include="HaloScript\hs_types.h" />
+    <ClInclude Include="util\FileSystem.h" />
     <ClInclude Include="util\FileWatcher.h" />
     <ClInclude Include="util\Logs.h" />
     <ClInclude Include="util\numerical.h" />

@@ -317,6 +317,9 @@
     <ClInclude Include="Tags\RenderModel.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="util\FileSystem.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

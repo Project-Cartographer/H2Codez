@@ -24,6 +24,7 @@ struct datum
 	{
 	}
 
+	/* Checks if the datum seems valid */
 	constexpr bool is_valid() const
 	{
 		return (index != NONE) && (salt != NONE);
@@ -51,6 +52,7 @@ struct datum
 };
 CHECK_STRUCT_SIZE(datum, 4);
 
+/* Helper type for the multi-character constants often used in blam */
 struct blam_tag
 {
 	union {

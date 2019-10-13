@@ -26,6 +26,60 @@
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
+/*
+	Show a CMD prompt to the user
+	Returns user response or default
+*/
+inline static bool prompt_user(const std::string& message, bool default = false)
+{
+	std::cout << message << " (Y/N)" << std::endl;
+	
+	std::string input;
+	std::cin >> input;
+	str_trim(input);
+	input = tolower(input);
+	if (input.size() >= 1)
+	{
+		if (input[0] == 'y')
+		{
+			return true;
+		}
+		else if (input[0] == 'n')
+		{
+			return false;
+		}
+	}
+	return default;
+}
+
+/*
+	Show a CMD prompt to the user waiting till user gives valid response
+	Returns user response
+*/
+inline static bool prompt_user_wait(const std::string& message)
+{
+	std::cout << message << " (Y/N)" << std::endl;
+	while (std::cin)
+	{
+		std::string input;
+		std::cin >> input;
+		str_trim(input);
+		input = tolower(input);
+		if (input.size() >= 1)
+		{
+			if (input[0] == 'y')
+			{
+				return true;
+			}
+			else if (input[0] == 'n')
+			{
+				return false;
+			}
+		}
+	}
+	abort(); // unreachable
+}
+
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
 #define list_all_desc "lists all extra commands"
@@ -79,12 +133,34 @@ static const s_tool_command tool_build_structure_from_jms = {
 //Finally Sorted out :)
 #pragma endregion 
 
-static s_tool_h2dev_command *GetDevCommandByName(wcstring W_function_name)
+inline static s_tool_h2dev_command *get_dev_command_table()
 {
-	std::string function_name = wstring_to_string.to_bytes(W_function_name);
-	s_tool_h2dev_command *command_table = reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
+	return reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
+}
+
+static bool should_filter_command(size_t id)
+{
+	// black-listed proc offsets
+	DWORD bad_command_impl[] = {
+		0x5B8EC0, // ret false
+		0x565470, // ret true
+		0x403480, // devcmd_null_proc
+		// maybe these are useful in other modes?
+		0x401BC0, // devcmd_find_old_objects
+		0x403390, // devcmd_remove_huds
+	};
+	auto command = get_dev_command_table()[id];
+	if (array_util::contains(bad_command_impl, reinterpret_cast<DWORD>(command.command_impl)))
+		return true;
+	return false;
+}
+
+static s_tool_h2dev_command *get_dev_command_by_name(wcstring W_function_name)
+{
+	std::string function_name = tolower(wstring_to_string.to_bytes(W_function_name));
+	s_tool_h2dev_command* command_table = get_dev_command_table();
 	for (int i = 0; i <= extra_commands_count; i++) {
-		s_tool_h2dev_command *current_cmd = (command_table + i);
+		s_tool_h2dev_command *current_cmd = &command_table[i];
 		if (function_name == current_cmd->command_name)
 			return current_cmd;
 	}
@@ -93,75 +169,80 @@ static s_tool_h2dev_command *GetDevCommandByName(wcstring W_function_name)
 
 void _cdecl list_all_extra_commands_proc(wcstring* arguments)
 {
-	s_tool_h2dev_command *command_table = reinterpret_cast<s_tool_h2dev_command*>(0x97A910);
+	s_tool_h2dev_command* command_table = get_dev_command_table();
 	printf("\n  help : " help_desc);
 	printf("\n  list all : " list_all_desc);
 	for (int i = 0; i <= extra_commands_count; i++) {
+		if (!is_debug_build() && should_filter_command(i))
+			continue;
 		s_tool_h2dev_command *current_cmd = (command_table + i);
-		printf("\n  %s : %s", current_cmd->command_name, current_cmd->command_description);
-		getLogger().WriteLog(current_cmd->command_name);//Store It in log
+		printf("\n  %s <%s> : %s", current_cmd->command_name, H2CommonPatches::tag_group_names.at(current_cmd->tag_type.as_int()).c_str(), current_cmd->command_description);
 	}
 }
 
-static void _cdecl h2dev_extra_commands_proc(wchar_t ** arguments)
+inline static void extra_commands_help(const wchar_t* command)
 {
-	wchar_t *command_name = arguments[0];
-	wchar_t *command_parameter_0 = arguments[1];
-	_wcslwr(command_name);
-	_wcslwr(command_parameter_0);
-
-	if (wcscmp(command_name, L"list") == 0) {
-		list_all_extra_commands_proc(nullptr);
+	s_tool_h2dev_command* cmd = get_dev_command_by_name(command);
+	if (cmd) {
+		printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
 	}
-	else if (wcscmp(command_name, L"help") == 0) {
-		if (command_parameter_0) {
-			s_tool_h2dev_command *cmd = GetDevCommandByName(command_parameter_0);
-			if (!cmd) {
-				if (wcscmp(command_parameter_0, L"help") == 0) {
-					printf("\n  usage : help\n  Description : " help_desc);
-					return;
-				}
-				if (wcscmp(command_parameter_0, L"list") == 0) {
-					printf("\n  usage : list all\n  Description : " list_all_desc);
-					return;
-				}
-				printf("\n  Wrong <command_name>");
-				printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
-				return;
-			}
-			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
-			return;
+	else {
+		if (_wcsicmp(command, L"help") == 0) {
+			printf("\n  usage : help\n  Description : " help_desc);
+		}
+		else if (_wcsicmp(command, L"list") == 0) {
+			printf("\n  usage : list all\n  Description : " list_all_desc);
 		}
 		else {
+			printf("\n  No such command \"<command_name>\"");
 			printf("\n  usage : extra-commands help <command_name>\n  Description : Prints the information of the <command_name>");
 		}
-
-
-
 	}
-	//Dev command usage block
+}
+
+static void _cdecl h2dev_extra_commands_proc(const wchar_t ** arguments)
+{
+	const wchar_t *command_name = arguments[0];
+	const wchar_t *command_parameter = arguments[1];
+
+	if (_wcsicmp(command_name, L"list") == 0) {
+		list_all_extra_commands_proc(nullptr);
+		return;
+	} else if (_wcsicmp(command_name, L"help") == 0) {
+		extra_commands_help(command_parameter);
+	}
 	else
 	{
-		s_tool_h2dev_command *cmd = GetDevCommandByName(command_name);
+		s_tool_h2dev_command *cmd = get_dev_command_by_name(command_name);
 		if (!cmd)
 		{
-			printf("\n  Wrong <command_name>");
+			printf("\n  No such command present.");
 			printf("\n  use : extra-commands help <command_name>");
-			return;
 		}
 		else
 		{
-			std::string f_parameter = wstring_to_string.to_bytes(command_parameter_0);
-			getLogger().WriteLog("Tag Type %X \n %s", cmd->tag_type, f_parameter);
-			datum tag = tags::load_tag(cmd->tag_type, f_parameter.c_str(), 7);
+			std::string tag_name = wstring_to_string.to_bytes(command_parameter);
+			datum tag = tags::load_tag(cmd->tag_type, tag_name.c_str(), tags::skip_child_tag_load);
 
-			if (cmd->command_impl(nullptr, tag))// call Function via address			
+			if (!tag.is_valid() && !is_debug_build())
+			{
+				printf("\n Error unable to find tag \"%s\"!", tag_name.c_str());
 				return;
-			printf("\n  usage : %s\n  Description : %s\n", cmd->command_name, cmd->command_description);
-		}
+			}
+			printf("\nRunning command %ws\n", command_name);
+			LOG_FUNC("%ws : %ws : %hs : %hs", command_name, command_parameter, cmd->tag_type.as_string().c_str(), tag_name.c_str());
+			flushall(); // flush the console incase the command crashes
+			if (cmd->command_impl(tag_name.c_str(), tag))
+			{
+				if (prompt_user_wait("Do you want to save the tag?"))
+					tags::save_tag(tag);
+			} else {
+				LOG_FUNC("skipping saving (command proc returned false)");
+			}
 
-		printf("\n  No such command present.");
-		return;
+			if (tag.is_valid())
+				tags::unload_tag(tag);
+		}
 	}
 }
 
@@ -178,7 +259,7 @@ static const s_tool_command_argument h2dev_extra_commands_arguments[] = {
 
 static const s_tool_command h2dev_extra_commands_defination = {
 	L"extra commands",
-	CAST_PTR(_tool_command_proc,h2dev_extra_commands_proc),
+	h2dev_extra_commands_proc,
 	h2dev_extra_commands_arguments,	NUMBEROF(h2dev_extra_commands_arguments),
 	false
 };
@@ -417,7 +498,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 
 		if (TAG_INDEX.is_valid())
 		{
-			if (TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG_INDEX.as_long(), false))
+			if (TAG_FILE_CHECK_IS_WRITEABLE(TAG_INDEX, false))
 			{
 				if (h2pc_generate_render_model_(TAG_INDEX.as_long(), file_reference))
 				{
@@ -485,26 +566,11 @@ bool check_pathfinding_clear(scenario_structure_bsp_block *target)
 {
 	if (target->pathfindingData.size > 0)
 	{
-		std::cout << "bsp already has pathfinding. Do you want to overwrite it? (Y/N)" << std::endl;
-		while (std::cin)
+		if (prompt_user_wait("bsp already has pathfinding. Do you want to overwrite it?"))
 		{
-			std::string input;
-			std::cin >> input;
-			str_trim(input);
-			input = tolower(input);
-			if (input.size() >= 1)
-			{
-				if (input[0] == 'y')
-				{
-					std::cout << "Clearing old pathfinding data" << std::endl;
-					tags::block_delete_all(&target->pathfindingData);
-					return true;
-				}
-				else if (input[0] == 'n')
-				{
-					return false;
-				}
-			}
+			std::cout << "Clearing old pathfinding data" << std::endl;
+			tags::block_delete_all(&target->pathfindingData);
+			return true;
 		}
 		return false;
 	}

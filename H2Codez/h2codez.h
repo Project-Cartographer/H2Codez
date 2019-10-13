@@ -30,6 +30,7 @@ typedef char long_string[255 + 1];
 	static_assert(sizeof(struct_name) == size, #struct_name " size is invalid" )
 #define ASM_FUNC __declspec(naked)
 
+/* Is this a debug build? */
 bool constexpr is_debug_build()
 {
 #ifdef _DEBUG

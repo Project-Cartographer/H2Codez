@@ -47,15 +47,21 @@ struct s_tool_import_definations_
 	import_def_translate_path*      translate_path;
 };
 
-typedef bool(_cdecl* tool_dev_command_proc)(wchar_t *a1, datum tags);
+typedef bool(_cdecl* tool_dev_command_proc)(const char *name, datum tag);
 struct s_tool_h2dev_command {
 	cstring command_name;
 	cstring command_description;
-	DWORD tag_type; // or char[4] in Little-endian / 4 character constant
-	DWORD					    unk;
-	DWORD					    unk_2;
-	DWORD                       unk_3;
-	tool_dev_command_proc		command_impl;
+	blam_tag tag_type;
+	// not used in any working commands
+	blam_tag convert_from;
+	// always 1 in working commands
+	DWORD arg_type__maybe; 
+	enum _flag
+	{
+		bit0 = FLAG(0),
+		bit1 = FLAG(1),
+	} flags;
+	tool_dev_command_proc command_impl;
 };
 static_assert(sizeof(s_tool_h2dev_command) == 0x1C, "Invalid struct size for dev_command");
 

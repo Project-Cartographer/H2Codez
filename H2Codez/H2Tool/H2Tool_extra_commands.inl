@@ -881,9 +881,9 @@ static void _cdecl dump_mode_node_equations_proc(const wchar_t* argv[])
 		{
 			std::cout << lhs << " = " << -cx << "x + " << -cy << "y + " << -cz << "z," << std::endl;
 		};
-		dump_equation(matrix.position.x, matrix.forward.i, matrix.left.i, matrix.up.i);
-		dump_equation(matrix.position.y, matrix.forward.j, matrix.left.j, matrix.up.j);
-		dump_equation(matrix.position.z, matrix.forward.k, matrix.left.k, matrix.up.k);
+		dump_equation(matrix.translation.x, matrix.forward.i, matrix.left.i, matrix.up.i);
+		dump_equation(matrix.translation.y, matrix.forward.j, matrix.left.j, matrix.up.j);
+		dump_equation(matrix.translation.z, matrix.forward.k, matrix.left.k, matrix.up.k);
 	}
 	
 	tags::unload_tag(mode_tag);

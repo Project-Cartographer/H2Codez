@@ -185,7 +185,7 @@ struct editor_string
 		if (!LOG_CHECK(LoadStringA(get_h2alang(), id, data, ARRAYSIZE(data))))
 		{
 			getLogger().WriteLog("Failed to get string %d", id);
-			return "";
+			return "BORK BORK BORK";
 		}
 		return data;
 	}

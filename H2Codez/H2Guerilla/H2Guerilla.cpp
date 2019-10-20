@@ -53,6 +53,7 @@ inline static void EnableItem(UINT item, bool enable)
 void update_ui()
 {
 	CheckItem(ID_EDIT_ADVANCEDSHADERVIEW, conf.getBoolean("disable_templete_view"));
+	CheckItem(SHOW_ALL_HIDDEN_FIELDS, conf.getBoolean("show_all_fields"));
 }
 
 /* Capture menu input */
@@ -87,6 +88,10 @@ int __fastcall CCmdTarget__OnCmdMsg_hook(void *thisptr, BYTE _, unsigned int nID
 			TagDefinitions::dump_as_xml();
 			AssemblyLayoutGenerator::DumpAllTags();
 			return true;
+		case SHOW_ALL_HIDDEN_FIELDS:
+			toggle_boolean("show_all_fields", false);
+			update_ui();
+			return true;
 		}
 	}
 	return CCmdTarget__OnCmdMsg_Orginal(thisptr, 0, nID, nCode, pExtra, AFX_CMDHANDLERINFO);
@@ -101,6 +106,7 @@ void __fastcall CCmdUI__Enable_Hook(void *thisptr, BYTE _, int a2)
 	EnableItem(SCRIPT_DOC, true);
 	EnableItem(SHOW_HIDDEN_FIELDS, true);
 	EnableItem(DUMP_XML_DEFINITION, true);
+	EnableItem(SHOW_ALL_HIDDEN_FIELDS, show_hidden_fields);
 }
 
 /* Override menu loaded by guerilla */
@@ -207,6 +213,36 @@ void H2GuerrilaPatches::update_field_display()
 	}
 }
 
+static inline bool is_tag_field_group_blacklisted(tag_field* tag_field)
+{
+	auto group = tag_field->group_tag;
+	return group == 'fnom' || group == 'fnop' || group == 'fnin' || group == 'fnir';
+}
+
+static bool __fastcall field_information__should_hide(field_information *thisptr)
+{
+	ASSERT_CHECK(thisptr);
+	ASSERT_CHECK(thisptr->field);
+	if (show_hidden_fields && conf.getBoolean("show_all_fields", false))
+		return false;
+
+	/* Hide black listed groups */
+	if (is_tag_field_group_blacklisted(thisptr->field))
+		return true;
+
+	std::string name = thisptr->field->name.get_string();
+	/* 
+		Hide unnamed fields needs to check if the string is not null due to a quirk of orginal code
+	*/
+	if (thisptr->field->name.id && name.length() == 0)
+		return true;
+	
+	/* Finally hide based on name */
+	bool should_hide = name.find('~') != std::string::npos;
+
+	return should_hide && !show_hidden_fields;
+}
+
 void H2GuerrilaPatches::Init()
 {
 	for (auto &menu : menu_map)
@@ -235,6 +271,7 @@ void H2GuerrilaPatches::Init()
 	NopFill(0x44CDD0, 0x5);
 
 	// A messy fix for script text getting cut off
+	/* Works by patching the string conversion function */
 	WriteValue(0x402FCE + 1, 0x40000);
 	WriteValue(0x402F0D + 1, 0x40000);
 
@@ -289,6 +326,9 @@ void H2GuerrilaPatches::Init()
 
 	// Someone at bungie messed up this def, technically wrong in all the tools but it only matters in guerilla
 	WriteArray(0x94FDD8, &inverse_matrix4x3_fieldset);
+
+	// Replace guerilla logic for deciding if we should show a tag field
+	WriteJmp(0x477230, field_information__should_hide);
 
 #pragma endregion
 

@@ -19,16 +19,34 @@ typedef char long_string[255 + 1];
 #define CAST_PTR_OP(type)		reinterpret_cast<type>
 #define NUMBEROF_C(array) ( sizeof(array) / sizeof( (array)[0] ) )
 #define NUMBEROF(array) _countof(array)
-#define WIN32_FUNC(func) func
 #define FLAG(bit)( 1<<(bit) )
-#define BOOST_STATIC_ASSERT( ... ) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #define TOOL_INCREASE_FACTOR 0x20
 #define CHECK_FUNCTION_SUPPORT(expersion)\
 	if (!expersion)                      \
 		_wassert(__FUNCTIONW__ L" doesn't support this process type.", _CRT_WIDE(__FILE__), (unsigned)(__LINE__))
+
+/* 
+	Check the size of a struct at compile time, helps ensure struct is compatible with the EK.
+*/
 #define CHECK_STRUCT_SIZE(struct_name, size)\
 	static_assert(sizeof(struct_name) == size, #struct_name " size is invalid" )
+
+/*
+	Check offset of a field in a struct at compile time, helps ensure struct is compatible with the EK.
+*/
+#define CHECK_STRUCT_FIELD_OFFSET(struct_name, field, offset)\
+	static_assert(offsetof(struct_name, field) == offset, #struct_name " layout is invalid")
+
 #define ASM_FUNC __declspec(naked)
+
+/* Pads */
+
+// Add an anonymous 8-bit (1 byte) field to a structure.
+#define PAD_BYTE unsigned char : 8;
+// Add an anonymous 16-bit (2 byte) field to a structure.
+#define PAD_WORD unsigned short : 16;
+// Add an anonymous 32-bit (4 byte) field to a structure.
+#define PAD_DWORD unsigned long : 32;
 
 /* Is this a debug build? */
 bool constexpr is_debug_build()

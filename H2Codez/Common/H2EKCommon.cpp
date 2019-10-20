@@ -64,7 +64,9 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 		case 0xF3Cu:
 			return set_string(L"%.0d--- importing %s.%hs ---\n"); // used to be "%*s--- importing %s.%s ---" but the printf was broke (it pushed too few args)
 		case 0xF3Bu:
-			return set_string(L"%.0d %s pitch range '%hs\n'");
+			return set_string(L"%*s pitch range '%hs'\n");
+		case 0xF41u:
+			return set_string(L"%*s permutation '%hs'\n");
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }

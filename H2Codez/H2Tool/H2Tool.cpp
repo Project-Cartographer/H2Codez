@@ -285,28 +285,7 @@ void H2ToolPatches::apply_shared_tag_removal_scheme()
 
 void H2ToolPatches::unlock_other_scenario_types_compiling()
 {
-	//Refer to H2EK_OpenSauce Campaign_sharing
-	static void* BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE = CAST_PTR(void*,0x588320);
-	BYTE patch[1] = {0xEB};
-	WriteBytes((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__CHECK_SCENARIO_TYPE, patch, 1);//change jz to jmp
-
-}
-
-static signed long _scenario_type;
-
-static void __declspec(naked) _build_cache_file_for_scenario__intercept_get_scenario_type()
-{
-	//Refer to H2EK_OpenSauce Campaign_sharing
-	//Basically this function helps us to store the scenario_type which can be used in later areas
-	static const unsigned __int32 INTERCEPTOR_EXIT = 0x588313;
-
-	__asm {
-		    movsx	edx, word ptr[eax + 0x1C]
-			push	esi
-			mov[esp + 0x58], edx			// mov     [esp+1F90h+scenario_type], edx
-			mov		_scenario_type, edx
-			jmp		INTERCEPTOR_EXIT
-	}
+	WriteValue<BYTE>(0x588320, 0xEB); // change jz to jmp
 }
 
 const static wchar_t *campaign_shared_path = L"maps\\single_player_shared.map";
@@ -333,13 +312,18 @@ const static int load_sharing_log_offsets[] =
 	0x005817CD
 };
 
-static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(void *a1, void* a2)
+/* Hook tag_get call involved in checking the scenario type */
+void* __cdecl tags_get__build_cache_file_check_type(int TAG_TYPE, int TAG_INDEX)
 {
-	//Refer to H2EK_OpenSauce Campaign_sharing
+	scnr_tag* tag = tags::get_tag<scnr_tag>('scnr', TAG_INDEX);
+	if (tag->type == scnr_tag::Singleplayer)
+	{
+		/*
+			Fix cache file used for single player maps
+		*/
 
-	// If scenario_type is single_player,modify the strings
-	if (_scenario_type == 0)
-	{	
+		LOG_FUNC("Patching TAG_SHARING_LOAD_MULTIPLAYER_SHARED to be singleplayer");
+
 		// Replace file name strings
 		WritePointer(0x581455, campaign_shared_path);
 		WritePointer(0x581480, campaign_shared_path);
@@ -348,13 +332,14 @@ static char __cdecl h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED(voi
 		for (int i = 0; i < ARRAYSIZE(load_sharing_log_offsets); i++)
 			WritePointer(load_sharing_log_offsets[i] + 1, load_sharing_log_messages[i]);
 	}
-	getLogger().WriteLog("loading....tag_sharing method");
-
-
-	DWORD TAG_SHARING_LOAD_MULTIPLAYER_SHARED = 0x5813C0;
-	return ((char(__cdecl *)(void*, void*))TAG_SHARING_LOAD_MULTIPLAYER_SHARED)(a1,a2);// call Function via address
-
+	return tag;
 }
+
+void H2ToolPatches::enable_campaign_tags_sharing()
+{
+	PatchCall(0x588305, tags_get__build_cache_file_check_type);
+}
+
 void H2ToolPatches::render_model_import_unlock()
 {
 	//Patches the h2tool to use the custom render_model_generation methods
@@ -366,32 +351,6 @@ void H2ToolPatches::render_model_import_unlock()
 	.text:0041C7A6 000                 jmp     loc_41C4A0      ; Jump
 	*/
 	PatchCall(0x41C7A6, h2pc_import_render_model_proc);
-}
-
-void H2ToolPatches::enable_campaign_tags_sharing()
-{
-	//Refer to H2EK_OpenSauce Campaign_sharing
-
-    void* BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE = CAST_PTR(void*, 0x58830A);
-	int BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED =  0x5883DE;
-
-	/*
-	//get_scenario_ Intercept codes
-	BYTE patch[1] = { 0xE8};
-
-	//Writing a call in memory to jmp to our function
-	WriteBytesASM((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, patch, 1);
-	PatchCall((DWORD)BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, (DWORD)_build_cache_file_for_scenario__intercept_get_scenario_type);//Writing the address to be jumped
-	*/
-	WriteJmp(BUILD_CACHE_FILE_FOR_SCENARIO__GET_SCENARIO_TYPE, _build_cache_file_for_scenario__intercept_get_scenario_type);
-
-
-	//single_player_shared sharing
-	
-	//.text:005883DE                 call    BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED ; STR: "tag sharing: loading tag names from shared.map", "tag sharing: 
-	PatchCall(BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED, h_BUILD_CACHE_FILE_FOR_SCENARIO__TAG_SHARING_LOAD_SHARED);//modifying the call to go to my h_function rather original
-
-	getLogger().WriteLog("Single Player tag_sharing enabled");
 }
 
 void H2ToolPatches::remove_bsp_version_check()
@@ -599,7 +558,7 @@ void H2ToolPatches::fix_bitmap_package()
 	WriteJmp(0x645113, wdp_compress_hook);
 }
 
-static char * __cdecl id_to_lang_name_narrow(int id)
+static const char * __cdecl id_to_lang_name_narrow(int id)
 {
 
 	switch (id)

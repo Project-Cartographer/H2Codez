@@ -223,6 +223,17 @@ static bool __fastcall field_information__should_hide(field_information *thisptr
 {
 	ASSERT_CHECK(thisptr);
 	ASSERT_CHECK(thisptr->field);
+	
+	/*
+		Hide blocks that can't be used
+	*/
+	if (thisptr->field->type == tag_field::block)
+	{
+		auto block_def = reinterpret_cast<tag_block_defintions*>(thisptr->field->defintion);
+		if (block_def->max_count == 0)
+			return true;
+	}
+
 	if (show_hidden_fields && conf.getBoolean("show_all_fields", false))
 		return false;
 

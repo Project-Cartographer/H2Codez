@@ -377,6 +377,11 @@ static void set_tag_data_max_size(size_t limit)
 		WriteValue(offset + 1, limit);
 }
 
+static bool __cdecl check_bitmap_dimension(int format, int type, __int16 dimension)
+{
+	return dimension > 0 && dimension <= 8192;
+}
+
 void H2CommonPatches::Init()
 {
 	DetourTransactionBegin();
@@ -403,6 +408,8 @@ void H2CommonPatches::Init()
 		tags__fix_corrupt_fields_org = reinterpret_cast<tags__fix_corrupt_fields*>(SwitchAddessByMode(0x52FEC0, 0x4B18E0, 0x485590));
 		DetourAttach(&(PVOID&)tags__fix_corrupt_fields_org, tags__fix_corrupt_fields___hook);
 	}
+
+	WriteJmp(SwitchByMode(0x720FF0, 0x6FFCE0, 0x65D030), check_bitmap_dimension);
 
 	fix_documents_path_string_type();
 

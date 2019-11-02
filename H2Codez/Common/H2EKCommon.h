@@ -24,3 +24,5 @@ namespace H2CommonPatches {
 
 	std::string get_h2ek_documents_dir();
 };
+
+static constexpr int max_bitmap_size = 8192;

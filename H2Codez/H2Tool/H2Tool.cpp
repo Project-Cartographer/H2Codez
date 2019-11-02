@@ -642,6 +642,13 @@ void H2ToolPatches::Initialize()
 	fix_bitmap_package();
 
 	NopFill(0x415D69, 6); // patch JMH version check
+
+	// BMP importing
+	WriteValue(0x4EAE21 + 1, max_bitmap_size);
+	WriteValue(0x4EAE37 + 2, max_bitmap_size);
+
+	// GDI based importing
+	WriteValue(0x4E7941 + 1, max_bitmap_size);
 }
 
 

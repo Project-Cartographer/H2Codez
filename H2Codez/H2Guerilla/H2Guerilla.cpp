@@ -371,7 +371,7 @@ void H2GuerrilaPatches::Init()
 	DetourTransactionCommit();
 #pragma endregion
 
-	WriteValue(0x9AF809, (BYTE)conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
+	WriteValue<BYTE>(0x9AF809, conf.getBoolean("expert_mode", 1)); // set is_expert_mode to one
 	show_hidden_fields = conf.getBoolean("show_hidden_fields", true);
 
 	update_field_display();

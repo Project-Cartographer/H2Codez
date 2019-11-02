@@ -379,7 +379,7 @@ static void set_tag_data_max_size(size_t limit)
 
 static bool __cdecl check_bitmap_dimension(int format, int type, __int16 dimension)
 {
-	return dimension > 0 && dimension <= 8192;
+	return dimension > 0 && dimension <= max_bitmap_size;
 }
 
 void H2CommonPatches::Init()

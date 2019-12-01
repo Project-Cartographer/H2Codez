@@ -604,15 +604,18 @@ static void patch_max_bitmap_size()
 		Lightmap bitmaps
 	*/
 
-	// shrinking bitmap
-	WriteValue<uint16_t>(0x4C28C1 + 3, max_lightmap_size); // size check
-	WriteValue<uint32_t>(0x4C28DB, max_lightmap_size - 1); // division 
-	WriteValue<uint32_t>(0x4C28E3 + 2, numerical::integral_log2(max_lightmap_size)); // division
+	if (conf.getBoolean("increase_lightmap_size", false))
+	{
+		// shrinking bitmap
+		WriteValue<uint16_t>(0x4C28C1 + 3, max_lightmap_size); // size check
+		WriteValue<uint32_t>(0x4C28DB, max_lightmap_size - 1); // division 
+		WriteValue<uint32_t>(0x4C28E3 + 2, numerical::integral_log2(max_lightmap_size)); // division
 
-	constexpr static float max_lightmap_float = max_lightmap_size;
+		constexpr static float max_lightmap_float = max_lightmap_size;
 
-	// atlas max size
-	WritePointer(0x4DFDA6 + 4, &max_lightmap_float);
+		// atlas max size
+		WritePointer(0x4DFDA6 + 4, &max_lightmap_float);
+	}
 }
 
 void H2ToolPatches::Initialize()

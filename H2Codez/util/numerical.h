@@ -6,6 +6,9 @@ namespace numerical {
 #define CHECK_NUMERICAL_TYPE(type)\
 	static_assert(std::is_arithmetic<type>::value, "NumericType must be numeric")
 
+#define CHECK_INTEGRAL_TYPE(type)\
+	static_assert(std::is_integral<type>::value, "IntegralType must be integral")
+
 	enum radix
 	{
 		octal = 8,
@@ -76,6 +79,29 @@ namespace numerical {
 	{
 		return (v >= lo) && (v <= hi);
 	}
+
+	/* Is a number a power of two? */
+	template <typename IntegralType>
+	inline constexpr bool is_power_of_two(IntegralType num)
+	{
+		CHECK_INTEGRAL_TYPE(IntegralType);
+		return (num != 0) && ((num & (num - 1)) == 0);
+	}
+
+	/* 
+		Returns an approximate solution for log2(num), always rounding down
+		e.g. integral_log2(1023) == 9 and integral_log2(1025) == 10
+	*/
+	template <typename IntegralType>
+	inline int integral_log2(IntegralType num)
+	{
+		CHECK_INTEGRAL_TYPE(IntegralType);
+		int exponent = 0;
+		while (num >>= 1)
+			exponent++;
+		return exponent;
+	}
+
 
 	template <typename NumericType>
 	inline NumericType div(NumericType a, NumericType num) {

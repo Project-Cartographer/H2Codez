@@ -587,6 +587,34 @@ static const char * __cdecl id_to_lang_name_narrow(int id)
 	}
 }
 
+static void patch_max_bitmap_size()
+{
+	/*
+		Import
+	*/
+
+	// BMP importing
+	WriteValue(0x4EAE21 + 1, max_bitmap_size);
+	WriteValue(0x4EAE37 + 2, max_bitmap_size);
+
+	// GDI based importing
+	WriteValue(0x4E7941 + 1, max_bitmap_size);
+
+	/*
+		Lightmap bitmaps
+	*/
+
+	// shrinking bitmap
+	WriteValue<uint16_t>(0x4C28C1 + 3, max_lightmap_size); // size check
+	WriteValue<uint32_t>(0x4C28DB, max_lightmap_size - 1); // division 
+	WriteValue<uint32_t>(0x4C28E3 + 2, numerical::integral_log2(max_lightmap_size)); // division
+
+	constexpr static float max_lightmap_float = max_lightmap_size;
+
+	// atlas max size
+	WritePointer(0x4DFDA6 + 4, &max_lightmap_float);
+}
+
 void H2ToolPatches::Initialize()
 {
 	getLogger().WriteLog("DLL Successfully Injected to H2Tool");
@@ -643,12 +671,7 @@ void H2ToolPatches::Initialize()
 
 	NopFill(0x415D69, 6); // patch JMH version check
 
-	// BMP importing
-	WriteValue(0x4EAE21 + 1, max_bitmap_size);
-	WriteValue(0x4EAE37 + 2, max_bitmap_size);
-
-	// GDI based importing
-	WriteValue(0x4E7941 + 1, max_bitmap_size);
+	patch_max_bitmap_size();
 }
 
 

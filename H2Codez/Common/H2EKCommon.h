@@ -1,5 +1,6 @@
 #pragma once
-#include "..\HaloScript\hs_interface.h"
+#include "HaloScript\hs_interface.h"
+#include "util\numerical.h"
 
 enum wdp_type : signed int
 {
@@ -25,4 +26,9 @@ namespace H2CommonPatches {
 	std::string get_h2ek_documents_dir();
 };
 
-static constexpr int max_bitmap_size = 8192;
+static constexpr int max_bitmap_size = 0x2000;
+static constexpr int max_lightmap_size = max_bitmap_size / 2;
+
+static_assert(numerical::is_power_of_two(max_bitmap_size), "bitmap max size is not power of two");
+static_assert(numerical::is_power_of_two(max_lightmap_size), "lightmap max size is not power of two");
+

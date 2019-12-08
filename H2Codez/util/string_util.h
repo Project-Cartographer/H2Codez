@@ -186,7 +186,17 @@ inline size_t strrchr_offset(const char *string, int c)
 		return (offset_string - string);
 }
 
-inline std::string duplicate_last_path_element(std::string path)
+// returns the filename including extension, the results for a path ending in \ is undefined
+inline std::string get_path_filename(const std::string& path)
+{
+	auto offset = path.find_last_of('\\');
+	if (offset == std::string::npos)
+		return path;
+	else
+		return path.substr(offset + 1);
+}
+
+inline std::string duplicate_last_path_element(const std::string &path)
 {
 	auto offset = path.find_last_of('\\');
 	if (offset == std::string::npos)

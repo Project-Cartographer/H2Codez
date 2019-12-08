@@ -307,6 +307,12 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			case tag_field::long_string:
 				value = std::string(data, strnlen_s(data, size_change));
 				break;
+
+			case tag_field::real_point_2d:
+			{
+				write_2_floats(reinterpret_cast<_2_floats*>(data));
+				break;
+			}
 			case tag_field::real_rgb_color:
 			case tag_field::real_vector_3d:
 			case tag_field::real_point_3d:

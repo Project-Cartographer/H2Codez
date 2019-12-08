@@ -59,6 +59,47 @@ struct render_model_section_block
 };
 CHECK_STRUCT_SIZE(render_model_section_block, 104);
 
+struct render_model_section_group_block
+{
+	enum DetailLevels : short
+	{
+		L1superLow = 0x1,
+		L2low = 0x2,
+		L3medium = 0x4,
+		L4high = 0x8,
+		L5superHigh = 0x10,
+		L6hollywood = 0x20,
+		All = L1superLow | L2low | L3medium | L4high | L5superHigh | L6hollywood
+	};
+	DetailLevels detailLevels;
+	byte padding92[2];
+	tag_block<> compoundNodes;
+};
+CHECK_STRUCT_SIZE(render_model_section_group_block, 16);
+
+struct render_model_permutation_block
+{
+	string_id name;
+	short l1SectionIndexsuperLow;
+	short l2SectionIndexlow;
+	short l3SectionIndexmedium;
+	short l4SectionIndexhigh;
+	short l5SectionIndexsuperHigh;
+	short l6SectionIndexhollywood;
+};
+CHECK_STRUCT_SIZE(render_model_permutation_block, 16);
+
+
+struct render_model_region_block
+{
+	string_id name;
+	short nodeMapOffsetOLD;
+	short nodeMapSizeOLD;
+	tag_block<render_model_permutation_block> permutations;
+
+};
+CHECK_STRUCT_SIZE(render_model_region_block, 20);
+
 struct render_model_block
 {
 	/// old string id
@@ -71,20 +112,20 @@ struct render_model_block
 		ForceNodeMaps = 0x4,
 		GeometryPostprocessed = 0x8,
 	};
-	Flags flags;
+	short flags;
 	byte padding4[2];
 	byte padding5[4];
 	tag_block<> importInfo;
 
 	tag_block<> compressionInfo;
 
-	tag_block<> regions;
+	tag_block<render_model_region_block> regions;
 
 	tag_block<render_model_section_block> sections;
 
 	tag_block<> invalidSectionPairBits;
 
-	tag_block<> sectionGroups;
+	tag_block<render_model_section_group_block> sectionGroups;
 
 	byte l1SectionGroupIndexsuperLow;
 	byte l2SectionGroupIndexlow;

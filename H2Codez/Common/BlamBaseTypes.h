@@ -400,6 +400,8 @@ struct angle_bounds
 
 struct string_id
 {
+	string_id() = default;
+
 	constexpr string_id(uint32_t _value) :
 		value(_value)
 	{};
@@ -451,6 +453,22 @@ struct string_id
 	static inline string_id find_by_name(const std::string &string)
 	{
 		return find_by_name(string.c_str());
+	}
+
+	/* Look for a string id and registers it if the function can't find it */
+	static inline string_id get_string_id(const char* string)
+	{
+		typedef uint32_t __cdecl get_string_id_by_name_or_register(const char* _name);
+		auto *get_string_id_by_name_or_register_impl = reinterpret_cast<get_string_id_by_name_or_register*>(SwitchAddessByMode(0x52E8A0, 0, 0));
+		CHECK_FUNCTION_SUPPORT(get_string_id_by_name_or_register_impl);
+
+		return get_string_id_by_name_or_register_impl(string);
+	}
+
+	/* Look for a string id and registers it if the function can't find it */
+	static inline string_id get_string_id(const std::string& string)
+	{
+		return get_string_id(string.c_str());
 	}
 
 	struct string_id_globals
@@ -519,6 +537,8 @@ struct real_matrix4x3
 	real_vector3d left;
 	real_vector3d up;
 	real_point3d translation;
+
+	real_matrix4x3() = default;
 
 	real_matrix4x3(const real_quaternion& rotation)
 	{

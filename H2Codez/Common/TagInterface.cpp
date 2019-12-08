@@ -71,9 +71,10 @@ namespace tags
 
 	template<> void *get_tag<void>(blam_tag tag_group, datum index)
 	{
-		typedef void* __cdecl TAG_GET(datum tag_group, datum tag_datum);
+		typedef void* __cdecl TAG_GET(int tag_group, int tag_datum);
 		auto TAG_GET_IMPL = reinterpret_cast<TAG_GET*>(OS_switch_by_addr(0x484A00, 0x52F150, 0x4B0B20));
-		return TAG_GET_IMPL(tag_group.as_int(), index);
+		auto results = TAG_GET_IMPL(tag_group.as_int(), index.as_long());
+		return results;
 	}
 
 	bool block_delete_all(tag_block_ref *block)
@@ -108,7 +109,8 @@ namespace tags
 	{
 		typedef size_t __cdecl TAG_NEW(int group, const char *path);
 		auto TAG_NEW_IMPL = reinterpret_cast<TAG_NEW*>(OS_switch_by_addr(0x486A00, 0x5313F0, 0x4B2E10));
-		return TAG_NEW_IMPL(group, name.c_str());
+		auto results = TAG_NEW_IMPL(group, name.c_str());
+		return results;
 	}
 
 	bool save_tag(datum index)
@@ -126,7 +128,8 @@ namespace tags
 	{
 		typedef int __cdecl TAG_LOAD(int tag_group, const char *tag_name, int flags);
 		auto TAG_LOAD_IMPL = reinterpret_cast<TAG_LOAD*>(OS_switch_by_addr(0x488D90, 0x533930, 0x4B51B0));
-		return TAG_LOAD_IMPL(group.as_int(), name.c_str(), flags);
+		auto results = TAG_LOAD_IMPL(group.as_int(), name.c_str(), flags);
+		return results;
 	}
 
 	unsigned int add_block_element(tag_block_ref *block)

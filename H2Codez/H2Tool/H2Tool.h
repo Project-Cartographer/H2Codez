@@ -39,7 +39,7 @@ struct s_tool_command {
 
 typedef bool __cdecl import_def_translate_path(file_reference *data_file, file_reference *tag);
 
-struct s_tool_import_definations_
+struct s_tool_import_definations
 {
 	cstring							file_extension;
 	_tool_import__defination_proc   import_proc;

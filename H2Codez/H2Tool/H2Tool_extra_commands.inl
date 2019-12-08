@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "H2tool.h"
 #include "H2ToolLibrary.inl"
-#include "H2Tool_Render_Model.h"
 #include "LightMapping.h"
 #include "Common/FiloInterface.h"
 #include "Common/TagInterface.h"
@@ -340,111 +339,70 @@ static const s_tool_command h2dev_extra_iterate_commands_defination = {
 #pragma endregion
 #pragma region Render_model_import
 
-bool k_render_model_imported = FALSE;
-static WCHAR out_path[256];
-static char c_out_path[256];
-static cstring render_model_folder = "render";
-std::string target_folder;// a String that holds the containing_folder of the current generated tags
-static int global_geometry_imported_count = 0;
-tag_data_struct** global_sbsp_data_list;
+static std::vector<std::unique_ptr<tags::s_scoped_handle>> imported_bsps;
+static bool in_fake_structure_compile = false;
+static bool structure_imported = false;
 
-static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *sFILE_REF, char* _TAG_INDEX_)
+static DWORD __cdecl tag_save__scenario_for_structure_import(int TAG_INDEX)
 {
-	DWORD TAG_INDEX = (DWORD)_TAG_INDEX_;
-	DWORD MODE_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
-	DWORD import_info_block_offset = MODE_TAG + 0xC;
+	if (in_fake_structure_compile)
+		return true;
+	else
+		return tags::save_tag(TAG_INDEX);
+}
 
-	if (MODE_TAG != -1) {
-		if (!TAG_ADD_IMPORT_INFO_ADD_DATA_(CAST_PTR(void*, import_info_block_offset), sFILE_REF))
+static DWORD __cdecl tag_save__structure_for_structure_import(int TAG_INDEX)
+{
+	bool result = true;
+	if (in_fake_structure_compile) {
+		structure_imported = true;
+		imported_bsps.push_back(std::move(std::make_unique<tags::s_scoped_handle>(TAG_INDEX)));
+	} else {
+		result = tags::save_tag(TAG_INDEX);
+	}
+	return result;
+}
+
+static void __cdecl tag_unload__structure_for_structure_import(int TAG_INDEX)
+{
+	if (!in_fake_structure_compile)
+		tags::unload_tag(TAG_INDEX);
+}
+
+static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *file, const datum &tag)
+{
+	render_model_block *render_model = tags::get_tag<render_model_block>('mode', tag);
+
+	if (LOG_CHECK(tag != datum::null())) {
+		if (TAG_ADD_IMPORT_INFO_ADD_DATA_(&render_model->importInfo, file))
 		{
-			k_render_model_imported = FALSE;
+			printf("    == Import info  Added \n");
+		} else {
+			printf("    == Failed to add import info");
 			return;
 		}
 
-		printf("    == Import info  Added \n");
+		const std::string path      = FiloInterface::get_path_info(file, PATH_FLAGS::FULL_PATH);
+		const std::string file_type = FiloInterface::get_path_info(file, PATH_FLAGS::FILE_EXTENSION);
 
-		std::string path = FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FULL_PATH);
-		std::string file_type= FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_EXTENSION);
-
-		WCHAR w_path[256];
-		MultiByteToWideChar(0xFDE9u, 0, path.c_str(), 0xFFFFFFFF, w_path, 0x104);
-
-		//generating sbsp from jms
-		wcstring p[2] = { w_path,L"sbsp_temp" };
+		std::wstring wide_path = wstring_to_string.from_bytes(path);
 		
-		if(strcmp(file_type.c_str(),"jms")==0)
-			tool_build_structure_from_jms_proc(p);
+		wcstring fake_args[2] = { wide_path.c_str(), L"sbsp_temp" };
+		in_fake_structure_compile = true;
+		structure_imported = false;
+		if (file_type == "jms")
+			tool_build_structure_from_jms_proc(fake_args);
 		else
-			tool_build_structure_from_ass_proc(p);	
-		
+			tool_build_structure_from_ass_proc(fake_args);
+		in_fake_structure_compile = false;
 
-		std::string sbsp_file = target_folder + "\\" + FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME) + ".scenario_structure_bsp";
-
-		ifstream fin;
-		fin.open(sbsp_file.c_str(), ios::binary | ios::in | ios::ate);
-		// sbsp isn't going to be larger than 4 gigs
-		DWORD sbsp_size = static_cast<size_t>(fin.tellg());
-		fin.seekg(0x0, ios::beg);
-
-		if (sbsp_size == 0)
-		{
-			printf("    == failed to import geometry \n   ===SKIPPPING %s \n", FiloInterface::get_path_info(sFILE_REF, PATH_FLAGS::FILE_NAME).c_str());
-			fin.close();
-			return;
-		}
-
-		char* sbsp_data = new char[sbsp_size];
-		fin.read(sbsp_data, sbsp_size);
-
-		fin.close();
-
-		//		DeleteFile(sbsp_file.c_str());
-		//		printf("    == deleted %s.scenario_structure_bsp  \n",sbsp_file_name);
-
-		if (global_geometry_imported_count == 0)
-		{
-			//haven't intialised
-			global_sbsp_data_list = new tag_data_struct*[1];
-
-			tag_data_struct* temp = new tag_data_struct();
-			temp->tag_data = sbsp_data;
-			temp->size = sbsp_size;
-
-			global_sbsp_data_list[0] = temp;
-		}
-		else
-		{
-			//have intialised
-			tag_data_struct** temp = new tag_data_struct*[global_geometry_imported_count + 1];
-
-			//copy the stuff
-			for (int i = 0; i < global_geometry_imported_count; i++)
-				temp[i] = global_sbsp_data_list[i];
-
-			tag_data_struct* tempy = new tag_data_struct();
-			tempy->tag_data = sbsp_data;
-			tempy->size = sbsp_size;
-
-			temp[global_geometry_imported_count] = tempy;
-
-			delete[] global_sbsp_data_list;
-			global_sbsp_data_list = temp;
-		}
-
-		global_geometry_imported_count++;
+		if (!structure_imported)
+			printf("    == failed to import geometry \n   ===SKIPPPING %s \n", path.c_str());
 
 		printf("    == leaving TAG_RENDER_MODEL_IMPORT_PROC\n");
-
-		k_render_model_imported = TRUE;
-		return;
-
-
 	}
-	k_render_model_imported = FALSE;
-	return;
-
 }
-static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
+static const s_tool_import_definations TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 	{
 	"jms",
 	CAST_PTR(_tool_import__defination_proc,TAG_RENDER_MODEL_IMPORT_PROC),
@@ -462,149 +420,197 @@ static const s_tool_import_definations_ TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 };
 
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
-static bool _cdecl h2pc_generate_render_model_(DWORD TAG_INDEX, file_reference& FILE_REF)
+static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_REF)
 {
+	/* Patches */
 
-	DWORD mode_tag_file = (DWORD)tags::get_tag('mode', TAG_INDEX);
-	DWORD import_info_block_offset = mode_tag_file + 0xC;
-
-	DWORD SBSP_FOLDER_LOAD_1 = 0x41C835;
-	DWORD SBSP_FOLDER_LOAD_2 = 0x41F52D;
+	constexpr static size_t import_folder_offsets[] = { 0x41C835, 0x41F52D };
 
 	//replacing 'structure' folder text with 'render' folder
-	WritePointer(SBSP_FOLDER_LOAD_1, render_model_folder);
-	WritePointer(SBSP_FOLDER_LOAD_2, render_model_folder);
+	for (auto offset : import_folder_offsets)
+		WritePointer(offset, "render");
 
+	// hook tag save and unload functions to capture tag info
+	PatchCall(0x41CDE5, tag_save__scenario_for_structure_import);
+	PatchCall(0x41FEFE, tag_save__structure_for_structure_import);
+	PatchCall(0x4200BD, tag_unload__structure_for_structure_import);
 
-	WideCharToMultiByte(0xFDE9u, 0, out_path, 0xFFFFFFFF, c_out_path, 0x100, 0, 0);
-	target_folder = app_directory;
-	target_folder.append("\\tags\\");
-	target_folder.append(c_out_path);
+	// Did import and conversion succeed?
+	bool success = false;
+	std::string model_name = get_path_filename(tags::get_name(tag));
+	render_model_block* render_model = ASSERT_CHECK(tags::get_tag<render_model_block>('mode', tag));
 
-	if (load_model_object_definations_(import_info_block_offset, jms_collision_geometry_import_defination_, 1, FILE_REF))
+	// fix flags and set name
+	render_model->flags |= render_model->ForceNodeMaps;
+	render_model->name = string_id::get_string_id(model_name);
+
+	// add section group
+	if (render_model->sectionGroups.size == 0)
 	{
-		if (TAG_ADD_IMPORT_INFO_BLOCK(CAST_PTR(void*, import_info_block_offset)))
+		printf("        ### Adding section group\n");
+		auto idx = tags::add_block_element(&render_model->sectionGroups);
+		auto *group = render_model->sectionGroups[idx];
+		group->detailLevels = render_model_section_group_block::All;
+	}
+
+	// ensure we have at least one region and permutation or things will crash
+
+	if (render_model->regions.size == 0)
+		tags::resize_block(&render_model->regions, 1);
+
+	auto region = render_model->regions[0];
+	if (region->nodeMapSizeOLD == 0)
+		region->nodeMapOffsetOLD = NONE;
+	if (region->permutations.size == 0)
+		tags::resize_block(&region->permutations, 1);
+
+	if (load_model_object_definations_(&render_model->importInfo, jms_collision_geometry_import_defination_, 1, FILE_REF))
+	{
+		if (TAG_ADD_IMPORT_INFO_BLOCK(&render_model->importInfo))
 		{
-			int defination_addr = (int)&TAG_RENDER_IMPORT_DEFINATIONS_;
-			use_import_definitions(CAST_PTR(void*, defination_addr), 2, FILE_REF, (void*)TAG_INDEX, 0);
-			if (k_render_model_imported && global_geometry_imported_count > 0)
-			{
-				printf("    == saving temporary render_model  \n");
-				tags::save_tag(TAG_INDEX);//creating the current render_model file in Disk
-				tags::unload_tag(TAG_INDEX);
+			use_import_definitions(TAG_RENDER_IMPORT_DEFINATIONS_, 2, FILE_REF, &tag, 0);
 
+			// clear old sections and materials as we are replacing them
+			tags::block_delete_all(&render_model->sections);
+			tags::block_delete_all(&render_model->materials);
 
-				std::string render_model_file_name_ = strrchr(c_out_path, '\\');
-				render_model_file_name_ = render_model_file_name_.substr(1).c_str();
+			render_model_node_block empty_node{};
 
-				std::string mode_file = target_folder;
-				mode_file.append("\\");
-				mode_file.append(render_model_file_name_);
+			auto empty_node_idx = render_model->nodes.find_element(
+				[empty_node](const render_model_node_block *node) 
+				{ return memcmp(node, &empty_node, sizeof(render_model_node_block)) == 0; }
+			);
 
-				std::string scnr_file = mode_file.c_str();
-				scnr_file.append(".scenario");
-				mode_file.append(".render_model");
-
-				DeleteFile(scnr_file.c_str());
-				printf("    == deleted %s.scenario  \n", render_model_file_name_.c_str());
-
-				ifstream fin;
-				fin.open(mode_file.c_str(), ios::binary | ios::in | ios::ate);
-				DWORD mode_size = static_cast<size_t>(fin.tellg());
-				fin.seekg(0x0, ios::beg);
-
-				char* mode_data = new char[mode_size];
-				fin.read(mode_data, mode_size);
-
-				fin.close();
-				printf("    == generating new %s.render_model  \n", render_model_file_name_.c_str());
-
-				sbsp_mode* obj = new sbsp_mode(mode_data, mode_size);
-				obj->Add_sbps_DATA(global_sbsp_data_list, global_geometry_imported_count);
-
-				tag_data_struct* lol = obj->Get_Tag_DATA();
-
-				ofstream fout;
-				fout.open(mode_file.c_str(), ios::binary | ios::out);
-				fout.write(lol->tag_data, lol->size);
-				fout.close();
-
-				printf("    == Added Cluster Data  \n");
-				printf("      ### saved render model file '%s' ", render_model_file_name_.c_str());
-
+			if (empty_node_idx == NONE) {
+				empty_node_idx = tags::add_block_element(&render_model->nodes);
+				*render_model->nodes[empty_node_idx] = empty_node;
 			}
 
+			for (const auto& tag : imported_bsps) {
+				std::cout << "Converting BSP: " << tags::get_name(tag->get_tag_datum()) << std::endl;
+				auto *sbsp = tags::get_tag<scenario_structure_bsp_block>('sbsp', tag->get_tag_datum());
+				if (sbsp->clusters.size != 1)
+				{
+					printf("cluster count needs to be %d but is %d ", 1, sbsp->clusters.size);
+					success = false;
+				} else {
+					int section_idx = tags::add_block_element(&render_model->sections);
+					auto section = render_model->sections[section_idx];
+					auto cluster = sbsp->clusters[0];
+
+					section->sectionInfo = cluster->sectionInfo;
+					ASSERT_CHECK(section->sectionInfo.bounds.size == 0);
+
+					// set ridge node to the empty node
+					section->rigidNode = static_cast<short>(empty_node_idx);
+
+					// fix geo classification
+					section->sectionInfo.geometryClassification = GeometryClassification::Rigid;
+					section->classification = GeometryClassification::Rigid;
+					
+					// add section data
+					tags::resize_block(&section->sectionData, 1);
+
+					if (ASSERT_CHECK(section->sectionData.size == 1) && LOG_CHECK(cluster->clusterData.size == 1))
+					{
+						// copy data from the cluster to the section
+
+						auto *section_data = section->sectionData[0];
+						auto *cluster_data = cluster->clusterData[0];
+#define copy_block(name) tags::copy_block(&cluster_data->##name, &section_data->section.##name)
+						copy_block(parts);
+						copy_block(subparts);
+						copy_block(visibilityBounds);
+						copy_block(rawVertices);
+						copy_block(stripIndices);
+						copy_block(vertexBuffers);
+#undef copy_block
+						// fix materials index
+						for (auto& part : section_data->section.parts)
+							part.material += static_cast<short>(render_model->materials.size);
+
+						// copy over materials for this BSP
+						tags::copy_block(&sbsp->materials, &render_model->materials);
+
+						// add node map entry
+						tags::resize_block(&section_data->nodeMap, 1);
+						section_data->nodeMap[0]->nodeIndex = static_cast<byte>(empty_node_idx);
+
+						success = true;
+					}
+				}
+			}
 		}
 	}
-	return k_render_model_imported;
 
+	// isn't it a good idea to do it before we crash on exit?
+	imported_bsps.clear();
+
+	// restore import folder
+	for (auto offset : import_folder_offsets)
+		WritePointer(offset, "structure");
+
+	in_fake_structure_compile = false;
+
+	return success;
 }
+
 static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 {
-
 	file_reference file_reference;
+	wchar_t wide_tag_path[256];
+	static WCHAR out_path[256];
 
-	WCHAR wide_path[256];
-	std::string path;
-	bool b_render_imported = true;
-
-
-	if (tool_build_paths(arguments[0], "render", file_reference, out_path, &wide_path))
+	if (tool_build_paths(arguments[0], "render", file_reference, out_path, &wide_tag_path))
 	{
-		path = wstring_to_string.to_bytes(wide_path);
-		datum TAG_INDEX = tags::load_tag('mode', path.c_str(), 7);
-		if (TAG_INDEX.is_valid())
+		std::string tag_path = wstring_to_string.to_bytes(wide_tag_path);
+		tags::s_scoped_handle tag = tags::load_tag('mode', tag_path, 7);
+		if (tag.is_valid())
 		{
-			DWORD RENDER_MODEL_TAG = (DWORD)tags::get_tag('mode', TAG_INDEX);
-			DWORD import_info_field = RENDER_MODEL_TAG + 0xC;
+			render_model_block *render_model = tags::get_tag<render_model_block>('mode', tag);
 
-			if (!load_model_object_definations_(import_info_field, jms_collision_geometry_import_defination_, 1, file_reference))
-				b_render_imported = false;
+			if (!load_model_object_definations_(&render_model->importInfo, jms_collision_geometry_import_defination_, 1, file_reference))
+				return false;
 
-			tags::unload_tag(TAG_INDEX);
-			if (!b_render_imported)
-				return b_render_imported;
+		} else {
+			printf("        ### creating new render model file with name '%ws' \n ", wide_tag_path);
+			tag = tags::new_tag('mode', tag_path);
 		}
-		auto dir_name = FiloInterface::get_path_info(&file_reference, PATH_FLAGS::CONTAINING_DIRECTORY_NAME);
-		printf("        ### creating new render model file with name '%s' \n ", dir_name.c_str());
-		TAG_INDEX = tags::new_tag('mode', path);
 
-		if (TAG_INDEX.is_valid())
+		if (LOG_CHECK(tag.is_valid()))
 		{
-			if (TAG_FILE_CHECK_IS_WRITEABLE(TAG_INDEX, false))
+			if (TAG_FILE_CHECK_IS_WRITEABLE(tag, false))
 			{
-				if (h2pc_generate_render_model_(TAG_INDEX.as_long(), file_reference))
+				if (h2pc_generate_render_model(tag, file_reference))
 				{
-					b_render_imported = true;
-					//TAG_SAVE(TAG_INDEX);				
-
+					printf("saving tag: %s\n", tags::get_name(tag).c_str());
+					tags::save_tag(tag);
+					return true;
 				}
 				else
 				{
-					printf("      ### FATAL ERROR unable to generate render model '%s' \n", dir_name.c_str());
-					b_render_imported = false;
+					printf("      ### FATAL ERROR unable to generate render model '%ws' \n", wide_tag_path);
+					return false;
 				}
 			}
 			else
 			{
-				printf("      ### ERROR render model '%s' is not writable\n", dir_name.c_str());
-				tags::unload_tag(TAG_INDEX);
-				b_render_imported = false;
+				printf("      ### ERROR render model '%ws' is not writable\n", wide_tag_path);
+				return false;
 			}
 		}
 		else
 		{
-			printf("     ### ERROR unable to create render model '%s'\n", dir_name.c_str());
-			b_render_imported = false;
+			printf("     ### ERROR unable to create render model '%ws'\n", wide_tag_path);
+			return false;
 		}
 
 	}
 	else
 	{
 		wprintf(L"### ERROR unable to find 'render' data directory for '%s' ", arguments[0]);
-		b_render_imported = false;
+		return false;
 	}
-	return b_render_imported;
 }
 
 #pragma endregion

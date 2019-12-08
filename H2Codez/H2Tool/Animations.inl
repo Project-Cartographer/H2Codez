@@ -275,7 +275,7 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	if (tool_build_paths(arguments[0], "animations", reference, out_path, NULL))
 	{
 		std::cout << "=== importing! ===" << std::endl;
-		static const void* animation_import_definitions = CAST_PTR(void*, 0x97DEC8);
+		static const auto *animation_import_definitions = CAST_PTR(s_tool_import_definations*, 0x97DEC8);
 		if (use_import_definitions(animation_import_definitions, 8, reference, &animation_compiler, NULL))
 		{
 			std::cout << "=== saving tag! ===" << std::endl;

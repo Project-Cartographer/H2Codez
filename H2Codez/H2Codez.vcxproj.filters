@@ -92,9 +92,6 @@
     <ClInclude Include="Version.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="H2Tool\H2Tool_Render_Model.h">
-      <Filter>Source Files\Patches\H2Tool</Filter>
-    </ClInclude>
     <ClInclude Include="Resources\resource.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
@@ -327,9 +324,6 @@
     </ClCompile>
     <ClCompile Include="h2codez.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp">
-      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Header Files</Filter>

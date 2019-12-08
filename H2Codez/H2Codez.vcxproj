@@ -186,7 +186,6 @@
     <ClInclude Include="H2Sapien\H2Sapien.h" />
     <ClInclude Include="Common\H2EKCommon.h" />
     <ClInclude Include="H2Tool\H2Tool.h" />
-    <ClInclude Include="H2Tool\H2Tool_Render_Model.h" />
     <ClInclude Include="HaloScript\hs_interface.h" />
     <ClInclude Include="HaloScript\hs_command.h" />
     <ClInclude Include="HaloScript\hs_global_ids.h" />
@@ -250,7 +249,6 @@
     <ClCompile Include="H2Guerilla\H2Guerilla.cpp" />
     <ClCompile Include="H2Sapien\H2Sapien.cpp" />
     <ClCompile Include="Common\H2EKCommon.cpp" />
-    <ClCompile Include="H2Tool\H2Tool_Render_Model.cpp" />
     <ClCompile Include="H2Tool\H2Tool.cpp" />
     <ClCompile Include="HaloScript\hs_interface.cpp" />
     <ClCompile Include="util\FileWatcher.cpp" />

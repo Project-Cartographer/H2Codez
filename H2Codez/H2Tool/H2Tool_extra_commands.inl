@@ -474,7 +474,16 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 			tags::block_delete_all(&render_model->sections);
 			tags::block_delete_all(&render_model->materials);
 
-			render_model_node_block empty_node{};
+			render_model_node_block empty_node
+			{
+				0,
+				NONE, NONE, NONE,
+				0,
+				{0, 0, 0},
+				{0, 0, 0, 1},
+				{{0, 0, 0, 1}},
+				0
+			};
 
 			auto empty_node_idx = render_model->nodes.find_element(
 				[empty_node](const render_model_node_block *node) 

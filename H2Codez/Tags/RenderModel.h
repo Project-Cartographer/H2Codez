@@ -20,6 +20,45 @@ struct render_model_node_block
 };
 CHECK_STRUCT_SIZE(render_model_node_block, 96);
 
+struct render_model_section_data_block
+{
+	global_geometry_section_struct_block section;
+
+	global_geometry_point_data_struct_block pointData;
+
+	struct render_model_node_map_block
+	{
+		byte nodeIndex;
+	};
+	CHECK_STRUCT_SIZE(render_model_node_map_block, 1);
+
+	tag_block<render_model_node_map_block> nodeMap;
+
+	int unk1;
+};
+CHECK_STRUCT_SIZE(render_model_section_data_block, 180);
+
+struct render_model_section_block
+{
+	GeometryClassification classification;
+	byte padding34[2];
+	global_geometry_section_info_struct_block sectionInfo;
+
+	// BlockIndex1("render_model_node_block")
+	short rigidNode;
+
+	enum Flags : short
+	{
+		GeometryPostprocessed = 0x1,
+	};
+	Flags flags;
+	tag_block<render_model_section_data_block> sectionData;
+
+	global_geometry_block_info_struct_block geometryBlockInfo;
+
+};
+CHECK_STRUCT_SIZE(render_model_section_block, 104);
+
 struct render_model_block
 {
 	/// old string id
@@ -41,7 +80,7 @@ struct render_model_block
 
 	tag_block<> regions;
 
-	tag_block<> sections;
+	tag_block<render_model_section_block> sections;
 
 	tag_block<> invalidSectionPairBits;
 
@@ -61,7 +100,7 @@ struct render_model_block
 
 	tag_block<> markerGroups;
 
-	tag_block<> materials;
+	tag_block<global_geometry_material_block> materials;
 
 	tag_block<> errors;
 

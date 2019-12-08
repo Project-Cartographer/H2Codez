@@ -2,9 +2,51 @@
 #pragma pack(1)
 #include "Common/BasicTagTypes.h"
 
+struct global_geometry_part_block_new
+{
+
+	enum Type : short
+	{
+		NotDrawn = 0,
+		OpaqueShadowOnly = 1,
+		OpaqueShadowCasting = 2,
+		OpaqueNonshadowing = 3,
+		Transparent = 4,
+		LightmapOnly = 5,
+	};
+	Type type;
+
+	enum Flags : short
+	{
+		Decalable = 0x1,
+		NewPartTypes = 0x2,
+		DislikesPhotons = 0x4,
+		OverrideTriangleList = 0x8,
+		IgnoredByLightmapper = 0x10,
+	};
+	Flags flags;
+	// BlockIndex1("global_geometry_material_block")
+	short material;
+	short stripStartIndex;
+	short stripLength;
+	short firstSubpartIndex;
+	short subpartCount;
+	byte maxNodesVertex;
+	byte contributingCompoundNodeCount;
+	// Explaination("CENTROID", "EMPTY STRING")
+	real_point3d position;
+
+	byte nodeIndices[4];
+	float nodeWeights[3];
+
+	float lodMipmapMagicNumber;
+	byte padding6[24];
+};
+CHECK_STRUCT_SIZE(global_geometry_part_block_new, 72);
+
 struct global_geometry_section_struct_block
 {
-	tag_block<> parts;
+	tag_block<global_geometry_part_block_new> parts;
 
 	tag_block<> subparts;
 
@@ -76,6 +118,15 @@ struct global_geometry_compression_info_block
 };
 CHECK_STRUCT_SIZE(global_geometry_compression_info_block, 56);
 
+enum GeometryClassification : short
+{
+	Worldspace = 0,
+	Rigid = 1,
+	RigidBoned = 2,
+	Skinned = 3,
+	UnsupportedReimport = 4,
+};
+
 struct global_geometry_section_info_struct_block
 {
 	// Explanation("SECTION INFO", "EMPTY STRING")
@@ -91,14 +142,6 @@ struct global_geometry_section_info_struct_block
 	BYTE transparentMaxNodesVertex;
 	short shadowCastingRigidTriangleCount;
 
-	enum GeometryClassification : short
-	{
-		Worldspace = 0,
-		Rigid = 1,
-		RigidBoned = 2,
-		Skinned = 3,
-		UnsupportedReimport = 4,
-	};
 	GeometryClassification geometryClassification;
 
 	enum GeometryCompressionFlags : short
@@ -108,7 +151,7 @@ struct global_geometry_section_info_struct_block
 		CompressedSecondaryTexcoord = 0x4,
 	};
 	GeometryCompressionFlags geometryCompressionFlags;
-	tag_block<global_geometry_compression_info_block> eMPTYSTRING;
+	tag_block<global_geometry_compression_info_block> bounds;
 
 	BYTE hardwareNodeCount;
 	BYTE nodeMapSize;
@@ -125,3 +168,79 @@ struct global_geometry_section_info_struct_block
 	SectionLightingFlags sectionLightingFlags;
 };
 CHECK_STRUCT_SIZE(global_geometry_section_info_struct_block, 44);
+
+struct global_geometry_raw_point_block
+{
+	real_point3d position;
+
+	int nodeIndicesOLD[4];
+	float nodeWeights[4];
+	int nodeIndicesNEW[4];
+
+	int useNewNodeIndices;
+	int adjustedCompoundNodeIndex;
+};
+CHECK_STRUCT_SIZE(global_geometry_raw_point_block, 68);
+
+struct global_geometry_rigid_point_group_block
+{
+	byte rigidNodeIndex;
+	byte nodesPoint;
+	short pointCount;
+};
+CHECK_STRUCT_SIZE(global_geometry_rigid_point_group_block, 4);
+
+struct global_geometry_point_data_index_block
+{
+	short index;
+};
+CHECK_STRUCT_SIZE(global_geometry_point_data_index_block, 2);
+
+struct global_geometry_point_data_struct_block
+{
+	tag_block<global_geometry_raw_point_block> rawPoints;
+
+	/****************************************
+	* definition_name: global_geometry_runtime_point_data_definition
+	* flags: 0
+	* alignment_bit: 0
+	****************************************/
+	// DataSize(1048544)
+	byte_ref runtimePointData;
+	tag_block<global_geometry_rigid_point_group_block> rigidPointGroups;
+
+	tag_block<global_geometry_point_data_index_block> vertexPointIndices;
+
+};
+CHECK_STRUCT_SIZE(global_geometry_point_data_struct_block, 56);
+
+struct global_geometry_material_property_block
+{
+
+	enum Type : short
+	{
+		LightmapResolution = 0,
+		LightmapPower = 1,
+		LightmapHalfLife = 2,
+		LightmapDiffuseScale = 3,
+	};
+	Type type;
+	short intValue;
+	float realValue;
+};
+CHECK_STRUCT_SIZE(global_geometry_material_property_block, 8);
+
+
+struct global_geometry_material_block
+{
+	// TagReference("shad")
+	tag_reference oldShader;
+	// TagReference("shad")
+	tag_reference shader;
+	tag_block<global_geometry_material_property_block> properties;
+
+	byte padding81[4];
+	byte breakableSurfaceIndex;
+	byte padding82[3];
+};
+CHECK_STRUCT_SIZE(global_geometry_material_block, 52);

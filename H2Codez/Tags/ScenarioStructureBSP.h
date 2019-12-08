@@ -323,7 +323,7 @@ struct scenario_structure_bsp_block
 
 	tag_block<structure_bsp_cluster_block> clusters;
 
-	tag_block_ref materials;
+	tag_block<global_geometry_material_block> materials;
 
 	tag_block_ref skyOwnerCluster;
 

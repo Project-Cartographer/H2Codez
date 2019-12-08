@@ -183,4 +183,53 @@ namespace tags
 		int tag_group = get_group_tag(tag);
 		return get_tag_filo(file_ref, tag_group, name.c_str());
 	}
+
+	class s_scoped_handle : public datum
+	{
+	public:
+		s_scoped_handle() = default;
+		s_scoped_handle(s_scoped_handle&&) = default;
+		s_scoped_handle(const s_scoped_handle&) = delete;
+		s_scoped_handle& operator=(const s_scoped_handle&) = delete;
+
+		s_scoped_handle(const datum& tag) :
+			datum(tag)
+		{
+		}
+
+		s_scoped_handle(size_t info) :
+			datum(info)
+		{
+		}
+
+		s_scoped_handle& operator=(const datum& tag)
+		{
+			unload();
+			index = tag.index;
+			salt = tag.salt;
+			return *this;
+		}
+
+		s_scoped_handle& operator=(const size_t& tag)
+		{
+			return operator=(datum(tag));
+		}
+
+		datum get_tag_datum() const
+		{
+			return as_long();
+		}
+
+		~s_scoped_handle()
+		{
+			unload();
+		}
+
+	private:
+		void unload()
+		{
+			if (is_valid())
+				tags::unload_tag(*this);
+		}
+	};
 };

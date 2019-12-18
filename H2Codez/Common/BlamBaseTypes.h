@@ -533,10 +533,10 @@ struct rect2d
 struct real_matrix4x3
 {
 	float scale = 1.0f;
-	real_vector3d forward;
-	real_vector3d left;
-	real_vector3d up;
-	real_point3d translation;
+	real_vector3d forward = {};
+	real_vector3d left = {};
+	real_vector3d up = {};
+	real_point3d translation = {};
 
 	real_matrix4x3() = default;
 

@@ -372,6 +372,7 @@ static void __cdecl tag_unload__structure_for_structure_import(int TAG_INDEX)
 static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *file, const datum &tag)
 {
 	render_model_block *render_model = tags::get_tag<render_model_block>('mode', tag);
+	ASSERT_CHECK(in_fake_structure_compile == false);
 
 	if (LOG_CHECK(tag != datum::null())) {
 		if (TAG_ADD_IMPORT_INFO_ADD_DATA_(&render_model->importInfo, file))
@@ -435,6 +436,8 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	PatchCall(0x41FEFE, tag_save__structure_for_structure_import);
 	PatchCall(0x4200BD, tag_unload__structure_for_structure_import);
 
+	auto default_string_id = string_id::find_by_name("default");
+
 	// Did import and conversion succeed?
 	bool success = false;
 	std::string model_name = get_path_filename(tags::get_name(tag));
@@ -476,7 +479,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 
 			render_model_node_block empty_node
 			{
-				0,
+				default_string_id,
 				NONE, NONE, NONE,
 				0,
 				{0, 0, 0},
@@ -487,7 +490,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 
 			auto empty_node_idx = render_model->nodes.find_element(
 				[empty_node](const render_model_node_block *node) 
-				{ return memcmp(node, &empty_node, sizeof(render_model_node_block)) == 0; }
+				{ return memcmp(&node->parentNode, &empty_node.parentNode, sizeof(render_model_node_block) - offsetof(render_model_node_block, parentNode)) == 0; }
 			);
 
 			if (empty_node_idx == NONE) {

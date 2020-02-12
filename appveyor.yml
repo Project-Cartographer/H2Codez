@@ -24,8 +24,8 @@ deploy:
   password: $(FTP_PASSWORD)
   folder: /Tools/PC/h2codez/$(APPVEYOR_BUILD_VERSION)-$(APPVEYOR_REPO_COMMIT)
   active_mode: false
-  beta: true
-  debug: false
+  beta: false
+  debug: true
   on:
     branch: H2OS_EK
     
@@ -37,7 +37,7 @@ deploy:
   folder: /Tools/PC/h2codez/latest
   active_mode: false
   beta: true
-  debug: false
+  debug: true
   on:
     branch: H2OS_EK
 before_build:

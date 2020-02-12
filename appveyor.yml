@@ -27,7 +27,7 @@ deploy:
   beta: true
   debug: true
   on:
-    branch: H2OS_EK
+    branch: H2OS_EK_DISABLED
     
 - provider: FTP
   host: $(FTP_SERVER)
@@ -39,7 +39,7 @@ deploy:
   beta: true
   debug: true
   on:
-    branch: H2OS_EK
+    branch: H2OS_EK_DISABLED
 before_build:
 - cmd: 'echo #define version ^"%APPVEYOR_BUILD_VERSION%-%APPVEYOR_REPO_COMMIT:~0,7%^" 1>  H2Codez\Version.h'
 - cmd: 'cat H2Codez\Version.h'

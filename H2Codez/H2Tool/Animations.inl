@@ -184,13 +184,13 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 {
 	wchar_t *output_data = nullptr;
 	*size_out = NONE;
-	// this is needed because the toolkit doesn't use the same allocator as us
 	auto set_output_string = [&](const wchar_t *string, size_t len)
 	{
-		typedef wchar_t *__cdecl DEBUG_MALLOC(size_t size, char a2, char *file, int line, void *a5, void *a6, void *a7);
-		auto debug_malloc = reinterpret_cast<DEBUG_MALLOC*>(0x52B540);
-		*size_out = len + 1;
-		output_data = debug_malloc((len + 1) * sizeof(wchar_t), 0, __FILE__, __LINE__, 0, 0, 0);
+		size_t string_len = len + 1; // add a trailing '\0'
+
+		output_data = HEK_DEBUG_NEW(wchar_t, string_len);
+		*size_out = string_len * sizeof(wchar_t);
+
 		wcsncpy_s(output_data, (len + 1), string, len);
 	};
 
@@ -209,9 +209,8 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 		void *raw;
 		char *narrow;
 		wchar_t *wide;
-	};
+	} data;
 
-	_string_data data;
 	data.raw = file_data;
 	data.narrow += start_offset; // skip the BOM
 

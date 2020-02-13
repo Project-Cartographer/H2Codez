@@ -100,10 +100,10 @@ unknown_bytes[0x110] // enough space for a s_file_reference...
 
 struct s_animation_compiler
 {
-	char field_0[1024];
+	char field_0[0x400];
 	int user_flags;
-	char field_404[272];
-	char message_buffer[131072];
+	char field_404[0x110];
+	char message_buffer[0x20000];
 	DWORD error_caterorgy_count[3];
 
 	struct jmad_entry {
@@ -240,18 +240,31 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 	return output_data;
 }
 
-static void fix_import_animations()
+void H2ToolPatches::fix_import_animations()
 {
 	NopFill(0x49296A, 8); // fix strtok_s breaking up
-	NopFill(0x496B3B, 2); // patch version check for now
+
+	// patch version check for now
+	NopFill(0x496B3B, 2); // normal animations
+	NopFill(0x415D69, 6); // JMH
+
 	//enable_compression_printf();
-	PatchCall(0x495EE9, read_animation_file);
+	PatchCall(0x495EE9, read_animation_file); // fixes file format
+
+	WritePointer(0x415DFF + 1, "%ws"); // fix node name formating for JMH
+
+	// fix node error messages to use wide string instead of narrow
+	WritePointer(0x497C29 + 1, "%s has a node [%ws] that does not exist in the model");
+	WritePointer(0x497A88 + 1, "%s has a node [%ws] that has a different parent than other animations");
+	WritePointer(0x497B02 + 1, "%s has a node [%ws] that exists in the model, but they have different parent nodes");
+
+	// HACK - disable check that deletes some paths for JMH
+	//WriteValue<BYTE>(0x4160C2, 0xEB);
 }
 
 static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 {
 	auto start_time = std::chrono::high_resolution_clock::now();
-	fix_import_animations();
 
 	const wchar_t *import_path = arguments[0];
 	std::string jmad_path = get_jmad_path(import_path);

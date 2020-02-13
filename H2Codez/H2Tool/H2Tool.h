@@ -101,4 +101,7 @@ namespace H2ToolPatches
 
 	// fix bitmap error messages
 	void fix_bitmap_package();
+
+	// fix animations import code
+	void fix_import_animations();
 };

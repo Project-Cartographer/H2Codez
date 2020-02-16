@@ -172,6 +172,7 @@
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ScenarioStructureLightmap.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
+    <ClInclude Include="Tags\Sound.h" />
     <ClInclude Include="util\array.h" />
     <ClInclude Include="util\ClipboardAPI.h" />
     <ClInclude Include="util\crc32.h" />

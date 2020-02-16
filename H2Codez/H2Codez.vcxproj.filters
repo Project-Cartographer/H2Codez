@@ -317,6 +317,9 @@
     <ClInclude Include="util\FileSystem.h">
       <Filter>Source Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\Sound.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

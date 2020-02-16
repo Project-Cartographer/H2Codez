@@ -49,6 +49,11 @@ struct datum
 	{
 		return !operator==(other);
 	}
+
+	constexpr bool operator!() const
+	{
+		return !is_valid();
+	}
 };
 CHECK_STRUCT_SIZE(datum, 4);
 

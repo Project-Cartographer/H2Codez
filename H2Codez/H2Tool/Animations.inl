@@ -24,6 +24,7 @@ jmw		- world animation
 #include "Common/FiloInterface.h"
 #include "Common/data/memory_dynamic_array.h"
 #include "Common/TagInterface.h"
+#include "Tags/Sound.h"
 #include "util/patches.h"
 #include "util/string_util.h"
 #include "util/time.h"
@@ -180,6 +181,8 @@ static void enable_compression_printf()
 		PatchCall(addr, printf);
 }
 
+// this is ugly af
+template<bool is_lipsync>
 wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 {
 	wchar_t *output_data = nullptr;
@@ -189,7 +192,10 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 		size_t string_len = len + 1; // add a trailing '\0'
 
 		output_data = HEK_DEBUG_NEW(wchar_t, string_len);
-		*size_out = string_len * sizeof(wchar_t);
+		if (!is_lipsync)
+			*size_out = string_len * sizeof(wchar_t);
+		else
+			*size_out = string_len;
 
 		wcsncpy_s(output_data, (len + 1), string, len);
 	};
@@ -249,7 +255,9 @@ void H2ToolPatches::fix_import_animations()
 	NopFill(0x415D69, 6); // JMH
 
 	//enable_compression_printf();
-	PatchCall(0x495EE9, read_animation_file); // fixes file format
+	// fixes file format
+	PatchCall(0x495EE9, read_animation_file<false>); // JMA animations
+	PatchCall(0x4962CC, read_animation_file<true>); // lipsync track animations
 
 	WritePointer(0x415DFF + 1, "%ws"); // fix node name formating for JMH
 
@@ -299,4 +307,45 @@ static void _cdecl import_extra_model_animations_proc(wcstring* arguments)
 	auto time_taken = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
 	std::string time_taken_human = beautify_duration(time_taken);
 	std::cout << "time taken: " << time_taken_human << std::endl;
+}
+
+static bool import_lipsync_for_sound_file(file_reference *filo, byte_ref *lipsync)
+{
+	typedef char __cdecl import_lipsync_for_sound_file(file_reference *filo, byte_ref *lipsync);
+	auto import_lipsync_for_sound_file_impl = reinterpret_cast<import_lipsync_for_sound_file*>(0x496690);
+	return import_lipsync_for_sound_file_impl(filo, lipsync) != 0;
+}
+
+static void _cdecl import_lipsync_proc(wcstring* arguments)
+{
+	std::string tag_name = wstring_to_string.to_bytes(arguments[0]);
+	std::string lipsync_filename = wstring_to_string.to_bytes(arguments[1]);
+
+	tags::s_scoped_handle sound_tag = tags::load_tag('snd!', tag_name, tags::loading_flags::no_post_processing);
+
+	if (!sound_tag)
+	{
+		std::cout << "no such tag '" << tag_name << "'" << std::endl;
+		return;
+	}
+
+	file_reference lipsync_track(lipsync_filename, false);
+
+	auto sound = tags::get_tag<sound_block>('snd!', sound_tag);
+	
+	if (LOG_CHECK(sound->rawPermutations.size == 1))
+	{
+		auto extra_info = sound->rawPermutations[0];
+		auto lang_permutation = extra_info->languagePermutationInfo[0];
+		if (LOG_CHECK(lang_permutation))
+		{
+			auto raw_info = lang_permutation->rawInfoBlock[0];
+			if (LOG_CHECK(raw_info))
+			{
+				import_lipsync_for_sound_file(&lipsync_track, &raw_info->lipsyncData);
+				std::cout << "imported from '" << lipsync_filename << "'" << std::endl;
+				tags::save_tag(sound_tag);
+			}
+		}
+	}
 }

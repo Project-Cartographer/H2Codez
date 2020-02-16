@@ -92,7 +92,23 @@ static const s_tool_command append_animations = {
 	false
 };
 
-
+static const s_tool_command_argument import_lipsync_arguments[] = {
+	{
+		_tool_command_argument_type_tag_name,
+		L"sound-tag",
+	},
+	{
+		_tool_command_argument_type_data_file,
+		L"lipsync-file",
+	}
+};
+static const s_tool_command import_lipsync_command =
+{
+	L"import lipsync",
+	import_lipsync_proc,
+	import_lipsync_arguments,	NUMBEROF(import_lipsync_arguments),
+	false
+};
 
 //////////////////////////////////////////////////////////////////////////
 // Sound.inl

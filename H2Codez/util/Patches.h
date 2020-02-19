@@ -89,13 +89,20 @@ inline void WritePointer(void *offset, const void *ptr) {
 /*
 	Write a block of `len` of nops at `address`
 */
-inline void NopFill(const DWORD address, int len)
+__forceinline void NopFill(const DWORD address, int len)
 {
-	BYTE *nop_fill = new BYTE[len];
+	BYTE nop_fill_small[0x100];
+	BYTE *nop_fill = nullptr;
+	if (len > ARRAYSIZE(nop_fill_small))
+		nop_fill = new BYTE[len];
+	else
+		nop_fill = nop_fill_small;
+
 	memset(nop_fill, 0x90, len);
 	WriteBytes(address, nop_fill, len);
 
-	delete[] nop_fill;
+	if (nop_fill != nop_fill_small) // free if not stack allocation
+		delete[] nop_fill;
 }
 
 /*

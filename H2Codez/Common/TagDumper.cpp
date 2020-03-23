@@ -227,7 +227,7 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			case tag_field::old_string_id:
 			{
 				string_id *string = reinterpret_cast<string_id*>(data);
-				value = numerical::to_string(string->get_packed(), numerical::hexadecimal, 4) 
+				value = numerical::to_string(string->get_packed(), numerical::hexadecimal, 8) 
 					+ ":" + string->get_name();
 				break;
 			}
@@ -315,6 +315,7 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 				break;
 
 			case tag_field::real_point_2d:
+			case tag_field::real_vector_2d:
 			{
 				write_2_floats(reinterpret_cast<_2_floats*>(data));
 				break;
@@ -335,6 +336,12 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			case tag_field::real_plane_3d:
 			{
 				write_4_floats(reinterpret_cast<_4_floats*>(data));
+				break;
+			}
+			case tag_field::point_2d:
+			{
+				auto point = reinterpret_cast<point2d*>(data);
+				value = "{ " + std::to_string(point->x) + ", " + std::to_string(point->y) + " }";
 				break;
 			}
 			case tag_field::rectangle_2d:

@@ -31,7 +31,7 @@ namespace numerical {
 	};
 
 	/* Convert number to string */
-	template <typename NumericType, bool uppercase = true>
+	template <typename NumericType, char fill = '0', bool uppercase = true>
 	std::string to_string(NumericType number, radix base = decimal, size_t width = 0)
 	{
 		CHECK_NUMERICAL_TYPE(NumericType);
@@ -40,10 +40,10 @@ namespace numerical {
 		switch (base)
 		{
 		case octal:
-			stream << "0" << std::oct << std::setw(width) << std::uppercase << number;
+			stream << "0" << std::oct << std::setfill(fill) << std::setw(width) << std::uppercase << number;
 			break;
 		case hexadecimal:
-			stream << "0x" << std::hex << std::setw(width) << std::uppercase << number;
+			stream << "0x" << std::hex << std::setfill(fill) << std::setw(width) << std::uppercase << number;
 			break;
 		case decimal:
 		default:

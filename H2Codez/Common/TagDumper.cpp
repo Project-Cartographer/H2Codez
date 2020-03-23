@@ -225,6 +225,12 @@ static size_t dump_tag_field(tag_field **fields_pointer, char *data, ptree &tree
 			}
 			case tag_field::string_id:
 			case tag_field::old_string_id:
+			{
+				string_id *string = reinterpret_cast<string_id*>(data);
+				value = numerical::to_string(string->get_packed(), numerical::hexadecimal, 4) 
+					+ ":" + string->get_name();
+				break;
+			}
 			case tag_field::long_integer:
 			case tag_field::long_enum:
 			case tag_field::long_flags:

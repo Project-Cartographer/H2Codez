@@ -2,7 +2,7 @@
 #include "H2EKCommon.h"
 #include "util/Patches.h"
 
-inline DWORD OS_switch_by_addr(DWORD guerilla, DWORD tool, DWORD sapien)
+static __forceinline DWORD OS_switch_by_addr(DWORD guerilla, DWORD tool, DWORD sapien)
 {
 	return SwitchAddessByMode(tool, sapien, guerilla);
 }

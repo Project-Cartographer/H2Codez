@@ -358,6 +358,20 @@ SetUnhandledExceptionFilter_hook(
 	return old_handler;
 }
 
+typedef char __cdecl get_install_path_from_registry(wchar_t *path_1, int *max_len);
+get_install_path_from_registry *get_install_path_from_registry_original;
+
+char static __cdecl get_install_path_from_registry_hook(wchar_t *path, int *max_len)
+{
+	const static bool force_portable = conf.getBoolean("force_portable", false);
+
+	if (!force_portable && get_install_path_from_registry_original(path, max_len))
+		return true;
+	auto install_directory_portable = process::GetExeDirectoryWide();
+	wcscpy_s(path, *max_len, install_directory_portable.c_str());
+	return true;
+}
+
 typedef char __cdecl tags__fix_corrupt_fields(tag_block_defintions *def, tag_block_ref *data, int should_log);
 tags__fix_corrupt_fields *tags__fix_corrupt_fields_org;
 char __cdecl tags__fix_corrupt_fields___hook(tag_block_defintions *def, tag_block_ref *data, int should_log)
@@ -408,6 +422,9 @@ void H2CommonPatches::Init()
 		tags__fix_corrupt_fields_org = reinterpret_cast<tags__fix_corrupt_fields*>(SwitchAddessByMode(0x52FEC0, 0x4B18E0, 0x485590));
 		DetourAttach(&(PVOID&)tags__fix_corrupt_fields_org, tags__fix_corrupt_fields___hook);
 	}
+
+	get_install_path_from_registry_original = reinterpret_cast<get_install_path_from_registry*>(SwitchByMode(0x589D30, 0x4BA7E0, 0x48A070));
+	DetourAttach(&(PVOID&) get_install_path_from_registry_original, get_install_path_from_registry_hook);
 
 	WriteJmp(SwitchByMode(0x720FF0, 0x6FFCE0, 0x65D030), check_bitmap_dimension);
 

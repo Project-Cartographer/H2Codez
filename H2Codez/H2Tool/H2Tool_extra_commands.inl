@@ -26,6 +26,8 @@
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
+#pragma region util
+
 /*
 	Show a CMD prompt to the user
 	Returns user response or default
@@ -79,6 +81,27 @@ inline static bool prompt_user_wait(const std::string& message)
 	}
 	abort(); // unreachable
 }
+
+/*
+	Convert file-system path to tag path + type
+*/
+static std::string filesystem_path_to_tag_path(const wchar_t *fs_path, blam_tag *tag_type = nullptr)
+{
+	std::string path = tolower(wstring_to_string.to_bytes(fs_path));
+	file_info info = get_file_path_info(path);
+
+	if (tag_type)
+	{
+		if (info.has_entension)
+			*tag_type = H2CommonPatches::string_to_tag_group(info.extension);
+		else
+			*tag_type = NONE;
+	}
+
+	return info.file_path;
+}
+
+#pragma endregion util
 
 #define extra_commands_count 0x43
 #define help_desc "Prints information about the command name passed to it"
@@ -140,7 +163,7 @@ inline static s_tool_h2dev_command *get_tag_utility_command_table()
 }
 
 /* Should we hide the ulitiy command from the end user because it doesn't work */
-static bool should_filter_command(size_t id)
+inline static bool should_filter_command(size_t id)
 {
 	// black-listed proc offsets
 	DWORD bad_command_impl[] = {
@@ -334,6 +357,13 @@ static const s_tool_command h2dev_extra_iterate_commands_defination = {
 	h2dev_extra_iterate_command_proc,
 	h2dev_extra_iterate_command,	NUMBEROF(h2dev_extra_iterate_command),
 	false
+};
+
+static const s_tool_command list_extra_commands = {
+	L"extra commands list",
+	list_all_extra_commands_proc,
+	nullptr, 0,
+	true
 };
 
 #pragma endregion
@@ -626,34 +656,12 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 }
 
 #pragma endregion
-
-static const s_tool_command list_extra_commands = {
-	L"extra commands list",
-	list_all_extra_commands_proc,
-	nullptr, 0,
-	true
-};
-
-std::string filesystem_path_to_tag_path(const wchar_t *fs_path, blam_tag *tag_type = nullptr)
-{
-	std::string path = tolower(wstring_to_string.to_bytes(fs_path));
-	file_info info = get_file_path_info(path);
-
-	if (tag_type)
-	{
-		if (info.has_entension)
-			*tag_type = H2CommonPatches::string_to_tag_group(info.extension);
-		else
-			*tag_type = NONE;
-	}
-
-	return info.file_path;
-}
+#pragma region pathfinding
 
 /*
 	Check if a sbsp DOESN'T have pathfinding data and prompt user otherwise
 */
-bool check_pathfinding_clear(scenario_structure_bsp_block *target)
+static bool check_pathfinding_clear(scenario_structure_bsp_block *target)
 {
 	if (target->pathfindingData.size > 0)
 	{
@@ -714,6 +722,8 @@ static const s_tool_command pathfinding_from_coll
 	false
 };
 
+#pragma endregion
+#pragma region lightmap
 const s_tool_command_argument lightmap_slave_args[] =
 {
 	{ _tool_command_argument_type_tag_name, L"scenario", "*.scenario" },
@@ -835,7 +845,7 @@ static const s_tool_command fix_extraced_lightmap
 	ARRAYSIZE(lightmaps_fix_args),
 	true
 };
-
+#pragma endregion
 static void _cdecl dump_tag_as_xml_proc(const wchar_t *argv[])
 {
 	blam_tag tag_type;

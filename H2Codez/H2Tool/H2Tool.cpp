@@ -676,6 +676,11 @@ void H2ToolPatches::Initialize()
 	patch_max_bitmap_size();
 
 	fix_import_animations();
+
+	// Fix tag path for collision model importing
+	// lea     ecx, [esp+670h+data_folder] --> lea     ecx, [esp+670h+tag_path]
+	// 04 -> 02
+	WriteValue<BYTE>(0x415131, 02);
 }
 
 

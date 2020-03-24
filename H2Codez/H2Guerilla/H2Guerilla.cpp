@@ -254,6 +254,75 @@ static bool __fastcall field_information__should_hide(field_information *thisptr
 	return should_hide && !show_hidden_fields;
 }
 
+static void fix_wgit_menu_id(tag_enum_def *enum_data)
+{
+	static constexpr editor_string new_enum_names[] = {
+		"Restore Controller Defaults",
+		"Video Settings",
+		"Audio Settings",
+		"Keyboard Settings Menu",
+		"Pause Settings",
+		"Keyboard Settings",
+		"Video Settings Qtr",
+		"Audio Settings Qtr",
+		"Volume Settings",
+		"Sound Quality",
+		"EAX",
+		"Audio Hardware 3D",
+		"Speaker Config",
+		"Restore Audio Defaults",
+		"Resolution",
+		"Aspect Ratio",
+		"Display Mode",
+		"Brightness Level",
+		"Gamma Setting",
+		"Anti-Aliasing",
+		"Resize HUD",
+		"Restore Video Defaults",
+		"Search Option Maps",
+		"Search Option Gametype",
+		"Search Option Variant",
+		"Search Option Gold Only",
+		"Search Option Dedicated Servers",
+		"Search Option Max Players",
+		"Search Option Favorites",
+		"Search Option Show Full Games",
+		"Safe Area",
+		"Find Game Menu",
+		"Search Options",
+		"UNUSED",
+		"UNUSED",
+		"LOD Setting",
+		"Refresh",
+		"ESRB Warning",
+		"Resolution Confirmation",
+		"Invert KB Look",
+		"Restore Default Keyboard Settings",
+		"Network Adapter Settings",
+		"About Dialog"
+	};
+	static editor_string enum_names[0x12A];
+	memcpy(enum_names, enum_data->names, enum_data->count * sizeof(char*));
+	memcpy(&enum_names[0xFF], new_enum_names, sizeof(new_enum_names));
+	enum_names[0xEF] = "Extra Settings";
+	enum_names[0xF1] = "Extras Enabled Dialog";
+
+	enum_data->names = enum_names;
+	enum_data->count = ARRAYSIZE(enum_names);
+}
+
+static void fix_wgit_button_key_type(tag_enum_def* enum_data)
+{
+	static editor_string enum_names[0x1A];
+	memcpy_s(enum_names, sizeof(enum_names), enum_data->names, enum_data->count * sizeof(char*));
+	enum_names[0x17] = "X=DELETE A=EDIT B=DONE";
+	enum_names[0x18] = "X=SORT Y=REFRESH A=SELECT B=BACK";
+	enum_names[0x19] = "A=ACCEPT B=CANCEL";
+
+	enum_data->names = enum_names;
+	enum_data->count = ARRAYSIZE(enum_names);
+}
+
 void H2GuerrilaPatches::Init()
 {
 	for (auto &menu : menu_map)
@@ -340,6 +409,9 @@ void H2GuerrilaPatches::Init()
 
 	// Replace guerilla logic for deciding if we should show a tag field
 	WriteJmp(0x477230, field_information__should_hide);
+
+	fix_wgit_menu_id(reinterpret_cast<tag_enum_def*>(0x93A454));
+	fix_wgit_button_key_type(reinterpret_cast<tag_enum_def*>(0x93A77C));
 
 #pragma endregion
 

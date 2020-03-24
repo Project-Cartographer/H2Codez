@@ -134,6 +134,8 @@ struct editor_string
 		size_t id;
 	};
 
+	constexpr editor_string() = default;
+
 	constexpr editor_string(const char* _string) :
 		string(_string)
 	{

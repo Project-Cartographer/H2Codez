@@ -199,6 +199,7 @@ bool build_cache_file(const char *scenario, int minor_version = 0, bool somethin
 {
 	int operation_time;
 	int start_time = timeGetTime();
+	time_code("build_cache_file_cull_tags", build_cache_file_cull_tags());
 	return true;
 }
 

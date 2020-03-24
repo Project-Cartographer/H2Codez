@@ -75,6 +75,9 @@ namespace StringEncodingDetector
 		return true;
 	}
 
+#pragma warning( push )
+#pragma warning( disable : 4244 )
+
 	// returns true if string is likely to be English USC-16
 	inline bool is_string_likely_usc16(const wchar_t *string, size_t size)
 	{
@@ -100,6 +103,8 @@ namespace StringEncodingDetector
 
 		return static_cast<endianness>(array_util::get_index_of_largest(counts));
 	}
+
+#pragma warning( pop )
 
 	constexpr static unsigned char utf8_BOM[] = { 0xEF, 0xBB, 0xBF };
 

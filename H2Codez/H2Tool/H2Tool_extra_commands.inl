@@ -387,6 +387,8 @@ static DWORD __cdecl tag_save__structure_for_structure_import(int TAG_INDEX)
 	if (in_fake_structure_compile) {
 		structure_imported = true;
 		imported_bsps.push_back(std::move(std::make_unique<tags::s_scoped_handle>(TAG_INDEX)));
+		if (is_debug_build())
+			tags::save_tag(TAG_INDEX);
 	} else {
 		result = tags::save_tag(TAG_INDEX);
 	}
@@ -450,6 +452,25 @@ static const s_tool_import_definations TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 	
 };
 
+enum geo_type : BYTE
+{
+	any,
+	havok,
+	visibility
+};
+inline static void set_geo_type_for_sbsp(geo_type type)
+{
+	WriteValue<BYTE>(0x478A6F + 1, type);
+}
+
+// Controls whatever BSP is compiled as triangle strip
+inline static void toggle_triangle_strip_for_sbsp(bool use_triangle_strip)
+{
+
+	WriteValue<BYTE>(0x41E82A + 1, use_triangle_strip ? 0x0 : 0x1);
+	WriteValue<BYTE>(0x41E82E + 1, use_triangle_strip);
+}
+
 static void *jms_collision_geometry_import_defination_ = CAST_PTR(void*, 0x97C350);
 static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_REF)
 {
@@ -465,6 +486,10 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	PatchCall(0x41CDE5, tag_save__scenario_for_structure_import);
 	PatchCall(0x41FEFE, tag_save__structure_for_structure_import);
 	PatchCall(0x4200BD, tag_unload__structure_for_structure_import);
+
+	// switch to triangle strip if required 
+	bool use_triangle_strip = conf.exists("use_triangle_strip") ? conf.getBoolean("use_triangle_strip") : true;
+	toggle_triangle_strip_for_sbsp(use_triangle_strip);
 
 	auto default_string_id = string_id::find_by_name("default");
 
@@ -501,7 +526,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	{
 		if (TAG_ADD_IMPORT_INFO_BLOCK(&render_model->importInfo))
 		{
-			use_import_definitions(TAG_RENDER_IMPORT_DEFINATIONS_, 2, FILE_REF, &tag, 0);
+			use_import_definitions(TAG_RENDER_IMPORT_DEFINATIONS_, ARRAYSIZE(TAG_RENDER_IMPORT_DEFINATIONS_), FILE_REF, &tag, 0);
 
 			// clear old sections and materials as we are replacing them
 			tags::block_delete_all(&render_model->sections);
@@ -591,6 +616,9 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	// restore import folder
 	for (auto offset : import_folder_offsets)
 		WritePointer(offset, "structure");
+
+	// reset triangle strip
+	toggle_triangle_strip_for_sbsp(false);
 
 	in_fake_structure_compile = false;
 

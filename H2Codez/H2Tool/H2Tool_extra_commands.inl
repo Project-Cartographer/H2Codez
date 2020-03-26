@@ -452,13 +452,14 @@ static const s_tool_import_definations TAG_RENDER_IMPORT_DEFINATIONS_[] = {
 	
 };
 
-enum geo_type : BYTE
+enum cluster_info_type : BYTE
 {
-	any,
+	none,
 	havok,
 	visibility
 };
-inline static void set_geo_type_for_sbsp(geo_type type)
+// Controls what sort of extra info is generated for the cluster
+inline static void set_cluster_info_for_sbsp(cluster_info_type type)
 {
 	WriteValue<BYTE>(0x478A6F + 1, type);
 }
@@ -490,6 +491,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	// switch to triangle strip if required 
 	bool use_triangle_strip = conf.exists("use_triangle_strip") ? conf.getBoolean("use_triangle_strip") : true;
 	toggle_triangle_strip_for_sbsp(use_triangle_strip);
+	set_cluster_info_for_sbsp(use_triangle_strip ? none : visibility);
 
 	auto default_string_id = string_id::find_by_name("default");
 
@@ -619,6 +621,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 
 	// reset triangle strip
 	toggle_triangle_strip_for_sbsp(false);
+	set_cluster_info_for_sbsp(havok);
 
 	in_fake_structure_compile = false;
 

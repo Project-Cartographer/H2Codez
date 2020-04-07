@@ -320,6 +320,9 @@
     <ClInclude Include="Tags\Sound.h">
       <Filter>Source Files\Common Interfaces\Tags</Filter>
     </ClInclude>
+    <ClInclude Include="H2Sapien\UIHierarchy.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -438,6 +441,9 @@
     </ClCompile>
     <ClCompile Include="Common\HaloScriptTypeParser.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\UIHierarchy.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

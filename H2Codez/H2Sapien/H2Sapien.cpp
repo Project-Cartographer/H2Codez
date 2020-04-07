@@ -12,6 +12,7 @@
 #include "Profile.h"
 #include "RenderDebug.h"
 #include "HaloScript.h"
+#include "UIHierarchy.h"
 #include <unordered_set>
 #include <Shellapi.h>
 #include <iostream>
@@ -372,6 +373,10 @@ void H2SapienPatches::Init()
 	render_debug_info_init();
 
 	haloscript_init();
+
+	// used to support bipeds, etc
+	add_custom_hierarchy_entries();
+
 	// set current directory to executable path
 	std::wstring new_current_dir = process::GetExeDirectoryWide();
 	SetCurrentDirectoryW(new_current_dir.c_str());

@@ -401,6 +401,23 @@ static void __cdecl tag_unload__structure_for_structure_import(int TAG_INDEX)
 		tags::unload_tag(TAG_INDEX);
 }
 
+static inline bool import_structure_for_render_model(std::wstring scenario_path, std::wstring bsp_name, bool is_jms)
+{
+	structure_imported = false;
+	wcstring fake_args[2] = { scenario_path.c_str(), bsp_name.c_str() };
+	auto flags = import_flags_reimport | import_flags_skip_objects;
+	if (is_debug_build())
+		flags |= (import_flags_debug_b | import_flags_debug_a);
+	if (!is_jms)
+		flags |= import_flags_ass_file;
+
+	in_fake_structure_compile = true;
+	import_structure_main(fake_args, flags);
+	in_fake_structure_compile = false;
+
+	return structure_imported;
+}
+
 static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *file, const datum &tag)
 {
 	render_model_block *render_model = tags::get_tag<render_model_block>('mode', tag);
@@ -415,21 +432,17 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *file, const datu
 			return;
 		}
 
-		const std::string path      = FiloInterface::get_path_info(file, PATH_FLAGS::FULL_PATH);
-		const std::string file_type = FiloInterface::get_path_info(file, PATH_FLAGS::FILE_EXTENSION);
+		std::string path      = FiloInterface::get_path_info(file, PATH_FLAGS::CONTAINING_DIRECTORY_PATH);
+		std::string file_type = FiloInterface::get_path_info(file, PATH_FLAGS::FILE_EXTENSION);
+		std::string file_name = FiloInterface::get_path_info(file, PATH_FLAGS::FILE_NAME);
 
-		std::wstring wide_path = wstring_to_string.from_bytes(path);
-		
-		wcstring fake_args[2] = { wide_path.c_str(), L"sbsp_temp" };
-		in_fake_structure_compile = true;
-		structure_imported = false;
-		if (file_type == "jms")
-			tool_build_structure_from_jms_proc(fake_args);
-		else
-			tool_build_structure_from_ass_proc(fake_args);
-		in_fake_structure_compile = false;
+		remove_last_part_of_path(&path[0]);
+		std::wstring wide_path = wstring_to_string.from_bytes(path.c_str());
+		std::wstring wide_name = wstring_to_string.from_bytes(file_name);
 
-		if (!structure_imported)
+		bool imported = import_structure_for_render_model(wide_path, wide_name, file_type == "jms");
+
+		if (!imported)
 			printf("    == failed to import geometry \n   ===SKIPPPING %s \n", path.c_str());
 
 		printf("    == leaving TAG_RENDER_MODEL_IMPORT_PROC\n");
@@ -477,11 +490,8 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 {
 	/* Patches */
 
-	constexpr static size_t import_folder_offsets[] = { 0x41C835, 0x41F52D };
-
 	//replacing 'structure' folder text with 'render' folder
-	for (auto offset : import_folder_offsets)
-		WritePointer(offset, "render");
+	WritePointer(0x41F52D, "render");
 
 	// hook tag save and unload functions to capture tag info
 	PatchCall(0x41CDE5, tag_save__scenario_for_structure_import);
@@ -616,8 +626,7 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 	imported_bsps.clear();
 
 	// restore import folder
-	for (auto offset : import_folder_offsets)
-		WritePointer(offset, "structure");
+	WritePointer(0x41F52D, "structure");
 
 	// reset triangle strip
 	toggle_triangle_strip_for_sbsp(false);

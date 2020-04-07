@@ -62,3 +62,40 @@ static bool _cdecl use_import_definitions(const s_tool_import_definations* defin
 	static const _use_import_definitions use_import_definitions = CAST_PTR(_use_import_definitions, 0x412100);
 	return use_import_definitions(definitions, count, reference, context_data, unk);
 }
+
+enum import_flags : __int32
+{
+	import_flags_none = 0x0,
+	import_flags_debug_a = 0x1,
+	import_flags_debug_b = 0x2,
+	import_flags_4 = 0x4,
+	import_flags_plane_debug_generate = 0x8,
+	import_flags_plane_debug = 0x10,
+	import_flags_ass_file = 0x20,
+	import_flags_40 = 0x40,
+	import_flags_skip_objects = 0x80,
+	import_flags_reimport = 0x100,
+	import_flags_preserve_old = 0x200,
+	import_flags_visibility = 0x400,
+	import_flags_simulate = 0x800,
+};
+
+inline import_flags operator|(import_flags a, import_flags b)
+{
+	return static_cast<import_flags>(static_cast<__int32>(a) | static_cast<__int32>(b));
+}
+
+inline import_flags &operator|=(import_flags &a, import_flags b)
+{
+	a = a | b;
+	return a;
+}
+
+
+// args: scenario name, bsp name
+static void import_structure_main(const wchar_t **args, import_flags flags)
+{
+	typedef void __cdecl import_structure(const wchar_t **args, __int32 flags);
+	auto import_structure_impl = reinterpret_cast<import_structure*>(0x41F4D0);
+	import_structure_impl(args, flags);
+}

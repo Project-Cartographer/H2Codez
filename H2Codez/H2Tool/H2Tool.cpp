@@ -679,6 +679,14 @@ void H2ToolPatches::Initialize()
 	// lea     ecx, [esp+670h+data_folder] --> lea     ecx, [esp+670h+tag_path]
 	// 04 -> 02
 	WriteValue<BYTE>(0x415131, 02);
+
+	// Change two tag references to be strong instead of weak, so maps don't need to be edited in assembly
+	// TODO: find out if there is a better way to fix this, seems like weak references don't work exactly as expected
+	if (conf.exists("character_strong_reference") && conf.getBoolean("character_strong_reference"))
+	{
+		WriteValue<uint32_t>(0x985F94, 0); // weap
+		WriteValue<uint32_t>(0x9874E4, 0); // unit
+	}
 }
 
 

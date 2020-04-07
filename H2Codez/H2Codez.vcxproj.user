@@ -1,15 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommand>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\h2guerilla</LocalDebuggerCommand>
+    <LocalDebuggerCommand>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\h2sapien</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>dump-as-xml "C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\tags\scenarios\multi\halo\coagulation\coagulation.scenario"</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommand>C:\Program Files %28x86%29\Microsoft Games\Halo 2 Map Editor\h2tool</LocalDebuggerCommand>
+    <LocalDebuggerCommand>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor\h2sapien</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory>C:\Program Files (x86)\Microsoft Games\Halo 2 Map Editor</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>extra-commands unpalettize-lightmaps scenarios\multi\example\example_example_lightmap</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>
+    </LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

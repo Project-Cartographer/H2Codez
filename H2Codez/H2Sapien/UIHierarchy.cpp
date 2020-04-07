@@ -2,6 +2,9 @@
 #include "Tags\ScenarioTag.h"
 #include "util\Patches.h"
 
+// cause corruptio is a pain
+constexpr intptr_t safety_margin = 0x100;
+
 typedef datum(__cdecl* get_tag_for_extractor)();
 
 struct tag_field_extractor_factory
@@ -23,6 +26,7 @@ struct hierarchy_list_entry
 	int field_4;
 	int field_8;
 	int field_C;
+	char nothing[safety_margin] = {'n', 'o', 't'};
 };
 
 void insert_post_handler(void* map, hierarchy_list_entry* entry, blam_tag key)
@@ -38,17 +42,19 @@ struct hierarchy_entry_info
 	editor_string name;
 	int field_8 = 0;
 	int field_C = 0;
+	char nothing[safety_margin] = { 'n', 'o', 't' };
 	hierarchy_entry_info(editor_string _name, blam_tag _tag) :
 		tag(_tag),
 		name(_name)
 	{};
 };
-CHECK_STRUCT_SIZE(hierarchy_entry_info, 0x10);
+CHECK_STRUCT_SIZE(hierarchy_entry_info, 0x10 + safety_margin);
 
 struct block_element_field_extractor_factory
 {
 	uint32_t vtable = 0x801E68; // &block_element_field_extractor_factory::`vftable
 	int32_t field_4 = NONE;
+	char nothing[safety_margin] = { 'n', 'o', 't' };
 };
 
 enum ObjectType : uint32_t
@@ -91,12 +97,14 @@ void add_object_hierarchy(void* map, blam_tag tag, editor_string name, intptr_t 
 	typedef void __fastcall sub_47E5E0(void* thisptr, int, hierarchy_list_entry* a2);
 	auto sub_47E5E0_impl = reinterpret_cast<sub_47E5E0*>(0x47E5E0);
 
-	int data[8]; // don't care enough to make a struct
+	int data[8 + (safety_margin / sizeof(int))]; // don't care enough to make a struct
 	sub_47E440_impl(&data);
 	data[0] = 0xA668D8;
 	data[7] = 236;
 
-	boost__counted_base__field_extractor_factory__ctor__impl(&data, 0, new block_element_field_extractor_factory);
+	auto block_factory = new block_element_field_extractor_factory;
+
+	boost__counted_base__field_extractor_factory__ctor__impl(&data, 0, block_factory);
 
 	sub_47E5E0_impl(&data, 0, &entry);
 
@@ -108,10 +116,11 @@ void add_object_hierarchy(void* map, blam_tag tag, editor_string name, intptr_t 
 	typedef void __fastcall scenario_block_field_extractor_factory__ctor(void* thisptr, int, int offset, int a3, int a4);
 	auto scenario_block_field_extractor_factory__ctor__impl = reinterpret_cast<scenario_block_field_extractor_factory__ctor*>(0x482720);
 
-	auto extractor = new char[0x38u];
+	auto extractor = new char[0x38u + safety_margin];
 	scenario_block_field_extractor_factory__ctor__impl(extractor, 0, offset, type, 0);
 
-	auto memory_leak = new char[28]; // memory was made to be leaked
+	// this is likely what actually breaks
+	auto memory_leak = new char[28 + safety_margin]; // memory was made to be leaked
 	scenario_object_node_information_factory__ctor__impl(memory_leak, 0, 0xA66A10, extractor, &data, &info);
 
 	// cleanup??
@@ -125,7 +134,7 @@ void add_object_hierarchy(void* map, blam_tag tag, editor_string name, intptr_t 
 	Boost__counted_base__free__impl(entry.field_4);
 }
 
-static void __cdecl create_custom_objects_section(void* map_base)
+static void __fastcall create_custom_objects_section(void* map_base)
 {
 	add_object_hierarchy(map_base, 'bipd', "Bipeds", offsetof(scnr_tag, bipeds), ObjectType::Biped);
 	add_object_hierarchy(map_base, 'vehi', "Vehicles", offsetof(scnr_tag, vehicles), ObjectType::Vehicle);
@@ -139,9 +148,7 @@ static void ASM_FUNC hierarchy_objects_section_create_hook()
 	__asm
 	{
 		lea     ecx, [esp + 0x30]
-		push    ecx
 		call    create_custom_objects_section
-		add     esp, 4
 
 		// replaced code
 		lea     ecx, [esp + 0x18]

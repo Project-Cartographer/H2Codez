@@ -33,7 +33,7 @@ namespace debug_memory
 		)
 	{
 		typedef wchar_t* __cdecl debug_malloc(size_t size, char alignment, const char *file, int line, const void *type, const void *subtype, const void *name);
-		auto debug_malloc_impl = reinterpret_cast<debug_malloc*>(SwitchByMode(0x52B540u, 0u, 0u));
+		auto debug_malloc_impl = reinterpret_cast<debug_malloc*>(SwitchByMode(0x52B540u, 0x4D4830u, 0u));
 		CHECK_FUNCTION_SUPPORT(debug_malloc_impl);
 		return debug_malloc_impl(size, alignment, file, line, type, subtype, name);
 	}
@@ -54,14 +54,14 @@ namespace debug_memory
 		int line,
 		void* old_pointer,
 		size_t size,
-		char alignment = 0,
+		int alignment = 0,
 		const char *type = nullptr,
 		const char *subtype = nullptr,
 		const char *name = nullptr
 		)
 	{
-		typedef wchar_t* __cdecl debug_realloc(void *old_pointer, size_t size, char alignment, const char *file, int line, const void *type, const void *subtype, const void *name);
-		auto debug_realloc_impl = reinterpret_cast<debug_realloc*>(SwitchByMode(0x52B7A0u, 0u, 0u));
+		typedef wchar_t* __cdecl debug_realloc(void *old_pointer, size_t size, int alignment, const char *file, int line, const void *type, const void *subtype, const void *name);
+		auto debug_realloc_impl = reinterpret_cast<debug_realloc*>(SwitchByMode(0x52B7A0u, 0x4D4A90u, 0u));
 		CHECK_FUNCTION_SUPPORT(debug_realloc_impl);
 		return debug_realloc_impl(old_pointer, size, alignment, file, line, type, subtype, name);
 	}
@@ -69,7 +69,7 @@ namespace debug_memory
 	inline void *reallocate(
 		void* old_pointer,
 		size_t size,
-		char alignment = 0,
+		int alignment = 0,
 		const char *type = nullptr,
 		const char *subtype = nullptr,
 		const char *name = nullptr
@@ -81,7 +81,7 @@ namespace debug_memory
 	inline void free(void *pointer, const char *file)
 	{
 		typedef void __cdecl debug_free(void* pointer, const char* file);
-		auto debug_free_impl = reinterpret_cast<debug_free*>(SwitchByMode(0x52B040u, 0u, 0u));
+		auto debug_free_impl = reinterpret_cast<debug_free*>(SwitchByMode(0x52B040u, 0x4D4330u, 0u));
 		CHECK_FUNCTION_SUPPORT(debug_free_impl);
 		debug_free_impl(pointer, file);
 	}
@@ -108,7 +108,7 @@ namespace debug_memory
 
 // Re-allocates memory allocated with debug_memory::allocate
 #define HEK_DEBUG_REALLOC(pointer, size, ...) \
-	debug_memory::reallocate( __FILE__, __LINE__, size, __VA_ARGS__)
+	debug_memory::reallocate( __FILE__, __LINE__, pointer, size, __VA_ARGS__)
 
 // Frees memory allocated with debug_memory::allocate
 #define HEK_DEBUG_FREE(pointer)\

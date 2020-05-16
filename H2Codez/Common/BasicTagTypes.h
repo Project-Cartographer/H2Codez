@@ -191,15 +191,19 @@ private:
 
 	inline void *get_data() const
 	{
-		return this->address;
+		return this->is_empty() ? nullptr : this->address;
 	}
 
 	inline bool realloc(int new_size)
 	{
-		auto data = HEK_DEBUG_REALLOC(this->address, new_size, this->definition->alignment_bit, "tag", "data", this->definition->name);
-		if (data || new_size == 0) {
+		auto data = HEK_DEBUG_REALLOC(this->get_data(), new_size, this->definition->alignment_bit, "tag", "data", this->definition->name);
+		if (data) {
 			this->size = new_size;
 			this->address = data;
+			return true;
+		} else if (new_size = 0) {
+			this->size = 0;
+			this->data = -1;
 			return true;
 		}
 		return false;

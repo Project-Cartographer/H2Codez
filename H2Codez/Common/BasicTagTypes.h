@@ -201,7 +201,7 @@ private:
 			this->size = new_size;
 			this->address = data;
 			return true;
-		} else if (new_size = 0) {
+		} else if (new_size == 0) {
 			this->size = 0;
 			this->data = -1;
 			return true;

@@ -3,6 +3,7 @@
 
 #include "BlamBaseTypes.h"
 #include "TagDefinitions.h"
+#include "MemoryAllocator.h"
 #include <functional>
 
 struct tag_reference
@@ -155,7 +156,17 @@ struct byte_ref
 		void *address;
 		int data;
 	};
-	int definition;
+
+	struct tag_data_definition
+	{
+		const char* name;
+		int flags;
+		int alignment_bit;
+		int maximum_size;
+		const char* max_size_string;
+		void* byte_swap_proc;
+		void* copy_proc;
+	} *definition;
 
 	inline bool is_empty() const
 	{
@@ -166,8 +177,32 @@ struct byte_ref
 	{
 		if (this->is_empty() || this->size < (int)index)
 			return nullptr;
-		char *data = reinterpret_cast<char*>(this->address);
+		char *data = reinterpret_cast<char*>(this->get_data());
 		return &data[index];
+	}
+
+	inline bool resize(int new_size) {
+		if (new_size < 0 || new_size > this->definition->maximum_size)
+			return false;
+		return this->realloc(new_size);
+	}
+
+private:
+
+	inline void *get_data() const
+	{
+		return this->address;
+	}
+
+	inline bool realloc(int new_size)
+	{
+		auto data = HEK_DEBUG_REALLOC(this->address, new_size, this->definition->alignment_bit, "tag", "data", this->definition->name);
+		if (data || new_size == 0) {
+			this->size = new_size;
+			this->address = data;
+			return true;
+		}
+		return false;
 	}
 };
 CHECK_STRUCT_SIZE(byte_ref, 20);

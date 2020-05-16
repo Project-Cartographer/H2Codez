@@ -243,7 +243,7 @@ static bool __fastcall field_information__should_hide(field_information *thisptr
 
 	std::string name = thisptr->field->name.get_string();
 	/* 
-		Hide unnamed fields needs to check if the string is not null due to a quirk of orginal code
+		Hide unnamed fields needs to check if the string is not null due to a quirk of original code
 	*/
 	if (thisptr->field->name.id && name.length() == 0)
 		return true;

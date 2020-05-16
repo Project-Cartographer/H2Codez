@@ -8,13 +8,16 @@
 #include "util/array.h"
 #include "HaloScript.h"
 #include "HaloScript/hs_global_descriptions.h"
+#include "util/crc32.h"
+#include "util/process.h"
 #include <cwchar>
 #include <cassert>
 #include <Shellapi.h>
 #include <Shlwapi.h>
 #include <CommDlg.h>
-#include "util/crc32.h"
-#include "util/process.h"
+#include <d3d9.h>
+//#include <D3DX9Shader.h>
+#include <d3dcompiler.h>
 
 using namespace H2CommonPatches;
 
@@ -396,6 +399,90 @@ static bool __cdecl check_bitmap_dimension(int format, int type, __int16 dimensi
 	return dimension > 0 && dimension <= max_bitmap_size;
 }
 
+template<typename t>
+class ScopedCOM {
+	t *data = nullptr;
+
+public:
+	~ScopedCOM() {
+		if (data)
+			data->Release();
+	}
+
+	ScopedCOM() = default;
+
+	ScopedCOM(const ScopedCOM &other) {
+		data = other.data;
+		data->AddRef();
+	}
+
+	bool is_valid() const {
+		return data != nullptr;
+	}
+
+	bool operator !() const {
+		return !is_valid();
+	}
+
+	t **operator &() {
+		return &data;
+	}
+
+	t *operator->() {
+		return data;
+	}
+};
+
+Logs &getShaderLog()
+{
+	static Logs logger("shader.log", false);
+	return logger;
+}
+
+static void dump_shader_code(const void* data, size_t size, const std::string& comment) {
+	ScopedCOM<ID3DBlob> assembly;
+	if (LOG_CHECK(D3DDisassemble(data, size, 0, comment.c_str(), &assembly) == S_OK && assembly.is_valid())) {
+		getShaderLog().WriteLog("********************* \n%s\n", assembly->GetBufferPointer());
+	}
+}
+
+static void compile_vertex_shader(const byte_ref& shader_code, byte_ref& compiled_shader, datum tag) {
+	if (is_debug_build() && compiled_shader.size > 0) {
+		dump_shader_code(compiled_shader.address, compiled_shader.size, "old bytecode for " + tags::get_name(tag));
+	}
+	ScopedCOM<ID3DBlob> code;
+	ScopedCOM<ID3DBlob> error;
+	static constexpr D3D_SHADER_MACRO macros { };
+	auto result = D3DCompile(shader_code.address, shader_code.size, NULL, &macros, NULL, "main", "vs_2_0", 0, 0, &code, &error);
+	if (result == S_OK && code.is_valid()) {
+		auto size = code->GetBufferSize();
+		auto data = ASSERT_CHECK(code->GetBufferPointer());
+		// dump assembly to output
+		if (is_debug_build()) {
+			dump_shader_code(data, size, "new bytecode for " + tags::get_name(tag));
+		}
+		if (LOG_CHECK(compiled_shader.resize(size)))
+			memcpy(compiled_shader.address, data, size);
+	} else if (error.is_valid()) {
+		auto error_msg = static_cast<char*>(error->GetBufferPointer());
+		LOG_FUNC("error = %s", error_msg);
+	} else {
+		LOG_FUNC("Failed to compile shader, but got no error? result=%d", result);
+	}
+}
+
+struct vertex_shader_classification_block {
+	int pad;
+	byte_ref compiled_shader;
+	byte_ref code;
+};
+static bool __cdecl vertex_shader_classification_block_postprocess_proc(datum owner_tag_index, vertex_shader_classification_block *element, bool for_editor) {
+	if ((is_debug_build() || element->compiled_shader.size == 0) && element->code.size > 1)
+		compile_vertex_shader(element->code, element->compiled_shader, owner_tag_index);
+	return true;
+}
+
+
 void H2CommonPatches::Init()
 {
 	DetourTransactionBegin();
@@ -421,6 +508,11 @@ void H2CommonPatches::Init()
 	if (game.process_type != H2Tool) {
 		tags__fix_corrupt_fields_org = reinterpret_cast<tags__fix_corrupt_fields*>(SwitchAddessByMode(0x52FEC0, 0x4B18E0, 0x485590));
 		DetourAttach(&(PVOID&)tags__fix_corrupt_fields_org, tags__fix_corrupt_fields___hook);
+	}
+
+	if (game.process_type != H2Guerilla) {
+		auto offset = SwitchAddessByMode(0x00A24E68, 0x00A5F8F8, 0);
+		WritePointer(offset, vertex_shader_classification_block_postprocess_proc);
 	}
 
 	get_install_path_from_registry_original = reinterpret_cast<get_install_path_from_registry*>(SwitchByMode(0x589D30, 0x4BA7E0, 0x48A070));

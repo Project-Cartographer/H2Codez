@@ -447,19 +447,20 @@ static void dump_shader_code(const void* data, size_t size, const std::string& c
 }
 
 static void compile_vertex_shader(const byte_ref& shader_code, byte_ref& compiled_shader, datum tag) {
+	const std::string tag_name = tags::get_name(tag);
 	if (is_debug_build() && compiled_shader.size > 0) {
-		dump_shader_code(compiled_shader.address, compiled_shader.size, "old bytecode for " + tags::get_name(tag));
+		dump_shader_code(compiled_shader.address, compiled_shader.size, "old bytecode for " + tag_name);
 	}
 	ScopedCOM<ID3DBlob> code;
 	ScopedCOM<ID3DBlob> error;
 	static constexpr D3D_SHADER_MACRO macros { };
-	auto result = D3DCompile(shader_code.address, shader_code.size, NULL, &macros, NULL, "main", "vs_2_0", 0, 0, &code, &error);
+	auto result = D3DCompile(shader_code.address, shader_code.size, tag_name.c_str(), &macros, NULL, "main", "vs_2_0", D3DCOMPILE_DEBUG, 0, &code, &error);
 	if (result == S_OK && code.is_valid()) {
 		auto size = code->GetBufferSize();
 		auto data = ASSERT_CHECK(code->GetBufferPointer());
 		// dump assembly to output
 		if (is_debug_build()) {
-			dump_shader_code(data, size, "new bytecode for " + tags::get_name(tag));
+			dump_shader_code(data, size, "new bytecode for " + tag_name);
 		}
 		if (LOG_CHECK(compiled_shader.resize(size)))
 			memcpy(compiled_shader.address, data, size);
@@ -472,13 +473,15 @@ static void compile_vertex_shader(const byte_ref& shader_code, byte_ref& compile
 }
 
 struct vertex_shader_classification_block {
-	int pad;
+	IDirect3DVertexShader9 *shader;
 	byte_ref compiled_shader;
 	byte_ref code;
 };
 static bool __cdecl vertex_shader_classification_block_postprocess_proc(datum owner_tag_index, vertex_shader_classification_block *element, bool for_editor) {
 	if ((is_debug_build() || element->compiled_shader.size == 0) && element->code.size > 1)
 		compile_vertex_shader(element->code, element->compiled_shader, owner_tag_index);
+	if (!for_editor)
+		element->code.resize(0);
 	return true;
 }
 

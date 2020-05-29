@@ -170,21 +170,42 @@ struct byte_ref
 
 	inline bool is_empty() const
 	{
+		ASSERT_CHECK(this);
 		return this->data == NONE || this->size == 0;
 	}
 
 	inline void *operator[](size_t index)
 	{
-		if (this->is_empty() || this->size < (int)index)
+		ASSERT_CHECK(this->is_valid());
+		if (LOG_CHECK(index > INT_MAX) || this->is_empty() || this->size < (int)index)
 			return nullptr;
 		char *data = reinterpret_cast<char*>(this->get_data());
 		return &data[index];
 	}
 
+	// resize, returns success
 	inline bool resize(int new_size) {
+		ASSERT_CHECK(this->is_valid());
 		if (new_size < 0 || new_size > this->definition->maximum_size)
 			return false;
 		return this->realloc(new_size);
+	}
+
+	// check if structure is valid
+	inline bool is_valid() const {
+		if (this == nullptr)
+			return false;
+		if (this->address == nullptr)
+			return false;
+		if (this->definition == nullptr)
+			return false;
+		if (is_debug_build()) {
+			if (IsBadReadPtr(this->definition, sizeof(tag_data_definition)))
+				return false;
+			if (this->data != NONE && IsBadWritePtr(this->address, this->size))
+				return false;
+		}
+		return true;
 	}
 
 private:

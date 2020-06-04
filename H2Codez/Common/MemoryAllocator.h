@@ -22,7 +22,17 @@ static_assert(sizeof(c_no_allocation) == 4, "bad c_no_allocation size (vtable mi
 */
 namespace debug_memory
 {
-	inline void *allocate(
+	struct offsets {
+		uint32_t allocate;
+		uint32_t reallocate;
+		uint32_t free;
+	};
+	inline offsets &get_offsets() {
+		static offsets data{ SwitchByMode(0x52B540u, 0x4D4830u, 0u), SwitchByMode(0x52B7A0u, 0x4D4A90u, 0u), SwitchByMode(0x52B040u, 0x4D4330u, 0u) };
+		return data;
+	}
+
+	__declspec(restrict, noalias) inline void *allocate(
 		const char* file,
 		int line,
 		size_t size,
@@ -33,7 +43,7 @@ namespace debug_memory
 		)
 	{
 		typedef wchar_t* __cdecl debug_malloc(size_t size, char alignment, const char *file, int line, const void *type, const void *subtype, const void *name);
-		auto debug_malloc_impl = reinterpret_cast<debug_malloc*>(SwitchByMode(0x52B540u, 0x4D4830u, 0u));
+		auto debug_malloc_impl = reinterpret_cast<debug_malloc*>(get_offsets().allocate);
 		CHECK_FUNCTION_SUPPORT(debug_malloc_impl);
 		return debug_malloc_impl(size, alignment, file, line, type, subtype, name);
 	}
@@ -49,7 +59,7 @@ namespace debug_memory
 		return allocate(__FILE__, __LINE__, size, alignment, type, subtype, name);
 	}
 
-	inline void *reallocate(
+	__declspec(restrict, noalias) inline void *reallocate(
 		const char* file,
 		int line,
 		void* old_pointer,
@@ -61,7 +71,7 @@ namespace debug_memory
 		)
 	{
 		typedef wchar_t* __cdecl debug_realloc(void *old_pointer, size_t size, int alignment, const char *file, int line, const void *type, const void *subtype, const void *name);
-		auto debug_realloc_impl = reinterpret_cast<debug_realloc*>(SwitchByMode(0x52B7A0u, 0x4D4A90u, 0u));
+		auto debug_realloc_impl = reinterpret_cast<debug_realloc*>(get_offsets().reallocate);
 		CHECK_FUNCTION_SUPPORT(debug_realloc_impl);
 		return debug_realloc_impl(old_pointer, size, alignment, file, line, type, subtype, name);
 	}
@@ -78,10 +88,10 @@ namespace debug_memory
 		return reallocate(__FILE__, __LINE__, old_pointer, size, alignment, type, subtype, name);
 	}
 
-	inline void free(void *pointer, const char *file)
+	__declspec(noalias) inline void free(void *pointer, const char *file)
 	{
 		typedef void __cdecl debug_free(void* pointer, const char* file);
-		auto debug_free_impl = reinterpret_cast<debug_free*>(SwitchByMode(0x52B040u, 0x4D4330u, 0u));
+		auto debug_free_impl = reinterpret_cast<debug_free*>(get_offsets().free);
 		CHECK_FUNCTION_SUPPORT(debug_free_impl);
 		debug_free_impl(pointer, file);
 	}

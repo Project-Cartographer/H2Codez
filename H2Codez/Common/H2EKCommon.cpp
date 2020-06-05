@@ -485,6 +485,133 @@ static bool __cdecl vertex_shader_classification_block_postprocess_proc(datum ow
 	return true;
 }
 
+// fast versions of the memory allocation functions used by the toolkit
+namespace fast_memory_alloc {
+
+	static constexpr int memory_tag = 'sht!';
+
+	struct memory_info {
+		int tag;
+		size_t alignment;
+	};
+
+	inline static bool should_debug() {
+		return is_debug_build();
+	}
+
+	// translate alignment format
+	size_t static inline debug_translate_aligment(unsigned char alignment_power) {
+		return (alignment_power != 0) ? 1 << alignment_power : 0;
+	}
+
+	// get memory_info/allocation base
+	static inline memory_info* debug_get_base(void* data) {
+		return data ? reinterpret_cast<memory_info*>(reinterpret_cast<uintptr_t>(data) - sizeof(memory_info)) : nullptr;
+	}
+
+	// convert base to user pointer
+	static inline void* debug_base_to_pointer(void* base) {
+		if (!base)
+			return nullptr;
+		return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(base) + sizeof(memory_info));
+	}
+
+	// init pointer info
+	static inline void* debug_init_pointer(void* data, size_t alignment) {
+		if (!data)
+			return nullptr;
+		auto info = reinterpret_cast<memory_info*>(data);
+		info->tag = memory_tag;
+		info->alignment = alignment;
+		return debug_base_to_pointer(data);
+	}
+
+	// check if a pointer could have been returned by our allocator
+	bool inline static debug_is_pointer_valid(void* data) {
+		auto base = debug_get_base(data);
+		if (!base)
+			return true;
+		return base->tag == memory_tag;
+	}
+
+	static inline void* debug_allocate(size_t size, unsigned char alignment_power) {
+		auto align = debug_translate_aligment(alignment_power);
+		void* base;
+		if (align)
+			base = _aligned_offset_malloc(size + sizeof(memory_info), align, sizeof(memory_info));
+		else
+			base = malloc(size + sizeof(memory_info));
+		return debug_init_pointer(base, align);
+	}
+
+	static inline void debug_free(void* pointer) {
+		if (should_debug())
+			ASSERT_CHECK(debug_is_pointer_valid(pointer));
+		auto base = debug_get_base(pointer);
+		if (!base)
+			return;
+		base->tag = 0;
+		if (base->alignment)
+			_aligned_free(base);
+		else
+			free(base);
+	}
+
+	static inline void* debug_realloc(void* pointer, size_t size, unsigned char alignment_power) {
+		if (should_debug())
+			ASSERT_CHECK(debug_is_pointer_valid(pointer));
+		if (!pointer && size)
+			return debug_allocate(size, alignment_power);
+		if (!size) {
+			if (pointer)
+				debug_free(pointer);
+			return nullptr;
+		}
+		auto align = debug_translate_aligment(alignment_power);
+		auto base = debug_get_base(pointer);
+		if (should_debug())
+			ASSERT_CHECK(base->alignment == align);
+		void* new_base;
+		if (align)
+			new_base = _aligned_offset_realloc(base, size + sizeof(memory_info), align, sizeof(memory_info));
+		else
+			new_base = realloc(base, size + sizeof(memory_info));
+		return debug_base_to_pointer(new_base);
+	}
+}
+
+static void* __cdecl debug_allocate_fast_hook(size_t size, unsigned char alignment_power, const char *file, int line, const char *type, const char *subtype, const char *name) {
+	if (LOG_CHECK(size))
+		return fast_memory_alloc::debug_allocate(size, alignment_power);
+	else
+		return nullptr;
+}
+
+static void __cdecl debug_free_fast_hook(void *pointer, const char *file, int line) {
+	fast_memory_alloc::debug_free(pointer);
+}
+
+static void* __cdecl debug_reallocate_fast_hook(void *pointer, size_t size, unsigned char alignment_power, const char *file, int line, const char *type, const char *subtype, const char *name) {
+	return fast_memory_alloc::debug_realloc(pointer, size, alignment_power);
+}
+
+static bool __cdecl debug_is_valid_allocation_fast_hook(void *pointer) {
+	if (!pointer)
+		return false;
+	return fast_memory_alloc::debug_is_pointer_valid(pointer);
+}
+
+void __cdecl benchmark_mem() {
+	auto start = clock();
+	for (int j = 0; j < 0x500; j++) {
+		void* pointers[0x2000];
+		for (int i = 0; i < ARRAYSIZE(pointers); i++)
+			pointers[i] = HEK_DEBUG_MALLOC(0x300, numerical::is_power_of_two(i) ? 1 : 0);
+		for (int i = 0; i < ARRAYSIZE(pointers); i++)
+			HEK_DEBUG_FREE(pointers[i]);
+	}
+	wprintf(L"took %d ms\n", (clock() - start) / (CLOCKS_PER_SEC / 10));
+}
 
 void H2CommonPatches::Init()
 {
@@ -534,7 +661,14 @@ void H2CommonPatches::Init()
 	DetourAttach(&(PVOID&)SetUnhandledExceptionFilterOrg, SetUnhandledExceptionFilter_hook);
 
 	DetourTransactionCommit();
-
+	if (game.process_type != H2Guerilla && conf.getBoolean("disable_debug_memory_allocator", false)) {
+		WriteJmp(debug_memory::get_offsets().allocate, debug_allocate_fast_hook);
+		WriteJmp(debug_memory::get_offsets().reallocate, debug_reallocate_fast_hook);
+		WriteJmp(debug_memory::get_offsets().free, debug_free_fast_hook);
+		if (game.process_type == H2Tool)
+			WriteJmp(0x52A870, debug_is_valid_allocation_fast_hook);
+	}
+	//PatchCall(0x5270D5, benchmark_mem);
 	// misc dev stuff
 	if (is_debug_build())
 	{

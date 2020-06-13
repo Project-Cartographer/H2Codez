@@ -117,6 +117,36 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_element(name, "degree", 4, increment_size);
 		};
 
+		auto add_degree2 = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "degree2", 4 * 2, increment_size);
+		};
+
+		auto add_degree3 = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "degree3", 4 * 3, increment_size);
+		};
+
+		auto add_rangef = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "rangef", 4 * 2, increment_size);
+		};
+
+		auto add_ranged = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "ranged", 4 * 2, increment_size);
+		};
+
+		auto add_point3 = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "point3", 4 * 3, increment_size);
+		};
+
+		auto add_quaternion = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "quaternion", 4 * 4, increment_size);
+		};
+
 		auto add_enum_contents = [&](std::string element_name, std::string value_att_name)
 		{
 			tag_enum_def * def = reinterpret_cast<tag_enum_def*>(fields->defintion);
@@ -141,7 +171,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		switch (fields->type) {
 		case tag_field::block:
 		{
-			element_name = "reflexive";
+			element_name = "tagblock";
 			auto entry_size = DumpBlock(field_tree, reinterpret_cast<tag_block_defintions*>(fields->defintion));
 			field_tree.add("<xmlattr>.entrySize", numerical::to_string(entry_size, radix::hexadecimal));
 			break;
@@ -195,9 +225,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::real_point_3d:
-			add_float32(field_name + " (x)");
-			add_float32(field_name + " (y)");
-			add_float32(field_name + " (z)");
+			add_point3(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real_vector_2d:
@@ -209,8 +237,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::real_quaternion:
-			add_vector(field_name, true);
-			add_float32(field_name + " (w)");
+			add_quaternion(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real_plane_2d:
@@ -227,14 +254,11 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "degree";
 			break;
 		case tag_field::real_euler_angles_2d:
-			add_degree(field_name + " (yaw)");
-			add_degree(field_name + " (pitch)");
+			add_degree2(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real_euler_angles_3d:
-			add_degree(field_name + " (yaw)");
-			add_degree(field_name + " (pitch)");
-			add_degree(field_name + " (roll)");
+			add_degree3(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real_ahsv_color:
@@ -247,28 +271,30 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 		case tag_field::real_rgb_color:
 			element_name = "colorf";
 			field_tree.add("<xmlattr>.format", "rgb");
+			field_tree.add("<xmlattr>.alpha", "false");
 			break;
 		case tag_field::real_argb_color:
 			element_name = "colorf";
 			field_tree.add("<xmlattr>.format", "argb");
+			field_tree.add("<xmlattr>.alpha", "true");
 			break;
 		case tag_field::rgb_color:
 			element_name = "color32";
 			field_tree.add("<xmlattr>.format", "rgb");
+			field_tree.add("<xmlattr>.alpha", "false");
 			break;
 		case tag_field::argb_color:
 			element_name = "color32";
 			field_tree.add("<xmlattr>.format", "argb");
+			field_tree.add("<xmlattr>.alpha", "true");
 			break;
 		case tag_field::real_bounds:
 		case tag_field::real_fraction_bounds:
-			add_float32(field_name + " (lower)");
-			add_float32(field_name + " (upper)");
+			add_rangef(field_name);
 			skip_field = true;
 			break;
 		case tag_field::angle_bounds:
-			add_degree(field_name + " (lower)");
-			add_degree(field_name + " (upper)");
+			add_ranged(field_name);
 			skip_field = true;
 			break;
 		case tag_field::short_bounds:

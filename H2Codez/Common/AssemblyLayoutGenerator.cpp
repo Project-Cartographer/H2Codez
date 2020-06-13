@@ -112,19 +112,9 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_element(name, "float32", 4, increment_size);
 		};
 
-		auto add_degree = [&](std::string name, bool increment_size = true)
+		auto add_range16 = [&](std::string name, bool increment_size = true)
 		{
-			add_element(name, "degree", 4, increment_size);
-		};
-
-		auto add_degree2 = [&](std::string name, bool increment_size = true)
-		{
-			add_element(name, "degree2", 4 * 2, increment_size);
-		};
-
-		auto add_degree3 = [&](std::string name, bool increment_size = true)
-		{
-			add_element(name, "degree3", 4 * 3, increment_size);
+			add_element(name, "range16", 2 * 2, increment_size);
 		};
 
 		auto add_rangef = [&](std::string name, bool increment_size = true)
@@ -137,14 +127,19 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_element(name, "ranged", 4 * 2, increment_size);
 		};
 
-		auto add_point3 = [&](std::string name, bool increment_size = true)
+		auto add_point16 = [&](std::string name, bool increment_size = true)
 		{
-			add_element(name, "point3", 4 * 3, increment_size);
+			add_element(name, "point16", 2 * 2, increment_size);
 		};
 
 		auto add_quaternion = [&](std::string name, bool increment_size = true)
 		{
 			add_element(name, "quaternion", 4 * 4, increment_size);
+		};
+
+		auto add_rect16 = [&](std::string name, bool increment_size = true)
+		{
+			add_element(name, "rect16", 2 * 4, increment_size);
 		};
 
 		auto add_enum_contents = [&](std::string element_name, std::string value_att_name)
@@ -158,13 +153,32 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			}
 		};
 
+		auto add_degree = [&](std::string name, bool is_3d, bool increment_size = true)
+		{
+			if (is_3d) {
+				add_element(name, "degree3", 4 * 3, increment_size);
+			}
+			else {
+				add_element(name, "degree2", 4 * 2, increment_size);
+			}
+		};
+
+		auto add_point = [&](std::string name, bool is_3d, bool increment_size = true)
+		{
+			if (is_3d) {
+				add_element(name, "point3", 4 * 3, increment_size);
+			}
+			else {
+				add_element(name, "point2", 4 * 2, increment_size);
+			}
+		};
+
 		auto add_vector = [&](std::string name, bool is_3d, bool increment_size = true)
 		{
 			if (is_3d) {
 				add_element(name, "vector3", 4 * 3, increment_size);
 			} else {
-				add_float32(name + " (i)");
-				add_float32(name + " (j)");
+				add_element(name, "vector2", 4 * 2, increment_size);
 			}
 		};
 
@@ -215,17 +229,15 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::point_2d:
-			add_int16(field_name + " (x)");
-			add_int16(field_name + " (y)");
+			add_point16(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real_point_2d:
-			add_float32(field_name + " (x)");
-			add_float32(field_name + " (y)");
+			add_point(field_name, false);
 			skip_field = true;
 			break;
 		case tag_field::real_point_3d:
-			add_point3(field_name);
+			add_point(field_name, true);
 			skip_field = true;
 			break;
 		case tag_field::real_vector_2d:
@@ -254,11 +266,11 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			element_name = "degree";
 			break;
 		case tag_field::real_euler_angles_2d:
-			add_degree2(field_name);
+			add_degree(field_name, false);
 			skip_field = true;
 			break;
 		case tag_field::real_euler_angles_3d:
-			add_degree3(field_name);
+			add_degree(field_name, true);
 			skip_field = true;
 			break;
 		case tag_field::real_ahsv_color:
@@ -298,8 +310,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			skip_field = true;
 			break;
 		case tag_field::short_bounds:
-			add_int16(field_name + " (lower)");
-			add_int16(field_name + " (upper)");
+			add_range16(field_name);
 			skip_field = true;
 			break;
 		case tag_field::real:
@@ -353,10 +364,7 @@ size_t DumpFields(ptree &parent_tree, tag_field *_fields, size_t start_offset = 
 			add_enum_contents("bit", "index");
 			break;
 		case tag_field::rectangle_2d:
-			add_int16(field_name + "(top)");
-			add_int16(field_name + "(left)");
-			add_int16(field_name + "(bottom)");
-			add_int16(field_name + "(right)");
+			add_rect16(field_name);
 			skip_field = true;
 			break;
 		case tag_field::vertex_buffer:

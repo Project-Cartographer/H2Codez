@@ -359,6 +359,9 @@ void H2GuerrilaPatches::Init()
 	// allow other processes to read files open with fopen_s
 	WriteValue(0x006B1614 + 1, _SH_DENYWR);
 
+	// Add surface index to firing position definition.
+	WriteValue<tag_field>(0x96ED68, { tag_field::long_integer, "surface index", NULL, blam_tag::null() });
+
 	// patch code for embedded tool console to use the right exe name
 	WritePointer(0x004761AC + 1, "H2tool ");
 

@@ -413,6 +413,8 @@ void H2GuerrilaPatches::Init()
 	fix_wgit_menu_id(reinterpret_cast<tag_enum_def*>(0x93A454));
 	fix_wgit_button_key_type(reinterpret_cast<tag_enum_def*>(0x93A77C));
 
+	WriteValue<tag_field>(0x96ED68, { tag_field::long_integer, "surface index", NULL, blam_tag::null() });
+
 #pragma endregion
 
 #pragma region Hooks

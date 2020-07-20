@@ -56,10 +56,13 @@ struct lightmap_control
 };
 
 lightmap_control *global_lightmap_control = reinterpret_cast<lightmap_control*>(0xA73CE0);
+static int *slave_id_ptr = reinterpret_cast<int*>(0xA73D78);
 
 static lightmapping_distributed_type global_lightmap_control_distributed_type = local;
 
 char lightmap_log_name[0x100] = "lightmap.log";
+
+static bool is_fork;
 
 struct {
 	bool is_first = false;
@@ -111,7 +114,7 @@ void __cdecl generate_lightmaps_slave(const wchar_t *argv[])
 	}
 	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(wstring_to_string.to_bytes(argv[4])));
 	printf(" == Instance id: %d == \n", slave_id);
-	WriteValue<DWORD>(0xA73D78, slave_id);
+	*slave_id_ptr = slave_id;
 
 	sprintf_s(lightmap_log_name, "lightmap_slave_%d.log", slave_id);
 
@@ -125,7 +128,7 @@ static void ASM_FUNC tool_exit()
 	ExitProcess(0);
 }
 
-static int get_slave_id()
+static int get_slave_id_fork()
 {
 	static bool is_first_call = true;
 	if (is_first_call)
@@ -166,7 +169,7 @@ static void ASM_FUNC get_slave_id_save_registers()
 		push ecx
 		push ebx
 
-		call get_slave_id
+		call get_slave_id_fork
 
 		pop ebx
 		pop ecx
@@ -196,6 +199,7 @@ static void ASM_FUNC slave_id_cmp_ebx()
 /* Patch code that checks slave_id to use our function */
 static void patch_slave_id_access()
 {
+	is_fork = true;
 	NopFill(0x4B3161, 6);
 	NopFill(0x4B363F, 6);
 	NopFill(0x4DE31B, 6);
@@ -208,6 +212,10 @@ static void patch_slave_id_access()
 	WriteCall(0x4BA378, get_slave_id_save_registers);
 	WriteCall(0x4E1460, get_slave_id_save_registers);
 	WriteCall(0x4C6E8D, slave_id_cmp_ebx);
+}
+
+static int get_slave_id() {
+	return is_fork ? get_slave_id_fork() : *slave_id_ptr;
 }
 
 DWORD __cdecl TAG_SAVE_RADIANCE_FORK(int TAG_INDEX)
@@ -233,7 +241,7 @@ void __cdecl generate_lightmaps_fork_slave(const wchar_t *argv[])
 		return;
 	}
 	// set slave id to zero to make code work
-	WriteValue<DWORD>(0xA73D78, 0);
+	*slave_id_ptr = 0;
 
 	sprintf_s(lightmap_log_name, "lightmap_slave_fork.log");
 
@@ -345,6 +353,22 @@ static lightmap_quality_setting custom{
 
 static lightmap_quality_setting custom_quality_settings[11];
 
+static int __stdcall load_and_nuke_nulled(const char *name) {
+	return true;
+}
+
+static void __cdecl save_lightmap_hook(datum lightmap_group) {
+	if (global_lightmap_control_distributed_type != slave || get_slave_id() == 0) {
+		tags::save_tag(lightmap_group);
+	}
+}
+
+static void __cdecl save_scenario_hook(datum scenario_group) {
+	if (global_lightmap_control_distributed_type != slave) {
+		tags::save_tag(scenario_group);
+	}
+}
+
 void H2ToolPatches::reenable_lightmap_farming()
 {
 	lightmap_quality_setting *org_settings = reinterpret_cast<lightmap_quality_setting*>(0x97E138);
@@ -392,4 +416,11 @@ void H2ToolPatches::reenable_lightmap_farming()
 	// dumps merged bitmaps 
 	if (conf.getBoolean("dump_intermediate_lightmaps", false))
 		PatchCall(0x4C6C0E, merge_slave_bitmaps_hook);
+
+	NopFill(0x4C6FF4, 5);
+	WriteValue(0x4C1D9B + 1, 0x00A73CE4 - 4); // change global_lightmap_control.output_bitmap_group to global_lightmap_control.editable_bitmap_group
+	PatchCall(0x004C6768, load_and_nuke_nulled);
+
+	PatchCall(0x4C7256, save_lightmap_hook);
+	PatchCall(0x4C7587, save_scenario_hook);
 }

@@ -512,6 +512,9 @@ void H2SapienPatches::Init()
 
 	WriteCall(0x4D75A4, main_loop__sync_major_change_hook); // codecave part of main_loop_body
 
+	// Fix wide/narrow string type confusion in hierarchy folder code
+	WritePointer(0x48DB6E + 1, "%ws");
+
 
 #pragma endregion
 

@@ -47,6 +47,14 @@ struct s_tool_import_definations
 	import_def_translate_path*      translate_path;
 };
 
+struct s_tool_import_definations_const
+{
+	cstring							file_extension;
+	uint32_t                        import_proc;
+	DWORD                           unk_1;
+	uint32_t                        translate_path;
+};
+
 typedef bool(_cdecl* tool_dev_command_proc)(const char *name, datum tag);
 struct s_tool_h2dev_command {
 	cstring name;

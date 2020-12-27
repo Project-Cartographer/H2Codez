@@ -46,6 +46,7 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&dump_as_xml,
 	&append_animations,
 	&import_lipsync_command,
+
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)
@@ -617,6 +618,37 @@ static void patch_max_bitmap_size()
 	}
 }
 
+constexpr uint32_t image_import_with_type_proc = 0x40A390;
+constexpr uint32_t image_import_proc = 0x40A370;
+constexpr uint32_t translate_path_bitmap = 0x409330;
+constexpr s_tool_import_definations_const image_import_defs[] = {
+	{"tif", image_import_proc, 0, translate_path_bitmap},
+	{"tiff", image_import_proc, 0, translate_path_bitmap},
+	{"tga", image_import_proc, 0, translate_path_bitmap},
+	{"jpg", image_import_proc, 0, translate_path_bitmap},
+	{"jpeg", image_import_proc, 0, translate_path_bitmap},
+	{"bmp", image_import_proc, 0, translate_path_bitmap},
+	{"png", image_import_proc, 0, translate_path_bitmap},
+};
+
+constexpr s_tool_import_definations_const image_import_with_type_defs[] = {
+	{"tif", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"tiff", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"tga", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"jpg", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"jpeg", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"bmp", image_import_with_type_proc, 0, translate_path_bitmap},
+	{"png", image_import_with_type_proc, 0, translate_path_bitmap},
+};
+
+
+static inline void expand_bitmap_types() {
+	WriteValue<unsigned char>(0x408F11 + 1, ARRAYSIZE(image_import_defs));
+	WritePointer(0x408F13 + 1, image_import_defs);
+	WriteValue<unsigned char>(0x4090D8 + 1, ARRAYSIZE(image_import_with_type_defs));
+	WritePointer(0x4090DA + 1, image_import_with_type_defs);
+}
+
 void H2ToolPatches::Initialize()
 {
 	getLogger().WriteLog("DLL Successfully Injected to H2Tool");
@@ -687,6 +719,9 @@ void H2ToolPatches::Initialize()
 		WriteValue<uint32_t>(0x985F94, 0); // weap
 		WriteValue<uint32_t>(0x9874E4, 0); // unit
 	}
+
+	// allow compiling PNG files
+	expand_bitmap_types();
 }
 
 

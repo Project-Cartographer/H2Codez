@@ -844,7 +844,7 @@ void _cdecl fix_extracted_lightmaps(const wchar_t *argv[])
 		{
 			auto *lightmap_group = lightmap->lightmapGroups[0];
 			printf("Copying cluster data...");
-			for (size_t i = 0; i < lightmap_group->clusters.size; i++)
+			for (int32_t i = 0; i < lightmap_group->clusters.size; i++)
 			{
 				auto *lightmap_cluster = lightmap_group->clusters[i];
 				auto *bsp_cluster = bsp->clusters[i];
@@ -854,7 +854,7 @@ void _cdecl fix_extracted_lightmaps(const wchar_t *argv[])
 			printf("done\n");
 
 			printf("Copying instance geo data...");
-			for (size_t i = 0; i < lightmap_group->poopDefinitions.size; i++)
+			for (int32_t i = 0; i < lightmap_group->poopDefinitions.size; i++)
 			{
 				auto *instance_geo_lightmap = lightmap_group->poopDefinitions[i];
 				auto *bsp_instance_geo = bsp->instancedGeometriesDefinitions[i];
@@ -926,3 +926,68 @@ static const s_tool_command dump_as_xml
 	ARRAYSIZE(dump_as_xml_args),
 	true
 };
+
+
+static const wchar_t* __cdecl create_bitmap_from_other_image(file_reference* file, bitmap_data_block** bitmap_out)
+{
+	typedef const wchar_t* __cdecl create_bitmap_from_other_image(file_reference* a1, bitmap_data_block** a2);
+	auto impl = reinterpret_cast<create_bitmap_from_other_image*>(0x4E7840);
+	return impl(file, bitmap_out);
+}
+
+static void bitmap_insert_at_index(bitmap_block* bitmap_tag, int index, bitmap_data_block* new_bitmap) {
+	typedef void __cdecl bitmap_insert_at_index(bitmap_block* bitmap_tag, int index, bitmap_data_block* new_bitmap);
+	auto impl = reinterpret_cast<bitmap_insert_at_index*>(0x53A7D0);
+	impl(bitmap_tag, index, new_bitmap);
+}
+
+static void bitmap_remove_by_index(bitmap_block* bitmap, signed int index) {
+	typedef void __cdecl bitmap_remove_by_index(bitmap_block* bitmap, signed int index);
+	auto impl = reinterpret_cast<bitmap_remove_by_index*>(0x53A5B0);
+	impl(bitmap, index);
+}
+
+static void free_bitmap_data_block(bitmap_data_block* bitmap) {
+	typedef void __cdecl free_bitmap_data_block(bitmap_data_block* a1);
+	auto impl = reinterpret_cast<free_bitmap_data_block*>(0x71E5D0);
+	impl(bitmap);
+}
+
+static void _cdecl edit_bitmap_proc(const wchar_t* argv[])
+{
+	auto bitmap_name = wstring_to_string.to_bytes(argv[0]);
+	tags::s_scoped_handle bitmap_tag = ASSERT_CHECK(tags::load_tag('bitm', bitmap_name, tags::for_editor));
+	auto bitmap = ASSERT_CHECK(tags::get_tag<bitmap_block>('bitm', bitmap_tag));
+	auto file_ref = file_reference(wstring_to_string.to_bytes(argv[2]), false);
+	bitmap_data_block *out = nullptr;
+	auto error = create_bitmap_from_other_image(&file_ref, &out);
+	if (error) {
+		wcout << error << endl;
+		return;
+	}
+	ASSERT_CHECK(out);
+	auto index = _wtoi(argv[1]);
+	bitmap_remove_by_index(bitmap, index);
+	bitmap_insert_at_index(bitmap, index, out);
+	tags::save_tag(bitmap_tag);
+
+	free_bitmap_data_block(out);
+}
+
+const s_tool_command_argument edit_bitmap_args[] =
+{
+	{ _tool_command_argument_type_tag_name, L"bitmap" },
+	{ _tool_command_argument_type_string, L"index" },
+	{ _tool_command_argument_type_data_file, L"replacement" },
+};
+
+
+static const s_tool_command edit_bitmap
+{
+	L"edit bitmap",
+	edit_bitmap_proc,
+	edit_bitmap_args,
+	ARRAYSIZE(edit_bitmap_args),
+	false
+};
+

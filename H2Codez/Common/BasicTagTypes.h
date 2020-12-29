@@ -26,7 +26,7 @@ struct tag_block
 {
 	static_assert(std::is_trivially_copyable<typename T>::value || std::is_void<T>::value, "tag_block must be trivially copyable or void.");
 
-	size_t size;
+	int32_t size;
 	T *data;
 	tag_block_defintions *defination;
 
@@ -38,7 +38,7 @@ struct tag_block
 		return get_ref();
 	}
 
-	bool is_valid()
+	bool is_valid() const
 	{
 		if (reinterpret_cast<size_t>(this->data) == NONE)
 			return false;
@@ -47,21 +47,21 @@ struct tag_block
 		return true;
 	}
 
-	T *get_element(size_t index)
+	T *get_element(size_t index) const
 	{
 		if (!is_valid())
 			return nullptr;
-		if (index == NONE || index >= this->size)
+		if (index == NONE || index >= static_cast<size_t>(this->size))
 			return nullptr;
 		return get_element_internal<T>(index);
 	}
 
-	T *operator[](size_t index)
+	T *operator[](size_t index) const
 	{
 		return get_element(index);
 	}
 
-	T *begin()
+	T *begin() const
 	{
 		if (is_valid())
 			return get_element_internal<T>(0);
@@ -69,7 +69,7 @@ struct tag_block
 			return nullptr;
 	}
 
-	T *end()
+	T *end() const
 	{
 		if (is_valid())
 			return get_element_internal<T>(size);
@@ -77,9 +77,9 @@ struct tag_block
 			return nullptr;
 	}
 
-	size_t find_element(std::function<bool(const T*)> search_function)
+	int32_t find_element(std::function<bool(const T*)> search_function) const
 	{
-		for (size_t index = 0; index < this->size; index++)
+		for (int32_t index = 0; index < this->size; index++)
 		{
 			if (search_function(this->operator[](index)))
 				return index;
@@ -89,13 +89,15 @@ struct tag_block
 
 	void clear()
 	{
+		if (is_valid())
+			HEK_DEBUG_FREE(this->data);
 		this->size = 0;
 		this->data = reinterpret_cast<T*>(NONE);
 	}
 
 	// search functions
 
-	size_t find_string_element(size_t offset, const char *string)
+	int32_t find_string_element(size_t offset, const char *string) const
 	{
 		const auto find_string = [&](const T *element) -> bool {
 			const char *data = reinterpret_cast<const char*>(element);
@@ -104,12 +106,12 @@ struct tag_block
 		return find_element(find_string);
 	}
 
-	inline size_t find_string_element(size_t offset, const std::string &string)
+	inline int32_t find_string_element(size_t offset, const std::string &string) const
 	{
 		return find_string_element(offset, string.c_str());
 	}
 
-	size_t find_string_id_element(size_t offset, string_id string)
+	int32_t find_string_id_element(size_t offset, string_id string) const
 	{
 		auto find_string = [&](const T *element) -> bool {
 			const uint8_t *data = reinterpret_cast<const uint8_t*>(element);
@@ -119,25 +121,25 @@ struct tag_block
 		return find_element(find_string);
 	}
 
-	inline size_t find_string_id_element(size_t offset, const char *string)
+	inline int32_t find_string_id_element(size_t offset, const char *string) const
 	{
 		return find_string_id_element(offset, string_id::find_by_name(string));
 	}
 
-	inline size_t find_string_id_element(size_t offset, const std::string &string)
+	inline int32_t find_string_id_element(size_t offset, const std::string &string) const
 	{
 		return find_string_id_element(offset, string.c_str());
 	}
 
 private:
 	template<typename T1>
-	inline T1 *get_element_internal(size_t idx)
+	inline T1 *get_element_internal(size_t idx) const
 	{
 		return &this->data[idx];
 	}
 
 	template<>
-	inline void *get_element_internal(size_t idx)
+	inline void *get_element_internal(size_t idx) const
 	{
 		size_t element_size = defination->latest->size;
 		uint8_t *data_char = reinterpret_cast<uint8_t*>(this->data);
@@ -206,6 +208,10 @@ struct byte_ref
 				return false;
 		}
 		return true;
+	}
+
+	inline const char *c_str() {
+		return reinterpret_cast<char*>(get_data());
 	}
 
 private:

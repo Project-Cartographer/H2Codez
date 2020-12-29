@@ -54,6 +54,12 @@ struct datum
 	{
 		return !is_valid();
 	}
+
+	void clear() 
+	{
+		index = NONE;
+		salt = NONE;
+	}
 };
 CHECK_STRUCT_SIZE(datum, 4);
 
@@ -296,6 +302,10 @@ struct real_point3d
 	float x;
 	float y;
 	float z;
+
+	real_point3d operator+(const real_point3d& other) const {
+		return real_point3d{ this->x + other.x, this->y + other.y, this->z + other.z };
+	}
 };
 CHECK_STRUCT_SIZE(real_point3d, 4 * 3);
 
@@ -360,6 +370,7 @@ struct real_vector3d
 };
 CHECK_STRUCT_SIZE(real_vector3d, 4 * 3);
 
+
 struct real_plane2d
 {
 	real_vector2d normal;
@@ -384,6 +395,23 @@ struct real_quaternion
 	inline float get_square_length() const
 	{
 		return i * i + j * j + k * k + w * w;
+	}
+
+	static inline real_quaternion from_angle(real_euler_angles3d angle) {
+		double cy = cos(angle.yaw.as_rad() * 0.5);
+		double sy = sin(angle.yaw.as_rad() * 0.5);
+		double cp = cos(angle.pitch.as_rad() * 0.5);
+		double sp = sin(angle.pitch.as_rad() * 0.5);
+		double cr = cos(angle.roll.as_rad() * 0.5);
+		double sr = sin(angle.roll.as_rad() * 0.5);
+
+		real_quaternion q;
+		q.w = static_cast<float>(cr * cp * cy + sr * sp * sy);
+		q.i = static_cast<float>(sr * cp * cy - cr * sp * sy);
+		q.j = static_cast<float>(cr * sp * cy + sr * cp * sy);
+		q.k = static_cast<float>(cr * cp * sy - sr * sp * cy);
+
+		return q;
 	}
 };
 
@@ -540,12 +568,19 @@ struct rect2d
 struct real_matrix4x3
 {
 	float scale = 1.0f;
-	real_vector3d forward = {};
-	real_vector3d left = {};
-	real_vector3d up = {};
-	real_point3d translation = {};
+	real_vector3d forward = {1.f, 0.f, 0.f};
+	real_vector3d left    = {0.f, 1.f, 0.f};
+	real_vector3d up      = {0.f, 0.f, 1.f};
+	real_point3d translation = {0.f, 0.f, 0.f};
 
-	real_matrix4x3() = default;
+	constexpr real_matrix4x3() = default;
+	constexpr real_matrix4x3(real_vector3d _forward, real_vector3d _left, real_vector3d _up, real_point3d _translation = { 0.f, 0.f, 0.f }):
+		forward(_forward),
+		left(_left),
+		up(_up),
+		translation(_translation)
+	{
+	}
 
 	real_matrix4x3(const real_quaternion& rotation)
 	{
@@ -603,4 +638,18 @@ struct real_matrix4x3
 		up      = { ik - jw,           jk + iw,            1.0f - (ii + jj) };
 	}
 };
+
+static inline real_vector3d operator*(const real_matrix4x3& lhs, const real_vector3d& rhs) {
+	auto c1 = lhs.forward.i * rhs.i + lhs.left.i * rhs.j + lhs.up.i * rhs.k;
+	auto c2 = lhs.forward.j * rhs.i + lhs.left.j * rhs.j + lhs.up.j * rhs.k;
+	auto c3 = lhs.forward.k * rhs.i + lhs.left.k * rhs.j + lhs.up.k * rhs.k;
+	return real_vector3d{ c1, c2, c3 };
+}
+
+static inline real_point3d operator*(const real_matrix4x3& lhs, const real_point3d& rhs) {
+	auto c1 = lhs.forward.i * rhs.x + lhs.left.i * rhs.y + lhs.up.i * rhs.z;
+	auto c2 = lhs.forward.j * rhs.x + lhs.left.j * rhs.y + lhs.up.j * rhs.z;
+	auto c3 = lhs.forward.k * rhs.x + lhs.left.k * rhs.y + lhs.up.k * rhs.z;
+	return real_point3d{ c1, c2, c3 };
+}
 

@@ -10,6 +10,7 @@
 #include "HaloScript/hs_global_descriptions.h"
 #include "util/crc32.h"
 #include "util/process.h"
+#include "util/ScopedCOM.h"
 #include <cwchar>
 #include <cassert>
 #include <Shellapi.h>
@@ -399,40 +400,6 @@ static bool __cdecl check_bitmap_dimension(int format, int type, __int16 dimensi
 	return dimension > 0 && dimension <= max_bitmap_size;
 }
 
-template<typename t>
-class ScopedCOM {
-	t *data = nullptr;
-
-public:
-	~ScopedCOM() {
-		if (data)
-			data->Release();
-	}
-
-	ScopedCOM() = default;
-
-	ScopedCOM(const ScopedCOM &other) {
-		data = other.data;
-		data->AddRef();
-	}
-
-	bool is_valid() const {
-		return data != nullptr;
-	}
-
-	bool operator !() const {
-		return !is_valid();
-	}
-
-	t **operator &() {
-		return &data;
-	}
-
-	t *operator->() {
-		return data;
-	}
-};
-
 Logs &getShaderLog()
 {
 	static Logs logger("shader.log", false);
@@ -654,7 +621,7 @@ void H2CommonPatches::Init()
 
 	haloscript_init();
 
-	set_tag_data_max_size(0x3000000);
+	set_tag_data_max_size(0x5000000);
 
 	// hook exception setter
 	auto SetUnhandledExceptionFilterOrg = SetUnhandledExceptionFilter;

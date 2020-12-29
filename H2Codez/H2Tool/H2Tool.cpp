@@ -1,5 +1,6 @@
 #include "ToolCommandDefinitions.inl"
 #include "H2Tool_extra_commands.inl"
+#include "CustomLightmaps.h"
 #include "Tags\ScenarioTag.h"
 #include "Tags\Bitmap.h"
 #include "Common\H2EKCommon.h"
@@ -46,7 +47,8 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&dump_as_xml,
 	&append_animations,
 	&import_lipsync_command,
-
+	&lightmap_dump,
+	&edit_bitmap
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)
@@ -419,7 +421,7 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	scnr_tag *scenario = tags::get_tag<scnr_tag>('scnr', TAG_INDEX);
 
 	// fix the compiler not setting up AI orders right and causing weird things to happen with scripts
-	for (size_t i = 0; i < scenario->orders.size; i++)
+	for (int32_t i = 0; i < scenario->orders.size; i++)
 	{
 		orders_block *order = &scenario->orders.data[i];
 		std::string target_script = order->entryScript;
@@ -427,13 +429,13 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	}
 
 	// squad placement scripts are also broken
-	for (size_t i = 0; i < scenario->squads.size; i++)
+	for (int32_t i = 0; i < scenario->squads.size; i++)
 	{
 		auto *squad = &scenario->squads.data[i];
 		std::string placement_script = squad->placementScript;
 		SetScriptIdx(squad, placement_script, scenario);
 
-		for (size_t j = 0; j < squad->startingLocations.size; j++)
+		for (int32_t j = 0; j < squad->startingLocations.size; j++)
 		{
 			auto *starting_location = &squad->startingLocations.data[j];
 			std::string placement_script = starting_location->placementScript;
@@ -446,7 +448,7 @@ char __cdecl scenario_write_patch_file_hook(int TAG_INDEX, int a2)
 	if (conf.getBoolean("dump_tags_packaging", false)) {
 		tag_dump(TAG_INDEX);
 
-		for (size_t i = 0; i < scenario->structureBSPs.size; i++)
+		for (int32_t i = 0; i < scenario->structureBSPs.size; i++)
 			tag_dump(scenario->structureBSPs.data[i].structureBSP.tag_index);
 	}
 

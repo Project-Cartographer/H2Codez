@@ -8,10 +8,11 @@ public:
 	Logs(char* filename, bool console = true); //Constructor that creates and sets the Log name
 	void Exit();      //close file
 	void WriteLog(const char* line, ...); //Write to Log File
+	bool console;
+
 
 private:
 	ofstream file;
-	bool console;
 };
 
 namespace Debug
@@ -24,6 +25,7 @@ Logs &getLogger();
 
 inline void log_verify_output(const char *expression, const char *func_name, const char* file, const int line)
 {
+	getLogger().console = true;
 	getLogger().WriteLog("'%s' failed in '%s' at '%s:%d'!", expression, func_name, file, line);
 	DWORD last_error = GetLastError();
 	if (last_error)

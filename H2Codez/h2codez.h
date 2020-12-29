@@ -86,7 +86,6 @@ private:
 template <typename T>
 inline T SwitchByMode(T tool, T sapien, T guerilla)
 {
-	assert(game.process_type != H2EK::Invalid);
 	switch (game.process_type)
 	{
 	case H2Tool:
@@ -95,8 +94,10 @@ inline T SwitchByMode(T tool, T sapien, T guerilla)
 		return sapien;
 	case H2Guerilla:
 		return guerilla;
+	default:
+		assert(false && game.process_type);
 	}
-	abort(); // this should never happen
+	return T{}; // should be unreachable
 }
 
 inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)

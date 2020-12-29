@@ -35,7 +35,7 @@ void status_dump()
 
 		auto global_scenario = GlobalTags::get_scenario();
 		auto script_nodes = get_script_node_array();
-		for (size_t index = 0; index < global_scenario->globals.size; index++)
+		for (int32_t index = 0; index < global_scenario->globals.size; index++)
 		{
 			auto global = global_scenario->globals[index];
 			if (!global)

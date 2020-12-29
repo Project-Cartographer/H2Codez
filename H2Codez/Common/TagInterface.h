@@ -105,7 +105,7 @@ namespace tags
 		for_editor                = 1 << 0,
 		no_log                    = 1 << 1,
 		skip_child_tag_load       = 1 << 2,
-		ignore_invalid_field_data = 1 << 3,
+		skip_existing             = 1 << 3,
 		skip_block_postprocess    = 1 << 4, // not sure
 		byte_swap                 = 1 << 5, // not sure
 		skip_tag_postprocess      = 1 << 6,
@@ -188,7 +188,12 @@ namespace tags
 	{
 	public:
 		s_scoped_handle() = default;
-		s_scoped_handle(s_scoped_handle&&) = default;
+		s_scoped_handle(s_scoped_handle&& source):
+			datum(source.as_long())
+		{
+			source.index = NONE;
+			source.salt = NONE;
+		}
 		s_scoped_handle(const s_scoped_handle&) = delete;
 		s_scoped_handle& operator=(const s_scoped_handle&) = delete;
 
@@ -223,6 +228,11 @@ namespace tags
 		~s_scoped_handle()
 		{
 			unload();
+		}
+
+		void clear() {
+			unload();
+			datum::clear();
 		}
 
 	private:

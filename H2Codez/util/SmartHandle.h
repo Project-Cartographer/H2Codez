@@ -6,6 +6,7 @@
 */
 class SmartHandle
 {
+public:
 	// disable copy
 	SmartHandle(const SmartHandle &) = delete;
 	SmartHandle & operator= (const SmartHandle &) = delete;
@@ -35,11 +36,11 @@ class SmartHandle
 
 	HANDLE get() { return  _handle; }
 
-private:
-	HANDLE _handle = INVALID_HANDLE_VALUE;
-
 	~SmartHandle()
 	{
 		close();
 	}
+
+private:
+	HANDLE _handle = INVALID_HANDLE_VALUE;
 };

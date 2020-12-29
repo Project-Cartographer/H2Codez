@@ -406,7 +406,7 @@ static size_t dump_tag_element(tag_field *fields, char *data, ptree &tree)
 static void dump_tag_block(tag_block_ref *block, ptree &tree)
 {
 	tag_field *fields = block->defination->latest->fields;
-	for (size_t idx = 0; idx < block->size; idx++)
+	for (int32_t idx = 0; idx < block->size; idx++)
 	{
 		ptree &element_tree = tree.add("element", "");
 		element_tree.add("<xmlattr>.index", idx);

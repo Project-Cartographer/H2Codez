@@ -44,17 +44,69 @@ struct global_geometry_part_block_new
 };
 CHECK_STRUCT_SIZE(global_geometry_part_block_new, 72);
 
+struct global_subparts_block
+{
+	short indicesstartindex;
+	short indiceslength;
+	short visibilityboundsindex;
+	short partIndex;
+};
+CHECK_STRUCT_SIZE(global_subparts_block, 8);
+
+struct global_visibility_bounds_block
+{
+	float positionX;
+	float positionY;
+	float positionZ;
+	float radius;
+	byte node0;
+	byte padding19[3];
+};
+CHECK_STRUCT_SIZE(global_visibility_bounds_block, 20);
+
+struct global_geometry_section_raw_vertex_block
+{
+	real_point3d position;
+
+	// ArrayCount(4)
+	int nodeIndicesOLD[4];
+
+
+	// ArrayCount(4)
+	float nodeWeights[4];
+
+
+	// ArrayCount(4)
+	int nodeIndicesNEW[4];
+
+	int useNewNodeIndices;
+	int adjustedCompoundNodeIndex;
+	real_point2d texcoord;
+	real_vector3d normal;
+	real_vector3d binormal;
+	real_vector3d tangent;
+	real_vector3d anisotropicBinormal;
+	real_point2d secondaryTexcoord;
+	colour_rgb primaryLightmapColor;
+	real_point2d primaryLightmapTexcoord;
+	real_vector3d primaryLightmapIncidentDirection;
+	byte padding25[12];
+	byte padding26[8];
+	byte padding27[12];
+};
+CHECK_STRUCT_SIZE(global_geometry_section_raw_vertex_block, 196);
+
 struct global_geometry_section_struct_block
 {
 	tag_block<global_geometry_part_block_new> parts;
 
-	tag_block<> subparts;
+	tag_block<global_subparts_block> subparts;
 
-	tag_block<> visibilityBounds;
+	tag_block<global_visibility_bounds_block> visibilityBounds;
 
-	tag_block<> rawVertices;
+	tag_block<global_geometry_section_raw_vertex_block> rawVertices;
 
-	tag_block<> stripIndices;
+	tag_block<short> stripIndices;
 
 	/****************************************
 	* definition_name: global_section_mopp_code_data
@@ -244,3 +296,37 @@ struct global_geometry_material_block
 	byte padding82[3];
 };
 CHECK_STRUCT_SIZE(global_geometry_material_block, 52);
+
+struct global_tag_import_info_block
+{
+	int build;
+	char version[256];
+	char importDate[32];
+	char culprit[32];
+	BYTE padding218[96];
+	char importTime[32];
+	BYTE padding219[4];
+	struct tag_import_file_block
+	{
+		char path[256];
+		char modificationDate[32];
+		FILETIME import_time;
+		BYTE padding260[88];
+		int checksumCrc32;
+		int sizeBytes;
+		/****************************************
+		* definition_name: tag_import_file_zipped_data_definition
+		* flags: 5
+		* alignment_bit: 0
+		****************************************/
+		// DataSize(134217728)
+		byte_ref zippedData;
+		BYTE padding261[128];
+	};
+	CHECK_STRUCT_SIZE(tag_import_file_block, 540);
+
+	tag_block<tag_import_file_block> files;
+
+	BYTE padding220[128];
+};
+CHECK_STRUCT_SIZE(global_tag_import_info_block, 596);

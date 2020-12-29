@@ -13,6 +13,22 @@ struct lightmap_geometry_section_block
 
 };
 
+struct lightmap_geometry_render_info_block
+{
+	short bitmapIndex;
+	byte paletteIndex;
+	byte pad[1];
+};
+CHECK_STRUCT_SIZE(lightmap_geometry_render_info_block, 4);
+
+struct lightmap_instance_bucket_reference_block
+{
+	short flags;
+	short bucketIndex;
+	tag_block<uint16_t> sectionOffsets;
+};
+CHECK_STRUCT_SIZE(lightmap_instance_bucket_reference_block, 16);
+
 struct structure_lightmap_group_block
 {
 
@@ -36,7 +52,7 @@ struct structure_lightmap_group_block
 	tag_reference bitmapGroup;
 	tag_block<lightmap_geometry_section_block> clusters;
 
-	tag_block<> clusterRenderInfo;
+	tag_block<lightmap_geometry_render_info_block> clusterRenderInfo;
 
 	tag_block<lightmap_geometry_section_block> poopDefinitions;
 
@@ -44,13 +60,13 @@ struct structure_lightmap_group_block
 
 	tag_block<> geometryBuckets;
 
-	tag_block<> instanceRenderInfo;
+	tag_block<lightmap_geometry_render_info_block> instanceRenderInfo;
 
-	tag_block<> instanceBucketRefs;
+	tag_block<lightmap_instance_bucket_reference_block> instanceBucketRefs;
 
 	tag_block<> sceneryObjectInfo;
 
-	tag_block<> sceneryObjectBucketRefs;
+	tag_block<lightmap_instance_bucket_reference_block> sceneryObjectBucketRefs;
 };
 CHECK_STRUCT_SIZE(structure_lightmap_group_block, 156);
 

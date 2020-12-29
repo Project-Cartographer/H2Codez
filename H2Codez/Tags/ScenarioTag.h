@@ -547,6 +547,306 @@ struct hs_globals_block
 CHECK_STRUCT_SIZE(hs_globals_block, 0x28);
 #pragma endregion
 
+struct scenario_object_id_struct_block
+{
+	int uniqueID;
+	// BlockIndex1("scenario_structure_bsp_reference_block")
+	short originBSPIndex;
+
+	enum Type : byte
+	{
+		Biped = 0,
+		Vehicle = 1,
+		Weapon = 2,
+		Equipment = 3,
+		Garbage = 4,
+		Projectile = 5,
+		Scenery = 6,
+		Machine = 7,
+		Control = 8,
+		LightFixture = 9,
+		SoundScenery = 10,
+		Crate = 11,
+		Creature = 12,
+	};
+	Type type;
+
+	enum Source : byte
+	{
+		Structure = 0,
+		Editor = 1,
+		Dynamic = 2,
+		Legacy = 3,
+	};
+	Source source;
+};
+CHECK_STRUCT_SIZE(scenario_object_id_struct_block, 8);
+
+
+struct scenario_object_datum_struct_block
+{
+	/* obed */
+
+	enum PlacementFlags : int
+	{
+		NotAutomatically = 0x1,
+		Unused_2 = 0x2,
+		Unused_4 = 0x4,
+		Unused_8 = 0x8,
+		LockTypeToEnvObject = 0x10,
+		LockTransformToEnvObject = 0x20,
+		NeverPlaced = 0x40,
+		LockNameToEnvObject = 0x80,
+		CreateAtRest = 0x100,
+	};
+	PlacementFlags placementFlags;
+	real_point3d position;
+	real_euler_angles3d rotation;
+	float scale;
+
+	enum TransformFlags : short
+	{
+		Mirrored = 0x1,
+	};
+	TransformFlags TransformFlags;
+	// BlockFlags("scenario_structure_bsp_reference_block")
+	short manualBSPFlags;
+	scenario_object_id_struct_block objectID;
+
+
+	enum BSPPolicy : byte
+	{
+		Default = 0,
+		AlwaysPlaced = 1,
+		ManualBSPPlacement = 2,
+	};
+	BSPPolicy bSPPolicy;
+	byte padding63[1];
+	// BlockIndex1("g_scenario_editor_folder_block")
+	short editorFolder;
+};
+CHECK_STRUCT_SIZE(scenario_object_datum_struct_block, 48);
+
+struct scenario_object_permutation_struct_block
+{
+	string_id variantName;
+
+	enum ActiveChangeColors : int
+	{
+		Primary = 0x1,
+		Secondary = 0x2,
+		Tertiary = 0x4,
+		Quaternary = 0x8,
+	};
+	ActiveChangeColors activeChangeColors;
+	int primaryColor;
+	int secondaryColor;
+	int tertiaryColor;
+	int quaternaryColor;
+};
+CHECK_STRUCT_SIZE(scenario_object_permutation_struct_block, 24);
+
+struct scenario_scenery_datum_struct_v4_block
+{
+	/* path */
+
+	enum PathfindingPolicy : short
+	{
+		PathfindingTagDefault = 0,
+		PathfindingDYNAMIC = 1,
+		PathfindingCUTOUT = 2,
+		PathfindingSTATIC = 3,
+		PathfindingNONE = 4,
+	};
+	PathfindingPolicy pathfindingPolicy;
+
+	enum LightmappingPolicy : short
+	{
+		LightmappingTagDefault = 0,
+		LightmappingDynamic = 1,
+		LightmappingPerVertex = 2,
+	};
+	LightmappingPolicy lightmappingPolicy;
+	tag_block<> pathfindingReferences;
+
+	byte padding83[2];
+
+	enum ValidMultiplayerGames : short
+	{
+		CaptureTheFlag = 0x1,
+		Slayer = 0x2,
+		Oddball = 0x4,
+		KingOfTheHill = 0x8,
+		Juggernaut = 0x10,
+		Territories = 0x20,
+		Assault = 0x40,
+	};
+	ValidMultiplayerGames validMultiplayerGames;
+};
+CHECK_STRUCT_SIZE(scenario_scenery_datum_struct_v4_block, 20);
+
+struct scenario_scenery_block
+{
+	/* filt */
+	// BlockIndex1("scenario_scenery_palette_block")
+	short type;
+	/* filt */
+	// BlockIndex1("scenario_object_names_block")
+	short name;
+	scenario_object_datum_struct_block objectData;
+
+	scenario_object_permutation_struct_block permutationData;
+
+	scenario_scenery_datum_struct_v4_block sceneryData;
+
+};
+CHECK_STRUCT_SIZE(scenario_scenery_block, 96);
+
+struct scenario_scenery_palette_block
+{
+	// TagReference("scen")
+	tag_reference name;
+	byte padding85[32];
+};
+CHECK_STRUCT_SIZE(scenario_scenery_palette_block, 48);
+
+struct scenario_object_names_block
+{
+	char name[32];
+	// BlockIndex1("fuck")
+	short _1;
+	// BlockIndex2(GetBlockProc = 0x004af8e0, IsValidSourceBlockProc = 0x004af960))
+	short _2;
+};
+CHECK_STRUCT_SIZE(scenario_object_names_block, 36);
+
+struct scenario_device_struct_block
+{
+	// BlockIndex1("device_group_block")
+	short powerGroup;
+	// BlockIndex1("device_group_block")
+	short positionGroup;
+
+	enum Flags : int
+	{
+		InitiallyOpen10 = 0x1,
+		InitiallyOff00 = 0x2,
+		CanChangeOnlyOnce = 0x4,
+		PositionReversed = 0x8,
+		NotUsableFromAnySide = 0x10,
+	};
+	Flags flags;
+};
+CHECK_STRUCT_SIZE(scenario_device_struct_block, 8);
+
+struct scenario_light_fixture
+{
+	colour_rgb color;
+	float intensity;
+	float falloffAngleDegrees;
+	float cutoffAngleDegrees;
+};
+CHECK_STRUCT_SIZE(scenario_light_fixture, 24);
+
+struct scenario_light_struct_block
+{
+
+	enum Type : short
+	{
+		Sphere = 0,
+		Orthogonal = 1,
+		Projective = 2,
+		Pyramid = 3,
+	};
+	Type type;
+
+	enum Flags : short
+	{
+		CustomGeometry = 0x1,
+		Unused = 0x2,
+		CinematicOnly = 0x4,
+	};
+	Flags flags;
+
+	enum LightmapType : short
+	{
+		UseLightTagSetting = 0,
+		DynamicOnly = 1,
+		DynamicWithLightmaps = 2,
+		LightmapsOnly = 3,
+	};
+	LightmapType lightmapType;
+
+	enum LightmapFlags : short
+	{
+		_1 = 0x1,
+	};
+	LightmapFlags lightmapFlags;
+	float lightmapHalfLife;
+	float lightmapLightScale;
+	real_point3d targetPoint;
+	float widthWorldUnits;
+	float heightScaleWorldUnits;
+	float fieldOfViewDegrees;
+	float falloffDistanceWorldUnits;
+	float cutoffDistanceWorldUnitsfromFarPlane;
+};
+CHECK_STRUCT_SIZE(scenario_light_struct_block, 48);
+
+struct scenario_light_block
+{
+	// Explaination("~Controls", " ")
+	/* lflg */
+	/* allg */
+	/* filt */
+	// BlockIndex1("scenario_light_palette_block")
+	short type;
+	/* filt */
+	// BlockIndex1("scenario_object_names_block")
+	short name;
+	scenario_object_datum_struct_block objectData;
+
+	scenario_device_struct_block deviceData;
+
+	scenario_light_struct_block lightData;
+
+};
+CHECK_STRUCT_SIZE(scenario_light_block, 108);
+
+struct scenario_light_fixture_block
+{
+	/* filt */
+	// BlockIndex1("scenario_light_fixture_palette_block")
+	short type;
+	/* filt */
+	// BlockIndex1("scenario_object_names_block")
+	short name;
+	scenario_object_datum_struct_block objectData;
+
+	scenario_device_struct_block deviceData;
+
+	scenario_light_fixture lightfixtureData;
+
+};
+CHECK_STRUCT_SIZE(scenario_light_fixture_block, 84);
+
+struct scenario_light_palette_block
+{
+	// TagReference("ligh")
+	tag_reference name;
+	byte padding191[32];
+};
+CHECK_STRUCT_SIZE(scenario_light_palette_block, 48);
+
+struct scenario_light_fixture_palette_block
+{
+	// TagReference("lifi")
+	tag_reference name;
+	byte padding192[32];
+};
+CHECK_STRUCT_SIZE(scenario_light_fixture_palette_block, 48);
+
+
 struct scnr_tag
 {
 	tag_reference unused_sbsp;
@@ -568,9 +868,9 @@ struct scnr_tag
 	byte_ref editorScenarioData;
 	tag_block_ref comments;
 	tag_block_ref noNameField0;
-	tag_block_ref objectNames;
-	tag_block_ref scenery;
-	tag_block_ref sceneryPalette;
+	tag_block<scenario_object_names_block> objectNames;
+	tag_block<scenario_scenery_block> scenery;
+	tag_block<scenario_scenery_palette_block> sceneryPalette;
 	tag_block_ref bipeds;
 	tag_block_ref bipedPalette;
 	tag_block_ref vehicles;
@@ -584,12 +884,12 @@ struct scnr_tag
 	tag_block_ref machinePalette;
 	tag_block_ref controls;
 	tag_block_ref controlPalette;
-	tag_block_ref lightFixtures;
-	tag_block_ref lightFixturesPalette;
+	tag_block<scenario_light_fixture_block> lightFixtures;
+	tag_block<scenario_light_fixture_palette_block> lightFixturesPalette;
 	tag_block_ref soundScenery;
-	tag_block_ref soundSceneryPalette;
-	tag_block_ref lightVolumes;
-	tag_block_ref lightVolumesPalette;
+	tag_block<> soundSceneryPalette;
+	tag_block<scenario_light_block> lightVolumes;
+	tag_block<scenario_light_palette_block> lightVolumesPalette;
 	tag_block_ref playerStartingProfile;
 	tag_block_ref playerStartingLocations;
 	tag_block_ref killTriggerVolumes;

@@ -214,42 +214,43 @@ struct structure_bsp_cluster_block
 };
 CHECK_STRUCT_SIZE(structure_bsp_cluster_block, 216);
 
-struct scenario_structure_bsp_block
+struct structure_bsp_instanced_geometry_instances_block
 {
-	struct global_tag_import_info_block
+	real_matrix4x3 transform;
+	// BlockIndex1("structure_bsp_instanced_geometry_definition_block")
+	short instanceDefinition;
+
+	enum Flags : short
 	{
-		int build;
-		char version[256];
-		char importDate[32];
-		char culprit[32];
-		BYTE padding218[96];
-		char importTime[32];
-		BYTE padding219[4];
-		struct tag_import_file_block
-		{
-			char path[256];
-			char modificationDate[32];
-			FILETIME import_time;
-			BYTE padding260[88];
-			int checksumCrc32;
-			int sizeBytes;
-			/****************************************
-			* definition_name: tag_import_file_zipped_data_definition
-			* flags: 5
-			* alignment_bit: 0
-			****************************************/
-			// DataSize(134217728)
-			byte_ref zippedData;
-			BYTE padding261[128];
-		};
-		CHECK_STRUCT_SIZE(tag_import_file_block, 540);
-
-		tag_block<tag_import_file_block> files;
-
-		BYTE padding220[128];
+		NotInLightprobes = 0x1,
 	};
-	CHECK_STRUCT_SIZE(global_tag_import_info_block, 596);
-	
+	Flags flags;
+	byte padding34[4];
+	byte padding35[12];
+	byte padding36[4];
+	int checksum;
+	string_id name;
+
+	enum PathfindingPolicy : short
+	{
+		Cutout = 0,
+		Static = 1,
+		None = 2,
+	};
+	PathfindingPolicy pathfindingPolicy;
+
+	enum LightmappingPolicy : short
+	{
+		PerPixel = 0,
+		PerVertex = 1,
+	};
+	LightmappingPolicy lightmappingPolicy;
+};
+CHECK_STRUCT_SIZE(structure_bsp_instanced_geometry_instances_block, 88);
+
+
+struct scenario_structure_bsp_block
+{	
 	tag_block<global_tag_import_info_block> importInfo;
 
 	BYTE padding207[4];
@@ -619,7 +620,7 @@ struct scenario_structure_bsp_block
 	CHECK_STRUCT_SIZE(structure_bsp_instanced_geometry_definition_block, 260);
 	tag_block<structure_bsp_instanced_geometry_definition_block> instancedGeometriesDefinitions;
 
-	tag_block_ref instancedGeometryInstances;
+	tag_block< structure_bsp_instanced_geometry_instances_block> instancedGeometryInstances;
 
 	tag_block_ref AmbienceSoundClusters;
 

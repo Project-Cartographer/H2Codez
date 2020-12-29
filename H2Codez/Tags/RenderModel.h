@@ -1,6 +1,7 @@
 #pragma once
 #pragma pack(1)
 #include "Common/BasicTagTypes.h"
+#include "GlobalGeometry.h"
 
 struct render_model_node_block
 {
@@ -115,7 +116,7 @@ struct render_model_block
 	short flags;
 	byte padding4[2];
 	byte padding5[4];
-	tag_block<> importInfo;
+	tag_block<global_tag_import_info_block> importInfo;
 
 	tag_block<> compressionInfo;
 

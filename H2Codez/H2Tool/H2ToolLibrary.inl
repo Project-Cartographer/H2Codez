@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Common/FiloInterface.h"
 #include "Common/BasicTagTypes.h"
+#include "Common/TagInterface.h"
 
 static const char* get_h2tool_version()
 {
@@ -98,4 +99,11 @@ static void import_structure_main(const wchar_t **args, import_flags flags)
 	typedef void __cdecl import_structure(const wchar_t **args, __int32 flags);
 	auto import_structure_impl = reinterpret_cast<import_structure*>(0x41F4D0);
 	import_structure_impl(args, flags);
+}
+
+static inline tags::s_scoped_handle load_tag_no_processing(blam_tag type, const std::string& name) {
+	tags::s_scoped_handle tag = tags::load_tag(type, name, tags::skip_child_tag_load | tags::skip_tag_postprocess | tags::skip_block_postprocess | tags::for_editor);
+	if (!tag)
+		std::cout << "failed to load tag: " << name << std::endl;
+	return tag;
 }

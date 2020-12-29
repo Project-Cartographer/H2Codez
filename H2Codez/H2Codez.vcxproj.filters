@@ -323,6 +323,27 @@
     <ClInclude Include="H2Sapien\UIHierarchy.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="Tags\PhysicsModel.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\CollisionModel.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="util\ScopedCOM.h">
+      <Filter>Source Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\Scenery.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\Object.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Tags\Model.h">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Tool\CustomLightmaps.h">
+      <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -444,6 +465,9 @@
     </ClCompile>
     <ClCompile Include="H2Sapien\UIHierarchy.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Tool\CustomLightmaps.cpp">
+      <Filter>Source Files\Patches\H2Tool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

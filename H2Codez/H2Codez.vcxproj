@@ -155,6 +155,7 @@
     <ClInclude Include="H2Sapien\TagUpdate.h" />
     <ClInclude Include="H2Sapien\UIHierarchy.h" />
     <ClInclude Include="H2Tool\CacheBuilder.h" />
+    <ClInclude Include="H2Tool\CustomLightmaps.h" />
     <ClInclude Include="H2Tool\LightMapping.h" />
     <ClInclude Include="HaloScript\ai_combat_status.h" />
     <ClInclude Include="HaloScript\ai_movement_types.h" />
@@ -165,13 +166,18 @@
     <ClInclude Include="HaloScript\hs_syntax_node.h" />
     <ClInclude Include="Resources\sapien_accelerators.h" />
     <ClInclude Include="Tags\Bitmap.h" />
+    <ClInclude Include="Tags\CollisionModel.h" />
     <ClInclude Include="Tags\GlobalGeometry.h" />
     <ClInclude Include="Tags\Globals.h" />
     <ClInclude Include="Tags\HudGlobals.h" />
+    <ClInclude Include="Tags\Model.h" />
     <ClInclude Include="Tags\MultiplayerGlobals.h" />
+    <ClInclude Include="Tags\Object.h" />
+    <ClInclude Include="Tags\PhysicsModel.h" />
     <ClInclude Include="Tags\RenderModel.h" />
     <ClInclude Include="Tags\ScenarioStructureBSP.h" />
     <ClInclude Include="Tags\ScenarioStructureLightmap.h" />
+    <ClInclude Include="Tags\Scenery.h" />
     <ClInclude Include="Tags\ShaderTag.h" />
     <ClInclude Include="Tags\Sound.h" />
     <ClInclude Include="util\array.h" />
@@ -203,6 +209,7 @@
     <ClInclude Include="util\process.h" />
     <ClInclude Include="util\RingBuffer.h" />
     <ClInclude Include="Tags\ScenarioTag.h" />
+    <ClInclude Include="util\ScopedCOM.h" />
     <ClInclude Include="util\Settings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -230,6 +237,7 @@
     <ClCompile Include="H2Sapien\UIHierarchy.cpp" />
     <ClCompile Include="H2Tool\CacheBuilder.cpp" />
     <ClCompile Include="Common\HaloScriptTypeParser.cpp" />
+    <ClCompile Include="H2Tool\CustomLightmaps.cpp" />
     <ClCompile Include="H2Tool\LightMapping.cpp" />
     <ClCompile Include="util\ClipboardAPI.cpp" />
     <ClCompile Include="util\Debug.cpp" />

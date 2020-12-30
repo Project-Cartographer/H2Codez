@@ -78,7 +78,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		lightmap_export << "usemtl " << new_mat << endl;
 	};
 
-	auto dump_section = [&](global_geometry_section_struct_block* section, const tag_block<global_geometry_material_block>& materials, const real_matrix4x3 transform = real_matrix4x3()) {
+	auto dump_section = [&](global_geometry_section_struct_block* section, const tag_block<global_geometry_material_block>& materials, const real_matrix4x3 transform = real_matrix4x3()) -> bool {
 		lightmap_export << "## start vertexes" << endl;
 		for (const auto& vertex : section->rawVertices) {
 
@@ -104,11 +104,13 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			}
 			switch (part.type) {
 				case global_geometry_part_block_new::NotDrawn:
-				case global_geometry_part_block_new::OpaqueNonshadowing:
 					set_material("lightmapproxy_no_render");
 					break;
-				case global_geometry_part_block_new::OpaqueShadowCasting:
+				case global_geometry_part_block_new::OpaqueNonshadowing:
+					set_material(material_base_name + "__lightmap_noshadowing");
+					break;
 				case global_geometry_part_block_new::OpaqueShadowOnly:
+				case global_geometry_part_block_new::OpaqueShadowCasting:
 				case global_geometry_part_block_new::LightmapOnly:
 					set_material(material_base_name);
 					break;
@@ -121,7 +123,10 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			}
 			for (auto j = part.firstSubpartIndex; j < part.firstSubpartIndex + part.subpartCount; j++) {
 				auto subpart = ASSERT_CHECK(section->subparts[j]);
-				ASSERT_CHECK(subpart->indiceslength >= 3);
+				if (subpart->indiceslength < 3) {
+					cout << "subpart " << j << " is corrupt" << endl;
+					return false;
+				}
 
 				auto format_index = [&](int strip_index) -> std::string {
 					auto index = *ASSERT_CHECK(section->stripIndices[strip_index]) + base_vertex;
@@ -148,6 +153,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			}
 		}
 		base_vertex += section->rawVertices.size;
+		return true;
 	};
 
 	cout << "dumping structure..." << endl;
@@ -158,12 +164,9 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		auto cluster = ASSERT_CHECK(group->clusters[i]);
 		auto cache_data = ASSERT_CHECK(cluster->cacheData[0]);
 
-		if (render_info->bitmapIndex == NONE) {
-			cout << "skipping cluster '" << i << "' as it has no lightmap" << endl;
-			continue;
-		}
+		if (render_info->bitmapIndex != NONE)
+			image_mapping << "cluster_" << i << "\t" << render_info->bitmapIndex << endl;
 
-		image_mapping << "cluster_" << i << "\t" << render_info->bitmapIndex << endl;
 		lightmap_export << "o cluster_" << i << endl;
 		dump_section(cache_data, sbsp->materials);
 	}
@@ -181,12 +184,9 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		stringstream instance_name;
 		instance_name << "instance_" << i << "_" << geo_instance->name.get_name();
 
-		if (render_info->bitmapIndex == NONE) {
-			cout << "skipping instance '" << instance_name.str() << "' as it has no lightmap" << endl;
-			continue;
-		}
+		if (render_info->bitmapIndex != NONE)
+			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 
-		image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 		lightmap_export << "o " << instance_name.str() << endl;
 		dump_section(ASSERT_CHECK(defintion->cacheData[0]), sbsp->materials, geo_instance->transform);
 	}
@@ -256,14 +256,15 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			continue;
 		}
 
-		auto dump_render_model_permutation = [&](const render_model_permutation_block* permutation)
+		auto dump_render_model_permutation = [&](const render_model_permutation_block* permutation) -> bool
 		{
 			auto section_index = permutation->l6SectionIndexhollywood;
 			auto section = ASSERT_CHECK(render_model->sections[section_index]);
 			auto section_data = ASSERT_CHECK(section->sectionData[0]);
-			dump_section(&section_data->section, render_model->materials, transform);
+			return dump_section(&section_data->section, render_model->materials, transform);
 		};
-
+		
+		bool export_result = false;
 		auto variant_info = model->variants[variant_index];
 		if (variant_info) {
 			for (const auto& region : variant_info->regions) {
@@ -274,15 +275,16 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 				auto render_permutation_index = render_region->permutations.find_string_id_element(offsetof(render_model_permutation_block, name), first_permutation->permutationName);
 
 				auto permutation = ASSERT_CHECK(render_region->permutations[render_permutation_index]);
-				dump_render_model_permutation(permutation);
+				export_result = dump_render_model_permutation(permutation);
 			}
 		} else {
 			for (const auto& region : render_model->regions) {
 				auto permutation = ASSERT_CHECK(region.permutations[0]);
-				dump_render_model_permutation(permutation);
+				export_result = dump_render_model_permutation(permutation);
 			}
 		}
-
+		if (!export_result)
+			cout << "failed to export '" << model->renderModel.tag_name << "'" << endl;
 		
 	}
 	

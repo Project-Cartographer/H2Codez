@@ -1009,7 +1009,7 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 			dump.AddSectionWithInstanace(name, section);
 		}
 
-		std::vector<RenderModel2COLLADA::SECTION_ID> instance_meshes;
+		std::vector<RenderModel2COLLADA::MESH_ID> instance_meshes;
 		for (auto i = 0; i < structure->instancedGeometriesDefinitions.size; i++) {
 			auto instance = ASSERT_CHECK(structure->instancedGeometriesDefinitions[i]);
 			auto section = ASSERT_CHECK(instance->renderInfo.renderData[0]);

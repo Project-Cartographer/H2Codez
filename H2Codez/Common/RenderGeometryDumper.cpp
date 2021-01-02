@@ -1,8 +1,12 @@
 #include "RenderGeometryDumper.h"
 #include "util/string_util.h"
 
-RenderModel2COLLADA::SECTION_ID RenderModel2COLLADA::AddSection(const std::string& name, const global_geometry_section_struct_block* section) {
-	COLLADA::Mesh mesh;
+void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_geometry_section_struct_block* section) {
+	// See how many of each are already added
+	auto base_normal = mesh.normal.size();
+	auto base_vertex = mesh.vertices.size();
+	auto base_texord = mesh.texcoord.size();
+	// Dump all vert info for this section
 	for (const auto &vert : section->rawVertices) {
 		auto &tex_source = _is_lightmap ? vert.primaryLightmapTexcoord : vert.texcoord;
 
@@ -10,6 +14,7 @@ RenderModel2COLLADA::SECTION_ID RenderModel2COLLADA::AddSection(const std::strin
 		mesh.vertices.push_back({ vert.position.x, vert.position.y, vert.position.z });
 		mesh.texcoord.push_back({ tex_source.x, tex_source.y });
 	}
+	// Add parts from this section
 	for (const auto& part : section->parts) {
 		COLLADA::Mesh::Part mesh_part;
 		if (part.material != NONE) {
@@ -29,29 +34,37 @@ RenderModel2COLLADA::SECTION_ID RenderModel2COLLADA::AddSection(const std::strin
 				return *ASSERT_CHECK(section->stripIndices[strip_index]);
 			};
 
+			auto add_triangle = [&](int first_strip_index) {
+				COLLADA::Mesh::Triangle triangle;
+
+				size_t list[3] = {
+					get_index(first_strip_index),
+					get_index(first_strip_index + 1), 
+					get_index(first_strip_index + 2)
+				};
+
+				for (auto i = 0; i < ARRAYSIZE(list); i++)
+					triangle.normal_list[i] = base_normal + list[i];
+
+				for (auto i = 0; i < ARRAYSIZE(list); i++)
+					triangle.texcoord_list[i] = base_texord + list[i];
+
+				for (auto i = 0; i < ARRAYSIZE(list); i++)
+					triangle.vertex_list[i] = base_vertex + list[i];
+
+				mesh_part.triangles.push_back(triangle);
+			};
+
 			if (part.flags & part.OverrideTriangleList) {
 				ASSERT_CHECK(subpart->indiceslength % 3 == 0);
-				for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength; i += 3) {
-					COLLADA::Mesh::Triangle triangle;
-					size_t list[3] = { get_index(i), get_index(i + 1), get_index(i + 2) };
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.normal_list);
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.texcoord_list);
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.vertex_list);
-					mesh_part.triangles.push_back(triangle);
-				}
+				for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength; i += 3)
+					add_triangle(i);
 			}
 			else {
-				for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength - 2; i++) {
-					COLLADA::Mesh::Triangle triangle;
-					size_t list[3] = { get_index(i), get_index(i + 1), get_index(i + 2) };
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.normal_list);
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.texcoord_list);
-					std::copy(list, &list[ARRAYSIZE(list)], triangle.vertex_list);
-					mesh_part.triangles.push_back(triangle);
-				}
+				for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength - 2; i++)
+					add_triangle(i);
 			}
 		}
 		mesh.parts.push_back(mesh_part);
 	}
-	return _collada.AddMesh(name, mesh);
 }

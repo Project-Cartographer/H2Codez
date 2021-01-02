@@ -48,7 +48,8 @@ static const s_tool_command* h2tool_extra_commands[] = {
 	&append_animations,
 	&import_lipsync_command,
 	&lightmap_dump,
-	&edit_bitmap
+	&edit_bitmap,
+	&structure_dump
 };
 
 int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)

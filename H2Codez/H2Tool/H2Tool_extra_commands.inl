@@ -2,6 +2,7 @@
 #include "H2tool.h"
 #include "H2ToolLibrary.inl"
 #include "LightMapping.h"
+#include "Common/RenderGeometryDumper.h"
 #include "Common/FiloInterface.h"
 #include "Common/TagInterface.h"
 #include "Common/Pathfinding.h"
@@ -988,6 +989,63 @@ static const s_tool_command edit_bitmap
 	edit_bitmap_proc,
 	edit_bitmap_args,
 	ARRAYSIZE(edit_bitmap_args),
+	false
+};
+
+static void _cdecl structure_dump_proc(const wchar_t* argv[])
+{
+	auto bsp_name = wstring_to_string.to_bytes(argv[0]);
+	auto dae_dump_path = wstring_to_string.to_bytes(argv[1]);
+	tags::s_scoped_handle bsp_tag = load_tag_no_processing('sbsp', bsp_name);
+	if (!bsp_tag)
+		return;
+	try {
+		auto structure = ASSERT_CHECK(tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp_tag));
+		RenderModel2COLLADA dump(structure->materials, false);
+		for (auto i = 0; i < structure->clusters.size; i++) {
+			auto cluster = ASSERT_CHECK(structure->clusters[i]);
+			auto section = ASSERT_CHECK(cluster->clusterData[0]);
+			auto name = "cluster_" + std::to_string(i);
+			dump.AddSectionWithInstanace(name, section);
+		}
+
+		std::vector<RenderModel2COLLADA::SECTION_ID> instance_meshes;
+		for (auto i = 0; i < structure->instancedGeometriesDefinitions.size; i++) {
+			auto instance = ASSERT_CHECK(structure->instancedGeometriesDefinitions[i]);
+			auto section = ASSERT_CHECK(instance->renderInfo.renderData[0]);
+
+			auto name = "instance_mesh_" + std::to_string(i);
+			instance_meshes.push_back(dump.AddSection("", section));
+		}
+
+		for (auto i = 0; i < structure->instancedGeometryInstances.size; i++) {
+			auto instance = ASSERT_CHECK(structure->instancedGeometryInstances[i]);
+			auto name = "instance_" + std::to_string(i);
+
+			dump.AddSectionInstance(instance_meshes[instance->instanceDefinition], name, instance->transform);
+		}
+
+		dump.Write(dae_dump_path);
+		cout << "Saved to " << dae_dump_path << endl;
+	}
+	catch (const std::exception& ex) {
+		cout << "Exception: " << ex.what() << endl;
+	}
+}
+
+const s_tool_command_argument structure_2_dae[] =
+{
+	{ _tool_command_argument_type_tag_name, L"BSP" },
+	{ _tool_command_argument_type_data_file, L"DAE" },
+};
+
+
+static const s_tool_command structure_dump
+{
+	L"structure 2 dae",
+	structure_dump_proc,
+	structure_2_dae,
+	ARRAYSIZE(structure_2_dae),
 	false
 };
 

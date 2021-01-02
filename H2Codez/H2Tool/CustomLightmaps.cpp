@@ -6,6 +6,7 @@
 #include "Common/tag_group_names.h"
 #include "Common/TagDumper.h"
 #include "Common/H2EKCommon.h"
+#include "Common/RenderGeometryDumper.h"
 #include "util/string_util.h"
 #include "util/time.h"
 #include "Tags/ScenarioStructureBSP.h"
@@ -63,6 +64,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	std::experimental::filesystem::create_directories(argv[2]);
 	ofstream lightmap_export(proxy_directory / "lightmap.obj");
 	ofstream image_mapping(proxy_directory / "bitmap_mapping.txt");
+	RenderModel2COLLADA render_collada(sbsp->materials, true);
 
 	std::string mat_suffix;
 	constexpr bool cursematerial = true;
@@ -169,9 +171,15 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 
 		lightmap_export << "o cluster_" << i << endl;
 		dump_section(cache_data, sbsp->materials);
+		render_collada.AddSectionWithInstanace("cluster_" + std::to_string(i), cache_data);
 	}
 
 	cout << "dumping instances..." << endl;
+	std::vector<RenderModel2COLLADA::SECTION_ID> instance_defs;
+	size_t instance_mesh_count = 0;
+	for (const auto& instance_def : group->poopDefinitions) {
+		instance_defs.push_back(render_collada.AddSection("instancedef_" + std::to_string(instance_mesh_count), ASSERT_CHECK(instance_def.cacheData[0])));
+	}
 
 	ASSERT_CHECK(sbsp->instancedGeometryInstances.size == group->instanceRenderInfo.size);
 	ASSERT_CHECK(sbsp->instancedGeometriesDefinitions.size == group->poopDefinitions.size);
@@ -189,7 +197,10 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 
 		lightmap_export << "o " << instance_name.str() << endl;
 		dump_section(ASSERT_CHECK(defintion->cacheData[0]), sbsp->materials, geo_instance->transform);
+		render_collada.AddSectionInstance(instance_defs[geo_instance->instanceDefinition], "instance_" + std::to_string(i), geo_instance->transform);
 	}
+
+	render_collada.Write((proxy_directory / "geo.DAE").string());
 
 	image_mapping.close();
 	lightmap_tag.clear();

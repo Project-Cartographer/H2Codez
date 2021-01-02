@@ -58,6 +58,9 @@
     <Filter Include="Source Files\Common Interfaces\Data">
       <UniqueIdentifier>{44b342e0-b375-4bee-8560-ccb6cfedb5bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\COLLADA">
+      <UniqueIdentifier>{0249c020-812e-44da-bbb4-4edfee26e76a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="H2Tool\H2Tool_extra_commands.inl">
@@ -344,6 +347,12 @@
     <ClInclude Include="H2Tool\CustomLightmaps.h">
       <Filter>Source Files\Patches\H2Tool</Filter>
     </ClInclude>
+    <ClInclude Include="COLLADA\COLLADA.h">
+      <Filter>Source Files\COLLADA</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\RenderGeometryDumper.h">
+      <Filter>Source Files\Common Interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -468,6 +477,12 @@
     </ClCompile>
     <ClCompile Include="H2Tool\CustomLightmaps.cpp">
       <Filter>Source Files\Patches\H2Tool</Filter>
+    </ClCompile>
+    <ClCompile Include="COLLADA\COLLADA.cpp">
+      <Filter>Source Files\COLLADA</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\RenderGeometryDumper.cpp">
+      <Filter>Source Files\Common Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

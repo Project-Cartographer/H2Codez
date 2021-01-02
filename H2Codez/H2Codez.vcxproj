@@ -131,6 +131,7 @@
     <None Include="H2Tool\ToolCommandDefinitions.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="COLLADA\COLLADA.h" />
     <ClInclude Include="Common\AssemblyLayoutGenerator.h" />
     <ClInclude Include="Common\BlamBaseTypes.h" />
     <ClInclude Include="Common\Cache.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="Common\MemoryAllocator.h" />
     <ClInclude Include="Common\Pathfinding.h" />
     <ClInclude Include="Common\PathfindingConfig.h" />
+    <ClInclude Include="Common\RenderGeometryDumper.h" />
     <ClInclude Include="Common\TagDefinitions.h" />
     <ClInclude Include="Common\TagDumper.h" />
     <ClInclude Include="Common\TagInterface.h" />
@@ -221,10 +223,12 @@
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="COLLADA\COLLADA.cpp" />
     <ClCompile Include="Common\AssemblyLayoutGenerator.cpp" />
     <ClCompile Include="Common\Cache.cpp" />
     <ClCompile Include="Common\HaloScript.cpp" />
     <ClCompile Include="Common\Pathfinding.cpp" />
+    <ClCompile Include="Common\RenderGeometryDumper.cpp" />
     <ClCompile Include="Common\TagDefinitions.cpp" />
     <ClCompile Include="Common\TagDumper.cpp" />
     <ClCompile Include="Common\TagInterface.cpp" />

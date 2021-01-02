@@ -12,7 +12,7 @@ void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_ge
 
 		mesh.normal.push_back({ vert.normal.i, vert.normal.j, vert.normal.k });
 		mesh.vertices.push_back({ vert.position.x, vert.position.y, vert.position.z });
-		mesh.texcoord.push_back({ tex_source.x, tex_source.y });
+		mesh.texcoord.push_back({ tex_source.x, -tex_source.y });
 	}
 	// Add parts from this section
 	for (const auto& part : section->parts) {

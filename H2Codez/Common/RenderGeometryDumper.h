@@ -1,13 +1,17 @@
 #pragma once
 #include "COLLADA/COLLADA.h"
 #include "Tags/GlobalGeometry.h"
+#include <functional>
 
 class RenderModel2COLLADA {
 public:
-	RenderModel2COLLADA(const tag_block<global_geometry_material_block>& materials, bool is_lightmap) :
+	typedef std::function<std::string(const std::string&)> StringMapping;
+
+	RenderModel2COLLADA(const tag_block<global_geometry_material_block>& materials, bool is_lightmap, StringMapping material_translator = StringMapping()) : // = [](const std::string& in) -> std::string {return in; }
 		_materials(materials),
 		_is_lightmap(is_lightmap),
-		_scene(_collada.AddScene("Scene"))
+		_scene(_collada.AddScene("Scene")),
+		_material_translator(material_translator)
 	{
 	};
 
@@ -57,4 +61,5 @@ private:
 	const tag_block<global_geometry_material_block>& _materials;
 	const bool _is_lightmap;
 	COLLADA::SceneHandle _scene;
+	StringMapping _material_translator;
 };

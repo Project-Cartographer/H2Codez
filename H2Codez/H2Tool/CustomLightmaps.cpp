@@ -60,20 +60,21 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	auto sbsp = ASSERT_CHECK(tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp_tag));
 	auto group = ASSERT_CHECK(lightmap->lightmapGroups[0]);
 
-	wcout << L"dumping lightmap info to '" << argv[2] << "'" << endl;
-	std::experimental::filesystem::create_directories(argv[2]);
-	ofstream lightmap_export(proxy_directory / "lightmap.obj");
-	ofstream image_mapping(proxy_directory / "bitmap_mapping.txt");
-	RenderModel2COLLADA render_collada(sbsp->materials, true);
 
 	std::string mat_suffix;
-	constexpr bool cursematerial = true;
+	auto map_material = [&mat_suffix](const std::string& material) -> std::string { return material + mat_suffix; };
+
+	wcout << L"dumping lightmap info to '" << argv[2] << "'" << endl;
+	std::experimental::filesystem::create_directories(argv[2]);
+	ofstream lightmap_export(proxy_directory / (bsp_name + ".obj"));
+	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
+	RenderModel2COLLADA render_collada(sbsp->materials, true, map_material);
+
 
 	auto base_vertex = 1;
 	std::string current_material;
 	auto set_material = [&](std::string new_mat) {
-		if (cursematerial)
-			new_mat += mat_suffix;
+		new_mat = map_material(new_mat);
 		if (new_mat == current_material)
 			return;
 		current_material = new_mat;
@@ -175,11 +176,6 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	}
 
 	cout << "dumping instances..." << endl;
-	std::vector<RenderModel2COLLADA::SECTION_ID> instance_defs;
-	size_t instance_mesh_count = 0;
-	for (const auto& instance_def : group->poopDefinitions) {
-		instance_defs.push_back(render_collada.AddSection("instancedef_" + std::to_string(instance_mesh_count), ASSERT_CHECK(instance_def.cacheData[0])));
-	}
 
 	ASSERT_CHECK(sbsp->instancedGeometryInstances.size == group->instanceRenderInfo.size);
 	ASSERT_CHECK(sbsp->instancedGeometriesDefinitions.size == group->poopDefinitions.size);
@@ -196,11 +192,12 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 
 		lightmap_export << "o " << instance_name.str() << endl;
-		dump_section(ASSERT_CHECK(defintion->cacheData[0]), sbsp->materials, geo_instance->transform);
-		render_collada.AddSectionInstance(instance_defs[geo_instance->instanceDefinition], "instance_" + std::to_string(i), geo_instance->transform);
+		auto section = ASSERT_CHECK(defintion->cacheData[0]);
+		dump_section(section, sbsp->materials, geo_instance->transform);
+		render_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, geo_instance->transform);
 	}
 
-	render_collada.Write((proxy_directory / "geo.DAE").string());
+	render_collada.Write((proxy_directory / (bsp_name + ".DAE")).string());
 
 	image_mapping.close();
 	lightmap_tag.clear();

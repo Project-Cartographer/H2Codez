@@ -14,7 +14,10 @@ RenderModel2COLLADA::SECTION_ID RenderModel2COLLADA::AddSection(const std::strin
 		COLLADA::Mesh::Part mesh_part;
 		if (part.material != NONE) {
 			auto material = ASSERT_CHECK(_materials[part.material]);
-			mesh_part.material = get_path_filename(material->shader.tag_name);
+			std::string base_name = get_path_filename(material->shader.tag_name);
+			if (_material_translator)
+				base_name = _material_translator(base_name);
+			mesh_part.material = base_name;
 		}
 		for (auto j = part.firstSubpartIndex; j < part.firstSubpartIndex + part.subpartCount; j++) {
 			auto subpart = ASSERT_CHECK(section->subparts[j]);

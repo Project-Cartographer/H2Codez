@@ -33,7 +33,7 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
     auto &normals_source = AddFloatSource(mesh, mesh_source.normal, normal_des);
 
     std::array<const char*, 2> tex_desc = { "S", "T" };
-    auto &texcoord_source = AddFloatSource(mesh, mesh_source.texcoord, tex_desc);
+    auto &texcoord_source = AddFloatSource(mesh, mesh_source.texcoord, tex_desc, "UVMap");
 
     for (const auto &part : mesh_source.parts) {
         auto &triangles = mesh.add("triangles", "");

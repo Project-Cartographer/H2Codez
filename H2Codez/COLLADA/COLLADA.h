@@ -138,7 +138,8 @@ private:
 	static inline ptree& AddFloatSource(boost::property_tree::ptree& parent,
 			const std::vector<FloatElement<n>>& values,
 			std::array<const char*, n> accessor_info,
-			std::string id = COLLADA::GetNewUUID())
+			const std::string &name = "",
+			const std::string &id = COLLADA::GetNewUUID())
 	{
 		auto &source = parent.add("source", "");
 		auto &float_array = AddFloatArray(source, values);
@@ -157,6 +158,8 @@ private:
 
 		
 		source.add("<xmlattr>.id", id);
+		if (!name.empty())
+			source.add("<xmlattr>.name", name);
 		return source;
 	}
 

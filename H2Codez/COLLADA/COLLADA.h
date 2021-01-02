@@ -56,7 +56,13 @@ public:
 
 	struct Mesh {
 		std::vector<FloatElement<3>> vertices;
+		/// <summary>
+		/// (Optional) All normals used in mesh
+		/// </summary>
 		std::vector<FloatElement<3>> normal;
+		/// <summary>
+		/// (Optional) All UV co-ords used in mesh
+		/// </summary>
 		std::vector<FloatElement<2>> texcoord;
 		struct Triangle {
 			/*
@@ -65,7 +71,13 @@ public:
 			* triangle direction is not defined
 			*/
 			size_t vertex_list[3];
+			/// <summary>
+			/// Can be left uninitialized if no normals are used in the mesh
+			/// </summary>
 			size_t normal_list[3];
+			/// <summary>
+			/// Can be left uninitialized if no UVs are used in the mesh
+			/// </summary>
 			size_t texcoord_list[3];
 		};
 		struct Part {

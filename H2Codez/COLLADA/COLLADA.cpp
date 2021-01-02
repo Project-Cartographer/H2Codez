@@ -1,5 +1,6 @@
 #include "COLLADA.h"
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/optional.hpp>
 #include "util/string_util.h"
 #include "util/numerical.h"
 #include "h2codez.h"
@@ -29,11 +30,17 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
     input.add("<xmlattr>.semantic", "POSITION");
     SetSource(input, positions_source);
 
-    std::array<const char*, 3> normal_des = { "X", "Y", "Z" };
-    auto &normals_source = AddFloatSource(mesh, mesh_source.normal, normal_des);
+    constexpr std::array<const char*, 3> normal_des = { "X", "Y", "Z" };
 
-    std::array<const char*, 2> tex_desc = { "S", "T" };
-    auto &texcoord_source = AddFloatSource(mesh, mesh_source.texcoord, tex_desc, "UVMap");
+    boost::optional<ptree&> normals_source;
+    if (mesh_source.normal.size() > 0)
+        normals_source = AddFloatSource(mesh, mesh_source.normal, normal_des);
+
+    constexpr std::array<const char*, 2> tex_desc = { "S", "T" };
+
+    boost::optional<ptree&> texcoord_source;
+    if (mesh_source.texcoord.size() > 0)
+        texcoord_source = AddFloatSource(mesh, mesh_source.texcoord, tex_desc, "UVMap");
 
     for (const auto &part : mesh_source.parts) {
         auto &triangles = mesh.add("triangles", "");
@@ -42,28 +49,36 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
         }
         triangles.add("<xmlattr>.count", part.triangles.size());
 
+        int offset = 0;
         auto &vertex_input = triangles.add("input", "");
         SetSource(vertex_input, vertices_source);
-        vertex_input.add("<xmlattr>.offset", "0");
+        vertex_input.add("<xmlattr>.offset", offset++);
         vertex_input.add("<xmlattr>.semantic", "VERTEX");
 
-        auto &normal_input = triangles.add("input", "");
-        SetSource(normal_input, normals_source);
-        normal_input.add("<xmlattr>.offset", "1");
-        normal_input.add("<xmlattr>.semantic", "NORMAL");
+        if (normals_source) {
+            auto& normal_input = triangles.add("input", "");
+            SetSource(normal_input, *normals_source);
+            normal_input.add("<xmlattr>.offset", offset++);
+            normal_input.add("<xmlattr>.semantic", "NORMAL");
+        }
 
-        auto &tex_input = triangles.add("input", "");
-        SetSource(tex_input, texcoord_source);
-        tex_input.add("<xmlattr>.offset", "2");
-        tex_input.add("<xmlattr>.semantic", "TEXCOORD");
-        tex_input.add("<xmlattr>.set", "0");
+        if (texcoord_source) {
+            auto& tex_input = triangles.add("input", "");
+            SetSource(tex_input, *texcoord_source);
+            tex_input.add("<xmlattr>.offset", offset++);
+            tex_input.add("<xmlattr>.semantic", "TEXCOORD");
+            tex_input.add("<xmlattr>.set", "0");
+        }
 
         std::string data = "";
         for (auto triangle : part.triangles) {
-            for (int i = 0; i < 3; i++)
-                data += " " + std::to_string(triangle.vertex_list[i])
-                    + " " + std::to_string(triangle.normal_list[i])
-                    + " " + std::to_string(triangle.texcoord_list[i]);
+            for (int i = 0; i < 3; i++) {
+                data += " " + std::to_string(triangle.vertex_list[i]);
+                if (normals_source)
+                    data += " " + std::to_string(triangle.normal_list[i]);
+                if (texcoord_source)
+                    data += " " + std::to_string(triangle.texcoord_list[i]);
+            }
         }
         triangles.add("p", data);
     }

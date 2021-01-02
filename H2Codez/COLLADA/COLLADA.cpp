@@ -94,9 +94,9 @@ COLLADA::NodeHandle COLLADA::AddNode(SceneHandle scene, const std::string& name,
     node.add("<xmlattr>.type", "NODE");
 
     std::stringstream transform_4x4;
-    transform_4x4 << transform.forward.i << " " << transform.forward.j << " " << transform.forward.k << " " << transform.translation.x << " ";
+    transform_4x4 << transform.forward.i << " " << transform.forward.j << " " << -transform.forward.k << " " << transform.translation.x << " ";
     transform_4x4 << transform.left.i    << " " << transform.left.j    << " " << transform.left.k    << " " << transform.translation.y << " ";
-    transform_4x4 << transform.up.i      << " " << transform.up.j      << " " << transform.up.k      << " " << transform.translation.z;
+    transform_4x4 << -transform.up.i      << " " << transform.up.j      << " " << transform.up.k      << " " << transform.translation.z;
     transform_4x4 << " 0 0 0 1";
     auto &matrix = node.add("matrix", transform_4x4.str());
     matrix.add("<xmlattr>.sid", "transform");

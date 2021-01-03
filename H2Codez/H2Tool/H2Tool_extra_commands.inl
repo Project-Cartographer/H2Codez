@@ -1045,7 +1045,7 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 			COLLADA::Mesh portal_mesh;
 			auto base_trig = portal_mesh.vertices.size();
 			COLLADA::Mesh::Part part;
-			part.material = "%portal";
+			part.material = "+portal";
 
 			size_t index = 0;
 			std::vector<int> indices_left;

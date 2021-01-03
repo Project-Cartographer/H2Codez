@@ -68,7 +68,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	std::experimental::filesystem::create_directories(argv[2]);
 	ofstream lightmap_export(proxy_directory / (bsp_name + ".obj"));
 	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
-	RenderModel2COLLADA render_collada(sbsp->materials, true, map_material);
+	RenderModel2COLLADA export_collada(sbsp->materials, true, map_material);
 
 
 	auto base_vertex = 1;
@@ -172,7 +172,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 
 		lightmap_export << "o cluster_" << i << endl;
 		dump_section(cache_data, sbsp->materials);
-		render_collada.AddSectionWithInstanace("cluster_" + std::to_string(i), cache_data);
+		export_collada.AddSectionWithInstanace("cluster_" + std::to_string(i), cache_data);
 	}
 
 	cout << "dumping instances..." << endl;
@@ -194,10 +194,8 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		lightmap_export << "o " << instance_name.str() << endl;
 		auto section = ASSERT_CHECK(defintion->cacheData[0]);
 		dump_section(section, sbsp->materials, geo_instance->transform);
-		render_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, geo_instance->transform);
+		export_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, geo_instance->transform);
 	}
-
-	render_collada.Write((proxy_directory / (bsp_name + ".DAE")).string());
 
 	image_mapping.close();
 	lightmap_tag.clear();
@@ -215,85 +213,104 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	};
 
 	for (const auto& scenary_instance : scenario->scenery) {
-		if (scenary_instance.type == NONE) {
-			cout << "Invalid scenery skipped!!" << endl;
-			continue;
-		}
-		// skip if it's for a different BSP
-		if (scenary_instance.objectData.bSPPolicy != scenario_object_datum_struct_block::AlwaysPlaced
-			&& scenary_instance.objectData.objectID.originBSPIndex != bsp_index)
-			continue;
-		if (scenary_instance.objectData.placementFlags & scenario_object_datum_struct_block::NeverPlaced) // skip unplacable
-			continue;
-		if (scenary_instance.objectData.placementFlags & scenario_object_datum_struct_block::NotAutomatically) // skip not placed
-			continue;
-		auto variant = scenary_instance.permutationData.variantName;
-		auto palette = ASSERT_CHECK(scenario->sceneryPalette[scenary_instance.type]);
-		tags::s_scoped_handle scenary_tag = load_tag_no_processing('scen', palette->name.tag_name);
-		if (!scenary_tag)
-			continue;
-		auto scenary = ASSERT_CHECK(tags::get_tag<scenery_block>('scen', scenary_tag));
-		if (!variant.is_valid())
-			variant = scenary->object.defaultModelVariant;
-
-		tags::s_scoped_handle model_tag = load_tag_no_processing('hlmt', scenary->object.model.tag_name);
-		if (!model_tag)
-			continue;
-		auto model = ASSERT_CHECK(tags::get_tag<model_block>('hlmt', model_tag));
-
-		tags::s_scoped_handle render_model_tag = load_tag_no_processing('mode', model->renderModel.tag_name);
-		if (!render_model_tag)
-			continue;
-
-		auto render_model = ASSERT_CHECK(tags::get_tag<render_model_block>('mode', render_model_tag));
-
-		auto transform = real_matrix4x3(
-			real_quaternion::from_angle(scenary_instance.objectData.rotation),
-			scenary_instance.objectData.position
-		);
-
-		lightmap_export << "o scenery_" << get_object_name(palette->name.tag_name, scenary_instance.name) << endl;
-
-		auto variant_index = 0;
-		if (variant.is_valid()) {
-			variant_index = model->variants.find_string_id_element(offsetof(model_variant_block, name), variant);
-		}
-
-		if (variant_index == NONE) {
-			cout << "unable to find variant " << variant.get_name() << endl;
-			continue;
-		}
-
-		auto dump_render_model_permutation = [&](const render_model_permutation_block* permutation) -> bool
-		{
-			auto section_index = permutation->l6SectionIndexhollywood;
-			auto section = ASSERT_CHECK(render_model->sections[section_index]);
-			auto section_data = ASSERT_CHECK(section->sectionData[0]);
-			return dump_section(&section_data->section, render_model->materials, transform);
-		};
-		
-		bool export_result = false;
-		auto variant_info = model->variants[variant_index];
-		if (variant_info) {
-			for (const auto& region : variant_info->regions) {
-				auto first_permutation = ASSERT_CHECK(region.permutations[0]);
-				auto render_region_idx = render_model->regions.find_string_id_element(offsetof(render_model_region_block, name), region.regionName);
-
-				auto render_region = ASSERT_CHECK(render_model->regions[render_region_idx]);
-				auto render_permutation_index = render_region->permutations.find_string_id_element(offsetof(render_model_permutation_block, name), first_permutation->permutationName);
-
-				auto permutation = ASSERT_CHECK(render_region->permutations[render_permutation_index]);
-				export_result = dump_render_model_permutation(permutation);
+		try {
+			if (scenary_instance.type == NONE) {
+				cout << "Invalid scenery skipped!!" << endl;
+				continue;
 			}
-		} else {
-			for (const auto& region : render_model->regions) {
-				auto permutation = ASSERT_CHECK(region.permutations[0]);
-				export_result = dump_render_model_permutation(permutation);
+			// skip if it's for a different BSP
+			if (scenary_instance.objectData.bSPPolicy != scenario_object_datum_struct_block::AlwaysPlaced
+				&& scenary_instance.objectData.objectID.originBSPIndex != bsp_index)
+				continue;
+			if (scenary_instance.objectData.placementFlags & scenario_object_datum_struct_block::NeverPlaced) // skip unplacable
+				continue;
+			if (scenary_instance.objectData.placementFlags & scenario_object_datum_struct_block::NotAutomatically) // skip not placed
+				continue;
+			auto variant = scenary_instance.permutationData.variantName;
+			auto palette = ASSERT_CHECK(scenario->sceneryPalette[scenary_instance.type]);
+			tags::s_scoped_handle scenary_tag = load_tag_no_processing('scen', palette->name.tag_name);
+			if (!scenary_tag)
+				continue;
+			auto scenary = ASSERT_CHECK(tags::get_tag<scenery_block>('scen', scenary_tag));
+			if (!variant.is_valid())
+				variant = scenary->object.defaultModelVariant;
+
+			tags::s_scoped_handle model_tag = load_tag_no_processing('hlmt', scenary->object.model.tag_name);
+			if (!model_tag)
+				continue;
+			auto model = ASSERT_CHECK(tags::get_tag<model_block>('hlmt', model_tag));
+
+			tags::s_scoped_handle render_model_tag = load_tag_no_processing('mode', model->renderModel.tag_name);
+			if (!render_model_tag)
+				continue;
+
+			auto render_model = ASSERT_CHECK(tags::get_tag<render_model_block>('mode', render_model_tag));
+
+			auto transform = real_matrix4x3(
+				real_quaternion::from_angle(scenary_instance.objectData.rotation),
+				scenary_instance.objectData.position
+			);
+
+			std::string name = "scenery_" + get_object_name(palette->name.tag_name, scenary_instance.name);
+
+			lightmap_export << "o " << name << endl;
+
+			auto variant_index = 0;
+			if (variant.is_valid()) {
+				variant_index = model->variants.find_string_id_element(offsetof(model_variant_block, name), variant);
 			}
+
+			if (variant_index == NONE) {
+				cout << "unable to find variant " << variant.get_name() << endl;
+				continue;
+			}
+
+			std::vector <const global_geometry_section_struct_block*> sections;
+			auto dump_render_model_permutation = [&](const render_model_permutation_block* permutation) -> bool
+			{
+				auto section_index = permutation->l6SectionIndexhollywood;
+				auto section = ASSERT_CHECK(render_model->sections[section_index]);
+				auto section_data = ASSERT_CHECK(section->sectionData[0]);
+				sections.push_back(&section_data->section);
+				return dump_section(&section_data->section, render_model->materials, transform);
+			};
+
+			bool export_result = false;
+			auto variant_info = model->variants[variant_index];
+			if (variant_info) {
+				for (const auto& region : variant_info->regions) {
+					auto first_permutation = ASSERT_CHECK(region.permutations[0]);
+					auto render_region_idx = render_model->regions.find_string_id_element(offsetof(render_model_region_block, name), region.regionName);
+
+					auto render_region = ASSERT_CHECK(render_model->regions[render_region_idx]);
+					auto render_permutation_index = render_region->permutations.find_string_id_element(offsetof(render_model_permutation_block, name), first_permutation->permutationName);
+
+					auto permutation = ASSERT_CHECK(render_region->permutations[render_permutation_index]);
+					export_result = dump_render_model_permutation(permutation);
+					if (!export_result)
+						break;
+				}
+			}
+			else {
+				for (const auto& region : render_model->regions) {
+					auto permutation = ASSERT_CHECK(region.permutations[0]);
+					export_result = dump_render_model_permutation(permutation);
+					if (!export_result)
+						break;
+				}
+			}
+			if (export_result) {
+				export_collada.ChangeMaterialsSource(render_model->materials);
+				auto mesh_id = export_collada.AddMutlipleSections(name, sections);
+				export_collada.AddSectionInstance(mesh_id, name, transform);
+			} else {
+				cout << "failed to export '" << model->renderModel.tag_name << "'" << endl;
+			}
+
 		}
-		if (!export_result)
-			cout << "failed to export '" << model->renderModel.tag_name << "'" << endl;
-		
+		catch (const std::exception& ex) {
+			cout << ex.what() << endl;
+		}
 	}
 	
 	// TODO(num0005) make this dump more info once we move to COLLADA
@@ -315,6 +332,9 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		lightmap_export << "v " << position.x << " " << position.y << " " << position.z << endl;
 		lightmap_export << "f 1 1 1" << endl;
 	}
+
+	cout << "Saving exported DAE" << endl;
+	export_collada.Write((proxy_directory / (bsp_name + ".DAE")).string());
 
 	wcout << L"Dumped " << base_vertex << L" vertices" << endl;
 }

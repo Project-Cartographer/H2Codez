@@ -82,11 +82,19 @@ public:
 		return _collada;
 	}
 
+	/// <summary>
+	/// Switch the materials reference used when dumping future sections
+	/// </summary>
+	/// <param name="new_materials"></param>
+	inline void ChangeMaterialsSource(const tag_block<global_geometry_material_block>& new_materials) {
+		_materials = new_materials;
+	}
+
 private:
 	void DumpSectionToMesh(COLLADA::Mesh& mesh, const global_geometry_section_struct_block* section);
 
 	COLLADA _collada = COLLADA("Z_UP");
-	const tag_block<global_geometry_material_block>& _materials;
+	std::reference_wrapper<const tag_block<global_geometry_material_block>> _materials;
 	const bool _is_lightmap;
 	COLLADA::SceneHandle _scene;
 	StringMapping _material_translator;

@@ -5,6 +5,7 @@ void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_ge
 	// skip empty sections
 	if (section->rawVertices.size == 0)
 		return;
+
 	// step texcoords if needed
 	if (mesh.texcoord.size() == 0) {
 		mesh.texcoord.resize(_is_lightmap ? 2 : 1);
@@ -28,7 +29,7 @@ void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_ge
 	for (const auto& part : section->parts) {
 		COLLADA::Mesh::Part mesh_part;
 		if (part.material != NONE) {
-			auto material = ASSERT_CHECK(_materials[part.material]);
+			auto material = ASSERT_CHECK(_materials.get()[part.material]);
 			std::string base_name = get_path_filename(material->shader.tag_name);
 			if (_material_translator)
 				base_name = _material_translator(base_name);

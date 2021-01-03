@@ -2,17 +2,27 @@
 #include "util/string_util.h"
 
 void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_geometry_section_struct_block* section) {
+	// skip empty sections
+	if (section->rawVertices.size == 0)
+		return;
+	// step texcoords if needed
+	if (mesh.texcoord.size() == 0) {
+		mesh.texcoord.resize(_is_lightmap ? 2 : 1);
+	}
+
 	// See how many of each are already added
 	auto base_normal = mesh.normal.size();
 	auto base_vertex = mesh.vertices.size();
-	auto base_texord = mesh.texcoord.size();
+	auto base_texord = mesh.texcoord[0].size();
 	// Dump all vert info for this section
 	for (const auto &vert : section->rawVertices) {
-		auto &tex_source = _is_lightmap ? vert.primaryLightmapTexcoord : vert.texcoord;
 
 		mesh.normal.push_back({ vert.normal.i, vert.normal.j, vert.normal.k });
 		mesh.vertices.push_back({ vert.position.x, vert.position.y, vert.position.z });
-		mesh.texcoord.push_back({ tex_source.x, -tex_source.y });
+		mesh.texcoord[0].push_back({ vert.texcoord.x, -vert.texcoord.y });
+
+		if (_is_lightmap)
+			mesh.texcoord[1].push_back({ vert.primaryLightmapTexcoord.x, -vert.primaryLightmapTexcoord.y });
 	}
 	// Add parts from this section
 	for (const auto& part : section->parts) {

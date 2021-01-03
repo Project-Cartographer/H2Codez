@@ -99,7 +99,11 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 
 		auto section = ASSERT_CHECK(defintion->cacheData[0]);
-		export_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, geo_instance->transform);
+
+		// todo(num0005) this shouldn't be required
+		auto transform = geo_instance->transform;
+		transform.inverse_rotation();
+		export_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, transform);
 	}
 
 	image_mapping.close();

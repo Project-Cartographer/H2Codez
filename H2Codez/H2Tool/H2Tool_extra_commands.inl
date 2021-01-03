@@ -1029,7 +1029,11 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 			auto instance = ASSERT_CHECK(structure->instancedGeometryInstances[i]);
 			auto name = "%instance_" + std::to_string(i);
 
-			dump.AddSectionInstance(instance_meshes[instance->instanceDefinition], name, instance->transform);
+			// todo(num0005) this shouldn't be required
+			auto transform = instance->transform;
+			transform.inverse_rotation();
+
+			dump.AddSectionInstance(instance_meshes[instance->instanceDefinition], name, transform);
 		}
 
 		cout << "Exporting portals.." << endl;

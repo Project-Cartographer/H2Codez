@@ -28,11 +28,8 @@
 #include <util/SmartHandle.h>
 namespace fs = std::experimental::filesystem;
 
-static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
+static void export_lightmap_mesh(const std::string &scenario_name, const std::string &bsp_name, const fs::path proxy_directory)
 {
-	auto scenario_name = wstring_to_string.to_bytes(argv[0]);
-	auto bsp_name = wstring_to_string.to_bytes(argv[1]);
-	auto proxy_directory = fs::path(argv[2]);
 	tags::s_scoped_handle scenario_tag = load_tag_no_processing('scnr', scenario_name);
 	if (!scenario_tag) {
 		cout << "no such scenario tag!" << endl;
@@ -64,100 +61,12 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 	std::string mat_suffix;
 	auto map_material = [&mat_suffix](const std::string& material) -> std::string { return material + mat_suffix; };
 
-	wcout << L"dumping lightmap info to '" << argv[2] << "'" << endl;
-	std::experimental::filesystem::create_directories(argv[2]);
-	ofstream lightmap_export(proxy_directory / (bsp_name + ".obj"));
+	wcout << L"dumping lightmap info to '" << proxy_directory << "'" << endl;
+	std::experimental::filesystem::create_directories(proxy_directory);
 	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
 	RenderModel2COLLADA export_collada(sbsp->materials, true, map_material);
 
-
-	auto base_vertex = 1;
 	std::string current_material;
-	auto set_material = [&](std::string new_mat) {
-		new_mat = map_material(new_mat);
-		if (new_mat == current_material)
-			return;
-		current_material = new_mat;
-		lightmap_export << "usemtl " << new_mat << endl;
-	};
-
-	auto dump_section = [&](global_geometry_section_struct_block* section, const tag_block<global_geometry_material_block>& materials, const real_matrix4x3 transform = real_matrix4x3()) -> bool {
-		lightmap_export << "## start vertexes" << endl;
-		for (const auto& vertex : section->rawVertices) {
-
-			constexpr real_matrix4x3 to_blender_coords = real_matrix4x3(
-				{ 1.f, 0.f, 0.f },
-				{ 0.f, 1.f, 0.f },
-				{ 0.f, 0.f, 1.f }
-			);
-
-			auto position = to_blender_coords * (transform * vertex.position + transform.translation);
-			auto normal = to_blender_coords * (transform * vertex.normal);
-
-			lightmap_export << "v " << position.x << " " << position.y << " " << position.z << endl;
-			lightmap_export << "vt " << vertex.primaryLightmapTexcoord.x << " " << 1 - vertex.primaryLightmapTexcoord.y << endl;
-			lightmap_export << "vn " << normal.i << " " << normal.j << " " << normal.k << endl;
-		}
-		lightmap_export << "## end vertexes" << endl;
-		for (const auto& part : section->parts) {
-			std::string material_base_name = "DEFAULT";
-			if (part.material != NONE) {
-				auto material = ASSERT_CHECK(materials[part.material]);
-				material_base_name = get_path_filename(material->shader.tag_name);
-			}
-			switch (part.type) {
-				case global_geometry_part_block_new::NotDrawn:
-					set_material("lightmapproxy_no_render");
-					break;
-				case global_geometry_part_block_new::OpaqueNonshadowing:
-					set_material(material_base_name + "__lightmap_noshadowing");
-					break;
-				case global_geometry_part_block_new::OpaqueShadowOnly:
-				case global_geometry_part_block_new::OpaqueShadowCasting:
-				case global_geometry_part_block_new::LightmapOnly:
-					set_material(material_base_name);
-					break;
-				case global_geometry_part_block_new::Transparent:
-					set_material(material_base_name + "__lightmap_transparent");
-					break;
-				default:
-					ASSERT_CHECK(0);
-					break;
-			}
-			for (auto j = part.firstSubpartIndex; j < part.firstSubpartIndex + part.subpartCount; j++) {
-				auto subpart = ASSERT_CHECK(section->subparts[j]);
-				if (subpart->indiceslength < 3) {
-					cout << "subpart " << j << " is corrupt" << endl;
-					return false;
-				}
-
-				auto format_index = [&](int strip_index) -> std::string {
-					auto index = *ASSERT_CHECK(section->stripIndices[strip_index]) + base_vertex;
-					auto index_string = std::to_string(index);
-					return " " + index_string + "/" + index_string + "/" + index_string;
-				};
-
-
-				if (part.flags & part.OverrideTriangleList) {
-					ASSERT_CHECK(subpart->indiceslength % 3 == 0);
-					for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength; i += 3) {
-						lightmap_export << "f"
-							<< format_index(i) << format_index(i + 1) << format_index(i + 2)
-							<< endl;
-					}
-				}
-				else {
-					for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength - 2; i++) {
-						lightmap_export << "f"
-							<< format_index(i) << format_index(i + 1) << format_index(i + 2)
-							<< endl;
-					}
-				}
-			}
-		}
-		base_vertex += section->rawVertices.size;
-		return true;
-	};
 
 	cout << "dumping structure..." << endl;
 
@@ -170,8 +79,6 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		if (render_info->bitmapIndex != NONE)
 			image_mapping << "cluster_" << i << "\t" << render_info->bitmapIndex << endl;
 
-		lightmap_export << "o cluster_" << i << endl;
-		dump_section(cache_data, sbsp->materials);
 		export_collada.AddSectionWithInstanace("cluster_" + std::to_string(i), cache_data);
 	}
 
@@ -191,9 +98,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 		if (render_info->bitmapIndex != NONE)
 			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 
-		lightmap_export << "o " << instance_name.str() << endl;
 		auto section = ASSERT_CHECK(defintion->cacheData[0]);
-		dump_section(section, sbsp->materials, geo_instance->transform);
 		export_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, geo_instance->transform);
 	}
 
@@ -253,8 +158,6 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 
 			std::string name = "scenery_" + get_object_name(palette->name.tag_name, scenary_instance.name);
 
-			lightmap_export << "o " << name << endl;
-
 			auto variant_index = 0;
 			if (variant.is_valid()) {
 				variant_index = model->variants.find_string_id_element(offsetof(model_variant_block, name), variant);
@@ -266,13 +169,13 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			}
 
 			std::vector <const global_geometry_section_struct_block*> sections;
-			auto dump_render_model_permutation = [&](const render_model_permutation_block* permutation) -> bool
+			auto add_permutation = [&](const render_model_permutation_block* permutation) -> bool
 			{
 				auto section_index = permutation->l6SectionIndexhollywood;
 				auto section = ASSERT_CHECK(render_model->sections[section_index]);
 				auto section_data = ASSERT_CHECK(section->sectionData[0]);
 				sections.push_back(&section_data->section);
-				return dump_section(&section_data->section, render_model->materials, transform);
+				return true;
 			};
 
 			bool export_result = false;
@@ -286,7 +189,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 					auto render_permutation_index = render_region->permutations.find_string_id_element(offsetof(render_model_permutation_block, name), first_permutation->permutationName);
 
 					auto permutation = ASSERT_CHECK(render_region->permutations[render_permutation_index]);
-					export_result = dump_render_model_permutation(permutation);
+					export_result = add_permutation(permutation);
 					if (!export_result)
 						break;
 				}
@@ -294,7 +197,7 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			else {
 				for (const auto& region : render_model->regions) {
 					auto permutation = ASSERT_CHECK(region.permutations[0]);
-					export_result = dump_render_model_permutation(permutation);
+					export_result = add_permutation(permutation);
 					if (!export_result)
 						break;
 				}
@@ -312,31 +215,22 @@ static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 			cout << ex.what() << endl;
 		}
 	}
-	
-	// TODO(num0005) make this dump more info once we move to COLLADA
-	cout << "dumping lights..." << endl;
-	for (const auto& light : scenario->lightFixtures) {
-		auto palette = ASSERT_CHECK(scenario->lightFixturesPalette[light.type]);
-		lightmap_export << "o halo_light_fixture_" << get_object_name(palette->name.tag_name, light.name) << endl;
-		set_material("fake_halo_light");
-		auto position = light.objectData.position;
-		lightmap_export << "v " << position.x << " " << position.y << " " << position.z << endl;
-		lightmap_export << "f 1 1 1" << endl;
-	}
-
-	for (const auto& light : scenario->lightVolumes) {
-		auto palette = ASSERT_CHECK(scenario->lightVolumesPalette[light.type]);
-		lightmap_export << "o halo_light_volume_" << get_object_name(palette->name.tag_name, light.name) << endl;
-		set_material("fake_halo_light");
-		auto position = light.objectData.position;
-		lightmap_export << "v " << position.x << " " << position.y << " " << position.z << endl;
-		lightmap_export << "f 1 1 1" << endl;
-	}
 
 	cout << "Saving exported DAE" << endl;
 	export_collada.Write((proxy_directory / (bsp_name + ".DAE")).string());
+	cout << "Done!" << endl;
+}
 
-	wcout << L"Dumped " << base_vertex << L" vertices" << endl;
+static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
+{
+	auto scenario_name = wstring_to_string.to_bytes(argv[0]);
+	auto bsp_name = wstring_to_string.to_bytes(argv[1]);
+	auto proxy_directory = fs::path(argv[2]);
+	try {
+		export_lightmap_mesh(scenario_name, bsp_name, proxy_directory);
+	} catch (const std::exception &ex) { 
+		cout << "Exception occurred: " << ex.what() << endl;
+	}
 }
 
 const s_tool_command_argument lightmap_dump_args[] =

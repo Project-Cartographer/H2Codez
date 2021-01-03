@@ -994,20 +994,27 @@ static const s_tool_command edit_bitmap
 
 static void _cdecl structure_dump_proc(const wchar_t* argv[])
 {
-	auto bsp_name = wstring_to_string.to_bytes(argv[0]);
+	auto bsp_path = wstring_to_string.to_bytes(argv[0]);
 	auto dae_dump_path = wstring_to_string.to_bytes(argv[1]);
-	tags::s_scoped_handle bsp_tag = load_tag_no_processing('sbsp', bsp_name);
+
+	tags::s_scoped_handle bsp_tag = load_tag_no_processing('sbsp', bsp_path);
 	if (!bsp_tag)
 		return;
 	try {
 		auto structure = ASSERT_CHECK(tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp_tag));
 		RenderModel2COLLADA dump(structure->materials, false);
-		for (auto i = 0; i < structure->clusters.size; i++) {
-			auto cluster = ASSERT_CHECK(structure->clusters[i]);
-			auto section = ASSERT_CHECK(cluster->clusterData[0]);
-			auto name = "cluster_" + std::to_string(i);
-			dump.AddSectionWithInstanace(name, section);
-		}
+
+		cout << "Exporting clusters.." << endl;
+
+		std::vector<const global_geometry_section_struct_block*> clusters;
+		for (const auto & cluster : structure->clusters)
+			clusters.push_back(ASSERT_CHECK(cluster.clusterData[0]));
+
+		auto bsp_name = get_path_filename(bsp_path);
+		auto main_geo = dump.AddMutlipleSections(bsp_name, clusters);
+		dump.AddSectionInstance(main_geo, bsp_name);
+
+		cout << "Exporting instances.." << endl;
 
 		std::vector<RenderModel2COLLADA::MESH_ID> instance_meshes;
 		for (auto i = 0; i < structure->instancedGeometriesDefinitions.size; i++) {
@@ -1020,9 +1027,51 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 
 		for (auto i = 0; i < structure->instancedGeometryInstances.size; i++) {
 			auto instance = ASSERT_CHECK(structure->instancedGeometryInstances[i]);
-			auto name = "instance_" + std::to_string(i);
+			auto name = "%instance_" + std::to_string(i);
 
 			dump.AddSectionInstance(instance_meshes[instance->instanceDefinition], name, instance->transform);
+		}
+
+		cout << "Exporting portals.." << endl;
+
+		int portal_index = 0;
+		for (const auto& structure_portal : structure->clusterPortals) {
+			ASSERT_CHECK(structure_portal.vertices.size >= 2);
+
+			COLLADA::Mesh portal_mesh;
+			auto base_trig = portal_mesh.vertices.size();
+			COLLADA::Mesh::Part part;
+			part.material = "%portal";
+
+			size_t index = 0;
+			std::vector<int> indices_left;
+			indices_left.reserve(structure_portal.vertices.size);
+
+			for (const real_point3d& vert : structure_portal.vertices) {
+				portal_mesh.vertices.push_back({ vert.x, vert.y, vert.z });
+				indices_left.push_back(indices_left.size());
+			}
+
+			// taken from https://github.com/Project-Cartographer/H2PC_TagExtraction/blob/39ccb685331a1f651693352247d5412ebb96320a/BlamLib/BlamLib/Render/COLLADA/Export/ColladaExporter.cs#L252
+			for (auto i = 0; i < structure_portal.vertices.size - 2; i++) {
+				COLLADA::Mesh::Triangle triangle;
+				triangle.vertex_list[0] = base_trig + indices_left[index + 0];
+				triangle.vertex_list[1] = base_trig + indices_left[index + 1];
+				triangle.vertex_list[2] = base_trig + indices_left[index + 2];
+
+				indices_left.erase(indices_left.begin() + index + 1); // remove middle element
+
+				if (index + 3 < indices_left.size())
+					index++;
+				else
+					index = 0;
+
+				part.triangles.push_back(triangle);
+			}
+			portal_mesh.parts.push_back(part);
+			auto id = std::to_string(portal_index++);
+			auto portal_mesh_id = dump.GetCollada().AddMesh("portal_mesh_" + id, portal_mesh);
+			dump.AddSectionInstance(portal_mesh_id, "portal_" + id);
 		}
 
 		dump.Write(dae_dump_path);

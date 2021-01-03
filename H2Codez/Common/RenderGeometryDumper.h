@@ -35,7 +35,7 @@ public:
 	/// <param name="name">The name of the mesh</param>
 	/// <param name="sections">The geometry sections</param>
 	/// <returns>ID of the mesh</returns>
-	MESH_ID AddMutlipleSections(const std::string& name, std::vector<const global_geometry_section_struct_block*> sections) {
+	MESH_ID AddMutlipleSections(const std::string& name, const std::vector<const global_geometry_section_struct_block*> &sections) {
 		COLLADA::Mesh mesh;
 		for (auto section : sections)
 			DumpSectionToMesh(mesh, section);
@@ -73,6 +73,15 @@ public:
 	inline void Write(const std::string& path) {
 		_collada.Write(path);
 	}
+
+	/// <summary>
+	/// Exposes the internal COLLADA object;
+	/// </summary>
+	/// <returns>A reference to the COLLADA</returns>
+	inline COLLADA& GetCollada() {
+		return _collada;
+	}
+
 private:
 	void DumpSectionToMesh(COLLADA::Mesh& mesh, const global_geometry_section_struct_block* section);
 

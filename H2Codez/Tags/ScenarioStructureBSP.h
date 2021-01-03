@@ -248,6 +248,28 @@ struct structure_bsp_instanced_geometry_instances_block
 };
 CHECK_STRUCT_SIZE(structure_bsp_instanced_geometry_instances_block, 88);
 
+struct structure_bsp_cluster_portal_block
+{
+	short backCluster;
+	short frontCluster;
+	int planeIndex;
+	real_point3d centroid;
+	float boundingRadius;
+
+	enum Flags : int
+	{
+		AICannotHearThroughThis = 0x1,
+		OneWay = 0x2,
+		Door = 0x4,
+		NoWay = 0x8,
+		OneWayReversed = 0x10,
+		NoOneCanHearThroughThis = 0x20,
+	};
+	Flags flags;
+	tag_block<real_point3d> vertices;
+};
+CHECK_STRUCT_SIZE(structure_bsp_cluster_portal_block, 40);
+
 
 struct scenario_structure_bsp_block
 {	
@@ -311,7 +333,7 @@ struct scenario_structure_bsp_block
 	****************************************/
 	// DataSize(65536)
 	byte_ref clusterData;
-	tag_block_ref clusterPortals;
+	tag_block<structure_bsp_cluster_portal_block> clusterPortals;
 
 	tag_block_ref fogPlanes;
 

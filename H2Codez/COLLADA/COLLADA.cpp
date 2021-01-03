@@ -155,15 +155,9 @@ std::string COLLADA::GetNewUUID() {
 
 void COLLADA::Write(const std::string &path)
 {
-    ptree tree;
-    auto &collada_node = tree.add_child("COLLADA", root);
-    collada_node.add("<xmlattr>.xmlns", "http://www.collada.org/2005/11/COLLADASchema");
-    collada_node.add("<xmlattr>.version", "1.4.1");
-    collada_node.add("<xmlattr>.xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-
     write_xml(
         path,
-        tree,
+        root,
         std::locale(),
         xml_writer_settings<std::string>('\t', 1)
     );

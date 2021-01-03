@@ -103,7 +103,7 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		// todo(num0005) this shouldn't be required
 		auto transform = geo_instance->transform;
 		transform.inverse_rotation();
-		export_collada.AddSectionWithInstanace("instance_" + std::to_string(i), section, transform);
+		export_collada.AddSectionWithInstanace(instance_name.str(), section, transform);
 	}
 
 	image_mapping.close();

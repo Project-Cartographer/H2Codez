@@ -1027,7 +1027,7 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 
 		for (auto i = 0; i < structure->instancedGeometryInstances.size; i++) {
 			auto instance = ASSERT_CHECK(structure->instancedGeometryInstances[i]);
-			auto name = "%instance_" + std::to_string(i);
+			auto name = "%" + std::string(instance->name.get_name());
 
 			// todo(num0005) this shouldn't be required
 			auto transform = instance->transform;

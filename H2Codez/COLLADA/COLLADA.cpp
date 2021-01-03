@@ -14,6 +14,19 @@ using boost::property_tree::xml_writer_make_settings;
 
 COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_source)
 {
+    /*
+    * Sanity checks
+    */
+    for (size_t i = 0; i < mesh_source.texcoord.size(); i++) {
+        if (mesh_source.texcoord[i].size() <= 0)
+            throw std::invalid_argument("texcoord sets can't be zero sized");
+        // size already compared for the last element
+        if (i + 1 >= mesh_source.texcoord.size())
+            continue;
+        if (mesh_source.texcoord[i].size() != mesh_source.texcoord[i + 1].size())
+            throw std::invalid_argument("texcoord sets need to have the same size");
+    }
+
     auto id = GetNewUUID();
     auto &library_geometries = GetGeometries();
     auto &geometry = library_geometries.add("geometry", "");
@@ -38,9 +51,9 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
 
     constexpr std::array<const char*, 2> tex_desc = { "S", "T" };
 
-    boost::optional<ptree&> texcoord_source;
-    if (mesh_source.texcoord.size() > 0)
-        texcoord_source = AddFloatSource(mesh, mesh_source.texcoord, tex_desc, "UVMap");
+    std::vector<std::reference_wrapper<ptree>> texcoord_sources;
+    for (const auto &tex_set : mesh_source.texcoord)
+        texcoord_sources.push_back(AddFloatSource(mesh, tex_set, tex_desc, "UVMap"));
 
     for (const auto &part : mesh_source.parts) {
         auto &triangles = mesh.add("triangles", "");
@@ -62,12 +75,15 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
             normal_input.add("<xmlattr>.semantic", "NORMAL");
         }
 
-        if (texcoord_source) {
+        int tex_offset;
+        for (size_t set_index = 0; set_index < texcoord_sources.size(); set_index++) {
+            if (set_index == 0)
+                tex_offset = offset++;
             auto& tex_input = triangles.add("input", "");
-            SetSource(tex_input, *texcoord_source);
-            tex_input.add("<xmlattr>.offset", offset++);
+            SetSource(tex_input, texcoord_sources[set_index]);
+            tex_input.add("<xmlattr>.offset", tex_offset);
             tex_input.add("<xmlattr>.semantic", "TEXCOORD");
-            tex_input.add("<xmlattr>.set", "0");
+            tex_input.add("<xmlattr>.set", set_index);
         }
 
         std::string data = "";
@@ -76,7 +92,7 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
                 data += " " + std::to_string(triangle.vertex_list[i]);
                 if (normals_source)
                     data += " " + std::to_string(triangle.normal_list[i]);
-                if (texcoord_source)
+                if (texcoord_sources.size() > 0)
                     data += " " + std::to_string(triangle.texcoord_list[i]);
             }
         }

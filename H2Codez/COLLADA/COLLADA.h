@@ -63,7 +63,7 @@ public:
 		/// <summary>
 		/// (Optional) All UV co-ords used in mesh
 		/// </summary>
-		std::vector<FloatElement<2>> texcoord;
+		std::vector<std::vector<FloatElement<2>>> texcoord;
 		struct Triangle {
 			/*
 			* 3 indexes that reference values in the vertices, normal and tex-coord vectors

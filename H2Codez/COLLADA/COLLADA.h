@@ -13,12 +13,10 @@ public:
 
 	COLLADA(const std::string up_axis = "Z_UP")
 	{
-		auto &collada = root.put_child("COLLADA", ptree());
-		collada.add("<xmlattr>.xmlns", "http://www.collada.org/2005/11/COLLADASchema");
-		collada.add("<xmlattr>.version", "1.4.1");
-		collada.add("<xmlattr>.xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-
-		this->collada_root = collada;
+		auto& main_node = GetCOLLADANode();
+		main_node.add("<xmlattr>.xmlns", std::string("http://www.collada.org/2005/11/COLLADASchema"));
+		main_node.add("<xmlattr>.version", "1.4.1");
+		main_node.add("<xmlattr>.xmlns:xsi", std::string("http://www.w3.org/2001/XMLSchema-instance"));
 
 		GetAsset().add("up_axis", up_axis);
 	}
@@ -195,12 +193,20 @@ private:
 		return scene;
 	}
 
-	inline boost::property_tree::ptree& GetOrCreate(const std::string &name) {
-		auto &root = *collada_root;
-		auto found = root.find(name);
-		if (found != root.not_found())
+	inline boost::property_tree::ptree& GetOrCreateHelper(boost::property_tree::ptree& parent, const std::string &name) {
+		auto found = parent.find(name);
+		if (found != parent.not_found())
 			return found->second;
-		return root.add(name, "");
+		return parent.add(name, "");
+	}
+
+	inline boost::property_tree::ptree& GetCOLLADANode() {
+		return GetOrCreateHelper(root, "COLLADA");
+	}
+
+	inline boost::property_tree::ptree& GetOrCreate(const std::string& name) {
+		auto &collada = GetCOLLADANode();
+		return GetOrCreateHelper(collada, name);
 	}
 
 	inline boost::property_tree::ptree& GetGeometries() {
@@ -236,9 +242,6 @@ private:
 		materials_map[name] = id;
 		return id;
 	}
-
-	// root of COLLADA GEO
-	boost::optional<boost::property_tree::ptree&> collada_root;
 
 	// root of the whole XML file
 	boost::property_tree::ptree root;

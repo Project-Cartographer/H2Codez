@@ -12,6 +12,7 @@
 #include "Profile.h"
 #include "RenderDebug.h"
 #include "HaloScript.h"
+#include "PlayerControl.h"
 #include "UIHierarchy.h"
 #include <unordered_set>
 #include <Shellapi.h>
@@ -514,7 +515,8 @@ void H2SapienPatches::Init()
 
 	// Fix wide/narrow string type confusion in hierarchy folder code
 	WritePointer(0x48DB6E + 1, "%ws");
-
+	
+	unit_playtest_patches();
 
 #pragma endregion
 

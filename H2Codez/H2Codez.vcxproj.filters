@@ -353,6 +353,9 @@
     <ClInclude Include="Common\RenderGeometryDumper.h">
       <Filter>Source Files\Common Interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="H2Sapien\PlayerControl.h">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -483,6 +486,9 @@
     </ClCompile>
     <ClCompile Include="Common\RenderGeometryDumper.cpp">
       <Filter>Source Files\Common Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Sapien\PlayerControl.cpp">
+      <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

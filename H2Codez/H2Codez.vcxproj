@@ -151,6 +151,7 @@
     <ClInclude Include="H2Guerilla\template_defintions.h" />
     <ClInclude Include="H2Sapien\Console.h" />
     <ClInclude Include="H2Sapien\HaloScript.h" />
+    <ClInclude Include="H2Sapien\PlayerControl.h" />
     <ClInclude Include="H2Sapien\Profile.h" />
     <ClInclude Include="H2Sapien\RenderDebug.h" />
     <ClInclude Include="H2Sapien\SapienInterface.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="Common\TagInterface.cpp" />
     <ClCompile Include="H2Sapien\Console.cpp" />
     <ClCompile Include="H2Sapien\HaloScript.cpp" />
+    <ClCompile Include="H2Sapien\PlayerControl.cpp" />
     <ClCompile Include="H2Sapien\Profile.cpp" />
     <ClCompile Include="H2Sapien\RenderDebug.cpp" />
     <ClCompile Include="H2Sapien\SapienInterface.cpp" />

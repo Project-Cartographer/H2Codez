@@ -79,11 +79,11 @@ static char __cdecl hs_raw_id_passthrough(unsigned __int16 index)
 		report_out_of_range();
 		return false;
 	}
-	catch (invalid_argument) {
+	catch (std::invalid_argument&) {
 		hs_parser_error(script_node, "invalid " + get_hs_type_string(script_node->value_type) + " ID");
 		return false;
 	}
-	catch (out_of_range)
+	catch (std::out_of_range&)
 	{
 		report_out_of_range();
 		return false;
@@ -120,7 +120,7 @@ static char __cdecl hs_parse_ai(unsigned __int16 script_node_index)
 
 	hs_ai_type ai{};
 
-	if (input_string.find('/') != string::npos) {
+	if (input_string.find('/') != std::string::npos) {
 		std::string squad_name = input_string.substr(0, input_string.find('/'));
 		std::string squad_pos = input_string.substr(input_string.find('/') + 1);
 
@@ -175,7 +175,7 @@ static char __cdecl hs_parse_point_ref(unsigned __int16 script_node_index)
 		return false;
 	}
 
-	if (input_string.find('/') != string::npos) {
+	if (input_string.find('/') != std::string::npos) {
 		std::string point_set = input_string.substr(0, input_string.find('/'));
 		std::string point = input_string.substr(input_string.find('/') + 1);
 

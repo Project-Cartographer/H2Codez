@@ -50,6 +50,7 @@ extern char app_directory[256];
 #pragma region NameSpaces
 
 using std::cout;
+using std::wcout;
 using std::cin;
 using std::endl;
 using std::hex;

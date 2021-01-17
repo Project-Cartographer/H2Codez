@@ -114,7 +114,7 @@ struct blam_tag
 		return !is_null() && !is_none();
 	}
 
-	constexpr bool is_printable() const
+	bool is_printable() const
 	{
 		return isprint(c_data[0]) && isprint(c_data[1]) && isprint(c_data[2]) && isprint(c_data[3]);
 	}
@@ -140,7 +140,10 @@ struct editor_string
 		size_t id;
 	};
 
-	constexpr editor_string() = default;
+	constexpr editor_string() noexcept:
+		id(0)
+	{
+	}
 
 	constexpr editor_string(const char* _string) :
 		string(_string)

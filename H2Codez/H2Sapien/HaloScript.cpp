@@ -14,13 +14,13 @@ void status_dump()
 	ofstream output;
 	std::string temp_file_name = H2CommonPatches::get_temp_name("status.txt");
 
-	output.open(temp_file_name, ios::out);
+	output.open(temp_file_name, std::ios::out);
 	if (output)
 	{
 		auto output_variable = [&](const std::string &name, hs_type type, void *data)
 		{
 			std::string value_as_string = get_value_as_string(data, type);
-			output << setw(60) << name << "    :    " << value_as_string << std::endl;
+			output << std::setw(60) << name << "    :    " << value_as_string << std::endl;
 		};
 
 		output << "=== Built in Globals ===\n" << std::endl;

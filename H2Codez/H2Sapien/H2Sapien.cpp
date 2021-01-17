@@ -101,10 +101,10 @@ INT_PTR CALLBACK CustomDirectorSpeed(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 					WriteValue(0x009AAC60, new_speed);
 					H2SapienConsole::print("speed is now x" + std::to_string(new_speed));
 				}
-				catch (invalid_argument ex) {
+				catch (std::invalid_argument ex) {
 					//MessageBoxA(hwndDlg, "Not a valid number!", "ERROR!", MB_OK | MB_SETFOREGROUND);
 				}
-				catch (out_of_range ex) {
+				catch (std::out_of_range ex) {
 					//MessageBoxA(hwndDlg, "Number out of range!", "ERROR!", MB_OK | MB_SETFOREGROUND);
 				}
 			}

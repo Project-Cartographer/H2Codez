@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <stdexcept>
 
 class SettingError : public std::runtime_error
 {

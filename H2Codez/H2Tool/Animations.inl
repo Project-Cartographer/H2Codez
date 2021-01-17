@@ -162,8 +162,7 @@ s_animation_compiler animation_compiler;
 
 static std::string get_jmad_path(const wchar_t *import_path)
 {
-	std::string import_path_utf8 = wstring_to_string.to_bytes(import_path);
-	return tag_path_from_import_path(import_path_utf8);
+	return tag_path_from_import_path(utf16_to_utf8(import_path));
 }
 
 static void enable_compression_printf()
@@ -233,7 +232,7 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 		case StringEncodingDetector::encoding::utf8:
 		{
 			size_t string_len = file_size - start_offset;
-			std::wstring string = wstring_to_string.from_bytes(data.narrow, &data.narrow[string_len]);
+			std::wstring string = utf8_to_utf16(data.narrow, string_len);
 			set_output_string(string.c_str(), string.length());
 			break;
 		}
@@ -318,8 +317,8 @@ static bool import_lipsync_for_sound_file(file_reference *filo, byte_ref *lipsyn
 
 static void _cdecl import_lipsync_proc(wcstring* arguments)
 {
-	std::string tag_name = wstring_to_string.to_bytes(arguments[0]);
-	std::string lipsync_filename = wstring_to_string.to_bytes(arguments[1]);
+	std::string tag_name = utf16_to_utf8(arguments[0]);
+	std::string lipsync_filename = utf16_to_utf8(arguments[1]);
 
 	tags::s_scoped_handle sound_tag = tags::load_tag('snd!', tag_name, tags::loading_flags::no_post_processing);
 

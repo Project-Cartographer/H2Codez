@@ -26,7 +26,7 @@ static const s_tool_command* import_class_monitor_bitmaps = CAST_PTR(s_tool_comm
 
 static void _cdecl import_model_proc(wcstring* arguments)
 {
-	std::string object_name = wstring_to_string.to_bytes(arguments[0]);
+	std::string object_name = utf16_to_utf8(arguments[0]);
 	wcstring object_type = arguments[1];
 
 	static wcstring object_type_names[] = {

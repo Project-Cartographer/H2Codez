@@ -207,12 +207,12 @@ void H2CommonPatches::dump_loaded_tags(const std::wstring folder)
 		file_reference tag_data;
 		if (LOG_CHECK(tags::get_tag_filo(&tag_data, tag)))
 		{
-			std::wstring tag_path = wstring_to_string.from_bytes(tags::get_name(tag));
+			std::wstring tag_path = utf8_to_utf16(tags::get_name(tag));
 			std::wstring tag_name_path = tag_path + std::wstring(L".")
-				+ wstring_to_string.from_bytes(tags::get_group_definition(tag)->name);
+				+ utf8_to_utf16(tags::get_group_definition(tag)->name);
 
 			std::wstring old_path =  process::GetExeDirectoryWide() + std::wstring(L"\\")
-				+  wstring_to_string.from_bytes(tag_data.path);
+				+ utf8_to_utf16(tag_data.path);
 
 			HANDLE file_handle = CreateFileW(old_path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			FILETIME modified_time;

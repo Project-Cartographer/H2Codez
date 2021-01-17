@@ -130,7 +130,7 @@ struct s_unit_control_data
 };
 CHECK_STRUCT_SIZE(s_unit_control_data, 0x80);
 
-#pragma pop(push)
+#pragma pack(pop)
 
 
 

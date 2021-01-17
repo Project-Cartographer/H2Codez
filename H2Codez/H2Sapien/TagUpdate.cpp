@@ -38,7 +38,7 @@ public:
 	{
 		std::cout << "DIR (" << dir + ") FILE (" + filename + ") has event " << action << std::endl;
 		auto file_ext_pos = filename.find_last_of('.');
-		if (action == FW::Action::Modified && file_ext_pos != string::npos
+		if (action == FW::Action::Modified && file_ext_pos != std::string::npos
 			&& file_ext_pos + 1 < filename.size() && get_global_structure_bsp() != NULL)
 		{
 			std::string file_ext = filename.substr(file_ext_pos + 1);

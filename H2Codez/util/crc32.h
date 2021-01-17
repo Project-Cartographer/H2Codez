@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cstdint>
 
 class crc32
 {
@@ -7,7 +8,7 @@ public:
 	// crc result
 	struct result
 	{
-		uint32_t data = 0xFFFFFFFFu;
+		std::uint32_t data = 0xFFFFFFFFu;
 		result() {}
 
 		template<typename T>

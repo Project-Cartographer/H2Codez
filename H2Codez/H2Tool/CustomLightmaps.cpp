@@ -24,9 +24,9 @@
 #include <codecvt>
 #include <unordered_set>
 #include <direct.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <util/SmartHandle.h>
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 static void export_lightmap_mesh(const std::string &scenario_name, const std::string &bsp_name, const fs::path proxy_directory)
 {
@@ -62,7 +62,7 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 	auto map_material = [&mat_suffix](const std::string& material) -> std::string { return material + mat_suffix; };
 
 	wcout << L"dumping lightmap info to '" << proxy_directory << "'" << endl;
-	std::experimental::filesystem::create_directories(proxy_directory);
+	std::filesystem::create_directories(proxy_directory);
 	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
 	RenderModel2COLLADA export_collada(sbsp->materials, true, map_material);
 
@@ -92,7 +92,7 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		auto geo_instance = ASSERT_CHECK(sbsp->instancedGeometryInstances[i]);
 		auto defintion = ASSERT_CHECK(group->poopDefinitions[geo_instance->instanceDefinition]);
 
-		stringstream instance_name;
+		std::stringstream instance_name;
 		instance_name << "instance_" << i << "_" << geo_instance->name.get_name();
 
 		if (render_info->bitmapIndex != NONE)
@@ -227,8 +227,8 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 
 static void _cdecl lightmap_dump_proc(const wchar_t* argv[])
 {
-	auto scenario_name = wstring_to_string.to_bytes(argv[0]);
-	auto bsp_name = wstring_to_string.to_bytes(argv[1]);
+	auto scenario_name = utf16_to_utf8(argv[0]);
+	auto bsp_name = utf16_to_utf8(argv[1]);
 	auto proxy_directory = fs::path(argv[2]);
 	try {
 		export_lightmap_mesh(scenario_name, bsp_name, proxy_directory);

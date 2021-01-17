@@ -75,7 +75,7 @@ struct {
 static bool number_from_string(const wchar_t *count, size_t &number_out)
 {
 	try {
-		number_out = std::stoul(count, 0, numerical::get_base(wstring_to_string.to_bytes(count)));
+		number_out = std::stoul(count, 0, numerical::get_base(utf16_to_utf8(count)));
 		return true;
 	}
 	catch (const std::exception &e)
@@ -112,7 +112,7 @@ void __cdecl generate_lightmaps_slave(const wchar_t *argv[])
 		printf("Invalid instance count\n");
 		return;
 	}
-	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(wstring_to_string.to_bytes(argv[4])));
+	size_t slave_id = std::stoul(argv[4], 0, numerical::get_base(utf16_to_utf8(argv[4])));
 	printf(" == Instance id: %d == \n", slave_id);
 	*slave_id_ptr = slave_id;
 

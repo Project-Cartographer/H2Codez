@@ -154,7 +154,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	case DLL_PROCESS_DETACH:
 		std::string cmd = GetCommandLineA();
 		if (!g_process_crashed && game.process_type == H2EK::H2Tool 
-				&& cmd.find("pause_after_run") != string::npos) {
+				&& cmd.find("pause_after_run") != std::string::npos) {
 			std::cout << "Press any key labeled enter to exit tool...." << std::endl;
 			std::cin.get();
 		}

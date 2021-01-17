@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-using namespace std;
 
 class Logs
 {
@@ -12,7 +11,7 @@ public:
 
 
 private:
-	ofstream file;
+	std::ofstream file;
 };
 
 namespace Debug

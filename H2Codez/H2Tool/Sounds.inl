@@ -1,3 +1,5 @@
+#include <intrin.h>
+
 /*
     Yelo: Open Sauce SDK
 		Halo 2 (Editing Kit) Edition
@@ -155,7 +157,7 @@ static void _cdecl import_sound_proc(wcstring* arguments)
 
 	file_reference file(0);
 	file.add_directory("data");
-	file.add_directory(wstring_to_string.to_bytes(arguments[0]));
+	file.add_directory(utf16_to_utf8(arguments[0]));
 	import_sound(&file);
 	printf("Import Error: %s\n", import_info->error);
 

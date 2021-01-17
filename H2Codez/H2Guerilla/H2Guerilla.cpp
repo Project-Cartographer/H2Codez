@@ -2,6 +2,7 @@
 #include "H2Guerilla.h"
 #include "util\Patches.h"
 #include "util\process.h"
+#include "util\string_util.h"
 #include "Resources\resource.h"
 #include "Common\H2EKCommon.h"
 #include "Common\FiloInterface.h"
@@ -153,7 +154,7 @@ void __fastcall guerilla_wide_string__append__hook(int this_ptr, int _, int this
 	std::wstring wide_string;
 	size_t string_max_len = (string_end - string_start) + 1;
 
-	wide_string = wstring_to_string.from_bytes(string_start, string_start + strnlen_s(string_start, string_max_len));
+	wide_string = utf8_to_utf16(string_start, strnlen_s(string_start, string_max_len));
 
 	const wchar_t *new_string_start = wide_string.c_str();
 	const wchar_t *new_string_end = new_string_start + wide_string.size() - 1;

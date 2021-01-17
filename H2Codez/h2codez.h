@@ -104,5 +104,3 @@ inline DWORD SwitchAddessByMode(DWORD tool, DWORD sapien, DWORD guerilla)
 {
 	return SwitchByMode(tool, sapien, guerilla);
 }
-
-extern std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;

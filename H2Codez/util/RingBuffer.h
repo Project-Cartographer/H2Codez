@@ -101,7 +101,7 @@ public:
 		{
 			_full = false;
 		} else {
-			_next_index = min(_next_index, size - 1);
+			_next_index = std::min(_next_index, size - 1);
 			if (_next_index == (size - 1))
 				_full = true;
 		}

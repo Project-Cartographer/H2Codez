@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <unordered_set>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
+#include <filesystem>
+namespace fs = std::filesystem;
 
 inline void find_all_files_with_extension(std::unordered_set<std::string> &files, const char* folder, const char* ext)
 {

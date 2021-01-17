@@ -226,3 +226,35 @@ inline std::string tag_path_from_import_path(const std::string &import_path)
 		output_path = std::string(path_start, ext_offset);
 	return duplicate_last_path_element(output_path);
 }
+
+/// <summary>
+/// Converts a UTF-8 encoded string to UTF-16
+/// </summary>
+/// <param name="source"></param>
+/// <param name="source_len"></param>
+/// <returns></returns>
+std::wstring utf8_to_utf16(const char* source, size_t source_len);
+inline std::wstring utf8_to_utf16(const char* source)
+{
+	return utf8_to_utf16(source, strlen(source));
+}
+inline std::wstring utf8_to_utf16(const std::string &source)
+{
+	return utf8_to_utf16(source.c_str(), source.size());
+}
+
+/// <summary>
+/// Converts a UTF-16 encoded string to UTF-8
+/// </summary>
+/// <param name="source"></param>
+/// <param name="source_len"></param>
+/// <returns></returns>
+std::string utf16_to_utf8(const wchar_t* source, size_t source_len);
+inline std::string utf16_to_utf8(const wchar_t* source)
+{
+	return utf16_to_utf8(source, wcslen(source));
+}
+inline std::string utf8_to_utf16(const std::wstring& source)
+{
+	return utf16_to_utf8(source.c_str(), source.size());
+}

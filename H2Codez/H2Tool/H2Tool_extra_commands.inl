@@ -24,8 +24,8 @@
 #include <codecvt>
 #include <unordered_set>
 #include <direct.h>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #pragma region util
 
@@ -88,7 +88,7 @@ inline static bool prompt_user_wait(const std::string& message)
 */
 static std::string filesystem_path_to_tag_path(const wchar_t *fs_path, blam_tag *tag_type = nullptr)
 {
-	std::string path = tolower(wstring_to_string.to_bytes(fs_path));
+	std::string path = tolower(utf16_to_utf8(fs_path));
 	file_info info = get_file_path_info(path);
 
 	if (tag_type)
@@ -183,7 +183,7 @@ inline static bool should_filter_command(size_t id)
 
 static s_tool_h2dev_command *get_tag_utility_command_by_name(wcstring W_function_name)
 {
-	std::string function_name = tolower(wstring_to_string.to_bytes(W_function_name));
+	std::string function_name = tolower(utf16_to_utf8(W_function_name));
 	s_tool_h2dev_command *command_table = get_tag_utility_command_table();
 	for (int i = 0; i <= extra_commands_count; i++) {
 		s_tool_h2dev_command *current_cmd = &command_table[i];
@@ -280,7 +280,7 @@ static void _cdecl h2dev_extra_commands_proc(const wchar_t ** arguments)
 			printf("\n  See extra-commands-list");
 		} else {
 			printf("\nRunning command %ws\n", command_name);
-			std::string tag_name = wstring_to_string.to_bytes(command_parameter);
+			std::string tag_name = utf16_to_utf8(command_parameter);
 			execute_utility_command(cmd, tag_name);
 		}
 	}
@@ -438,8 +438,8 @@ static void _cdecl TAG_RENDER_MODEL_IMPORT_PROC(file_reference *file, const datu
 		std::string file_name = FiloInterface::get_path_info(file, PATH_FLAGS::FILE_NAME);
 
 		remove_last_part_of_path(&path[0]);
-		std::wstring wide_path = wstring_to_string.from_bytes(path.c_str());
-		std::wstring wide_name = wstring_to_string.from_bytes(file_name);
+		std::wstring wide_path = utf8_to_utf16(path.c_str());
+		std::wstring wide_name = utf8_to_utf16(file_name);
 
 		bool imported = import_structure_for_render_model(wide_path, wide_name, file_type == "jms");
 
@@ -646,7 +646,7 @@ static bool _cdecl h2pc_import_render_model_proc(wcstring* arguments)
 
 	if (tool_build_paths(arguments[0], "render", file_reference, out_path, &wide_tag_path))
 	{
-		std::string tag_path = wstring_to_string.to_bytes(wide_tag_path);
+		std::string tag_path = utf16_to_utf8(wide_tag_path);
 		tags::s_scoped_handle tag = tags::load_tag('mode', tag_path, 7);
 		if (tag.is_valid())
 		{
@@ -956,10 +956,10 @@ static void free_bitmap_data_block(bitmap_data_block* bitmap) {
 
 static void _cdecl edit_bitmap_proc(const wchar_t* argv[])
 {
-	auto bitmap_name = wstring_to_string.to_bytes(argv[0]);
+	auto bitmap_name = utf16_to_utf8(argv[0]);
 	tags::s_scoped_handle bitmap_tag = ASSERT_CHECK(tags::load_tag('bitm', bitmap_name, tags::for_editor));
 	auto bitmap = ASSERT_CHECK(tags::get_tag<bitmap_block>('bitm', bitmap_tag));
-	auto file_ref = file_reference(wstring_to_string.to_bytes(argv[2]), false);
+	auto file_ref = file_reference(utf16_to_utf8(argv[2]), false);
 	bitmap_data_block *out = nullptr;
 	auto error = create_bitmap_from_other_image(&file_ref, &out);
 	if (error) {
@@ -994,8 +994,8 @@ static const s_tool_command edit_bitmap
 
 static void _cdecl structure_dump_proc(const wchar_t* argv[])
 {
-	auto bsp_path = wstring_to_string.to_bytes(argv[0]);
-	auto dae_dump_path = wstring_to_string.to_bytes(argv[1]);
+	auto bsp_path = utf16_to_utf8(argv[0]);
+	auto dae_dump_path = utf16_to_utf8(argv[1]);
 
 	tags::s_scoped_handle bsp_tag = load_tag_no_processing('sbsp', bsp_path);
 	if (!bsp_tag)

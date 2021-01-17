@@ -669,7 +669,7 @@ void H2ToolPatches::Initialize()
 	//enable_campaign_tags_sharing(); // Still crashes might need tag changes.
 
 	std::string cmd = GetCommandLineA();
-	if (cmd.find("shared_tag_removal") != string::npos)
+	if (cmd.find("shared_tag_removal") != std::string::npos)
 		apply_shared_tag_removal_scheme();
 
 	// hooks the last step after all preprocessing and before packing

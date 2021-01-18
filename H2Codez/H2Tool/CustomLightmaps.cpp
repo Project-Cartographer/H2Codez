@@ -47,10 +47,17 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		}
 	}
 
+	if (!bsp_tag_path || !lightmap_tag_path)
+	{
+		cout << "BSP '" << bsp_name << "' not found!" << endl;
+		return;
+	}
+	ASSERT_CHECK(bsp_tag_path && lightmap_tag_path);
+
 	tags::s_scoped_handle lightmap_tag = load_tag_no_processing('ltmp', lightmap_tag_path);
 	tags::s_scoped_handle bsp_tag = load_tag_no_processing('sbsp', bsp_tag_path);
 	if (!lightmap_tag || !bsp_tag) {
-		cout << "no such bsp or lightmap missing!" << endl;
+		cout << "no such BSP or lightmap missing!" << endl;
 		return;
 	}
 	auto lightmap = ASSERT_CHECK(tags::get_tag<scenario_structure_lightmap_block>('ltmp', lightmap_tag));
@@ -58,20 +65,16 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 	auto group = ASSERT_CHECK(lightmap->lightmapGroups[0]);
 
 
-	std::string mat_suffix;
-	auto map_material = [&mat_suffix](const std::string& material) -> std::string { return material + mat_suffix; };
-
 	wcout << L"dumping lightmap info to '" << proxy_directory << "'" << endl;
 	std::filesystem::create_directories(proxy_directory);
 	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
-	RenderModel2COLLADA export_collada(sbsp->materials, true, map_material);
+	RenderModel2COLLADA export_collada(sbsp->materials, true);
 
 	std::string current_material;
 
 	cout << "dumping structure..." << endl;
 
 	for (auto i = 0; i < group->clusters.size; i++) {
-		mat_suffix = "_lightmapproxy_c_" + std::to_string(i);
 		auto render_info = ASSERT_CHECK(group->clusterRenderInfo[i]);
 		auto cluster = ASSERT_CHECK(group->clusters[i]);
 		auto cache_data = ASSERT_CHECK(cluster->cacheData[0]);
@@ -86,11 +89,19 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 
 	ASSERT_CHECK(sbsp->instancedGeometryInstances.size == group->instanceRenderInfo.size);
 	ASSERT_CHECK(sbsp->instancedGeometriesDefinitions.size == group->poopDefinitions.size);
+
+	std::vector<RenderModel2COLLADA::MESH_ID> instance_geo_to_mesh;
+	for (auto i = 0; i < group->poopDefinitions.size; i++) {
+		auto defintion = ASSERT_CHECK(group->poopDefinitions[i]);
+		auto section = ASSERT_CHECK(defintion->cacheData[0]);
+		instance_geo_to_mesh.push_back(
+			std::move(export_collada.AddSection("instance_geo_" + std::to_string(i), section))
+		);
+	}
+
 	for (auto i = 0; i < sbsp->instancedGeometryInstances.size; i++) {
-		mat_suffix = "_lightmapproxy_i_" + std::to_string(i);
 		auto render_info = ASSERT_CHECK(group->instanceRenderInfo[i]);
 		auto geo_instance = ASSERT_CHECK(sbsp->instancedGeometryInstances[i]);
-		auto defintion = ASSERT_CHECK(group->poopDefinitions[geo_instance->instanceDefinition]);
 
 		std::stringstream instance_name;
 		instance_name << "instance_" << i << "_" << geo_instance->name.get_name();
@@ -98,18 +109,16 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		if (render_info->bitmapIndex != NONE)
 			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
 
-		auto section = ASSERT_CHECK(defintion->cacheData[0]);
-
 		// todo(num0005) this shouldn't be required
 		auto transform = geo_instance->transform;
 		transform.inverse_rotation();
-		export_collada.AddSectionWithInstanace(instance_name.str(), section, transform);
+		auto mesh = instance_geo_to_mesh[geo_instance->instanceDefinition];
+		export_collada.AddSectionInstance(mesh, instance_name.str(), transform);
 	}
 
 	image_mapping.close();
 	lightmap_tag.clear();
 	bsp_tag.clear();
-	mat_suffix = "";
 
 	cout << "dumping scenery..." << endl;
 

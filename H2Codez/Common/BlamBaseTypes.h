@@ -155,7 +155,7 @@ struct editor_string
 	{
 	}
 
-	bool is_string_id()
+	bool is_string_id() noexcept
 	{
 		// assume it's a c-string if it's less than a hardcoded max id
 		return id <= max_string_id;
@@ -180,7 +180,7 @@ struct editor_string
 #pragma optimize( "", on )
 
 	// is string not set or empty
-	bool is_empty()
+	bool is_empty() noexcept
 	{
 		return id == empty_string_id || string == NULL;
 	}
@@ -226,9 +226,9 @@ struct colour_rgba
 	float green = 1.0f;
 	float blue = 1.0f;
 
-	colour_rgba() {}
+	constexpr colour_rgba() noexcept {}
 
-	colour_rgba(float _alpha, float _red, float _green, float _blue) :
+	constexpr colour_rgba(float _alpha, float _red, float _green, float _blue) :
 		alpha(_alpha),
 		red(_red),
 		green(_green),
@@ -255,15 +255,15 @@ struct colour_rgb
 	float green = 1.0f;
 	float blue = 1.0f;
 
-	colour_rgb() {}
+	constexpr colour_rgb() {}
 
-	colour_rgb(float _red, float _green, float _blue) :
+	constexpr colour_rgb(float _red, float _green, float _blue) :
 		red(_red),
 		green(_green),
 		blue(_blue)
 	{}
 
-	colour_rgb(const colour_rgba &colour) :
+	constexpr colour_rgb(const colour_rgba &colour) :
 		red(colour.red),
 		green(colour.green),
 		blue(colour.blue)

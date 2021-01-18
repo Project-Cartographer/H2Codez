@@ -142,7 +142,7 @@ COLLADA::InstanceHandle COLLADA::NodeAddInstanceGeo(NodeHandle node, const std::
 std::string COLLADA::GetNewUUID() {
 
     UUID uuid;
-    UuidCreate(&uuid);
+    ASSERT_CHECK(UuidCreate(&uuid) == RPC_S_OK);
     RPC_CSTR uuid_string;
     std::string result;
     if (ASSERT_CHECK(UuidToStringA(&uuid, &uuid_string) == RPC_S_OK)) {

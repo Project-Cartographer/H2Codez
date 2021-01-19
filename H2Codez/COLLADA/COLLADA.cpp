@@ -87,7 +87,7 @@ COLLADA::MeshHandle COLLADA::AddMesh(const std::string& name, const Mesh& mesh_s
         }
 
         std::string data = "";
-        for (auto triangle : part.triangles) {
+        for (const auto &triangle : part.triangles) {
             for (int i = 0; i < 3; i++) {
                 data += " " + std::to_string(triangle.vertex_list[i]);
                 if (normals_source)

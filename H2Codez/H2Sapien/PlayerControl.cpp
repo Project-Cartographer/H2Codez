@@ -56,7 +56,7 @@ CHECK_STRUCT_SIZE(s_player_actions, 0x60);
 struct s_player_control
 {
 	datum slave_object;
-	int field_4;
+	int control_flag;
 	int field_8;
 	int field_C;
 	int field_10;
@@ -86,8 +86,8 @@ CHECK_STRUCT_SIZE(s_player_control_globals_data, 0x2D8);
 
 struct s_unit_control_data
 {
-	DWORD string_idx;
-	signed __int16 field_4;
+	string_id animation_state;
+	unsigned __int16 aiming_speed;
 	unsigned __int16 weapon_set_identifier;
 	unsigned __int8 field_8;
 	unsigned __int8 field_9;
@@ -110,8 +110,8 @@ struct s_unit_control_data
 	void clear()
 	{
 		memset(this, 0, sizeof(s_unit_control_data));
-		string_idx = 0x6000086;
-		field_4 = 0;
+		animation_state = 0x6000086;
+		aiming_speed = 0;
 		weapon_set_identifier = 0xFFFF;
 		field_8 = 0xFF;
 		field_9 = 0xFF;
@@ -135,6 +135,7 @@ CHECK_STRUCT_SIZE(s_unit_control_data, 0x80);
 
 
 static bool input_enabled = false;
+s_player_control_globals_data* player_controls;
 
 void __cdecl player_submit_control(unsigned __int16 datum_index, s_player_actions *action)
 {
@@ -153,7 +154,7 @@ void __cdecl player_submit_control(unsigned __int16 datum_index, s_player_action
 	control.clear();
 
 	control.control_flag1 = action->control_flag1;
-	control.control_flag0 = action->control_flag0;
+	control.control_flag0 = player_controls->local_players[0].control_flag;
 	control.desired_aiming = aiming_vector;
 	control.desired_looking = aiming_vector;
 
@@ -170,8 +171,8 @@ void __cdecl player_submit_control(unsigned __int16 datum_index, s_player_action
 	control.grenade_index = action->grenade_index;
 	control.weapon_set_identifier = action->weapon_set_identifier;
 
-	control.string_idx = 0x6000086; //stringid_COMBAT
-	control.field_4 = 0;
+	control.animation_state = 0x6000086; //stringid_COMBAT
+	control.aiming_speed = 0;
 
 	memcpy(&control.target_info, &action->target_info, sizeof(s_aim_assist_targeting_result));
 	//flag test offset 0x138
@@ -190,7 +191,7 @@ void player_update()
 
 	if (!player_input_enabled_impl())return;
 
-	s_player_control_globals_data* player_controls = (s_player_control_globals_data*)(*(DWORD*)(0xB1FB78));
+	player_controls = (s_player_control_globals_data*)(*(DWORD*)(0xB1FB78));
 	auto player_control_entry = player_controls->local_players[0];//hardcoded for local player 0 
 
 	if (player_control_entry.slave_object.is_valid())

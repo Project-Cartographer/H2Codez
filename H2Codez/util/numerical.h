@@ -9,6 +9,9 @@ namespace numerical {
 #define CHECK_INTEGRAL_TYPE(type)\
 	static_assert(std::is_integral<type>::value, "IntegralType must be integral")
 
+#define CHECK_FLOAT_TYPE(type)\
+	static_assert(std::is_floating_point<type>::value, "FloatingType must be floating")
+
 	enum radix
 	{
 		octal = 8,
@@ -125,6 +128,26 @@ namespace numerical {
 	inline NumericType add(NumericType a, NumericType b) {
 		CHECK_NUMERICAL_TYPE(NumericType);
 		return a + b;
+	}
+
+	// adapted from https://stackoverflow.com/a/15012792
+
+	/// <summary>
+	/// Check if two floating point values are approximately equal
+	/// </summary>
+	/// <typeparam name="FloatingType"></typeparam>
+	/// <param name="a">A number</param>
+	/// <param name="b">Another number</param>
+	/// <param name="limit">How close the numbers have to be</param>
+	/// <returns></returns>
+	template <typename FloatingType>
+	inline bool approx_eq(const FloatingType a, const FloatingType b, const FloatingType limit = FloatingType(0.0))
+	{
+		CHECK_FLOAT_TYPE(FloatingType);
+
+		FloatingType maxXYOne = std::max({FloatingType(1.0), std::abs(a) , std::abs(b) });
+
+		return std::abs(a - b) <= std::max(std::numeric_limits<FloatingType>::epsilon() * maxXYOne, limit);
 	}
 
 #undef CHECK_NUMERICAL_TYPE

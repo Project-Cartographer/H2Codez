@@ -23,7 +23,7 @@ void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_ge
 		mesh.texcoord[0].push_back({ vert.texcoord.x, -vert.texcoord.y });
 
 		if (_is_lightmap)
-			mesh.texcoord[1].push_back({ vert.primaryLightmapTexcoord.x, -vert.primaryLightmapTexcoord.y });
+			mesh.texcoord[1].push_back({ vert.primaryLightmapTexcoord.x, 1 - vert.primaryLightmapTexcoord.y });
 	}
 	// Add parts from this section
 	for (const auto& part : section->parts) {

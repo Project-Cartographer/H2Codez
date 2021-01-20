@@ -57,7 +57,7 @@ namespace HaloLightmapUV {
 
 	class File {
 		std::vector<Entry> _entries;
-		std::locale _locale = std::locale("en_US.UTF8");
+		std::locale _locale = std::locale("C");
 
 		/// <summary>
 		/// Helper function for reading a quoted string. Throws an exception if it can't read the string correctly
@@ -88,8 +88,11 @@ namespace HaloLightmapUV {
 		void Read(const std::string &path) {
 			_entries.clear();
 			
-			std::ifstream ifs(path);
+			std::ifstream ifs;
+			ifs.exceptions(std::ifstream::failbit);
 			ifs.imbue(_locale);
+
+			ifs.open(path, std::ios::in);
 			
 			unsigned int entry_count;
 			ifs >> entry_count;

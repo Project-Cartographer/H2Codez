@@ -28,8 +28,7 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader/tiny_obj_loader.h>
+#include <HaloLightmapUV\HaloLightmapUV.hpp>
 
 static void export_lightmap_mesh(const std::string &scenario_name, const std::string &bsp_name, const fs::path proxy_directory)
 {
@@ -268,98 +267,48 @@ const s_tool_command lightmap_dump
 
 static void import_lightmap_mesh_uvs(const std::string& lightmap_path, const std::string& uv_source) {
 
-	tinyobj::ObjReader source;
-	if (!source.ParseFromFile(uv_source)) {
-		cout << "unable to read source file. Error message: " << source.Error() << endl;
-		return;
-	}
+	HaloLightmapUV::File source(uv_source);
 
 	tags::s_scoped_handle lightmap_tag = load_tag_no_processing('ltmp', lightmap_path);
 	if (!lightmap_tag)
 		return;
 	//*
-	std::unordered_map<int, tinyobj::shape_t> instance_meshes;
-	std::unordered_map<int, tinyobj::shape_t> cluster_meshes;
-	for (const auto &shape : source.GetShapes()) {
+	std::unordered_map<int, HaloLightmapUV::Entry> instance_meshes;
+	std::unordered_map<int, HaloLightmapUV::Entry> cluster_meshes;
+	for (const auto &entry : source.GetEntries()) {
 		const char *instance_prefix = "instance_geo_";
 		const char *cluster_prefix = "cluster_";
 
 		const auto get_index = [&](const char* prefix) -> long {
-			const std::string number = shape.name.substr(strlen(prefix));
+			const std::string number = entry.name.substr(strlen(prefix));
 			return std::atol(number.c_str());
 		};
 
-		if (shape.name.rfind(instance_prefix, 0) == 0)
-			instance_meshes[get_index(instance_prefix)] = shape;
-		else if (shape.name.rfind(cluster_prefix, 0) == 0)
-			cluster_meshes[get_index(cluster_prefix)] = shape;
+		if (entry.name.rfind(instance_prefix, 0) == 0)
+			instance_meshes[get_index(instance_prefix)] = entry;
+		else if (entry.name.rfind(cluster_prefix, 0) == 0)
+			cluster_meshes[get_index(cluster_prefix)] = entry;
 	}
 	auto lightmap = ASSERT_CHECK(tags::get_tag<scenario_structure_lightmap_block>('ltmp', lightmap_tag));
 	auto group = ASSERT_CHECK(lightmap->lightmapGroups[0]);
 
-	const auto verify_and_copy_uvs = [&source](const tinyobj::mesh_t& source_mesh, global_geometry_section_struct_block* target_mesh) {
-		std::unordered_map<short, tinyobj::index_t> point_map;
-		auto object_attributes = source.GetAttrib();
-		size_t face_index = 0;
-		size_t point_index = 0;
-		for (const auto& part : target_mesh->parts) {
-			for (auto j = part.firstSubpartIndex; j < part.firstSubpartIndex + part.subpartCount; j++) {
-				auto subpart = ASSERT_CHECK(target_mesh->subparts[j]);
-				if (subpart->indiceslength < 3) {
-					throw std::invalid_argument("Corrupt subpart!");
-				}
+	const auto verify_and_copy_uvs = [&source](const HaloLightmapUV::Entry& source_mesh, global_geometry_section_struct_block* target_mesh) {
 
-				auto set_point_map_entry = [&](int halo_strip_index, size_t obj_index) {
-					short halo_point_index = *ASSERT_CHECK(target_mesh->stripIndices[halo_strip_index]);
-					tinyobj::index_t object_point_data = source_mesh.indices[obj_index];
-					auto entry = point_map.find(halo_point_index);
-					if (entry == point_map.end())
-						point_map[halo_point_index] = object_point_data;
-					else if (object_point_data.vertex_index != entry->second.vertex_index ||
-							object_point_data.texcoord_index != entry->second.texcoord_index)
-						throw std::invalid_argument("Unable to map points");
-				};
-
-				const auto process_triangle = [&](int first_strip_index) {
-					const int face_length = source_mesh.num_face_vertices[face_index++];
-					if (face_length != 3)
-						throw std::invalid_argument("Faces not triangulated!");
-					for (size_t i = 0; i < face_length; i++)
-						set_point_map_entry(first_strip_index + i, point_index + i);
-					point_index += face_length;
-				};
-
-				if (part.flags & part.OverrideTriangleList) {
-					ASSERT_CHECK(subpart->indiceslength % 3 == 0);
-					for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength; i += 3)
-						process_triangle(i);
-				}
-				else {
-					for (auto i = subpart->indicesstartindex; i < subpart->indicesstartindex + subpart->indiceslength - 2; i++)
-						process_triangle(i);
-				}
-			}
-		}
-
-		if (point_map.size() != target_mesh->rawVertices.size)
-			throw std::invalid_argument("OBJ point count doesn't match section");
+		if (source_mesh.vertices.size() != target_mesh->rawVertices.size)
+			throw std::invalid_argument("LUV point count doesn't match section");
 		// if we got this far the data should be largely good
-		for (const auto& point : point_map) {
-			auto raw_vert = ASSERT_CHECK(target_mesh->rawVertices[point.first]);
+		for (int i = 0; i < target_mesh->rawVertices.size; i++) {
+			auto raw_vert = ASSERT_CHECK(target_mesh->rawVertices[i]);
+			const HaloLightmapUV::Vertex source_vert = source_mesh.vertices.at(i);
 
-			const float obj_pos_x = object_attributes.vertices[point.second.vertex_index * 3 + 0];
-			const float obj_pos_z = object_attributes.vertices[point.second.vertex_index * 3 + 1];
-			const float obj_pos_y = -object_attributes.vertices[point.second.vertex_index * 3 + 2];
-
-			if (!numerical::approx_eq(obj_pos_x, raw_vert->position.x, 0.001f) ||
-					!numerical::approx_eq(obj_pos_y, raw_vert->position.y, 0.001f) ||
-					!numerical::approx_eq(obj_pos_z, raw_vert->position.z, 0.001f)) {
-				throw std::invalid_argument("Points in OBJ and section don't match");
+			if (!numerical::approx_eq(source_vert.location.x, raw_vert->position.x, 0.001f) ||
+					!numerical::approx_eq(source_vert.location.y, raw_vert->position.y, 0.001f) ||
+					!numerical::approx_eq(source_vert.location.z, raw_vert->position.z, 0.001f)) {
+				throw std::invalid_argument("Points in LUV and section don't match");
 			}
-
-			const float obj_texcoord_x = object_attributes.texcoords[point.second.texcoord_index * 2];
-			const float obj_texcoord_y = -object_attributes.texcoords[point.second.texcoord_index * 2 + 1];
-			raw_vert->primaryLightmapTexcoord = real_point2d{ obj_texcoord_x , obj_texcoord_y };
+			raw_vert->primaryLightmapTexcoord = real_point2d {
+				source_vert.texture_coord.x , source_vert.texture_coord.y 
+			};
 		}
 	};
 
@@ -368,26 +317,26 @@ static void import_lightmap_mesh_uvs(const std::string& lightmap_path, const std
 		auto data = ASSERT_CHECK(cluster->cacheData[0]);
 		try {
 			auto source_data = cluster_meshes.at(i);
-			verify_and_copy_uvs(source_data.mesh, data);
+			verify_and_copy_uvs(source_data, data);
 		} catch (const std::out_of_range&) {
 			cout << "Cluster '" << i << "' isn't in the UV source" << endl;
 			continue;
 		}
 	}
-/*
+
 	for (auto i = 0; i < group->poopDefinitions.size; i++) {
 		auto instance = ASSERT_CHECK(group->poopDefinitions[i]);
 		auto data = ASSERT_CHECK(instance->cacheData[0]);
 		try {
 			auto source_data = instance_meshes.at(i);
-			verify_and_copy_uvs(source_data.mesh, data);
+			verify_and_copy_uvs(source_data, data);
 		}
 		catch (const std::out_of_range&) {
 			cout << "Instance '" << i << "' isn't in the UV source" << endl;
 			continue;
 		}
 	}
-	*/
+
 	// assuming we got this far all the data should be good
 	cout << "New lightmap UV imported, saving to disk" << endl;
 	tags::save_tag(lightmap_tag);

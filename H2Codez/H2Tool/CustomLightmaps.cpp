@@ -2,9 +2,6 @@
 #include "H2ToolLibrary.inl"
 #include "Common/FiloInterface.h"
 #include "Common/TagInterface.h"
-#include "Common/Pathfinding.h"
-#include "Common/tag_group_names.h"
-#include "Common/TagDumper.h"
 #include "Common/H2EKCommon.h"
 #include "Common/RenderGeometryDumper.h"
 #include "util/string_util.h"
@@ -14,17 +11,12 @@
 #include "Tags/ScenarioTag.h"
 #include "Tags/Scenery.h"
 #include "Tags/Model.h"
-#include "Tags/Bitmap.h"
 #include "Tags/RenderModel.h"
 #include "util/Patches.h"
-#include "util/process.h"
 #include "util/FileSystem.h"
 #include "util/SmartHandle.h"
 #include <iostream>
 #include <sstream>
-#include <codecvt>
-#include <unordered_set>
-#include <direct.h>
 #include <filesystem>
 namespace fs = std::filesystem;
 

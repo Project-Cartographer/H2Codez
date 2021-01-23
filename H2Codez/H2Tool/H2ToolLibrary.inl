@@ -34,14 +34,6 @@ static bool __cdecl TAG_FILE_CHECK_IS_WRITEABLE(datum TAG, bool suppress_error =
 	return TAG_FILE_CHECK_READ_ONLY_ACCESS(TAG.as_long(), suppress_error);
 }
 
-static int __cdecl TAG_BLOCK_GET_ELEMENT_WITH_SIZE(void* FIELD_OFFSET, int ELEMENT_INDEX, int FIELD_SIZE)
-{
-	typedef int(_cdecl* TAG_BLOCK_GET_ELEMENT_WITH_SIZE)(void*, int, int);
-	static TAG_BLOCK_GET_ELEMENT_WITH_SIZE TAG_BLOCK_GET_ELEMENT_WITH_SIZE_ = CAST_PTR(TAG_BLOCK_GET_ELEMENT_WITH_SIZE, 0x532970);
-
-	return TAG_BLOCK_GET_ELEMENT_WITH_SIZE_(FIELD_OFFSET, ELEMENT_INDEX, FIELD_SIZE);
-}
-
 typedef bool (*find_tag_comparison)(void *element, void *find_data);
 
 static char __cdecl load_model_object_definations_(tag_block_ref *IMPORT_INFO_OFFSET_, void *proc_definations_, __int16 proc_count, file_reference& FILE_REF_)

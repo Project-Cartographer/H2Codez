@@ -11,6 +11,7 @@
 #include "Tags/ScenarioTag.h"
 #include "Tags/Scenery.h"
 #include "Tags/Model.h"
+#include "Tags/Bitmap.h"
 #include "Tags/RenderModel.h"
 #include "util/Patches.h"
 #include "util/FileSystem.h"
@@ -29,6 +30,11 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		cout << "no such scenario tag!" << endl;
 		return;
 	}
+
+	/*
+	* Find the BSP
+	*/
+
 	auto scenario = ASSERT_CHECK(tags::get_tag<scnr_tag>('scnr', scenario_tag));
 	const char* bsp_tag_path = nullptr, * lightmap_tag_path = nullptr;
 	int bsp_index = NONE;
@@ -54,17 +60,43 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		cout << "no such BSP or lightmap missing!" << endl;
 		return;
 	}
+
 	auto lightmap = ASSERT_CHECK(tags::get_tag<scenario_structure_lightmap_block>('ltmp', lightmap_tag));
 	auto sbsp = ASSERT_CHECK(tags::get_tag<scenario_structure_bsp_block>('sbsp', bsp_tag));
 	auto group = ASSERT_CHECK(lightmap->lightmapGroups[0]);
 
+	/*
+	* Get the lightmap bitmap sizes, this is useful for the blender script
+	*/
+
+	cout << "acquiring bitmap sizes..." << endl;
+	std::vector<std::pair<short, short>> bitmap_sizes;
+	{
+		tags::s_scoped_handle bitmap_tag = load_tag_no_processing('bitm', group->bitmapGroup.tag_name);
+		if (!bitmap_tag) {
+			cout << "Bitmap is needed to get dimensions for lightmaps" << endl;
+			return;
+		}
+		auto bitmap_group = tags::get_tag<bitmap_block>('bitm', bitmap_tag);
+		for (auto& bitmap_data : bitmap_group->bitmaps)
+			bitmap_sizes.push_back({ bitmap_data.heightPixels, bitmap_data.widthPixels });
+	}
 
 	wcout << L"dumping lightmap info to '" << proxy_directory << "'" << endl;
 	std::filesystem::create_directories(proxy_directory);
 	ofstream image_mapping(proxy_directory / (bsp_name + ".bitmap_mapping.txt"));
 	RenderModel2COLLADA export_collada(sbsp->materials, true);
 
-	std::string current_material;
+	/// <summary>
+	/// Add lightmap UV image info for a mesh
+	/// </summary>
+	/// <param name="name">The name of the mesh</param>
+	/// <param name="bitmap_index">The bitmap index assigned to it</param>
+	const auto update_image_mapping = [&](const std::string& name, short bitmap_index) {
+		if (bitmap_index != NONE)
+			image_mapping << name << '\t' << bitmap_index << '\t'
+			<< bitmap_sizes[bitmap_index].first << '\t' << bitmap_sizes[bitmap_index].second << endl;
+	};
 
 	cout << "dumping structure..." << endl;
 
@@ -73,8 +105,7 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		auto cluster = ASSERT_CHECK(group->clusters[i]);
 		auto cache_data = ASSERT_CHECK(cluster->cacheData[0]);
 
-		if (render_info->bitmapIndex != NONE)
-			image_mapping << "cluster_" << i << "\t" << render_info->bitmapIndex << endl;
+		update_image_mapping("cluster_" + std::to_string(i), render_info->bitmapIndex);
 
 		export_collada.AddSectionWithInstanace("cluster_" + std::to_string(i), cache_data);
 	}
@@ -100,8 +131,7 @@ static void export_lightmap_mesh(const std::string &scenario_name, const std::st
 		std::stringstream instance_name;
 		instance_name << "instance_" << i << "_" << geo_instance->name.get_name();
 
-		if (render_info->bitmapIndex != NONE)
-			image_mapping << instance_name.str() << "\t" << render_info->bitmapIndex << endl;
+		update_image_mapping(instance_name.str(), render_info->bitmapIndex);
 
 		// todo(num0005) this shouldn't be required
 		auto transform = geo_instance->transform;

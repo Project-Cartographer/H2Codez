@@ -644,7 +644,8 @@ void H2ToolPatches::Initialize()
 		 << L"Built on " __DATE__ " at " __TIME__ << std::endl;
 
 	downgrade_structure_import_size_Check();
-	Increase_structure_bsp_geometry_check();
+	if (conf.getBoolean("enable_broken_patches"))
+		Increase_structure_bsp_geometry_check();
 	AddExtraCommands();
 	unlock_other_scenario_types_compiling();
 	render_model_import_unlock();

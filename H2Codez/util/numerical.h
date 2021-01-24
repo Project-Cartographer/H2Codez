@@ -151,4 +151,6 @@ namespace numerical {
 	}
 
 #undef CHECK_NUMERICAL_TYPE
+#undef CHECK_INTEGRAL_TYPE
+#undef CHECK_FLOAT_TYPE
 }

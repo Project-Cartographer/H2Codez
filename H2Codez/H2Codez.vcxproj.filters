@@ -81,6 +81,9 @@
     <None Include="H2Tool\H2ToolLibrary.inl">
       <Filter>Source Files\Interfaces\H2Tool</Filter>
     </None>
+    <None Include="H2Tool\Bitmap.inl">
+      <Filter>Source Files\Interfaces\H2Tool</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

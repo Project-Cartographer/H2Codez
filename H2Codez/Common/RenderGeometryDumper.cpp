@@ -6,7 +6,7 @@ void RenderModel2COLLADA::DumpSectionToMesh(COLLADA::Mesh& mesh, const global_ge
 	if (section->rawVertices.size == 0)
 		return;
 
-	// step texcoords if needed
+	// init texcoords if needed
 	if (mesh.texcoord.size() == 0) {
 		mesh.texcoord.resize(_is_lightmap ? 2 : 1);
 	}

@@ -84,10 +84,6 @@ void H2ToolPatches::Increase_structure_import_size_Check()
 	//increasing the 20 MB File Import Check
 	DWORD new_size = 0x1400000 * TOOL_INCREASE_FACTOR; ///671.08864 MB
 	WriteValue(0x41F836 + 4, new_size);
-
-	// push <max file size>
-	// TODO: check this
-	// WriteValue(0x589183 + 1, new_size);
 }
 void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 {

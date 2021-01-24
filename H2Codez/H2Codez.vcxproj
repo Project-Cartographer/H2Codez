@@ -123,6 +123,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="H2Tool\Animations.inl" />
+    <None Include="H2Tool\Bitmap.inl" />
     <None Include="H2Tool\H2ToolLibrary.inl" />
     <None Include="H2Tool\H2Tool_extra_commands.inl" />
     <None Include="H2Tool\LostToolCommands.inl" />

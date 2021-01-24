@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "H2tool.h"
+#include "Bitmap.inl"
 #include "H2ToolLibrary.inl"
 #include "LightMapping.h"
 #include "Common/RenderGeometryDumper.h"
@@ -927,32 +928,6 @@ static const s_tool_command dump_as_xml
 	ARRAYSIZE(dump_as_xml_args),
 	true
 };
-
-
-static const wchar_t* __cdecl create_bitmap_from_other_image(file_reference* file, bitmap_data_block** bitmap_out)
-{
-	typedef const wchar_t* __cdecl create_bitmap_from_other_image(file_reference* a1, bitmap_data_block** a2);
-	auto impl = reinterpret_cast<create_bitmap_from_other_image*>(0x4E7840);
-	return impl(file, bitmap_out);
-}
-
-static void bitmap_insert_at_index(bitmap_block* bitmap_tag, int index, bitmap_data_block* new_bitmap) {
-	typedef void __cdecl bitmap_insert_at_index(bitmap_block* bitmap_tag, int index, bitmap_data_block* new_bitmap);
-	auto impl = reinterpret_cast<bitmap_insert_at_index*>(0x53A7D0);
-	impl(bitmap_tag, index, new_bitmap);
-}
-
-static void bitmap_remove_by_index(bitmap_block* bitmap, signed int index) {
-	typedef void __cdecl bitmap_remove_by_index(bitmap_block* bitmap, signed int index);
-	auto impl = reinterpret_cast<bitmap_remove_by_index*>(0x53A5B0);
-	impl(bitmap, index);
-}
-
-static void free_bitmap_data_block(bitmap_data_block* bitmap) {
-	typedef void __cdecl free_bitmap_data_block(bitmap_data_block* a1);
-	auto impl = reinterpret_cast<free_bitmap_data_block*>(0x71E5D0);
-	impl(bitmap);
-}
 
 static void _cdecl edit_bitmap_proc(const wchar_t* argv[])
 {

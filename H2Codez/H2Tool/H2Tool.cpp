@@ -67,23 +67,11 @@ int __cdecl s_tool_command_compare(void *, const void* lhs, const void* rhs)
 }
 
 #pragma region structure_import Tweeks
-void H2ToolPatches::Increase_structure_import_size_Check()
+void H2ToolPatches::downgrade_structure_import_size_Check()
 {
-	//if ( FileSize.LowPart > 0x1400000 && !FileSize.HighPart )
-	 ///1400000h =  20971520 BYTES ~ 20 MB
-
-/*
-.text:0041F836 C90 cmp     dword ptr [esp+0C90h+FileSize], 1400000h ; Compare Two Operands <-Change This Size
-.text:0041F83E C90 jbe     loc_41F8D9                      ; Jump if Below or Equal (CF=1 | ZF=1)
-.text:0041F83E
-.text:0041F844 C90 cmp     dword ptr [esp+0C90h+FileSize+4], ebx ; Compare Two Operands
-.text:0041F848 C90 jnz     loc_41F8D9 
-*/
-
-
-	//increasing the 20 MB File Import Check
-	DWORD new_size = 0x1400000 * TOOL_INCREASE_FACTOR; ///671.08864 MB
-	WriteValue(0x41F836 + 4, new_size);
+	// .text:0041F855 88 5C 24 16                             mov     [esp+0C90h+file_checks_good], bl
+	// patch out the code that set file_checks_good to false when over the 20 MiB limit
+	NopFill(0x41F855, 4);
 }
 void H2ToolPatches::structure_bsp_geometry_collision_check_increase()
 {
@@ -655,7 +643,7 @@ void H2ToolPatches::Initialize()
 	wcout << L"H2Toolz version: " << version << std::endl
 		 << L"Built on " __DATE__ " at " __TIME__ << std::endl;
 
-	Increase_structure_import_size_Check();
+	downgrade_structure_import_size_Check();
 	Increase_structure_bsp_geometry_check();
 	AddExtraCommands();
 	unlock_other_scenario_types_compiling();

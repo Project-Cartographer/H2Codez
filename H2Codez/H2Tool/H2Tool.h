@@ -93,7 +93,7 @@ namespace H2ToolPatches
 	void render_model_import_unlock();
 	void remove_bsp_version_check();
 
-	void Increase_structure_import_size_Check();
+	void downgrade_structure_import_size_Check();
 	void Increase_structure_bsp_geometry_check();
 
 	void structure_bsp_geometry_2D_check_increase();

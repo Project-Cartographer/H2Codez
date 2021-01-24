@@ -71,6 +71,8 @@ int WINAPI LoadStringW_Hook(HINSTANCE hInstance, UINT uID, LPWSTR lpBuffer, int 
 			return set_string(L"%*s pitch range '%hs'\n");
 		case 0xF41u:
 			return set_string(L"%*s permutation '%hs'\n");
+		case 0x1457u:
+			return set_string(L"%s is larger than 20 MiB, which exceeds engine limitations. Import may fail without warning.");
 	}
 	return LoadStringW_Orginal(hInstance, uID, lpBuffer, cchBufferMax);
 }

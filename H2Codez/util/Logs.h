@@ -42,15 +42,19 @@ inline void log_verify_output(const char *expression, const char *func_name, con
 	}
 }
 
+extern bool g_assert_failed;
 template <typename T>
 FORCEINLINE T verify_output(T output, const char *expression, const char *func_name, const char* file, const int line, bool fatal)
 {
 	if (!output) {
 		log_verify_output(expression, func_name, file, line);
 		if (fatal) {
-			if (IsDebuggerPresent())
+			if (IsDebuggerPresent() || is_debug_build()) {
 				__debugbreak();
-			exit(-1);
+			} else {
+				g_assert_failed = true;
+				DbgRaiseAssertionFailure();
+			}
 		}
 	}
 	return output;

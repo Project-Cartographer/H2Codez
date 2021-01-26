@@ -8,3 +8,4 @@ namespace Debug {
 }
 
 extern bool g_process_crashed;
+extern bool g_assert_failed;

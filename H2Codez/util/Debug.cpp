@@ -11,6 +11,7 @@
 using namespace Debug;
 
 extern bool g_process_crashed = false;
+extern bool g_assert_failed = false;
 const wchar_t g_version_data[] = L"H2codez version: " version;
 
 LPTOP_LEVEL_EXCEPTION_FILTER expection_filter = nullptr;
@@ -94,7 +95,9 @@ LONG WINAPI Debug::On_UnhandledException(struct _EXCEPTION_POINTERS* ExceptionIn
 
 		CloseHandle(dump_file);
 
-		std::string message = "H2EK has encountered a fatal error and needs to exit,\n"
+		std::string error_type = g_assert_failed ? "an internal fatal error" : "a fatal error";
+
+		std::string message = "H2EK has encountered " + error_type + " and needs to exit,\n"
 			" a crash dump has been saved to '" + dump_file_name + "',\n"
 			"please note the path if you want to report the issue, as the file may be necessary.";
 		MessageBoxA(NULL, message.c_str(), "Crash!", 0);

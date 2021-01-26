@@ -1022,6 +1022,22 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 			COLLADA::Mesh::Part part;
 			part.material = "+portal";
 
+			if (structure_portal.flags & structure_portal.AICannotHearThroughThis)
+				part.material += '&';
+
+			if (structure_portal.flags & structure_portal.NoOneCanHearThroughThis)
+				part.material += '}';
+
+			if (structure_portal.flags & structure_portal.Door)
+				part.material += '|';
+
+			if (structure_portal.flags & structure_portal.OneWay || 
+					structure_portal.flags & structure_portal.OneWayReversed) // just a guess
+				part.material += '<';
+
+			if (structure_portal.flags & structure_portal.NoWay)
+				part.material += '~';
+
 			size_t index = 0;
 			std::vector<int> indices_left;
 			indices_left.reserve(structure_portal.vertices.size);
@@ -1033,6 +1049,7 @@ static void _cdecl structure_dump_proc(const wchar_t* argv[])
 
 			// taken from https://github.com/Project-Cartographer/H2PC_TagExtraction/blob/39ccb685331a1f651693352247d5412ebb96320a/BlamLib/BlamLib/Render/COLLADA/Export/ColladaExporter.cs#L252
 			for (auto i = 0; i < structure_portal.vertices.size - 2; i++) {
+				// todo: calculate the normals so one-way works correctly
 				COLLADA::Mesh::Triangle triangle;
 				triangle.vertex_list[0] = base_trig + indices_left[index + 0];
 				triangle.vertex_list[1] = base_trig + indices_left[index + 1];

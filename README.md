@@ -44,15 +44,12 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * Some misc changes and fixes.
 
 ## Installation
-* __Install Microsoft .net framework 4.__
-* __Install the mapping toolkit from the DVD.__
-* __[Download the launcher.](https://ci.appveyor.com/api/projects/num0005/h2-toolkit-launcher/artifacts/Launcher/bin/Release/H2CodezLauncher.exe
-)__
-* __Copy the launcher to the mapping toolkit install directory (optional).__
-* __Run the launcher, elevate to admin privledges if prompted.__
+* Apply the [patches](https://github.com/Project-Cartographer/H2Codez/tree/H2OS_EK/Patches) using bspatch.
+* Download the latest build of h2codez from [releases](https://github.com/Project-Cartographer/H2Codez/releases)
+* (optional) Install the [Osoyoos launcher](https://github.com/num0005/Osoyoos-Launcher) so you don't need to use the command line.
 
 ## Contributing ##
-Contributions are welcome, MSVC 2015 is currently used to build release DLLs, and is therefore the recommended IDE.
+Contributions are welcome, MSVC 2019 is currently used to build release DLLs, and is therefore the recommended IDE.
 If you are not sure what you want to work on take a look at the [bug tracker](https://github.com/Project-Cartographer/H2Codez/issues).
 ### Compiling ###
 * Clone and build the MSVC solution, if the toolkit is installed in an unusual location you might need to change the output directory.

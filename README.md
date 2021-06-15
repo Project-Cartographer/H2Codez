@@ -52,7 +52,7 @@ fix bugs/crashes, and add new features or re-add removed ones.
 * __Run the launcher, elevate to admin privledges if prompted.__
 
 ## Contributing ##
-Contributions are welcome, MSVC 2015 is currently used to build release DLLs, and is therefore the recommended IDE.
+Contributions are welcome, MSVC 2019 with build tools is currently used to build release DLLs, and is therefore the recommended IDE.
 If you are not sure what you want to work on take a look at the [bug tracker](https://github.com/Project-Cartographer/H2Codez/issues).
 ### Compiling ###
 * Clone and build the MSVC solution, if the toolkit is installed in an unusual location you might need to change the output directory.

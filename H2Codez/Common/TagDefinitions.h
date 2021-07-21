@@ -146,6 +146,7 @@ struct data_ref_def
 	size_t alignment_bit;
 	size_t max_size;
 };
+CHECK_STRUCT_SIZE(data_ref_def, 4*4);
 
 struct tag_block_defintions;
 struct tag_struct_defintion
@@ -158,7 +159,7 @@ struct tag_struct_defintion
 	blam_tag tag2;
 	size_t unk3;
 };
-
+CHECK_STRUCT_SIZE(tag_struct_defintion, 7 * 4);
 
 struct s_tag_field_set_version_upgrade_arguments {
 	size_t set_index;
@@ -167,6 +168,8 @@ struct s_tag_field_set_version_upgrade_arguments {
 	size_t set_size;
 	void* address;
 };
+CHECK_STRUCT_SIZE(s_tag_field_set_version_upgrade_arguments, 5 * 4);
+
 typedef bool (__cdecl* proc_tag_field_set_version_upgrade)(
 	s_tag_field_set_version_upgrade_arguments _old,
 	s_tag_field_set_version_upgrade_arguments _new
@@ -180,6 +183,7 @@ struct s_tag_field_set_version
 	size_t padding;
 	size_t size_of; // set to -1 when unused, else set to a value to override the field-set's calculated size_of
 };
+CHECK_STRUCT_SIZE(s_tag_field_set_version, 5 * 4);
 
 struct s_tag_field_set_runtime_data
 {
@@ -225,6 +229,7 @@ struct tag_block_defintions
 	void *new_proc;
 	void *dispose_element_proc;
 };
+CHECK_STRUCT_SIZE(tag_block_defintions, 13 * 4);
 
 typedef bool (__cdecl* proc_tag_group_postprocess)(INT16 tag_index, bool for_editor);
 typedef bool (__cdecl* proc_tag_group_postprocess_for_sync)(INT16 tag_index, void* cache_file_writer);

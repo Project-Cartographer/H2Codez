@@ -205,6 +205,7 @@
     <ClInclude Include="HaloScript\hs_global_variable.h" />
     <ClInclude Include="HaloScript\hs_opcodes.h" />
     <ClInclude Include="HaloScript\hs_types.h" />
+    <ClInclude Include="util\FastString.h" />
     <ClInclude Include="util\FileSystem.h" />
     <ClInclude Include="util\FileWatcher.h" />
     <ClInclude Include="util\Logs.h" />
@@ -223,6 +224,7 @@
     <ClInclude Include="util\StringEndianess.h" />
     <ClInclude Include="util\string_util.h" />
     <ClInclude Include="util\Time.h" />
+    <ClInclude Include="util\XMLWriter.h" />
     <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>

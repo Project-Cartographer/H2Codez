@@ -180,23 +180,26 @@ static void enable_compression_printf()
 		PatchCall(addr, printf);
 }
 
-// this is ugly af
-template<bool is_lipsync>
-wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
+
+template<bool fake_length, size_t extra_length = 0>
+static inline wchar_t *read_file_and_convert_encoding(const char* type, file_reference *file, DWORD *size_out)
 {
+	LOG_FUNC("In hooked file read call!");
 	wchar_t *output_data = nullptr;
 	*size_out = NONE;
 	auto set_output_string = [&](const wchar_t *string, size_t len)
 	{
-		size_t string_len = len + 1; // add a trailing '\0'
+		size_t string_len = len + 1 + extra_length; // add a trailing '\0' and extra length
 
 		output_data = HEK_DEBUG_NEW(wchar_t, string_len);
-		if (!is_lipsync)
+		std::memset(output_data, 0, sizeof(wchar_t) * string_len);
+
+		if (!fake_length)
 			*size_out = string_len * sizeof(wchar_t);
 		else
 			*size_out = string_len;
 
-		wcsncpy_s(output_data, (len + 1), string, len);
+		wcsncpy_s(output_data, string_len, string, len);
 	};
 
 	DWORD file_size = 0;
@@ -237,12 +240,23 @@ wchar_t *__cdecl read_animation_file(file_reference *file, DWORD *size_out)
 			break;
 		}
 		default:
-			cout << "Unknown animation file encoding" << endl;
+			cout << "Unknown " << type << " file encoding" << endl;
 			break;
 	}
 
 	delete[] file_data;
 	return output_data;
+}
+
+template<bool lipsync_hack>
+static wchar_t* __cdecl read_animation_file(file_reference* file, DWORD* size_out)
+{
+	return read_file_and_convert_encoding<lipsync_hack, 0>(lipsync_hack ? "lipsync animation" : "animation", file, size_out);
+}
+
+static wchar_t* __cdecl read_JMS_file(file_reference* file, DWORD* size_out, DWORD extra_length)
+{
+	return read_file_and_convert_encoding<false, 1>("JMS (Jointed Model Skeleton)", file, size_out);
 }
 
 void H2ToolPatches::fix_import_animations()
@@ -257,6 +271,8 @@ void H2ToolPatches::fix_import_animations()
 	// fixes file format
 	PatchCall(0x495EE9, read_animation_file<false>); // JMA animations
 	PatchCall(0x4962CC, read_animation_file<true>); // lipsync track animations
+
+	PatchCall(0x4264B7, read_JMS_file); // JMS
 
 	WritePointer(0x415DFF + 1, "%ws"); // fix node name formating for JMH
 

@@ -359,6 +359,12 @@
     <ClInclude Include="H2Sapien\PlayerControl.h">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClInclude>
+    <ClInclude Include="util\FastString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\XMLWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

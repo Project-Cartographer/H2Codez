@@ -50,7 +50,7 @@ private:
 		std::fill_n(std::ostream_iterator<char>(_stream), indent_level + additional, '\t');
 	}
 
-	inline void start_element(const FastString &element, std::optional <std::map<FastString, FastString>> attributes, bool self_closing) {
+	inline void start_element(const FastString &element, std::optional<std::map<FastString, FastString>> attributes, bool self_closing) {
 
 		write_indent();
 

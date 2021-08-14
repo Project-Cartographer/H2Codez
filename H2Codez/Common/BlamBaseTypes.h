@@ -124,6 +124,11 @@ struct blam_tag
 		return this->as_int() == other.as_int();
 	}
 
+	constexpr bool operator!=(const blam_tag& other) const
+	{
+		return !(operator==(other));
+	}
+
 	constexpr static blam_tag null()
 	{
 		return blam_tag(0xFFFFFFFF);

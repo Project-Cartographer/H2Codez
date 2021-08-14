@@ -594,7 +594,31 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 
 					if (ASSERT_CHECK(section->sectionData.size == 1) && LOG_CHECK(cluster->clusterData.size == 1))
 					{
-						// copy data from the cluster to the section
+						ASSERT_CHECK(render_model->materials.size <= 0x100);
+						ASSERT_CHECK(sbsp->materials.size <= 0x100);
+
+						// copy materials or map them to existing ones
+						// there are at most 0x100 materials per section (hopefully less)
+						short material_map[0x100] = {};
+						
+						for (short i = 0; i < sbsp->materials.size; i++)
+						{
+							const global_geometry_material_block* bsp_material = sbsp->materials[i];
+
+							int32_t found = render_model->materials.find_element(
+								[bsp_material](const global_geometry_material_block* block) -> bool {
+									return *block == *bsp_material;
+								}
+							);
+
+							int32_t material_index = found == NONE ? render_model->materials.add(bsp_material) : found;
+
+							ASSERT_CHECK(material_index <= 0x100);
+							material_map[i] = static_cast<short>(material_index);
+						}
+
+
+						// copy the remaining data from the cluster to the section
 
 						auto *section_data = section->sectionData[0];
 						auto *cluster_data = cluster->clusterData[0];
@@ -606,12 +630,9 @@ static bool _cdecl h2pc_generate_render_model(datum tag, file_reference& FILE_RE
 						copy_block(stripIndices);
 						copy_block(vertexBuffers);
 #undef copy_block
-						// fix materials index
+						// map material index to new one
 						for (auto& part : section_data->section.parts)
-							part.material += static_cast<short>(render_model->materials.size);
-
-						// copy over materials for this BSP
-						tags::copy_block(&sbsp->materials, &render_model->materials);
+							part.material = material_map[part.material];
 
 						// add node map entry
 						tags::resize_block(&section_data->nodeMap, 1);

@@ -279,6 +279,14 @@ struct global_geometry_material_property_block
 	Type type;
 	short intValue;
 	float realValue;
+
+	bool operator==(const global_geometry_material_property_block& other) {
+		return memcmp(this, &other, sizeof(global_geometry_material_property_block)) == 0;
+	}
+
+	bool operator!=(const global_geometry_material_property_block& other) {
+		return !operator==(other);
+	}
 };
 CHECK_STRUCT_SIZE(global_geometry_material_property_block, 8);
 
@@ -294,6 +302,24 @@ struct global_geometry_material_block
 	byte padding81[4];
 	byte breakableSurfaceIndex;
 	byte padding82[3];
+
+	bool operator==(const global_geometry_material_block& other) const
+	{
+		if (oldShader != other.oldShader)
+			return false;
+		if (shader != other.shader)
+			return false;
+		if (breakableSurfaceIndex != other.breakableSurfaceIndex)
+			return false;
+
+		if (properties.size != other.properties.size)
+			return false;
+		for (int i = 0; i < properties.size; i++)
+			if (*properties[i] != *other.properties[i])
+				return false;
+
+		return true;
+	}
 };
 CHECK_STRUCT_SIZE(global_geometry_material_block, 52);
 

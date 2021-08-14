@@ -230,6 +230,7 @@
   <ItemGroup>
     <ClCompile Include="COLLADA\COLLADA.cpp" />
     <ClCompile Include="Common\AssemblyLayoutGenerator.cpp" />
+    <ClCompile Include="Common\BasicTagTypes.cpp" />
     <ClCompile Include="Common\Cache.cpp" />
     <ClCompile Include="Common\HaloScript.cpp" />
     <ClCompile Include="Common\Pathfinding.cpp" />

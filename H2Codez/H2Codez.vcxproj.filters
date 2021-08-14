@@ -499,6 +499,9 @@
     <ClCompile Include="H2Sapien\PlayerControl.cpp">
       <Filter>Source Files\Patches\H2Sapien</Filter>
     </ClCompile>
+    <ClCompile Include="Common\BasicTagTypes.cpp">
+      <Filter>Source Files\Common Interfaces\Tags</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\H2Sapien.rc">

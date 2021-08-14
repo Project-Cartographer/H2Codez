@@ -12,6 +12,23 @@ struct tag_reference
 	const char *tag_name;
 	int field_8;
 	datum tag_index;
+
+	bool operator==(const tag_reference& other) const {
+		if (tag_type != other.tag_type)
+			return false;
+		if (strcmp(tag_name, other.tag_name) == 0)
+			return true;
+
+		// maybe sometimes different names could result in the same tag getting loaded? not sure
+		if (tag_index == NONE)
+			return false; // ignore false positives from two unloadable tags
+
+		return tag_index == other.tag_index;
+	}
+
+	bool operator!=(const tag_reference& other) const {
+		return !operator==(other);
+	}
 };
 CHECK_STRUCT_SIZE(tag_reference, 16);
 
@@ -20,6 +37,9 @@ template<typename T>
 struct tag_block;
 
 typedef tag_block<void> tag_block_ref;
+
+// I hate this, but I don't feel like refactoring
+int32_t tag_block_add_impl(tag_block_ref* block);
 
 template <typename T = void>
 struct tag_block
@@ -36,6 +56,14 @@ struct tag_block
 	tag_block_ref *operator&()
 	{
 		return get_ref();
+	}
+
+	int32_t add() {
+		return tag_block_add_impl(get_ref());
+	}
+
+	int32_t add(const T *value) {
+		return add_impl(value);
 	}
 
 	bool is_valid() const
@@ -144,6 +172,22 @@ private:
 		size_t element_size = defination->latest->size;
 		uint8_t *data_char = reinterpret_cast<uint8_t*>(this->data);
 		return &data_char[element_size * idx];
+	}
+
+	template<typename T1>
+	int32_t add_impl(const T1* value) {
+		int32_t new_index = add();
+		if (new_index == NONE)
+			return NONE;
+
+		*get_element(new_index) = *(T*)value;
+
+		return new_index;
+	}
+
+	template<>
+	int32_t add_impl(const void* value) {
+		ASSERT_CHECK(false && "add(T *value) is not supported for tag_block_ref");
 	}
 };
 CHECK_STRUCT_SIZE(tag_block<void>, 12);
